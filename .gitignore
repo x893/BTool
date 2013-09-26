@@ -88,3 +88,6 @@ Thumbs.db
 
 # Folder config file
 Desktop.ini
+*.vshost.exe
+*.vshost.exe.config
+*.vshost.exe.manifest
