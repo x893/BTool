@@ -92,4 +92,4 @@ Desktop.ini
 *.vshost.exe.config
 *.vshost.exe.manifest
 
-bin/
+[Bb]in/*
