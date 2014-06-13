@@ -1,2746 +1,2945 @@
-﻿namespace BTool
+﻿using BTool.Properties;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.IO.Ports;
+using System.Threading;
+using System.Windows.Forms;
+using TI.Toolbox;
+
+namespace BTool
 {
-    using BTool.Properties;
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Drawing;
-    using System.IO.Ports;
-    using System.Runtime.CompilerServices;
-    using System.Threading;
-    using System.Windows.Forms;
-
-    public class DeviceForm : Form
+	public class DeviceForm : Form
+	{
+		public static string moduleName = "DeviceForm";
+		private MsgBox msgBox = new MsgBox();
+		private int[] EventTimeout = new int[4]
     {
-        public BTool.HCICmds.ATTCmds.ATT_ErrorRsp ATT_ErrorRsp = new BTool.HCICmds.ATTCmds.ATT_ErrorRsp();
-        public BTool.HCICmds.ATTCmds.ATT_ExchangeMTUReq ATT_ExchangeMTUReq = new BTool.HCICmds.ATTCmds.ATT_ExchangeMTUReq();
-        public BTool.HCICmds.ATTCmds.ATT_ExchangeMTURsp ATT_ExchangeMTURsp = new BTool.HCICmds.ATTCmds.ATT_ExchangeMTURsp();
-        public BTool.HCICmds.ATTCmds.ATT_ExecuteWriteReq ATT_ExecuteWriteReq = new BTool.HCICmds.ATTCmds.ATT_ExecuteWriteReq();
-        public BTool.HCICmds.ATTCmds.ATT_ExecuteWriteRsp ATT_ExecuteWriteRsp = new BTool.HCICmds.ATTCmds.ATT_ExecuteWriteRsp();
-        public BTool.HCICmds.ATTCmds.ATT_FindByTypeValueReq ATT_FindByTypeValueReq = new BTool.HCICmds.ATTCmds.ATT_FindByTypeValueReq();
-        public BTool.HCICmds.ATTCmds.ATT_FindByTypeValueRsp ATT_FindByTypeValueRsp = new BTool.HCICmds.ATTCmds.ATT_FindByTypeValueRsp();
-        public BTool.HCICmds.ATTCmds.ATT_FindInfoReq ATT_FindInfoReq = new BTool.HCICmds.ATTCmds.ATT_FindInfoReq();
-        public BTool.HCICmds.ATTCmds.ATT_FindInfoRsp ATT_FindInfoRsp = new BTool.HCICmds.ATTCmds.ATT_FindInfoRsp();
-        public BTool.HCICmds.ATTCmds.ATT_HandleValueConfirmation ATT_HandleValueConfirmation = new BTool.HCICmds.ATTCmds.ATT_HandleValueConfirmation();
-        public BTool.HCICmds.ATTCmds.ATT_HandleValueIndication ATT_HandleValueIndication = new BTool.HCICmds.ATTCmds.ATT_HandleValueIndication();
-        public BTool.HCICmds.ATTCmds.ATT_HandleValueNotification ATT_HandleValueNotification = new BTool.HCICmds.ATTCmds.ATT_HandleValueNotification();
-        public BTool.HCICmds.ATTCmds.ATT_PrepareWriteReq ATT_PrepareWriteReq = new BTool.HCICmds.ATTCmds.ATT_PrepareWriteReq();
-        public BTool.HCICmds.ATTCmds.ATT_PrepareWriteRsp ATT_PrepareWriteRsp = new BTool.HCICmds.ATTCmds.ATT_PrepareWriteRsp();
-        public BTool.HCICmds.ATTCmds.ATT_ReadBlobReq ATT_ReadBlobReq = new BTool.HCICmds.ATTCmds.ATT_ReadBlobReq();
-        public BTool.HCICmds.ATTCmds.ATT_ReadBlobRsp ATT_ReadBlobRsp = new BTool.HCICmds.ATTCmds.ATT_ReadBlobRsp();
-        public BTool.HCICmds.ATTCmds.ATT_ReadByGrpTypeReq ATT_ReadByGrpTypeReq = new BTool.HCICmds.ATTCmds.ATT_ReadByGrpTypeReq();
-        public BTool.HCICmds.ATTCmds.ATT_ReadByGrpTypeRsp ATT_ReadByGrpTypeRsp = new BTool.HCICmds.ATTCmds.ATT_ReadByGrpTypeRsp();
-        public BTool.HCICmds.ATTCmds.ATT_ReadByTypeReq ATT_ReadByTypeReq = new BTool.HCICmds.ATTCmds.ATT_ReadByTypeReq();
-        public BTool.HCICmds.ATTCmds.ATT_ReadByTypeRsp ATT_ReadByTypeRsp = new BTool.HCICmds.ATTCmds.ATT_ReadByTypeRsp();
-        public BTool.HCICmds.ATTCmds.ATT_ReadMultiReq ATT_ReadMultiReq = new BTool.HCICmds.ATTCmds.ATT_ReadMultiReq();
-        public BTool.HCICmds.ATTCmds.ATT_ReadMultiRsp ATT_ReadMultiRsp = new BTool.HCICmds.ATTCmds.ATT_ReadMultiRsp();
-        public BTool.HCICmds.ATTCmds.ATT_ReadReq ATT_ReadReq = new BTool.HCICmds.ATTCmds.ATT_ReadReq();
-        public BTool.HCICmds.ATTCmds.ATT_ReadRsp ATT_ReadRsp = new BTool.HCICmds.ATTCmds.ATT_ReadRsp();
-        public BTool.HCICmds.ATTCmds.ATT_WriteReq ATT_WriteReq = new BTool.HCICmds.ATTCmds.ATT_WriteReq();
-        public BTool.HCICmds.ATTCmds.ATT_WriteRsp ATT_WriteRsp = new BTool.HCICmds.ATTCmds.ATT_WriteRsp();
-        public AttrData attrData = new AttrData();
-        private AttributesForm attributesForm;
-        public string BDAddressStr = "";
-        private CommManager commMgr = new CommManager();
-        private CommParser commParser = new CommParser();
-        private CommSelectForm commSelectForm;
-        private IContainer components;
-        private ConnectInfo connectInfo = new ConnectInfo();
-        public List<ConnectInfo> Connections = new List<ConnectInfo>();
-        public GAPGetConnectionParams ConnParamState;
-        private DataUtils dataUtils = new DataUtils();
-        private bool DeviceStarted;
-        public DeviceInfo devInfo = new DeviceInfo();
-        public DeviceTabsForm devTabsForm;
-        private DeviceFormUtils devUtils = new DeviceFormUtils();
-        public ConnectInfo disconnectInfo = new ConnectInfo();
-        private DisplayCmdUtils dspCmdUtils = new DisplayCmdUtils();
-        private Mutex dspMsgMutex = new Mutex();
-        private DisplayTxCmds dspTxCmds = new DisplayTxCmds();
-        private System.Windows.Forms.Timer establishTimer;
-        private int[] EventTimeout = new int[] { 0x2710, 0x124f8, 0x7530, 0xc350 };
-        private bool formClosing;
-        public BTool.HCICmds.GAPCmds.GAP_Authenticate GAP_Authenticate = new BTool.HCICmds.GAPCmds.GAP_Authenticate();
-        public BTool.HCICmds.GAPCmds.GAP_Bond GAP_Bond = new BTool.HCICmds.GAPCmds.GAP_Bond();
-        public BTool.HCICmds.GAPCmds.GAP_BondGetParam GAP_BondGetParam = new BTool.HCICmds.GAPCmds.GAP_BondGetParam();
-        public BTool.HCICmds.GAPCmds.GAP_BondSetParam GAP_BondSetParam = new BTool.HCICmds.GAPCmds.GAP_BondSetParam();
-        public BTool.HCICmds.GAPCmds.GAP_ConfigDeviceAddr GAP_ConfigDeviceAddr = new BTool.HCICmds.GAPCmds.GAP_ConfigDeviceAddr();
-        public BTool.HCICmds.GAPCmds.GAP_DeviceDiscoveryCancel GAP_DeviceDiscoveryCancel = new BTool.HCICmds.GAPCmds.GAP_DeviceDiscoveryCancel();
-        public BTool.HCICmds.GAPCmds.GAP_DeviceDiscoveryRequest GAP_DeviceDiscoveryRequest = new BTool.HCICmds.GAPCmds.GAP_DeviceDiscoveryRequest();
-        public BTool.HCICmds.GAPCmds.GAP_DeviceInit GAP_DeviceInit = new BTool.HCICmds.GAPCmds.GAP_DeviceInit();
-        public BTool.HCICmds.GAPCmds.GAP_EndDiscoverable GAP_EndDiscoverable = new BTool.HCICmds.GAPCmds.GAP_EndDiscoverable();
-        public BTool.HCICmds.GAPCmds.GAP_EstablishLinkRequest GAP_EstablishLinkRequest = new BTool.HCICmds.GAPCmds.GAP_EstablishLinkRequest();
-        public BTool.HCICmds.GAPCmds.GAP_GetParam GAP_GetParam = new BTool.HCICmds.GAPCmds.GAP_GetParam();
-        public BTool.HCICmds.GAPCmds.GAP_MakeDiscoverable GAP_MakeDiscoverable = new BTool.HCICmds.GAPCmds.GAP_MakeDiscoverable();
-        public BTool.HCICmds.GAPCmds.GAP_PasskeyUpdate GAP_PasskeyUpdate = new BTool.HCICmds.GAPCmds.GAP_PasskeyUpdate();
-        public BTool.HCICmds.GAPCmds.GAP_RemoveAdvToken GAP_RemoveAdvToken = new BTool.HCICmds.GAPCmds.GAP_RemoveAdvToken();
-        public BTool.HCICmds.GAPCmds.GAP_ResolvePrivateAddr GAP_ResolvePrivateAddr = new BTool.HCICmds.GAPCmds.GAP_ResolvePrivateAddr();
-        public BTool.HCICmds.GAPCmds.GAP_SetAdvToken GAP_SetAdvToken = new BTool.HCICmds.GAPCmds.GAP_SetAdvToken();
-        public BTool.HCICmds.GAPCmds.GAP_SetParam GAP_SetParam = new BTool.HCICmds.GAPCmds.GAP_SetParam();
-        public BTool.HCICmds.GAPCmds.GAP_Signable GAP_Signable = new BTool.HCICmds.GAPCmds.GAP_Signable();
-        public BTool.HCICmds.GAPCmds.GAP_SlaveSecurityRequest GAP_SlaveSecurityRequest = new BTool.HCICmds.GAPCmds.GAP_SlaveSecurityRequest();
-        public BTool.HCICmds.GAPCmds.GAP_TerminateAuth GAP_TerminateAuth = new BTool.HCICmds.GAPCmds.GAP_TerminateAuth();
-        public BTool.HCICmds.GAPCmds.GAP_TerminateLinkRequest GAP_TerminateLinkRequest = new BTool.HCICmds.GAPCmds.GAP_TerminateLinkRequest();
-        public BTool.HCICmds.GAPCmds.GAP_UpdateAdvertisingData GAP_UpdateAdvertisingData = new BTool.HCICmds.GAPCmds.GAP_UpdateAdvertisingData();
-        public BTool.HCICmds.GAPCmds.GAP_UpdateAdvTokens GAP_UpdateAdvTokens = new BTool.HCICmds.GAPCmds.GAP_UpdateAdvTokens();
-        public BTool.HCICmds.GAPCmds.GAP_UpdateLinkParamReq GAP_UpdateLinkParamReq = new BTool.HCICmds.GAPCmds.GAP_UpdateLinkParamReq();
-        public BTool.HCICmds.GATTCmds.GATT_AddAttribute GATT_AddAttribute = new BTool.HCICmds.GATTCmds.GATT_AddAttribute();
-        public BTool.HCICmds.GATTCmds.GATT_AddService GATT_AddService = new BTool.HCICmds.GATTCmds.GATT_AddService();
-        public BTool.HCICmds.GATTCmds.GATT_DelService GATT_DelService = new BTool.HCICmds.GATTCmds.GATT_DelService();
-        public BTool.HCICmds.GATTCmds.GATT_DiscAllCharDescs GATT_DiscAllCharDescs = new BTool.HCICmds.GATTCmds.GATT_DiscAllCharDescs();
-        public BTool.HCICmds.GATTCmds.GATT_DiscAllChars GATT_DiscAllChars = new BTool.HCICmds.GATTCmds.GATT_DiscAllChars();
-        public BTool.HCICmds.GATTCmds.GATT_DiscAllPrimaryServices GATT_DiscAllPrimaryServices = new BTool.HCICmds.GATTCmds.GATT_DiscAllPrimaryServices();
-        public BTool.HCICmds.GATTCmds.GATT_DiscCharsByUUID GATT_DiscCharsByUUID = new BTool.HCICmds.GATTCmds.GATT_DiscCharsByUUID();
-        public BTool.HCICmds.GATTCmds.GATT_DiscPrimaryServiceByUUID GATT_DiscPrimaryServiceByUUID = new BTool.HCICmds.GATTCmds.GATT_DiscPrimaryServiceByUUID();
-        public BTool.HCICmds.GATTCmds.GATT_ExchangeMTU GATT_ExchangeMTU = new BTool.HCICmds.GATTCmds.GATT_ExchangeMTU();
-        public BTool.HCICmds.GATTCmds.GATT_FindIncludedServices GATT_FindIncludedServices = new BTool.HCICmds.GATTCmds.GATT_FindIncludedServices();
-        public BTool.HCICmds.GATTCmds.GATT_Indication GATT_Indication = new BTool.HCICmds.GATTCmds.GATT_Indication();
-        public BTool.HCICmds.GATTCmds.GATT_Notification GATT_Notification = new BTool.HCICmds.GATTCmds.GATT_Notification();
-        public BTool.HCICmds.GATTCmds.GATT_ReadCharDesc GATT_ReadCharDesc = new BTool.HCICmds.GATTCmds.GATT_ReadCharDesc();
-        public BTool.HCICmds.GATTCmds.GATT_ReadCharValue GATT_ReadCharValue = new BTool.HCICmds.GATTCmds.GATT_ReadCharValue();
-        public BTool.HCICmds.GATTCmds.GATT_ReadLongCharDesc GATT_ReadLongCharDesc = new BTool.HCICmds.GATTCmds.GATT_ReadLongCharDesc();
-        public BTool.HCICmds.GATTCmds.GATT_ReadLongCharValue GATT_ReadLongCharValue = new BTool.HCICmds.GATTCmds.GATT_ReadLongCharValue();
-        public BTool.HCICmds.GATTCmds.GATT_ReadMultiCharValues GATT_ReadMultiCharValues = new BTool.HCICmds.GATTCmds.GATT_ReadMultiCharValues();
-        public BTool.HCICmds.GATTCmds.GATT_ReadUsingCharUUID GATT_ReadUsingCharUUID = new BTool.HCICmds.GATTCmds.GATT_ReadUsingCharUUID();
-        public BTool.HCICmds.GATTCmds.GATT_ReliableWrites GATT_ReliableWrites = new BTool.HCICmds.GATTCmds.GATT_ReliableWrites();
-        public BTool.HCICmds.GATTCmds.GATT_SignedWriteNoRsp GATT_SignedWriteNoRsp = new BTool.HCICmds.GATTCmds.GATT_SignedWriteNoRsp();
-        public BTool.HCICmds.GATTCmds.GATT_WriteCharDesc GATT_WriteCharDesc = new BTool.HCICmds.GATTCmds.GATT_WriteCharDesc();
-        public BTool.HCICmds.GATTCmds.GATT_WriteCharValue GATT_WriteCharValue = new BTool.HCICmds.GATTCmds.GATT_WriteCharValue();
-        public BTool.HCICmds.GATTCmds.GATT_WriteLongCharDesc GATT_WriteLongCharDesc = new BTool.HCICmds.GATTCmds.GATT_WriteLongCharDesc();
-        public BTool.HCICmds.GATTCmds.GATT_WriteLongCharValue GATT_WriteLongCharValue = new BTool.HCICmds.GATTCmds.GATT_WriteLongCharValue();
-        public BTool.HCICmds.GATTCmds.GATT_WriteNoRsp GATT_WriteNoRsp = new BTool.HCICmds.GATTCmds.GATT_WriteNoRsp();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_ClkDivideOnHalt HCIExt_ClkDivideOnHalt = new BTool.HCICmds.HCIExtCmds.HCIExt_ClkDivideOnHalt();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_DeclareNvUsage HCIExt_DeclareNvUsage = new BTool.HCICmds.HCIExtCmds.HCIExt_DeclareNvUsage();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_Decrypt HCIExt_Decrypt = new BTool.HCICmds.HCIExtCmds.HCIExt_Decrypt();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_DisconnectImmed HCIExt_DisconnectImmed = new BTool.HCICmds.HCIExtCmds.HCIExt_DisconnectImmed();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_EnablePTM HCIExt_EnablePTM = new BTool.HCICmds.HCIExtCmds.HCIExt_EnablePTM();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_EndModemTest HCIExt_EndModemTest = new BTool.HCICmds.HCIExtCmds.HCIExt_EndModemTest();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_MapPmIoPort HCIExt_MapPmIoPort = new BTool.HCICmds.HCIExtCmds.HCIExt_MapPmIoPort();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_ModemHopTestTx HCIExt_ModemHopTestTx = new BTool.HCICmds.HCIExtCmds.HCIExt_ModemHopTestTx();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_ModemTestRx HCIExt_ModemTestRx = new BTool.HCICmds.HCIExtCmds.HCIExt_ModemTestRx();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_ModemTestTx HCIExt_ModemTestTx = new BTool.HCICmds.HCIExtCmds.HCIExt_ModemTestTx();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_OnePktPerEvt HCIExt_OnePktPerEvt = new BTool.HCICmds.HCIExtCmds.HCIExt_OnePktPerEvt();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_PER HCIExt_PER = new BTool.HCICmds.HCIExtCmds.HCIExt_PER();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_SaveFreqTune HCIExt_SaveFreqTune = new BTool.HCICmds.HCIExtCmds.HCIExt_SaveFreqTune();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_SetBDADDR HCIExt_SetBDADDR = new BTool.HCICmds.HCIExtCmds.HCIExt_SetBDADDR();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_SetFastTxRespTime HCIExt_SetFastTxRespTime = new BTool.HCICmds.HCIExtCmds.HCIExt_SetFastTxRespTime();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_SetFreqTune HCIExt_SetFreqTune = new BTool.HCICmds.HCIExtCmds.HCIExt_SetFreqTune();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_SetLocalSupportedFeatures HCIExt_SetLocalSupportedFeatures = new BTool.HCICmds.HCIExtCmds.HCIExt_SetLocalSupportedFeatures();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_SetMaxDtmTxPower HCIExt_SetMaxDtmTxPower = new BTool.HCICmds.HCIExtCmds.HCIExt_SetMaxDtmTxPower();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_SetRxGain HCIExt_SetRxGain = new BTool.HCICmds.HCIExtCmds.HCIExt_SetRxGain();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_SetSCA HCIExt_SetSCA = new BTool.HCICmds.HCIExtCmds.HCIExt_SetSCA();
-        public BTool.HCICmds.HCIExtCmds.HCIExt_SetTxPower HCIExt_SetTxPower = new BTool.HCICmds.HCIExtCmds.HCIExt_SetTxPower();
-        public BTool.HCICmds.HCIOtherCmds.HCIOther_LEAddDeviceToWhiteList HCIOther_LEAddDeviceToWhiteList = new BTool.HCICmds.HCIOtherCmds.HCIOther_LEAddDeviceToWhiteList();
-        public BTool.HCICmds.HCIOtherCmds.HCIOther_LEClearWhiteList HCIOther_LEClearWhiteList = new BTool.HCICmds.HCIOtherCmds.HCIOther_LEClearWhiteList();
-        public BTool.HCICmds.HCIOtherCmds.HCIOther_LEConnectionUpdate HCIOther_LEConnectionUpdate = new BTool.HCICmds.HCIOtherCmds.HCIOther_LEConnectionUpdate();
-        public BTool.HCICmds.HCIOtherCmds.HCIOther_LERemoveDeviceFromWhiteList HCIOther_LERemoveDeviceFromWhiteList = new BTool.HCICmds.HCIOtherCmds.HCIOther_LERemoveDeviceFromWhiteList();
-        public BTool.HCICmds.HCIOtherCmds.HCIOther_ReadRSSI HCIOther_ReadRSSI = new BTool.HCICmds.HCIOtherCmds.HCIOther_ReadRSSI();
-        private System.Windows.Forms.Timer initTimer;
-        public BTool.HCICmds.L2CAPCmds.L2CAP_ConnParamUpdateReq L2CAP_ConnParamUpdateReq = new BTool.HCICmds.L2CAPCmds.L2CAP_ConnParamUpdateReq();
-        public BTool.HCICmds.L2CAPCmds.L2CAP_InfoReq L2CAP_InfoReq = new BTool.HCICmds.L2CAPCmds.L2CAP_InfoReq();
-        public BTool.HCICmds.MISCCmds.MISC_GenericCommand MISC_GenericCommand = new BTool.HCICmds.MISCCmds.MISC_GenericCommand();
-        public BTool.HCICmds.MISCCmds.MISC_RawTxMessage MISC_RawTxMessage = new BTool.HCICmds.MISCCmds.MISC_RawTxMessage();
-        public static string moduleName = "DeviceForm";
-        private MsgBox msgBox = new MsgBox();
-        private MsgLogForm msgLogForm;
-        public int numConnections;
-        private System.Windows.Forms.Timer pairBondTimer;
-        private Panel plAttributes;
-        private Panel plLog;
-        private Panel plUserTabs;
-        private Thread processRxProc;
-        private FP_ReceiveDataInd ReceiveDataInd;
-        private System.Windows.Forms.Timer scanTimer;
-        private SplitContainer scTopBottom;
-        private SplitContainer scTopLeftRight;
-        public SendCmds sendCmds;
-        private SharedObjects sharedObjs = new SharedObjects();
-        public ThreadMgr threadMgr;
-        public BTool.HCICmds.UTILCmds.UTIL_ForceBoot UTIL_ForceBoot = new BTool.HCICmds.UTILCmds.UTIL_ForceBoot();
-        public BTool.HCICmds.UTILCmds.UTIL_NVRead UTIL_NVRead = new BTool.HCICmds.UTILCmds.UTIL_NVRead();
-        public BTool.HCICmds.UTILCmds.UTIL_NVWrite UTIL_NVWrite = new BTool.HCICmds.UTILCmds.UTIL_NVWrite();
-        public BTool.HCICmds.UTILCmds.UTIL_Reset UTIL_Reset = new BTool.HCICmds.UTILCmds.UTIL_Reset();
-
-        public event EventHandler BDAddressNotify;
-
-        public event EventHandler ChangeActiveRoot;
-
-        public event EventHandler CloseActiveDevice;
-
-        public event EventHandler ConnectionNotify;
-
-        public event EventHandler DisconnectionNotify;
-
-        public DeviceForm()
-        {
-            this.devInfo.devForm = this;
-            this.connectInfo.bDA = "00:00:00:00:00:00";
-            this.connectInfo.handle = 0;
-            this.connectInfo.addrType = 0;
-            this.disconnectInfo.bDA = "00:00:00:00:00:00";
-            this.disconnectInfo.handle = 0;
-            this.disconnectInfo.addrType = 0;
-            this.Connections.Clear();
-            this.commMgr.InitCommManager();
-            this.msgLogForm = new MsgLogForm(this);
-            this.commSelectForm = new CommSelectForm();
-            this.InitializeComponent();
-            this.Text = FormMain.ProgramTitle + FormMain.ProgramVersion;
-            this.threadMgr = new ThreadMgr(this);
-            this.sendCmds = new SendCmds(this);
-            this.attrData.sendAutoCmds = false;
-            this.attributesForm = new AttributesForm(this);
-            this.devTabsForm = new DeviceTabsForm(this);
-            this.LoadUserInitializeValues();
-            this.LoadUserSettings();
-            this.sendCmds.DisplayMsgCallback = new DisplayMsgDelegate(this.DisplayMsg);
-            this.threadMgr.txDataOut.DeviceTxDataCallback = new DeviceTxDataDelegate(this.DeviceTxData);
-            this.threadMgr.txDataOut.DisplayMsgCallback = new DisplayMsgDelegate(this.DisplayMsg);
-            this.threadMgr.rxDataIn.DeviceRxDataCallback = new DeviceRxDataDelegate(this.DeviceRxData);
-            this.threadMgr.rxTxMgr.HandleRxTxMessageCallback = new HandleRxTxMessageDelegate(this.HandleRxTxMessage);
-            this.dspTxCmds.DisplayMsgCallback = new DisplayMsgDelegate(this.DisplayMsg);
-            this.dspTxCmds.DisplayMsgTimeCallback = new DisplayMsgTimeDelegate(this.DisplayMsgTime);
-            this.attributesForm.DisplayMsgCallback = new DisplayMsgDelegate(this.DisplayMsg);
-            this.msgLogForm.DisplayMsgCallback = new DisplayMsgDelegate(this.DisplayMsg);
-            this.threadMgr.Init(this);
-            this.msgLogForm.TopLevel = false;
-            this.msgLogForm.Parent = this.plLog;
-            this.msgLogForm.Visible = true;
-            this.msgLogForm.Dock = DockStyle.Fill;
-            this.msgLogForm.ControlBox = false;
-            this.msgLogForm.ShowIcon = false;
-            this.msgLogForm.FormBorderStyle = FormBorderStyle.None;
-            this.msgLogForm.StartPosition = FormStartPosition.Manual;
-            this.msgLogForm.Show();
-            this.devTabsForm.TopLevel = false;
-            this.devTabsForm.Parent = this.plUserTabs;
-            this.devTabsForm.Visible = true;
-            this.devTabsForm.Dock = DockStyle.Fill;
-            this.devTabsForm.ControlBox = false;
-            this.devTabsForm.ShowIcon = false;
-            this.devTabsForm.FormBorderStyle = FormBorderStyle.None;
-            this.devTabsForm.StartPosition = FormStartPosition.Manual;
-            this.devTabsForm.Show();
-            this.attributesForm.TopLevel = false;
-            this.attributesForm.Parent = this.plAttributes;
-            this.attributesForm.Visible = true;
-            this.attributesForm.Dock = DockStyle.Fill;
-            this.attributesForm.ControlBox = false;
-            this.attributesForm.ShowIcon = false;
-            this.attributesForm.FormBorderStyle = FormBorderStyle.None;
-            this.attributesForm.StartPosition = FormStartPosition.Manual;
-            this.attributesForm.Show();
-        }
-
-        private void deviceForm_Activated(object sender, EventArgs e)
-        {
-            this.ChangeActiveRoot(this, null);
-        }
-
-        private void DeviceForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            this.DeviceFormClose(true);
-        }
-
-        private void DeviceForm_Load(object sender, EventArgs e)
-        {
-            if (this.sharedObjs.IsMonoRunning())
-            {
-                this.scTopBottom.SplitterDistance = 550;
-            }
-            else
-            {
-                this.scTopBottom.SplitterDistance = 530;
-            }
-        }
-
-        private void DeviceForm_LocationChanged(object sender, EventArgs e)
-        {
-            base.Location = new Point(0, 0);
-        }
-
-        public void DeviceFormClose(bool closeDevice)
-        {
-            if (closeDevice && !this.formClosing)
-            {
-                this.formClosing = true;
-                this.CloseActiveDevice(this, null);
-            }
-            this.threadMgr.PauseThreads();
-            this.threadMgr.WaitForPause();
-            this.threadMgr.ClearQueues();
-            this.commMgr.ClosePort();
-            if (this.processRxProc != null)
-            {
-                while (this.processRxProc.IsAlive)
-                {
-                }
-            }
-            this.msgLogForm.ResetMsgNumber();
-            this.threadMgr.ExitThreads();
-            this.SaveUserSettings();
-        }
-
-        public bool DeviceFormInit()
-        {
-            this.commSelectForm.ShowDialog();
-            if (this.commSelectForm.DialogResult == DialogResult.OK)
-            {
-                this.commMgr.PortName = this.commSelectForm.cbPorts.Text;
-                this.commMgr.BaudRate = this.commSelectForm.cbBaud.Text;
-                this.commMgr.DataBits = this.commSelectForm.cbDataBits.Text;
-                this.commMgr.Parity = this.commSelectForm.cbParity.Text;
-                this.commMgr.StopBits = this.commSelectForm.cbStopBits.Text;
-                this.commMgr.HandShake = (Handshake) this.commSelectForm.cbFlow.SelectedIndex;
-                this.commMgr.CurrentTransmissionType = CommManager.TransmissionType.Hex;
-                this.commMgr.DisplayMsgCallback = new DisplayMsgDelegate(this.DisplayMsg);
-                if (this.commMgr.OpenPort())
-                {
-                    this.Text = this.commSelectForm.cbPorts.Text;
-                    this.devInfo.devName = this.commMgr.PortName;
-                    this.devInfo.connectStatus = "None";
-                    this.devInfo.comPortInfo.baudRate = this.commMgr.BaudRate;
-                    this.devInfo.comPortInfo.comPort = this.commMgr.PortName;
-                    this.devInfo.comPortInfo.flow = this.commSelectForm.cbFlow.Text;
-                    this.devInfo.comPortInfo.dataBits = this.commMgr.DataBits;
-                    this.devInfo.comPortInfo.parity = this.commMgr.Parity;
-                    this.devInfo.comPortInfo.stopBits = this.commMgr.StopBits;
-                    this.ReceiveDataInd = new FP_ReceiveDataInd(this.RxDataHandler);
-                    this.commMgr.RxDataInd = this.ReceiveDataInd;
-                    this.processRxProc = new Thread(new ThreadStart(this.ProcessRxProc));
-                    this.processRxProc.Name = "ProcessRxProcThread";
-                    this.processRxProc.Start();
-                    while (!this.processRxProc.IsAlive)
-                    {
-                    }
-                    return true;
-                }
-                string msg = string.Format("Failed Connecting To {0}\n", this.commSelectForm.cbPorts.SelectedItem);
-                this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-                this.DisplayMsg(SharedAppObjs.MsgType.Error, msg);
-                return false;
-            }
-            return false;
-        }
-
-        private void DeviceRxData(RxDataIn rxDataIn)
-        {
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.BeginInvoke(new DeviceRxDataDelegate(this.DeviceRxData), new object[] { rxDataIn });
-                }
-                catch
-                {
-                }
-            }
-            else if (!this.formClosing)
-            {
-                RxTxMgrData data = new RxTxMgrData();
-                data.rxDataIn = rxDataIn;
-                data.txDataOut = null;
-                this.threadMgr.rxTxMgr.dataQ.AddQTail(data);
-            }
-        }
-
-        private void DeviceTxData(TxDataOut txDataOut)
-        {
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.BeginInvoke(new DeviceTxDataDelegate(this.DeviceTxData), new object[] { txDataOut });
-                }
-                catch
-                {
-                }
-            }
-            else if (!this.formClosing)
-            {
-                RxTxMgrData data = new RxTxMgrData();
-                data.rxDataIn = null;
-                data.txDataOut = txDataOut;
-                this.threadMgr.rxTxMgr.dataQ.AddQTail(data);
-            }
-        }
-
-        public void DisplayMsg(SharedAppObjs.MsgType msgType, string msg)
-        {
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.BeginInvoke(new DisplayMsgDelegate(this.DisplayMsg), new object[] { msgType, msg });
-                }
-                catch
-                {
-                }
-            }
-            else
-            {
-                this.msgLogForm.DisplayLogMsg(msgType, msg, null);
-            }
-        }
-
-        public void DisplayMsgTime(SharedAppObjs.MsgType msgType, string msg, string time)
-        {
-            this.dspMsgMutex.WaitOne();
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.BeginInvoke(new DisplayMsgTimeDelegate(this.DisplayMsgTime), new object[] { msgType, msg, time });
-                }
-                catch
-                {
-                }
-            }
-            else
-            {
-                this.msgLogForm.DisplayLogMsg(msgType, msg, time);
-            }
-            this.dspMsgMutex.ReleaseMutex();
-        }
-
-        private void DisplayRxCmd(RxDataIn rxDataIn, bool displayBytes)
-        {
-            if (base.InvokeRequired)
-            {
-                base.Invoke(new DisplayRxCmdDelegate(this.DisplayRxCmd), new object[] { rxDataIn, displayBytes });
-                return;
-            }
-            byte type = rxDataIn.type;
-            ushort cmdOpcode = rxDataIn.cmdOpcode;
-            ushort eventOpcode = rxDataIn.eventOpcode;
-            byte length = rxDataIn.length;
-            byte[] data = rxDataIn.data;
-            string msg = string.Empty;
-            string str2 = string.Empty;
-            byte[] addr = new byte[6];
-            uint num5 = 0;
-            if (type == 4)
-            {
-                msg = msg + string.Format("-Type\t\t: 0x{0:X2} ({1:S})\n-EventCode\t: 0x{2:X2} ({3:S})\n-Data Length\t: 0x{4:X2} ({5:D}) bytes(s)\n", new object[] { type, this.devUtils.GetPacketTypeStr(type), cmdOpcode, this.devUtils.GetOpCodeName(cmdOpcode), length, length });
-            }
-            else
-            {
-                msg = msg + string.Format("-Type\t\t: 0x{0:X2} ({1:S})\n-OpCode\t\t: 0x{2:X4} ({3:S})\n-Data Length\t: 0x{4:X2} ({5:D}) bytes(s)\n", new object[] { type, this.devUtils.GetPacketTypeStr(type), cmdOpcode, this.devUtils.GetOpCodeName(cmdOpcode), length, length });
-            }
-            int index = 0;
-            byte bits = 0;
-            ushort num8 = 0;
-            uint num9 = 0;
-            string str3 = string.Empty;
-            bool dataErr = false;
-            switch (cmdOpcode)
-            {
-                case 14:
-                    this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                    if (!dataErr)
-                    {
-                        msg = msg + string.Format(" Packets\t\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                        ushort num10 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                        if (!dataErr)
-                        {
-                            msg = msg + string.Format(" Opcode\t\t: 0x{0:X4} ({1:S})\n", num10, this.devUtils.GetOpCodeName(num10));
-                            switch (num10)
-                            {
-                                case 0x2010:
-                                case 0x2011:
-                                case 0x2012:
-                                    this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Status\t\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetStatusStr(bits));
-                                    }
-                                    goto Label_3170;
-
-                                case 0x1405:
-                                    this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Status\t\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetStatusStr(bits));
-                                        this.dspCmdUtils.AddHandle(data, ref index, ref dataErr, ref msg);
-                                        if (!dataErr)
-                                        {
-                                            this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                            if (!dataErr)
-                                            {
-                                                msg = msg + string.Format(" RSSI\t\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                            }
-                                        }
-                                    }
-                                    goto Label_3170;
-
-                                case 0xfc0e:
-                                case 0xfc0f:
-                                case 0xfc10:
-                                    this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Status\t\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetHCIExtStatusStr(bits));
-                                    }
-                                    goto Label_3170;
-                            }
-                            this.devUtils.BuildRawDataStr(data, ref msg, data.Length);
-                        }
-                    }
-                    goto Label_3170;
-
-                case 0x13:
-                    if (length == 5)
-                    {
-                        this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                        if (dataErr)
-                        {
-                            goto Label_3170;
-                        }
-                        msg = msg + string.Format(" NumOfHandles\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                        this.dspCmdUtils.AddConnectHandle(data, ref index, ref dataErr, ref msg);
-                        if (dataErr)
-                        {
-                            goto Label_3170;
-                        }
-                        this.dataUtils.Unload16Bits(data, ref index, ref num8, ref dataErr, false);
-                        if (dataErr)
-                        {
-                            goto Label_3170;
-                        }
-                        msg = msg + string.Format(" PktsCompleted\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                    }
-                    this.devUtils.BuildRawDataStr(data, ref msg, data.Length);
-                    goto Label_3170;
-
-                case 0xff:
-                {
-                    ushort num11 = (ushort) (eventOpcode & 0x380);
-                    num11 = (ushort) (num11 >> 7);
-                    byte status = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                    if (!dataErr)
-                    {
-                        byte num13;
-                        int uuidLength;
-                        int num18;
-                        byte num26;
-                        string hCIExtStatusStr = string.Empty;
-                        if (num11 == 0)
-                        {
-                            hCIExtStatusStr = this.devUtils.GetHCIExtStatusStr(status);
-                        }
-                        else
-                        {
-                            hCIExtStatusStr = this.devUtils.GetStatusStr(status);
-                        }
-                        msg = msg + string.Format(" Event\t\t: 0x{0:X4} ({1:S})\n Status\t\t: 0x{2:X2} ({3:S})\n", new object[] { eventOpcode, this.devUtils.GetOpCodeName(eventOpcode), status, hCIExtStatusStr });
-                        ushort num30 = eventOpcode;
-                        switch (num30)
-                        {
-                            case 0x48b:
-                                this.dataUtils.Unload16Bits(data, ref index, ref num8, ref dataErr, false);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" Cmd Opcode\t: 0x{0:X4} ({1:S})\n", num8, this.devUtils.GetOpCodeName(num8));
-                                }
-                                goto Label_3170;
-
-                            case 0x493:
-                                this.dspCmdUtils.AddHandle(data, ref index, ref dataErr, ref msg);
-                                if (!dataErr)
-                                {
-                                    this.dataUtils.Unload16Bits(data, ref index, ref num8, ref dataErr, false);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Result\t\t: 0x{0:X4} ({1:S})\n", num8, this.devUtils.GetL2CapConnParamUpdateResultStr(num8));
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x400:
-                            case 0x401:
-                            case 0x402:
-                            case 0x403:
-                            case 0x404:
-                            case 0x405:
-                            case 0x406:
-                            case 0x407:
-                            case 0x408:
-                            case 0x409:
-                            case 0x40a:
-                            case 0x40b:
-                            case 0x40c:
-                            case 0x40d:
-                            case 0x40e:
-                            case 0x40f:
-                            case 0x410:
-                            case 0x411:
-                            case 0x412:
-                            case 0x413:
-                            case 0x414:
-                                this.dataUtils.Unload16Bits(data, ref index, ref num8, ref dataErr, false);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" Cmd Opcode\t: 0x{0:X4} ({1:S})\n", num8, this.devUtils.GetOpCodeName(num8));
-                                }
-                                goto Label_3170;
-
-                            case 0x481:
-                                this.dspCmdUtils.AddHandle(data, ref index, ref dataErr, ref msg);
-                                if (!dataErr)
-                                {
-                                    this.dataUtils.Unload16Bits(data, ref index, ref num8, ref dataErr, false);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" RejectReason\t: 0x{0:X4} ({1:S})\n", num8, this.devUtils.GetL2CapRejectReasonsStr(num8));
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x501:
-                                num13 = 0;
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    byte num14 = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" ReqOpcode\t: 0x{0:X2} ({1:S})\n", num14, this.devUtils.GetHciReqOpCodeStr(num14));
-                                        num8 = this.dspCmdUtils.AddHandle(data, ref index, ref dataErr, ref msg);
-                                        if (!dataErr)
-                                        {
-                                            byte num15 = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                            if (!dataErr)
-                                            {
-                                                msg = msg + string.Format(" ErrorCode\t: 0x{0:X2} ({1:S})\n", num15, this.devUtils.GetShortErrorStatusStr(num15)) + string.Format("       \t\t: {0:S}\n", this.devUtils.GetErrorStatusStr(num15));
-                                                if (this.devTabsForm.GetSelectedTab() == 1)
-                                                {
-                                                    switch (num14)
-                                                    {
-                                                        case 10:
-                                                        case 8:
-                                                            this.devTabsForm.SetTbReadStatusText(string.Format("{0:S}", this.devUtils.GetShortErrorStatusStr(num15)));
-                                                            break;
-                                                    }
-                                                    if (num14 == 0x12)
-                                                    {
-                                                        this.devTabsForm.SetTbWriteStatusText(string.Format("{0:S}", this.devUtils.GetShortErrorStatusStr(num15)));
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x502:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" ClientRxMTU\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x503:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" ServerRxMTU\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x504:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    this.dspCmdUtils.AddStartEndHandle(data, ref index, ref dataErr, ref msg);
-                                    if (!dataErr)
-                                    {
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x505:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    byte num16 = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Format\t\t: 0x{0:X2} ({1:S})\n", num16, this.devUtils.GetFindFormatStr(num16));
-                                        uuidLength = this.devUtils.GetUuidLength(num16, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            uuidLength += 2;
-                                            num18 = length - index;
-                                            msg = msg + this.devUtils.UnloadHandleValueData(data, ref index, num18, uuidLength, ref dataErr, "Uuid");
-                                            if (!dataErr)
-                                            {
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x506:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    this.dspCmdUtils.AddStartEndHandle(data, ref index, ref dataErr, ref msg);
-                                    if (!dataErr)
-                                    {
-                                        num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" Type\t\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x507:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    if (num13 >= 2)
-                                    {
-                                        int num19 = num13 / 2;
-                                        for (num5 = 0; (num5 < num19) && !dataErr; num5++)
-                                        {
-                                            num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                            if (dataErr)
-                                            {
-                                                break;
-                                            }
-                                            msg = msg + string.Format(" Handle\t\t: {0:X2}:{1:X2}\n", (byte) (num8 & 0xff), (byte) (num8 >> 8));
-                                        }
-                                    }
-                                    if (dataErr)
-                                    {
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x508:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    this.dspCmdUtils.AddStartEndHandle(data, ref index, ref dataErr, ref msg);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Type\t\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, ((length - 3) - index) + 1, ref dataErr));
-                                        if (!dataErr)
-                                        {
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x509:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    uuidLength = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Length\t\t: 0x{0:X2} ({1:D})\n", uuidLength, uuidLength);
-                                        num13 = (byte) (num13 - 1);
-                                        if (uuidLength != 0)
-                                        {
-                                            string handleStr = string.Empty;
-                                            string valueStr = string.Empty;
-                                            msg = msg + this.devUtils.UnloadHandleValueData(data, ref index, num13, uuidLength, ref handleStr, ref valueStr, ref dataErr, "Data");
-                                            if (!dataErr && (this.devTabsForm.GetSelectedTab() == 1))
-                                            {
-                                                this.devTabsForm.SetTbReadValueTag(valueStr);
-                                                if (!this.devTabsForm.GetRbASCIIReadChecked())
-                                                {
-                                                    if (this.devTabsForm.GetRbDecimalReadChecked())
-                                                    {
-                                                        this.devTabsForm.SetTbReadValueText(this.devUtils.HexStr2UserDefinedStr(valueStr, SharedAppObjs.StringType.DEC));
-                                                    }
-                                                    else
-                                                    {
-                                                        this.devTabsForm.SetTbReadValueText(this.devUtils.HexStr2UserDefinedStr(valueStr, SharedAppObjs.StringType.HEX));
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    this.devTabsForm.SetTbReadValueText(this.devUtils.HexStr2UserDefinedStr(valueStr, SharedAppObjs.StringType.ASCII));
-                                                }
-                                                if (!string.IsNullOrEmpty(handleStr))
-                                                {
-                                                    this.devTabsForm.SetTbReadAttrHandleText(handleStr);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x50a:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    this.dspCmdUtils.AddHandle(data, ref index, ref dataErr, ref msg);
-                                    if (!dataErr)
-                                    {
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x50b:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    str2 = string.Empty;
-                                    for (num5 = 0; (num5 < num13) && !dataErr; num5++)
-                                    {
-                                        bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                        str2 = str2 + string.Format("{0:X2} ", bits);
-                                    }
-                                    if (!dataErr)
-                                    {
-                                        str2.Trim();
-                                        msg = msg + string.Format(" Value\t\t: {0:S}\n", str2);
-                                        if (this.devTabsForm.GetSelectedTab() == 1)
-                                        {
-                                            this.devTabsForm.SetTbReadValueTag(str2);
-                                            if (this.devTabsForm.GetRbASCIIReadChecked())
-                                            {
-                                                this.devTabsForm.SetTbReadValueText(this.devUtils.HexStr2UserDefinedStr(str2, SharedAppObjs.StringType.ASCII));
-                                            }
-                                            else if (this.devTabsForm.GetRbDecimalReadChecked())
-                                            {
-                                                this.devTabsForm.SetTbReadValueText(this.devUtils.HexStr2UserDefinedStr(str2, SharedAppObjs.StringType.DEC));
-                                            }
-                                            else
-                                            {
-                                                this.devTabsForm.SetTbReadValueText(this.devUtils.HexStr2UserDefinedStr(str2, SharedAppObjs.StringType.HEX));
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x50c:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    this.dspCmdUtils.AddHandleOffset(data, ref index, ref dataErr, ref msg);
-                                    if (!dataErr)
-                                    {
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x50d:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    msg = msg + string.Format(" Value\t\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, ((length - 3) - index) + 1, ref dataErr));
-                                    if (!dataErr)
-                                    {
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x50e:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    for (num5 = 0; (num5 < num13) && !dataErr; num5++)
-                                    {
-                                        str2 = str2 + string.Format("{0:X2} ", this.dataUtils.Unload8Bits(data, ref index, ref dataErr));
-                                    }
-                                    if (!dataErr)
-                                    {
-                                        str2.Trim();
-                                        msg = msg + string.Format(" Handles\t\t: {0:S}\n", str2);
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x50f:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    num5 = 0;
-                                    while ((num5 < num13) && !dataErr)
-                                    {
-                                        str2 = str2 + string.Format("{0:X2} ", this.dataUtils.Unload8Bits(data, ref index, ref dataErr));
-                                        num5++;
-                                    }
-                                    if (!dataErr)
-                                    {
-                                        str2.Trim();
-                                        msg = msg + string.Format(" Values\t\t: {0:S}\n", str2);
-                                        if (this.devTabsForm.GetSelectedTab() == 1)
-                                        {
-                                            this.devTabsForm.SetTbReadValueTag(str2);
-                                            if (this.devTabsForm.GetRbASCIIReadChecked())
-                                            {
-                                                this.devTabsForm.SetTbReadValueText(this.devUtils.HexStr2UserDefinedStr(str2, SharedAppObjs.StringType.ASCII));
-                                            }
-                                            else if (this.devTabsForm.GetRbDecimalReadChecked())
-                                            {
-                                                this.devTabsForm.SetTbReadValueText(this.devUtils.HexStr2UserDefinedStr(str2, SharedAppObjs.StringType.DEC));
-                                            }
-                                            else
-                                            {
-                                                this.devTabsForm.SetTbReadValueText(this.devUtils.HexStr2UserDefinedStr(str2, SharedAppObjs.StringType.HEX));
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x510:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    this.dspCmdUtils.AddStartEndHandle(data, ref index, ref dataErr, ref msg);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" GroupType\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, ((length - 3) - index) + 1, ref dataErr));
-                                        if (!dataErr)
-                                        {
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x511:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    byte num20 = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Length\t\t: 0x{0:X2} ({1:D})\n", num20, num20);
-                                        if (num20 != 0)
-                                        {
-                                            uuidLength = num20;
-                                            num18 = ((length - 3) - index) + 1;
-                                            msg = msg + string.Format(" DataList\t:\n{0:S}\n", this.devUtils.UnloadHandleHandleValueData(data, ref index, num18, uuidLength, ref dataErr));
-                                            if (!dataErr)
-                                            {
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x512:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Signature\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetSigAuthStr(bits));
-                                        bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" Command\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapYesNoStr(bits));
-                                            this.dspCmdUtils.AddHandle(data, ref index, ref dataErr, ref msg);
-                                            if (!dataErr)
-                                            {
-                                                str2.Trim();
-                                                msg = msg + string.Format(" Value\t\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, ((length - 3) - index) + 1, ref dataErr));
-                                                if (!dataErr)
-                                                {
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x513:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) == 0) || !dataErr)
-                                {
-                                }
-                                goto Label_3170;
-
-                            case 0x516:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    this.dspCmdUtils.AddHandleOffset(data, ref index, ref dataErr, ref msg);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Value\t\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, ((length - 3) - index) + 1, ref dataErr));
-                                        if (!dataErr)
-                                        {
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x517:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    this.dspCmdUtils.AddHandleOffset(data, ref index, ref dataErr, ref msg);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Value\t\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, ((length - 3) - index) + 1, ref dataErr));
-                                        if (!dataErr)
-                                        {
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x518:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    msg = msg + string.Format(" Flages\t\t: 0x{0:X2}\n", this.dataUtils.Unload8Bits(data, ref index, ref dataErr));
-                                    if (!dataErr)
-                                    {
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x519:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) == 0) || !dataErr)
-                                {
-                                }
-                                goto Label_3170;
-
-                            case 0x51b:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                {
-                                    this.dspCmdUtils.AddHandle(data, ref index, ref dataErr, ref msg);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Value\t\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, ((length - 3) - index) + 1, ref dataErr));
-                                        if (!dataErr)
-                                        {
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x51d:
-                                try
-                                {
-                                    if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && !dataErr)
-                                    {
-                                        this.dspCmdUtils.AddHandle(data, ref index, ref dataErr, ref msg);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" Value\t\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, ((length - 3) - index) + 1, ref dataErr));
-                                            if (!dataErr)
-                                            {
-                                            }
-                                        }
-                                    }
-                                }
-                                catch (Exception exception)
-                                {
-                                    string str7 = string.Format("Message Data Conversion Issue.\n\n{0}\n", exception.Message);
-                                    this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str7);
-                                    this.DisplayMsg(SharedAppObjs.MsgType.Error, "Could Not Convert All The Data In The Following Message\n(Message Is Missing Data Bytes To Process)\n");
-                                    dataErr = true;
-                                }
-                                goto Label_3170;
-
-                            case 0x51e:
-                                if (((num13 = this.devUtils.UnloadAttMsgHeader(ref data, ref index, ref msg, ref dataErr)) != 0) && dataErr)
-                                {
-                                }
-                                goto Label_3170;
-
-                            case 0x580:
-                                this.dspCmdUtils.AddConnectHandle(data, ref index, ref dataErr, ref msg);
-                                if (!dataErr)
-                                {
-                                    this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" PduLen\t\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                        num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" AttrHandle\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                            this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                            if (!dataErr)
-                                            {
-                                                msg = msg + string.Format(" Value\t\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x600:
-                                str3 = this.devUtils.UnloadDeviceAddr(data, ref addr, ref index, false, ref dataErr);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" DevAddr\t\t: {0:S}\n", str3);
-                                    this.OnBDAddressNotify(str3);
-                                    num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" DataPktLen\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                        bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" NumDataPkts\t: 0x{0:X2} ({1:D})\n", bits, bits) + string.Format(" IRK\t\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, 0x10, ref dataErr));
-                                            if (!dataErr)
-                                            {
-                                                msg = msg + string.Format(" CSRK\t\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, 0x10, ref dataErr));
-                                                if (!dataErr && !this.DeviceStarted)
-                                                {
-                                                    this.StopTimer(EventType.Init);
-                                                    this.devTabsForm.ShowProgress(false);
-                                                    this.devTabsForm.UserTabAccess(true);
-                                                    this.DeviceStarted = true;
-                                                    this.devTabsForm.GetConnectionParameters();
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x601:
-                            {
-                                this.StopTimer(EventType.Scan);
-                                this.devTabsForm.ShowProgress(false);
-                                if ((status != 0) && (status != 0x30))
-                                {
-                                    string str8 = string.Format("GAP_DeviceDiscoveryDone Failed.\n{0}\n", hCIExtStatusStr);
-                                    this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str8);
-                                }
-                                byte num21 = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" NumDevs\t: 0x{0:X2} ({1:D})\n", num21, num21);
-                                    if (num21 > 0)
-                                    {
-                                        for (num5 = 0; (num5 < num21) && !dataErr; num5++)
-                                        {
-                                            DeviceTabsForm.LinkSlave slave;
-                                            msg = msg + string.Format(" Device #{0:D}\n", num5);
-                                            byte num22 = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                            msg = msg + string.Format(" EventType\t: 0x{0:X2} ({1:S})\n", num22, this.devUtils.GetGapEventTypeStr(num22));
-                                            byte num23 = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                            msg = msg + string.Format(" AddrType\t: 0x{0:X2} ({1:S})\n", num23, this.devUtils.GetGapAddrTypeStr(num23)) + string.Format(" Addr\t\t: {0:S}\n", this.devUtils.UnloadDeviceAddr(data, ref addr, ref index, false, ref dataErr));
-                                            slave.slaveBDA = addr;
-                                            slave.addrBDA = "";
-                                            slave.addrType = (HCICmds.GAP_AddrType) num23;
-                                            this.devTabsForm.AddSlaveDevice(slave);
-                                        }
-                                        if (!dataErr)
-                                        {
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-                            }
-                            case 0x602:
-                                this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" AdType\t\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapAdventAdTypeStr(bits));
-                                }
-                                goto Label_3170;
-
-                            case 0x603:
-                            case 0x604:
-                                goto Label_3170;
-
-                            case 0x605:
-                                this.StopTimer(EventType.Establish);
-                                this.devTabsForm.ShowProgress(false);
-                                bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" DevAddrType\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapAddrTypeStr(bits));
-                                    str3 = this.devUtils.UnloadDeviceAddr(data, ref addr, ref index, false, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" DevAddr\t\t: {0:S}\n", str3);
-                                        num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" ConnHandle\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                            if (status == 0)
-                                            {
-                                                ConnectInfo tmpConnectInfo = new ConnectInfo();
-                                                tmpConnectInfo.handle = num8;
-                                                tmpConnectInfo.addrType = bits;
-                                                tmpConnectInfo.bDA = str3;
-                                                this.OnConnectionNotify(ref tmpConnectInfo);
-                                                this.devTabsForm.SetConnHandles(tmpConnectInfo.handle);
-                                            }
-                                            num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                            if (!dataErr)
-                                            {
-                                                msg = msg + string.Format(" ConnInterval\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                                num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                                if (!dataErr)
-                                                {
-                                                    msg = msg + string.Format(" ConnLatency\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                                    num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                                    if (!dataErr)
-                                                    {
-                                                        msg = msg + string.Format(" ConnTimeout\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                                        bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                                        if (!dataErr)
-                                                        {
-                                                            msg = msg + string.Format(" ClockAccuracy\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x606:
-                                num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" ConnHandle\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                    this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" Reason\t\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapTerminationReasonStr(bits));
-                                        if (status == 0)
-                                        {
-                                            ConnectInfo tmpDisconnectInfo = new ConnectInfo();
-                                            tmpDisconnectInfo.handle = num8;
-                                            tmpDisconnectInfo.bDA = "00:00:00:00:00:00";
-                                            tmpDisconnectInfo.addrType = 0;
-                                            this.OnDisconnectionNotify(ref tmpDisconnectInfo);
-                                            this.devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotConnected);
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x607:
-                                this.dspCmdUtils.AddConnectHandle(data, ref index, ref dataErr, ref msg);
-                                if (!dataErr)
-                                {
-                                    num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" ConnInterval\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                        num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" ConnLatency\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                            num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                            if (!dataErr)
-                                            {
-                                                msg = msg + string.Format(" ConnTimeout\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x608:
-                                this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" AddrType\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapAddrTypeStr(bits)) + string.Format(" NewRandAddr\t: {0:S}\n", this.devUtils.UnloadDeviceAddr(data, ref addr, ref index, false, ref dataErr));
-                                    if (!dataErr)
-                                    {
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x609:
-                                this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" AddrType\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapAddrTypeStr(bits)) + string.Format(" DevAddr\t\t: {0:S}\n", this.devUtils.UnloadDeviceAddr(data, ref addr, ref index, false, ref dataErr));
-                                    if (!dataErr)
-                                    {
-                                        num9 = this.dataUtils.Unload32Bits(data, ref index, ref dataErr, false);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" SignCounter\t: 0x{0:X8} ({1:D})\n", num9, num9);
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x60a:
-                            {
-                                HCICmds.GAPEvts.GAP_AuthenticationComplete complete = new HCICmds.GAPEvts.GAP_AuthenticationComplete();
-                                this.dspCmdUtils.AddConnectHandle(data, ref index, ref dataErr, ref msg);
-                                if (!dataErr)
-                                {
-                                    complete.connHandle = num8;
-                                    bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" AuthState\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapAuthReqStr(bits));
-                                        complete.authState = bits;
-                                        bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" SecInf.Enable\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                            complete.secInfo_enable = (HCICmds.GAP_EnableDisable) bits;
-                                            bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                            if (!dataErr)
-                                            {
-                                                msg = msg + string.Format(" SecInf.LTKSize\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                                complete.secInfo_LTKsize = bits;
-                                                str3 = this.devUtils.UnloadColonData(data, ref index, 0x10, ref dataErr);
-                                                if (!dataErr)
-                                                {
-                                                    msg = msg + string.Format(" SecInf.LTK\t: {0:S}\n", str3);
-                                                    complete.secInfo_LTK = str3;
-                                                    num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                                    if (!dataErr)
-                                                    {
-                                                        msg = msg + string.Format(" SecInf.DIV\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                                        complete.secInfo_DIV = num8;
-                                                        str3 = this.devUtils.UnloadColonData(data, ref index, 8, ref dataErr);
-                                                        if (!dataErr)
-                                                        {
-                                                            msg = msg + string.Format(" SecInf.Rand\t: {0:S}\n", str3);
-                                                            complete.secInfo_RAND = str3;
-                                                            bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                                            if (!dataErr)
-                                                            {
-                                                                msg = msg + string.Format(" DSInf.Enable\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                                                complete.devSecInfo_enable = (HCICmds.GAP_EnableDisable) bits;
-                                                                bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                                                if (!dataErr)
-                                                                {
-                                                                    msg = msg + string.Format(" DSInf.LTKSize\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                                                    complete.devSecInfo_LTKsize = bits;
-                                                                    str3 = this.devUtils.UnloadColonData(data, ref index, 0x10, ref dataErr);
-                                                                    if (!dataErr)
-                                                                    {
-                                                                        msg = msg + string.Format(" DSInf.LTK\t: {0:S}\n", str3);
-                                                                        complete.devSecInfo_LTK = str3;
-                                                                        num8 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                                                        if (!dataErr)
-                                                                        {
-                                                                            msg = msg + string.Format(" DSInf.DIV\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                                                            complete.devSecInfo_DIV = num8;
-                                                                            str3 = this.devUtils.UnloadColonData(data, ref index, 8, ref dataErr);
-                                                                            if (!dataErr)
-                                                                            {
-                                                                                msg = msg + string.Format(" DSInf.Rand\t: {0:S}\n", str3);
-                                                                                complete.devSecInfo_RAND = str3;
-                                                                                bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                                                                if (!dataErr)
-                                                                                {
-                                                                                    msg = msg + string.Format(" IdInfo.Enable\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                                                                    complete.idInfo_enable = (HCICmds.GAP_EnableDisable) bits;
-                                                                                    str3 = this.devUtils.UnloadColonData(data, ref index, 0x10, ref dataErr);
-                                                                                    if (!dataErr)
-                                                                                    {
-                                                                                        msg = msg + string.Format(" IdInfo.IRK\t: {0:S}\n", str3);
-                                                                                        complete.idInfo_IRK = str3;
-                                                                                        str3 = this.devUtils.UnloadDeviceAddr(data, ref addr, ref index, false, ref dataErr);
-                                                                                        if (!dataErr)
-                                                                                        {
-                                                                                            msg = msg + string.Format(" IdInfo.BD_Addr\t: {0:S}\n", str3);
-                                                                                            complete.idInfo_BdAddr = str3;
-                                                                                            bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                                                                            if (!dataErr)
-                                                                                            {
-                                                                                                msg = msg + string.Format(" SignInfo.Enable\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                                                                                complete.signInfo_enable = (HCICmds.GAP_EnableDisable) bits;
-                                                                                                str3 = this.devUtils.UnloadColonData(data, ref index, 0x10, ref dataErr);
-                                                                                                if (!dataErr)
-                                                                                                {
-                                                                                                    msg = msg + string.Format(" SignInfo.CSRK\t: {0:S}\n", str3);
-                                                                                                    complete.signInfo_CSRK = str3;
-                                                                                                    num9 = this.dataUtils.Unload32Bits(data, ref index, ref dataErr, false);
-                                                                                                    if (!dataErr)
-                                                                                                    {
-                                                                                                        msg = msg + string.Format(" SignCounter\t: 0x{0:X8} ({1:D})\n", num9, num9);
-                                                                                                        complete.signCounter = num9;
-                                                                                                        if (this.devTabsForm.GetSelectedTab() == 2)
-                                                                                                        {
-                                                                                                            this.StopTimer(EventType.PairBond);
-                                                                                                            this.devTabsForm.ShowProgress(false);
-                                                                                                            if (status == 0x17)
-                                                                                                            {
-                                                                                                                this.devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
-                                                                                                            }
-                                                                                                            else if (status == 4)
-                                                                                                            {
-                                                                                                                this.devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.PasskeyIncorrect);
-                                                                                                            }
-                                                                                                            else if (status == 0)
-                                                                                                            {
-                                                                                                                bits = 1;
-                                                                                                                if ((complete.authState & bits) == bits)
-                                                                                                                {
-                                                                                                                    this.devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.DevicesPairedBonded);
-                                                                                                                }
-                                                                                                                else
-                                                                                                                {
-                                                                                                                    this.devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.DevicesPaired);
-                                                                                                                }
-                                                                                                                bits = 4;
-                                                                                                                if ((complete.authState & bits) == bits)
-                                                                                                                {
-                                                                                                                    this.devTabsForm.SetAuthenticatedBond(true);
-                                                                                                                }
-                                                                                                                else
-                                                                                                                {
-                                                                                                                    this.devTabsForm.SetAuthenticatedBond(false);
-                                                                                                                }
-                                                                                                                this.devTabsForm.SetGapAuthCompleteInfo(complete);
-                                                                                                            }
-                                                                                                        }
-                                                                                                    }
-                                                                                                }
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-                            }
-                            case 0x60b:
-                                msg = msg + string.Format(" DevAddr\t\t: {0:S}\n", this.devUtils.UnloadDeviceAddr(data, ref addr, ref index, false, ref dataErr));
-                                if (!dataErr)
-                                {
-                                    this.dspCmdUtils.AddConnectHandle(data, ref index, ref dataErr, ref msg);
-                                    if (!dataErr)
-                                    {
-                                        this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" UiInput\t\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapUiInputStr(bits));
-                                            if ((this.devTabsForm.GetSelectedTab() == 2) && (bits == 1))
-                                            {
-                                                this.devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.PasskeyNeeded);
-                                            }
-                                            this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                            if (!dataErr)
-                                            {
-                                                msg = msg + string.Format(" UiOutput\t\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapUiOutputStr(bits));
-                                                if (this.devTabsForm.GetSelectedTab() == 2)
-                                                {
-                                                    this.StopTimer(EventType.PairBond);
-                                                    this.devTabsForm.ShowProgress(false);
-                                                    this.devTabsForm.UsePasskeySecurity((HCICmds.GAP_UiOutput) bits);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x60c:
-                                this.dspCmdUtils.AddConnectHandle(data, ref index, ref dataErr, ref msg);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" DevAddr\t\t: {0:S}\n", this.devUtils.UnloadDeviceAddr(data, ref addr, ref index, false, ref dataErr));
-                                    if (!dataErr)
-                                    {
-                                        this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" AuthReq\t\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x60d:
-                            {
-                                byte num24 = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" EventType\t: 0x{0:X2} ({1:S})\n", num24, this.devUtils.GetGapEventTypeStr(num24));
-                                    byte num25 = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" AddrType\t: 0x{0:X2} ({1:S})\n", num25, this.devUtils.GetGapAddrTypeStr(num25)) + string.Format(" Addr\t\t: {0:S}\n", this.devUtils.UnloadDeviceAddr(data, ref addr, ref index, false, ref dataErr));
-                                        if (!dataErr)
-                                        {
-                                            bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                            if (!dataErr)
-                                            {
-                                                msg = msg + string.Format(" Rssi\t\t: 0x{0:X2} ({1:D})\n", bits, bits);
-                                                num26 = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                                if (!dataErr)
-                                                {
-                                                    msg = msg + string.Format(" DataLength\t: 0x{0:X2} ({1:D})\n", num26, num26);
-                                                    if (num26 != 0)
-                                                    {
-                                                        msg = msg + string.Format(" Data\t\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, num26, ref dataErr));
-                                                        if (!dataErr && ((num24 == 0) || (num24 == 4)))
-                                                        {
-                                                            DeviceTabsForm.LinkSlave slave2;
-                                                            slave2.slaveBDA = addr;
-                                                            slave2.addrBDA = "";
-                                                            slave2.addrType = (HCICmds.GAP_AddrType) num25;
-                                                            this.devTabsForm.AddSlaveDevice(slave2);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-                            }
-                            case 0x60e:
-                                this.dspCmdUtils.AddConnectHandle(data, ref index, ref dataErr, ref msg);
-                                if (!dataErr && (this.devTabsForm.GetSelectedTab() == 2))
-                                {
-                                    this.StopTimer(EventType.PairBond);
-                                    this.devTabsForm.ShowProgress(false);
-                                    if (status != 0)
-                                    {
-                                        this.devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
-                                        string str9 = string.Format("GAP_BondComplete: Failed.\n{0}\n", hCIExtStatusStr);
-                                        this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str9);
-                                    }
-                                    else
-                                    {
-                                        this.devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.DevicesPairedBonded);
-                                    }
-                                    this.devTabsForm.PairBondUserInputControl();
-                                }
-                                goto Label_3170;
-
-                            case 0x60f:
-                                this.dspCmdUtils.AddConnectHandle(data, ref index, ref dataErr, ref msg);
-                                if (!dataErr)
-                                {
-                                    this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" IOCap\t\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapIOCapsStr(bits));
-                                        this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            msg = msg + string.Format(" OobDataFlag\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapOobDataFlagStr(bits));
-                                            this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                            if (!dataErr)
-                                            {
-                                                msg = msg + string.Format(" AuthReq\t\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapAuthReqStr(bits));
-                                                bits = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                                if (!dataErr)
-                                                {
-                                                    msg = msg + string.Format(" MaxEncKeySiz\t: 0x{0:X4} ({1:D})\n", bits, bits);
-                                                    this.dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-                                                    if (!dataErr)
-                                                    {
-                                                        msg = msg + string.Format(" KeyDist\t\t: 0x{0:X2} ({1:S})\n", bits, this.devUtils.GetGapKeyDiskStr(bits));
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                goto Label_3170;
-
-                            case 0x67f:
-                            {
-                                ushort num27 = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                                if (!dataErr)
-                                {
-                                    msg = msg + string.Format(" OpCode\t\t: 0x{0:X4} ({1:S})\n", num27, this.devUtils.GetOpCodeName(num27));
-                                    num26 = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-                                    if (!dataErr)
-                                    {
-                                        msg = msg + string.Format(" DataLength\t: 0x{0:X2} ({1:D})\n", num26, num26);
-                                        num30 = num27;
-                                        if (num30 > 0xfd96)
-                                        {
-                                            switch (num30)
-                                            {
-                                                case 0xfd9b:
-                                                case 0xfd9d:
-                                                case 0xfdb0:
-                                                case 0xfdb2:
-                                                case 0xfdb6:
-                                                case 0xfdb8:
-                                                case 0xfdba:
-                                                case 0xfdbc:
-                                                case 0xfdbe:
-                                                case 0xfdc0:
-                                                case 0xfdc2:
-                                                case 0xfdfc:
-                                                case 0xfdfd:
-                                                case 0xfdfe:
-                                                case 0xfe00:
-                                                case 0xfe03:
-                                                case 0xfe06:
-                                                case 0xfe07:
-                                                case 0xfe08:
-                                                case 0xfe0c:
-                                                case 0xfe0d:
-                                                case 0xfe0e:
-                                                case 0xfe10:
-                                                case 0xfe11:
-                                                case 0xfe32:
-                                                case 0xfe33:
-                                                case 0xfe34:
-                                                case 0xfe35:
-                                                case 0xfe36:
-                                                case 0xfe37:
-                                                case 0xfe80:
-                                                case 0xfe82:
-                                                case 0xfe83:
-                                                    goto Label_3170;
-
-                                                case 0xfdb4:
-                                                    if (this.devTabsForm.GetTbReadStatusText() == "Reading...")
-                                                    {
-                                                        this.devTabsForm.SetTbReadStatusText(string.Format("{0:S}", this.devUtils.GetStatusStr(status)));
-                                                    }
-                                                    goto Label_3170;
-
-                                                case 0xfe04:
-                                                    if (status != 0)
-                                                    {
-                                                        string str10 = string.Format("GAP_DeviceDiscoveryRequest Failed.\n{0}\n", hCIExtStatusStr);
-                                                        this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str10);
-                                                        this.devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
-                                                        this.devTabsForm.DiscoverConnectUserInputControl();
-                                                    }
-                                                    goto Label_3170;
-
-                                                case 0xfe05:
-                                                    if (status != 0)
-                                                    {
-                                                        string str11 = string.Format("GAP_DeviceDiscoveryCancel Failed.\n{0}\n", hCIExtStatusStr);
-                                                        this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str11);
-                                                    }
-                                                    this.devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
-                                                    this.devTabsForm.DiscoverConnectUserInputControl();
-                                                    goto Label_3170;
-
-                                                case 0xfe09:
-                                                    this.StopTimer(EventType.Establish);
-                                                    this.devTabsForm.ShowProgress(false);
-                                                    if (status != 0)
-                                                    {
-                                                        string str12 = string.Format("GAP_EstablishLinkRequest Failed.\n{0}\n", hCIExtStatusStr);
-                                                        this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str12);
-                                                    }
-                                                    this.devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
-                                                    this.devTabsForm.DiscoverConnectUserInputControl();
-                                                    goto Label_3170;
-
-                                                case 0xfe0a:
-                                                    if (status != 0)
-                                                    {
-                                                        string str13 = string.Format("GAP_TerminateLinkRequest Failed.\n{0}\n", hCIExtStatusStr);
-                                                        this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str13);
-                                                    }
-                                                    this.devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
-                                                    this.devTabsForm.DiscoverConnectUserInputControl();
-                                                    goto Label_3170;
-
-                                                case 0xfe0b:
-                                                    if (status != 0)
-                                                    {
-                                                        this.StopTimer(EventType.PairBond);
-                                                        this.devTabsForm.ShowProgress(false);
-                                                        this.Cursor = Cursors.Default;
-                                                        this.devTabsForm.TabPairBondInitValues();
-                                                        this.devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
-                                                        this.devTabsForm.PairBondUserInputControl();
-                                                        string str14 = string.Format("GAP Authenticate Failed.\n{0}\n", hCIExtStatusStr);
-                                                        this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str14);
-                                                    }
-                                                    goto Label_3170;
-
-                                                case 0xfe0f:
-                                                    if ((this.devTabsForm.GetSelectedTab() == 2) && (status != 0))
-                                                    {
-                                                        this.StopTimer(EventType.PairBond);
-                                                        this.devTabsForm.ShowProgress(false);
-                                                        this.devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
-                                                        this.devTabsForm.PairBondUserInputControl();
-                                                        string str15 = string.Format("GAP_Bond: Failed.\n{0}\n", hCIExtStatusStr);
-                                                        this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str15);
-                                                    }
-                                                    goto Label_3170;
-
-                                                case 0xfe30:
-                                                    if (status != 0)
-                                                    {
-                                                        string str16 = string.Format("GAP_SetParam: Failed.\n{0}\n", hCIExtStatusStr);
-                                                        this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str16);
-                                                    }
-                                                    this.devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
-                                                    this.devTabsForm.DiscoverConnectUserInputControl();
-                                                    goto Label_3170;
-
-                                                case 0xfe31:
-                                                    if (status != 0)
-                                                    {
-                                                        string str17 = string.Format("GAP_GetParam: Failed.\n{0}\n", hCIExtStatusStr);
-                                                        this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str17);
-                                                    }
-                                                    this.devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
-                                                    this.devTabsForm.DiscoverConnectUserInputControl();
-                                                    if (num26 != 0)
-                                                    {
-                                                        this.dataUtils.Unload16Bits(data, ref index, ref num8, ref dataErr, false);
-                                                        if (!dataErr)
-                                                        {
-                                                            msg = msg + string.Format(" ParamValue\t: 0x{0:X4} ({1:D})\n", num8, num8);
-                                                            switch (this.ConnParamState)
-                                                            {
-                                                                case GAPGetConnectionParams.MinConnIntSeq:
-                                                                    this.devTabsForm.SetMinConnectionInterval(num8);
-                                                                    this.ConnParamState = GAPGetConnectionParams.MaxConnIntSeq;
-                                                                    break;
-
-                                                                case GAPGetConnectionParams.MaxConnIntSeq:
-                                                                    this.devTabsForm.SetMaxConnectionInterval(num8);
-                                                                    this.ConnParamState = GAPGetConnectionParams.SlaveLatencySeq;
-                                                                    break;
-
-                                                                case GAPGetConnectionParams.SlaveLatencySeq:
-                                                                    this.devTabsForm.SetSlaveLatency(num8);
-                                                                    this.ConnParamState = GAPGetConnectionParams.SupervisionTimeoutSeq;
-                                                                    break;
-
-                                                                case GAPGetConnectionParams.SupervisionTimeoutSeq:
-                                                                    this.devTabsForm.SetSupervisionTimeout(num8);
-                                                                    this.ConnParamState = GAPGetConnectionParams.None;
-                                                                    break;
-
-                                                                case GAPGetConnectionParams.MinConnIntSingle:
-                                                                    this.devTabsForm.SetNudMinConnIntValue(num8);
-                                                                    this.ConnParamState = GAPGetConnectionParams.None;
-                                                                    break;
-
-                                                                case GAPGetConnectionParams.MaxConnIntSingle:
-                                                                    this.devTabsForm.SetNudMaxConnIntValue(num8);
-                                                                    this.ConnParamState = GAPGetConnectionParams.None;
-                                                                    break;
-
-                                                                case GAPGetConnectionParams.SlaveLatencySingle:
-                                                                    this.devTabsForm.SetNudSlaveLatencyValue(num8);
-                                                                    this.ConnParamState = GAPGetConnectionParams.None;
-                                                                    break;
-
-                                                                case GAPGetConnectionParams.SupervisionTimeoutSingle:
-                                                                    this.devTabsForm.SetNudSprVisionTimeoutValue(num8);
-                                                                    this.ConnParamState = GAPGetConnectionParams.None;
-                                                                    break;
-                                                            }
-                                                        }
-                                                    }
-                                                    goto Label_3170;
-
-                                                case 0xfe81:
-                                                    if (num26 != 0)
-                                                    {
-                                                        msg = msg + string.Format(" nvData\t\t: {0:S}\n", this.devUtils.UnloadColonData(data, ref index, num26, ref dataErr));
-                                                        if (!dataErr)
-                                                        {
-                                                        }
-                                                    }
-                                                    goto Label_3170;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            switch (num30)
-                                            {
-                                                case 0xfc8a:
-                                                case 0xfc92:
-                                                case 0xfd01:
-                                                case 0xfd02:
-                                                case 0xfd03:
-                                                case 0xfd04:
-                                                case 0xfd05:
-                                                case 0xfd06:
-                                                case 0xfd07:
-                                                case 0xfd08:
-                                                case 0xfd09:
-                                                case 0xfd0a:
-                                                case 0xfd0b:
-                                                case 0xfd0c:
-                                                case 0xfd0d:
-                                                case 0xfd0e:
-                                                case 0xfd0f:
-                                                case 0xfd10:
-                                                case 0xfd11:
-                                                case 0xfd12:
-                                                case 0xfd13:
-                                                case 0xfd16:
-                                                case 0xfd17:
-                                                case 0xfd18:
-                                                case 0xfd19:
-                                                case 0xfd1b:
-                                                case 0xfd1d:
-                                                case 0xfd1e:
-                                                case 0xfd82:
-                                                case 0xfd84:
-                                                case 0xfd86:
-                                                case 0xfd8c:
-                                                case 0xfd90:
-                                                case 0xfd96:
-                                                    goto Label_3170;
-
-                                                case 0xfd88:
-                                                    if (this.devTabsForm.GetTbReadStatusText() == "Reading...")
-                                                    {
-                                                        this.devTabsForm.SetTbReadStatusText(string.Format("{0:S}", this.devUtils.GetStatusStr(status)));
-                                                    }
-                                                    goto Label_3170;
-
-                                                case 0xfd8a:
-                                                    if (this.devTabsForm.GetTbReadStatusText() == "Reading...")
-                                                    {
-                                                        this.devTabsForm.SetTbReadStatusText(string.Format("{0:S}", this.devUtils.GetStatusStr(status)));
-                                                    }
-                                                    goto Label_3170;
-
-                                                case 0xfd8e:
-                                                    if (this.devTabsForm.GetTbReadStatusText() == "Reading...")
-                                                    {
-                                                        this.devTabsForm.SetTbReadStatusText(string.Format("{0:S}", this.devUtils.GetStatusStr(status)));
-                                                    }
-                                                    goto Label_3170;
-
-                                                case 0xfd92:
-                                                    if (this.devTabsForm.GetTbWriteStatusText() == "Writing...")
-                                                    {
-                                                        this.devTabsForm.SetTbWriteStatusText(string.Format("{0:S}", this.devUtils.GetStatusStr(status)));
-                                                    }
-                                                    goto Label_3170;
-                                            }
-                                        }
-                                        this.devUtils.BuildRawDataStr(data, ref msg, data.Length);
-                                    }
-                                }
-                                goto Label_3170;
-                            }
-                        }
-                        this.devUtils.BuildRawDataStr(data, ref msg, data.Length);
-                    }
-                    goto Label_3170;
-                }
-            }
-            this.devUtils.BuildRawDataStr(data, ref msg, data.Length);
-        Label_3170:
-            if (dataErr)
-            {
-                this.DisplayMsg(SharedAppObjs.MsgType.Error, "Could Not Convert All The Data In The Following Message\n(Message Is Missing Data Bytes To Process)\n");
-            }
-            this.DisplayMsgTime(SharedAppObjs.MsgType.Incoming, msg, rxDataIn.time);
-            if (displayBytes)
-            {
-                string str18 = string.Empty;
-                str18 = string.Format("{0:X2} {1:X2} {2:X2} ", type, cmdOpcode & 0xff, length);
-                switch (cmdOpcode)
-                {
-                    case 0x13:
-                    case 0xff:
-                        str18 = string.Format("{0:X2} {1:X2} {2:X2} {3:X2} {4:X2} ", new object[] { type, cmdOpcode & 0xff, length, eventOpcode & 0xff, (eventOpcode >> 8) & 0xff });
-                        break;
-                }
-                byte lineIndex = 5;
-                foreach (byte num29 in data)
-                {
-                    str18 = str18 + string.Format("{0:X2} ", num29);
-                    lineIndex = (byte) (lineIndex + 1);
-                    this.devUtils.CheckLineLength(ref str18, lineIndex, false);
-                }
-                this.DisplayMsg(SharedAppObjs.MsgType.RxDump, str18);
-            }
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (this.components != null))
-            {
-                this.components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        ~DeviceForm()
-        {
-            this.DeviceFormClose(true);
-        }
-
-        public ConnectInfo GetConnectInfo()
-        {
-            return this.connectInfo;
-        }
-
-        private bool HandleRxTxMessage(RxTxMgrData rxTxMgrData)
-        {
-            bool flag = true;
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.Invoke(new HandleRxTxMessageDelegate(this.HandleRxTxMessage), new object[] { rxTxMgrData });
-                }
-                catch
-                {
-                }
-                return flag;
-            }
-            if (this.formClosing)
-            {
-                return flag;
-            }
-            if (rxTxMgrData.rxDataIn != null)
-            {
-                this.DisplayRxCmd(rxTxMgrData.rxDataIn, this.msgLogForm.GetDisplayRxDumps());
-                return flag;
-            }
-            if (rxTxMgrData.txDataOut == null)
-            {
-                return flag;
-            }
-            if (this.commMgr.comPort.IsOpen)
-            {
-                this.dspTxCmds.DisplayTxCmd(rxTxMgrData.txDataOut, this.msgLogForm.GetDisplayTxDumps());
-                string str = "";
-                foreach (byte num in rxTxMgrData.txDataOut.data)
-                {
-                    str = str + string.Format("{0:X2} ", num);
-                }
-                str = str.Trim();
-                flag = this.commMgr.WriteData(str);
-                if (!flag && (this.threadMgr.rxDataIn.DeviceTxStopWaitCallback != null))
-                {
-                    this.threadMgr.rxDataIn.DeviceTxStopWaitCallback(false);
-                }
-                return flag;
-            }
-            string msg = string.Format("Attempt To Send Empty Message Detected\nRequest Ignored\n", this.commSelectForm.cbPorts.SelectedItem);
-            this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
-            return false;
-        }
-
-        private void InitializeComponent()
-        {
-            this.components = new Container();
-            ComponentResourceManager resources = new ComponentResourceManager(typeof(DeviceForm));
-            this.scTopLeftRight = new SplitContainer();
-            this.plLog = new Panel();
-            this.plUserTabs = new Panel();
-            this.scanTimer = new System.Windows.Forms.Timer(this.components);
-            this.initTimer = new System.Windows.Forms.Timer(this.components);
-            this.establishTimer = new System.Windows.Forms.Timer(this.components);
-            this.pairBondTimer = new System.Windows.Forms.Timer(this.components);
-            this.scTopBottom = new SplitContainer();
-            this.plAttributes = new Panel();
-            this.scTopLeftRight.Panel1.SuspendLayout();
-            this.scTopLeftRight.Panel2.SuspendLayout();
-            this.scTopLeftRight.SuspendLayout();
-            this.scTopBottom.Panel1.SuspendLayout();
-            this.scTopBottom.Panel2.SuspendLayout();
-            this.scTopBottom.SuspendLayout();
-            base.SuspendLayout();
-            this.scTopLeftRight.BackColor = SystemColors.Highlight;
-            this.scTopLeftRight.Dock = DockStyle.Fill;
-            this.scTopLeftRight.Location = new Point(0, 0);
-            this.scTopLeftRight.Margin = new Padding(2, 3, 2, 3);
-            this.scTopLeftRight.Name = "scTopLeftRight";
-            this.scTopLeftRight.Panel1.Controls.Add(this.plLog);
-            this.scTopLeftRight.Panel2.Controls.Add(this.plUserTabs);
-            this.scTopLeftRight.Panel2.SizeChanged += new EventHandler(this.scTopLeftRightPanel2_SizeChanged);
-            this.scTopLeftRight.Size = new Size(0x314, 0x203);
-            this.scTopLeftRight.SplitterDistance = 380;
-            this.scTopLeftRight.TabIndex = 11;
-            this.plLog.BackColor = SystemColors.Control;
-            this.plLog.Dock = DockStyle.Fill;
-            this.plLog.Location = new Point(0, 0);
-            this.plLog.Name = "plLog";
-            this.plLog.Size = new Size(380, 0x203);
-            this.plLog.TabIndex = 0;
-            this.plUserTabs.AutoScroll = true;
-            this.plUserTabs.BackColor = SystemColors.Control;
-            this.plUserTabs.Dock = DockStyle.Fill;
-            this.plUserTabs.Location = new Point(0, 0);
-            this.plUserTabs.Name = "plUserTabs";
-            this.plUserTabs.Size = new Size(0x194, 0x203);
-            this.plUserTabs.TabIndex = 0;
-            this.scTopBottom.BackColor = SystemColors.Highlight;
-            this.scTopBottom.Dock = DockStyle.Fill;
-            this.scTopBottom.Location = new Point(0, 0);
-            this.scTopBottom.Name = "scTopBottom";
-            this.scTopBottom.Orientation = Orientation.Horizontal;
-            this.scTopBottom.Panel1.Controls.Add(this.scTopLeftRight);
-            this.scTopBottom.Panel2.Controls.Add(this.plAttributes);
-            this.scTopBottom.Size = new Size(0x314, 0x29b);
-            this.scTopBottom.SplitterDistance = 0x203;
-            this.scTopBottom.TabIndex = 1;
-            this.plAttributes.BackColor = SystemColors.Control;
-            this.plAttributes.Dock = DockStyle.Fill;
-            this.plAttributes.Location = new Point(0, 0);
-            this.plAttributes.Name = "plAttributes";
-            this.plAttributes.Size = new Size(0x314, 0x94);
-            this.plAttributes.TabIndex = 0;
-            base.AutoScaleDimensions = new SizeF(6f, 13f);
-            base.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            base.ClientSize = new Size(0x314, 0x29b);
-            base.Controls.Add(this.scTopBottom);
-            this.Font = new Font("Microsoft Sans Serif", 8.25f, FontStyle.Regular, GraphicsUnit.Point, 0);
-            base.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
-            base.Icon = (Icon) resources.GetObject("$this.Icon");
-            base.Margin = new Padding(2, 3, 2, 3);
-            base.MaximizeBox = false;
-            base.MinimizeBox = false;
-            base.Name = "DeviceForm";
-            base.ShowInTaskbar = false;
-            base.StartPosition = FormStartPosition.Manual;
-            this.Text = "Device";
-            base.Activated += new EventHandler(this.deviceForm_Activated);
-            base.FormClosing += new FormClosingEventHandler(this.DeviceForm_FormClosing);
-            base.Load += new EventHandler(this.DeviceForm_Load);
-            base.LocationChanged += new EventHandler(this.DeviceForm_LocationChanged);
-            this.scTopLeftRight.Panel1.ResumeLayout(false);
-            this.scTopLeftRight.Panel2.ResumeLayout(false);
-            this.scTopLeftRight.ResumeLayout(false);
-            this.scTopBottom.Panel1.ResumeLayout(false);
-            this.scTopBottom.Panel2.ResumeLayout(false);
-            this.scTopBottom.ResumeLayout(false);
-            base.ResumeLayout(false);
-        }
-
-        private void LoadUserInitializeValues()
-        {
-            this.scanTimer.Interval = this.EventTimeout[1];
-            this.scanTimer.Tick += new EventHandler(this.timerScanEvent);
-            this.initTimer.Interval = this.EventTimeout[0];
-            this.initTimer.Tick += new EventHandler(this.timerInitEvent);
-            this.establishTimer.Interval = this.EventTimeout[2];
-            this.establishTimer.Tick += new EventHandler(this.timerEstablishEvent);
-            this.pairBondTimer.Interval = this.EventTimeout[3];
-            this.pairBondTimer.Tick += new EventHandler(this.timerPairBondEvent);
-            this.devTabsForm.TabAdvCommandsInitValues();
-            this.devTabsForm.TabDiscoverConnectInitValues();
-            this.devTabsForm.TabPairBondInitValues();
-            this.devTabsForm.TabReadWriteInitValues();
-        }
-
-        private void LoadUserSettings()
-        {
-            this.attributesForm.LoadUserSettings();
-        }
-
-        protected void OnBDAddressNotify(string deviceBDAddressStr)
-        {
-            this.BDAddressStr = deviceBDAddressStr;
-            this.BDAddressNotify(this, EventArgs.Empty);
-        }
-
-        protected void OnConnectionNotify(ref ConnectInfo tmpConnectInfo)
-        {
-            this.numConnections++;
-            this.connectInfo = tmpConnectInfo;
-            this.Connections.Add(this.connectInfo);
-            this.ConnectionNotify(this, EventArgs.Empty);
-            string msg = "Device Connected\nHandle = 0x" + this.connectInfo.handle.ToString("X4") + "\nAddr Type = 0x" + this.connectInfo.addrType.ToString("X2") + " (" + this.devUtils.GetGapAddrTypeStr(this.connectInfo.addrType) + ")\nBDAddr = " + this.connectInfo.bDA + "\n";
-            this.DisplayMsg(SharedAppObjs.MsgType.Info, msg);
-            this.attributesForm.RemoveData(this.connectInfo.handle);
-        }
-
-        protected void OnDisconnectionNotify(ref ConnectInfo tmpDisconnectInfo)
-        {
-            this.disconnectInfo = tmpDisconnectInfo;
-            for (int i = 0; i < this.Connections.Count; i++)
-            {
-                if (this.Connections[i].handle == this.disconnectInfo.handle)
-                {
-                    string msg = "Device Disconnected\nHandle = 0x" + this.disconnectInfo.handle.ToString("X4") + "\nAddr Type = 0x" + this.Connections[i].addrType.ToString("X2") + " (" + this.devUtils.GetGapAddrTypeStr(this.Connections[i].addrType) + ")\nBDAddr = " + this.Connections[i].bDA + "\n";
-                    this.DisplayMsg(SharedAppObjs.MsgType.Info, msg);
-                    this.Connections.RemoveAt(i);
-                    this.DisconnectionNotify(this, EventArgs.Empty);
-                    if (this.numConnections > 0)
-                    {
-                        this.numConnections--;
-                    }
-                    this.attributesForm.RemoveData(this.disconnectInfo.handle);
-                    return;
-                }
-            }
-        }
-
-        private void ProcessRxProc()
-        {
-            byte type = 0;
-            ushort opCode = 0xffff;
-            ushort eventOpCode = 0xffff;
-            byte length = 0;
-            byte[] data = null;
-            SharedObjects.log.Write(Logging.MsgType.Debug, "ProcessRxProc", "Starting Thread");
-            while (!this.formClosing)
-            {
-                if (this.commParser.GetDataSize() != 0)
-                {
-                    if (this.commParser.ParseData(ref type, ref opCode, ref eventOpCode, ref length, ref data))
-                    {
-                        if (this.formClosing)
-                        {
-                            break;
-                        }
-                        RxDataIn @in = new RxDataIn();
-                        @in.type = type;
-                        @in.cmdOpcode = opCode;
-                        @in.eventOpcode = eventOpCode;
-                        @in.length = length;
-                        @in.data = data;
-                        this.threadMgr.rxDataIn.dataQ.AddQTail(@in);
-                        type = 0;
-                        opCode = 0xffff;
-                        eventOpCode = 0xffff;
-                        length = 0;
-                        data = null;
-                    }
-                }
-                else
-                {
-                    Thread.Sleep(10);
-                }
-            }
-            SharedObjects.log.Write(Logging.MsgType.Debug, "ProcessRxProc", "Exiting Thread");
-        }
-
-        internal void RxDataHandler(byte[] data, uint length)
-        {
-            if (base.InvokeRequired)
-            {
-                base.BeginInvoke(new RxDataHandlerDelegate(this.RxDataHandler), new object[] { data, length });
-            }
-            else
-            {
-                this.commParser.EnQueueData(data);
-            }
-        }
-
-        private void SaveUserSettings()
-        {
-            this.attributesForm.SaveUserSettings();
-            Settings.Default.Save();
-        }
-
-        private void scTopLeftRightPanel2_SizeChanged(object sender, EventArgs e)
-        {
-            int width = this.scTopLeftRight.Panel2.Width;
-            int num2 = 0x1ab;
-            if (this.devTabsForm != null)
-            {
-                num2 = this.devTabsForm.GetTcDeviceTabsWidth() + 15;
-            }
-            int num3 = (base.Width - num2) - 10;
-            if ((width > num2) && (num3 > 1))
-            {
-                this.scTopLeftRight.SplitterDistance = num3;
-            }
-            this.scTopLeftRight.Update();
-            if (this.devTabsForm != null)
-            {
-                this.devTabsForm.DeviceTabsUpdate();
-            }
-        }
-
-        public void SendAllEvents(byte[] data, byte length)
-        {
-            int index = 0;
-            bool dataErr = false;
-            RxDataIn rxDataIn = new RxDataIn();
-            rxDataIn.type = 4;
-            rxDataIn.cmdOpcode = 0xff;
-            rxDataIn.length = length;
-            rxDataIn.data = data;
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x400;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x401;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x402;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x403;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x404;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x405;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x406;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x407;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x408;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x409;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x40a;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x40b;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x40c;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x40d;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x40e;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x40f;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x410;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x411;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x412;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x413;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x414;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x481;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x48b;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x493;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x501;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x502;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x503;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x504;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x505;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x506;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x507;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x508;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x509;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x50a;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x50b;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x50c;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x50d;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x50e;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x50f;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x50f;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x510;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x511;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x512;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x513;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x516;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x517;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x518;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x519;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x51b;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x51d;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x51e;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x600;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x601;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x602;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x603;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x604;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x605;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x606;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x607;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x608;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x609;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x60a;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x60b;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x60c;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x60d;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x60e;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x60f;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.eventOpcode = 0x67f;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            index = 0;
-            rxDataIn.cmdOpcode = 14;
-            rxDataIn.eventOpcode = 0;
-            this.dataUtils.Load8Bits(ref data, ref index, 1, ref dataErr);
-            this.dataUtils.Load16Bits(ref data, ref index, 0x1405, ref dataErr, false);
-            rxDataIn.data = data;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            index = 0;
-            this.dataUtils.Load8Bits(ref data, ref index, 1, ref dataErr);
-            this.dataUtils.Load16Bits(ref data, ref index, 0x2010, ref dataErr, false);
-            rxDataIn.data = data;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            index = 0;
-            this.dataUtils.Load8Bits(ref data, ref index, 1, ref dataErr);
-            this.dataUtils.Load16Bits(ref data, ref index, 0x2011, ref dataErr, false);
-            rxDataIn.data = data;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            index = 0;
-            this.dataUtils.Load8Bits(ref data, ref index, 1, ref dataErr);
-            this.dataUtils.Load16Bits(ref data, ref index, 0x2012, ref dataErr, false);
-            rxDataIn.data = data;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            index = 0;
-            this.dataUtils.Load8Bits(ref data, ref index, 1, ref dataErr);
-            this.dataUtils.Load16Bits(ref data, ref index, 0x2013, ref dataErr, false);
-            rxDataIn.data = data;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            rxDataIn.cmdOpcode = 0x13;
-            this.DisplayRxCmd(rxDataIn, true);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-        }
-
-        public void SendAllForever()
-        {
-            int num = 0;
-            string logMsg = string.Empty;
-            while (true)
-            {
-                logMsg = string.Format("Msg Loop # {0:D}", num++);
-                this.msgLogForm.AppendLog(logMsg);
-                this.SendAllMsgs();
-                this.SendEventWaves(true);
-                Thread.Sleep(0x3e8);
-            }
-        }
-
-        public void SendAllMsgs()
-        {
-            this.sendCmds.SendHCIExt(this.HCIExt_SetRxGain);
-            this.sendCmds.SendHCIExt(this.HCIExt_SetTxPower);
-            this.sendCmds.SendHCIExt(this.HCIExt_OnePktPerEvt);
-            this.sendCmds.SendHCIExt(this.HCIExt_ClkDivideOnHalt);
-            this.sendCmds.SendHCIExt(this.HCIExt_DeclareNvUsage);
-            this.sendCmds.SendHCIExt(this.HCIExt_Decrypt);
-            this.sendCmds.SendHCIExt(this.HCIExt_SetLocalSupportedFeatures);
-            this.sendCmds.SendHCIExt(this.HCIExt_SetFastTxRespTime);
-            this.sendCmds.SendHCIExt(this.HCIExt_ModemTestTx);
-            this.sendCmds.SendHCIExt(this.HCIExt_ModemHopTestTx);
-            this.sendCmds.SendHCIExt(this.HCIExt_ModemTestRx);
-            this.sendCmds.SendHCIExt(this.HCIExt_EndModemTest);
-            this.sendCmds.SendHCIExt(this.HCIExt_SetBDADDR);
-            this.sendCmds.SendHCIExt(this.HCIExt_SetSCA);
-            this.sendCmds.SendHCIExt(this.HCIExt_EnablePTM);
-            this.sendCmds.SendHCIExt(this.HCIExt_SetFreqTune);
-            this.sendCmds.SendHCIExt(this.HCIExt_SaveFreqTune);
-            this.sendCmds.SendHCIExt(this.HCIExt_SetMaxDtmTxPower);
-            this.sendCmds.SendHCIExt(this.HCIExt_MapPmIoPort);
-            this.sendCmds.SendHCIExt(this.HCIExt_DisconnectImmed);
-            this.sendCmds.SendHCIExt(this.HCIExt_PER);
-            this.sendCmds.SendL2CAP(this.L2CAP_InfoReq);
-            this.sendCmds.SendL2CAP(this.L2CAP_ConnParamUpdateReq);
-            this.sendCmds.SendATT(this.ATT_ErrorRsp);
-            this.sendCmds.SendATT(this.ATT_ExchangeMTUReq);
-            this.sendCmds.SendATT(this.ATT_ExchangeMTURsp);
-            this.sendCmds.SendATT(this.ATT_FindInfoReq, TxDataOut.CmdType.General);
-            this.sendCmds.SendATT(this.ATT_FindInfoRsp);
-            this.sendCmds.SendATT(this.ATT_FindByTypeValueReq);
-            this.sendCmds.SendATT(this.ATT_FindByTypeValueRsp);
-            this.sendCmds.SendATT(this.ATT_ReadByTypeReq);
-            this.sendCmds.SendATT(this.ATT_ReadByTypeRsp);
-            this.sendCmds.SendATT(this.ATT_ReadReq, TxDataOut.CmdType.General, null);
-            this.sendCmds.SendATT(this.ATT_ReadRsp);
-            this.sendCmds.SendATT(this.ATT_ReadBlobReq, TxDataOut.CmdType.General, null);
-            this.sendCmds.SendATT(this.ATT_ReadBlobRsp);
-            this.sendCmds.SendATT(this.ATT_ReadMultiReq);
-            this.sendCmds.SendATT(this.ATT_ReadMultiRsp);
-            this.sendCmds.SendATT(this.ATT_ReadByGrpTypeReq, TxDataOut.CmdType.General);
-            this.sendCmds.SendATT(this.ATT_ReadByGrpTypeRsp);
-            this.sendCmds.SendATT(this.ATT_WriteReq, null);
-            this.sendCmds.SendATT(this.ATT_WriteRsp);
-            this.sendCmds.SendATT(this.ATT_PrepareWriteReq);
-            this.sendCmds.SendATT(this.ATT_PrepareWriteRsp);
-            this.sendCmds.SendATT(this.ATT_ExecuteWriteReq, null);
-            this.sendCmds.SendATT(this.ATT_ExecuteWriteRsp);
-            this.sendCmds.SendATT(this.ATT_HandleValueNotification);
-            this.sendCmds.SendATT(this.ATT_HandleValueIndication);
-            this.sendCmds.SendATT(this.ATT_HandleValueConfirmation);
-            this.sendCmds.SendGATT(this.GATT_ExchangeMTU);
-            this.sendCmds.SendGATT(this.GATT_DiscAllPrimaryServices, TxDataOut.CmdType.General);
-            this.sendCmds.SendGATT(this.GATT_DiscPrimaryServiceByUUID);
-            this.sendCmds.SendGATT(this.GATT_FindIncludedServices);
-            this.sendCmds.SendGATT(this.GATT_DiscAllChars);
-            this.sendCmds.SendGATT(this.GATT_DiscCharsByUUID);
-            this.sendCmds.SendGATT(this.GATT_DiscAllCharDescs, TxDataOut.CmdType.General);
-            this.sendCmds.SendGATT(this.GATT_ReadCharValue, TxDataOut.CmdType.General, null);
-            this.sendCmds.SendGATT(this.GATT_ReadUsingCharUUID);
-            this.sendCmds.SendGATT(this.GATT_ReadLongCharValue, TxDataOut.CmdType.General, null);
-            this.sendCmds.SendGATT(this.GATT_ReadMultiCharValues);
-            this.sendCmds.SendGATT(this.GATT_WriteNoRsp);
-            this.sendCmds.SendGATT(this.GATT_SignedWriteNoRsp);
-            this.sendCmds.SendGATT(this.GATT_WriteCharValue, null);
-            this.sendCmds.SendGATT(this.GATT_WriteLongCharValue, null, null);
-            this.sendCmds.SendGATT(this.GATT_ReliableWrites);
-            this.sendCmds.SendGATT(this.GATT_ReadCharDesc);
-            this.sendCmds.SendGATT(this.GATT_ReadLongCharDesc);
-            this.sendCmds.SendGATT(this.GATT_WriteCharDesc);
-            this.sendCmds.SendGATT(this.GATT_WriteLongCharDesc);
-            this.sendCmds.SendGATT(this.GATT_Notification);
-            this.sendCmds.SendGATT(this.GATT_Indication);
-            this.sendCmds.SendGATT(this.GATT_AddService);
-            this.sendCmds.SendGATT(this.GATT_DelService);
-            this.sendCmds.SendGATT(this.GATT_AddAttribute);
-            this.sendCmds.SendGAP(this.GAP_DeviceInit);
-            this.sendCmds.SendGAP(this.GAP_ConfigDeviceAddr);
-            this.sendCmds.SendGAP(this.GAP_DeviceDiscoveryRequest);
-            this.sendCmds.SendGAP(this.GAP_DeviceDiscoveryCancel);
-            this.sendCmds.SendGAP(this.GAP_MakeDiscoverable);
-            this.sendCmds.SendGAP(this.GAP_UpdateAdvertisingData);
-            this.sendCmds.SendGAP(this.GAP_EndDiscoverable);
-            this.sendCmds.SendGAP(this.GAP_EstablishLinkRequest);
-            this.sendCmds.SendGAP(this.GAP_TerminateLinkRequest);
-            this.sendCmds.SendGAP(this.GAP_Authenticate);
-            this.sendCmds.SendGAP(this.GAP_PasskeyUpdate);
-            this.sendCmds.SendGAP(this.GAP_SlaveSecurityRequest);
-            this.sendCmds.SendGAP(this.GAP_Signable);
-            this.sendCmds.SendGAP(this.GAP_Bond);
-            this.sendCmds.SendGAP(this.GAP_TerminateAuth);
-            this.sendCmds.SendGAP(this.GAP_UpdateLinkParamReq);
-            this.sendCmds.SendGAP(this.GAP_SetParam);
-            this.sendCmds.SendGAP(this.GAP_GetParam);
-            this.sendCmds.SendGAP(this.GAP_ResolvePrivateAddr);
-            this.sendCmds.SendGAP(this.GAP_SetAdvToken);
-            this.sendCmds.SendGAP(this.GAP_RemoveAdvToken);
-            this.sendCmds.SendGAP(this.GAP_UpdateAdvTokens);
-            this.sendCmds.SendGAP(this.GAP_BondSetParam);
-            this.sendCmds.SendGAP(this.GAP_BondGetParam);
-            this.sendCmds.SendUTIL(this.UTIL_NVRead);
-            this.sendCmds.SendUTIL(this.UTIL_NVWrite);
-            this.sendCmds.SendHCIOther(this.HCIOther_ReadRSSI);
-            this.sendCmds.SendHCIOther(this.HCIOther_LEClearWhiteList);
-            this.sendCmds.SendHCIOther(this.HCIOther_LEAddDeviceToWhiteList);
-            this.sendCmds.SendHCIOther(this.HCIOther_LERemoveDeviceFromWhiteList);
-            this.sendCmds.SendHCIOther(this.HCIOther_LEConnectionUpdate);
-        }
-
-        public void SendAttrDataCmds()
-        {
-            this.sendCmds.SendGATT(this.GATT_DiscAllPrimaryServices, TxDataOut.CmdType.General);
-            this.sendCmds.SendGATT(this.GATT_DiscPrimaryServiceByUUID);
-            this.sendCmds.SendGATT(this.GATT_FindIncludedServices);
-            this.sendCmds.SendGATT(this.GATT_DiscAllChars);
-            this.sendCmds.SendGATT(this.GATT_DiscCharsByUUID);
-            this.sendCmds.SendGATT(this.GATT_DiscAllCharDescs, TxDataOut.CmdType.General);
-        }
-
-        public void SendEventWaves(bool skipCase)
-        {
-            byte length = 0xff;
-            byte[] data = new byte[length];
-            for (int i = 0; i < length; i++)
-            {
-                data[i] = (byte) i;
-            }
-            length = (byte) (length - 4);
-            this.SendAllEvents(data, length);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            if (!skipCase)
-            {
-                int num3 = length - 1;
-                int index = 0;
-                while (index < length)
-                {
-                    data[index] = (byte) num3;
-                    index++;
-                    num3--;
-                }
-                length = (byte) (length - 4);
-                this.SendAllEvents(data, length);
-                this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            }
-            for (int j = 0; j < length; j++)
-            {
-                data[j] = 0;
-            }
-            length = (byte) (length - 4);
-            this.SendAllEvents(data, length);
-            this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            if (!skipCase)
-            {
-                for (int k = 0; k < length; k++)
-                {
-                    data[k] = 0xff;
-                }
-                length = (byte) (length - 4);
-                this.SendAllEvents(data, length);
-                this.msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
-            }
-        }
-
-        public void SendGAPDeviceInit()
-        {
-            this.devTabsForm.ShowProgress(true);
-            this.devTabsForm.UserTabAccess(false);
-            this.StartTimer(EventType.Init);
-            this.sendCmds.SendGAP(this.GAP_DeviceInit);
-        }
-
-        public void StartTimer(EventType eType)
-        {
-            switch (eType)
-            {
-                case EventType.Init:
-                    this.initTimer.Start();
-                    return;
-
-                case EventType.Scan:
-                    this.scanTimer.Start();
-                    return;
-
-                case EventType.Establish:
-                    this.establishTimer.Start();
-                    return;
-
-                case EventType.PairBond:
-                    this.pairBondTimer.Start();
-                    return;
-            }
-        }
-
-        public void StopTimer(EventType eType)
-        {
-            switch (eType)
-            {
-                case EventType.Init:
-                    this.initTimer.Stop();
-                    return;
-
-                case EventType.Scan:
-                    this.scanTimer.Stop();
-                    return;
-
-                case EventType.Establish:
-                    this.establishTimer.Stop();
-                    return;
-
-                case EventType.PairBond:
-                    this.pairBondTimer.Stop();
-                    return;
-            }
-        }
-
-        public void TestCase()
-        {
-            BTool.HCICmds.UTILCmds.UTIL_Reset reset = new BTool.HCICmds.UTILCmds.UTIL_Reset();
-            reset.resetType = HCICmds.UTIL_ResetType.Hard_Reset;
-            this.sendCmds.SendUTIL(reset);
-            BTool.HCICmds.HCIExtCmds.HCIExt_SetBDADDR tbdaddr = new BTool.HCICmds.HCIExtCmds.HCIExt_SetBDADDR();
-            tbdaddr.bleDevAddr = "70:55:44:33:22:11";
-            this.sendCmds.SendHCIExt(tbdaddr);
-            BTool.HCICmds.GAPCmds.GAP_DeviceInit init = new BTool.HCICmds.GAPCmds.GAP_DeviceInit();
-            init.profileRole = HCICmds.GAP_Profile.Central;
-            init.maxScanResponses = 3;
-            init.irk = "33:42:CF:14:BC:55:17:31:75:4F:BB:A4:C7:F2:8C:13";
-            init.csrk = "45:0A:F4:B0:03:07:B0:40:87:F4:18:23:75:4A:FB:A4";
-            init.signCounter = 0;
-            this.sendCmds.SendGAP(init);
-            BTool.HCICmds.GAPCmds.GAP_EstablishLinkRequest request = new BTool.HCICmds.GAPCmds.GAP_EstablishLinkRequest();
-            request.highDutyCycle = HCICmds.GAP_EnableDisable.Disable;
-            request.whiteList = HCICmds.GAP_EnableDisable.Disable;
-            request.addrTypePeer = HCICmds.GAP_AddrType.Public;
-            request.peerAddr = "60:55:44:33:22:11";
-            this.sendCmds.SendGAP(request);
-            BTool.HCICmds.GAPCmds.GAP_Authenticate authenticate = new BTool.HCICmds.GAPCmds.GAP_Authenticate();
-            authenticate.connHandle = 0;
-            authenticate.secReq_ioCaps = HCICmds.GAP_IOCaps.KeyboardDisplay;
-            authenticate.secReq_oobAvailable = HCICmds.GAP_TrueFalse.False;
-            authenticate.secReq_oob = "4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00";
-            authenticate.secReq_authReq = 1;
-            authenticate.secReq_maxEncKeySize = 0x10;
-            authenticate.secReq_keyDist = 0;
-            authenticate.pairReq_Enable = HCICmds.GAP_EnableDisable.Disable;
-            authenticate.pairReq_ioCaps = HCICmds.GAP_IOCaps.KeyboardDisplay;
-            authenticate.pairReq_oobDataFlag = HCICmds.GAP_EnableDisable.Disable;
-            authenticate.pairReq_authReq = 1;
-            authenticate.secReq_maxEncKeySize = 0x10;
-            authenticate.secReq_keyDist = 0;
-            this.sendCmds.SendGAP(authenticate);
-            BTool.HCICmds.GAPCmds.GAP_TerminateLinkRequest request2 = new BTool.HCICmds.GAPCmds.GAP_TerminateLinkRequest();
-            request2.connHandle = 0;
-            this.sendCmds.SendGAP(request2);
-        }
-
-        private void timerEstablishEvent(object obj, EventArgs args)
-        {
-            this.StopTimer(EventType.Establish);
-            this.devTabsForm.ShowProgress(false);
-            this.Cursor = Cursors.Default;
-            string msg = "GAP Link Establish Request Timeout.\n";
-            this.DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
-            this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-        }
-
-        private void timerInitEvent(object obj, EventArgs args)
-        {
-            this.StopTimer(EventType.Init);
-            this.devTabsForm.ShowProgress(false);
-            this.Cursor = Cursors.Default;
-            string msg = "GAP Device Initialization Timeout.\nDevice May Not Function Properly.\n";
-            this.DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
-            this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-        }
-
-        private void timerPairBondEvent(object obj, EventArgs args)
-        {
-            this.StopTimer(EventType.PairBond);
-            this.devTabsForm.ShowProgress(false);
-            this.Cursor = Cursors.Default;
-            this.devTabsForm.TabPairBondInitValues();
-            this.devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
-            this.devTabsForm.PairBondUserInputControl();
-            string msg = "Pairing Bonding Request Timeout.\n";
-            this.DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
-            this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-        }
-
-        private void timerScanEvent(object obj, EventArgs args)
-        {
-            this.StopTimer(EventType.Scan);
-            this.devTabsForm.ShowProgress(false);
-            this.Cursor = Cursors.Default;
-            this.devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
-            this.devTabsForm.DiscoverConnectUserInputControl();
-            string msg = "Device Scan Timeout.\n";
-            this.DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
-            this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-        }
-
-        private delegate void DisplayRxCmdDelegate(RxDataIn rxDataIn, bool displayBytes);
-
-        public enum EventType
-        {
-            Init,
-            Scan,
-            Establish,
-            PairBond
-        }
-
-        public enum GAPGetConnectionParams
-        {
-            None,
-            MinConnIntSeq,
-            MaxConnIntSeq,
-            SlaveLatencySeq,
-            SupervisionTimeoutSeq,
-            MinConnIntSingle,
-            MaxConnIntSingle,
-            SlaveLatencySingle,
-            SupervisionTimeoutSingle
-        }
-
-        private delegate void RxDataHandlerDelegate(byte[] data, uint length);
-    }
+      10000,
+      75000,
+      30000,
+      50000
+    };
+		private CommParser commParser = new CommParser();
+		public DeviceInfo devInfo = new DeviceInfo();
+		private DataUtils dataUtils = new DataUtils();
+		private SharedObjects sharedObjs = new SharedObjects();
+		private DisplayTxCmds dspTxCmds = new DisplayTxCmds();
+		private Mutex dspMsgMutex = new Mutex();
+		private CommManager commMgr = new CommManager();
+		public AttrData attrData = new AttrData();
+		private DeviceFormUtils devUtils = new DeviceFormUtils();
+		public string BDAddressStr = "";
+		private ConnectInfo connectInfo = new ConnectInfo();
+		public ConnectInfo disconnectInfo = new ConnectInfo();
+		public List<ConnectInfo> Connections = new List<ConnectInfo>();
+		public HCICmds.HCIExtCmds.HCIExt_SetRxGain HCIExt_SetRxGain = new HCICmds.HCIExtCmds.HCIExt_SetRxGain();
+		public HCICmds.HCIExtCmds.HCIExt_SetTxPower HCIExt_SetTxPower = new HCICmds.HCIExtCmds.HCIExt_SetTxPower();
+		public HCICmds.HCIExtCmds.HCIExt_OnePktPerEvt HCIExt_OnePktPerEvt = new HCICmds.HCIExtCmds.HCIExt_OnePktPerEvt();
+		public HCICmds.HCIExtCmds.HCIExt_ClkDivideOnHalt HCIExt_ClkDivideOnHalt = new HCICmds.HCIExtCmds.HCIExt_ClkDivideOnHalt();
+		public HCICmds.HCIExtCmds.HCIExt_DeclareNvUsage HCIExt_DeclareNvUsage = new HCICmds.HCIExtCmds.HCIExt_DeclareNvUsage();
+		public HCICmds.HCIExtCmds.HCIExt_Decrypt HCIExt_Decrypt = new HCICmds.HCIExtCmds.HCIExt_Decrypt();
+		public HCICmds.HCIExtCmds.HCIExt_SetLocalSupportedFeatures HCIExt_SetLocalSupportedFeatures = new HCICmds.HCIExtCmds.HCIExt_SetLocalSupportedFeatures();
+		public HCICmds.HCIExtCmds.HCIExt_SetFastTxRespTime HCIExt_SetFastTxRespTime = new HCICmds.HCIExtCmds.HCIExt_SetFastTxRespTime();
+		public HCICmds.HCIExtCmds.HCIExt_ModemTestTx HCIExt_ModemTestTx = new HCICmds.HCIExtCmds.HCIExt_ModemTestTx();
+		public HCICmds.HCIExtCmds.HCIExt_ModemHopTestTx HCIExt_ModemHopTestTx = new HCICmds.HCIExtCmds.HCIExt_ModemHopTestTx();
+		public HCICmds.HCIExtCmds.HCIExt_ModemTestRx HCIExt_ModemTestRx = new HCICmds.HCIExtCmds.HCIExt_ModemTestRx();
+		public HCICmds.HCIExtCmds.HCIExt_EndModemTest HCIExt_EndModemTest = new HCICmds.HCIExtCmds.HCIExt_EndModemTest();
+		public HCICmds.HCIExtCmds.HCIExt_SetBDADDR HCIExt_SetBDADDR = new HCICmds.HCIExtCmds.HCIExt_SetBDADDR();
+		public HCICmds.HCIExtCmds.HCIExt_SetSCA HCIExt_SetSCA = new HCICmds.HCIExtCmds.HCIExt_SetSCA();
+		public HCICmds.HCIExtCmds.HCIExt_EnablePTM HCIExt_EnablePTM = new HCICmds.HCIExtCmds.HCIExt_EnablePTM();
+		public HCICmds.HCIExtCmds.HCIExt_SetFreqTune HCIExt_SetFreqTune = new HCICmds.HCIExtCmds.HCIExt_SetFreqTune();
+		public HCICmds.HCIExtCmds.HCIExt_SaveFreqTune HCIExt_SaveFreqTune = new HCICmds.HCIExtCmds.HCIExt_SaveFreqTune();
+		public HCICmds.HCIExtCmds.HCIExt_SetMaxDtmTxPower HCIExt_SetMaxDtmTxPower = new HCICmds.HCIExtCmds.HCIExt_SetMaxDtmTxPower();
+		public HCICmds.HCIExtCmds.HCIExt_MapPmIoPort HCIExt_MapPmIoPort = new HCICmds.HCIExtCmds.HCIExt_MapPmIoPort();
+		public HCICmds.HCIExtCmds.HCIExt_DisconnectImmed HCIExt_DisconnectImmed = new HCICmds.HCIExtCmds.HCIExt_DisconnectImmed();
+		public HCICmds.HCIExtCmds.HCIExt_PER HCIExt_PER = new HCICmds.HCIExtCmds.HCIExt_PER();
+		public HCICmds.L2CAPCmds.L2CAP_InfoReq L2CAP_InfoReq = new HCICmds.L2CAPCmds.L2CAP_InfoReq();
+		public HCICmds.L2CAPCmds.L2CAP_ConnParamUpdateReq L2CAP_ConnParamUpdateReq = new HCICmds.L2CAPCmds.L2CAP_ConnParamUpdateReq();
+		public HCICmds.ATTCmds.ATT_ErrorRsp ATT_ErrorRsp = new HCICmds.ATTCmds.ATT_ErrorRsp();
+		public HCICmds.ATTCmds.ATT_ExchangeMTUReq ATT_ExchangeMTUReq = new HCICmds.ATTCmds.ATT_ExchangeMTUReq();
+		public HCICmds.ATTCmds.ATT_ExchangeMTURsp ATT_ExchangeMTURsp = new HCICmds.ATTCmds.ATT_ExchangeMTURsp();
+		public HCICmds.ATTCmds.ATT_FindInfoReq ATT_FindInfoReq = new HCICmds.ATTCmds.ATT_FindInfoReq();
+		public HCICmds.ATTCmds.ATT_FindInfoRsp ATT_FindInfoRsp = new HCICmds.ATTCmds.ATT_FindInfoRsp();
+		public HCICmds.ATTCmds.ATT_FindByTypeValueReq ATT_FindByTypeValueReq = new HCICmds.ATTCmds.ATT_FindByTypeValueReq();
+		public HCICmds.ATTCmds.ATT_FindByTypeValueRsp ATT_FindByTypeValueRsp = new HCICmds.ATTCmds.ATT_FindByTypeValueRsp();
+		public HCICmds.ATTCmds.ATT_ReadByTypeReq ATT_ReadByTypeReq = new HCICmds.ATTCmds.ATT_ReadByTypeReq();
+		public HCICmds.ATTCmds.ATT_ReadByTypeRsp ATT_ReadByTypeRsp = new HCICmds.ATTCmds.ATT_ReadByTypeRsp();
+		public HCICmds.ATTCmds.ATT_ReadReq ATT_ReadReq = new HCICmds.ATTCmds.ATT_ReadReq();
+		public HCICmds.ATTCmds.ATT_ReadRsp ATT_ReadRsp = new HCICmds.ATTCmds.ATT_ReadRsp();
+		public HCICmds.ATTCmds.ATT_ReadBlobReq ATT_ReadBlobReq = new HCICmds.ATTCmds.ATT_ReadBlobReq();
+		public HCICmds.ATTCmds.ATT_ReadBlobRsp ATT_ReadBlobRsp = new HCICmds.ATTCmds.ATT_ReadBlobRsp();
+		public HCICmds.ATTCmds.ATT_ReadMultiReq ATT_ReadMultiReq = new HCICmds.ATTCmds.ATT_ReadMultiReq();
+		public HCICmds.ATTCmds.ATT_ReadMultiRsp ATT_ReadMultiRsp = new HCICmds.ATTCmds.ATT_ReadMultiRsp();
+		public HCICmds.ATTCmds.ATT_ReadByGrpTypeReq ATT_ReadByGrpTypeReq = new HCICmds.ATTCmds.ATT_ReadByGrpTypeReq();
+		public HCICmds.ATTCmds.ATT_ReadByGrpTypeRsp ATT_ReadByGrpTypeRsp = new HCICmds.ATTCmds.ATT_ReadByGrpTypeRsp();
+		public HCICmds.ATTCmds.ATT_WriteReq ATT_WriteReq = new HCICmds.ATTCmds.ATT_WriteReq();
+		public HCICmds.ATTCmds.ATT_WriteRsp ATT_WriteRsp = new HCICmds.ATTCmds.ATT_WriteRsp();
+		public HCICmds.ATTCmds.ATT_PrepareWriteReq ATT_PrepareWriteReq = new HCICmds.ATTCmds.ATT_PrepareWriteReq();
+		public HCICmds.ATTCmds.ATT_PrepareWriteRsp ATT_PrepareWriteRsp = new HCICmds.ATTCmds.ATT_PrepareWriteRsp();
+		public HCICmds.ATTCmds.ATT_ExecuteWriteReq ATT_ExecuteWriteReq = new HCICmds.ATTCmds.ATT_ExecuteWriteReq();
+		public HCICmds.ATTCmds.ATT_ExecuteWriteRsp ATT_ExecuteWriteRsp = new HCICmds.ATTCmds.ATT_ExecuteWriteRsp();
+		public HCICmds.ATTCmds.ATT_HandleValueNotification ATT_HandleValueNotification = new HCICmds.ATTCmds.ATT_HandleValueNotification();
+		public HCICmds.ATTCmds.ATT_HandleValueIndication ATT_HandleValueIndication = new HCICmds.ATTCmds.ATT_HandleValueIndication();
+		public HCICmds.ATTCmds.ATT_HandleValueConfirmation ATT_HandleValueConfirmation = new HCICmds.ATTCmds.ATT_HandleValueConfirmation();
+		public HCICmds.GATTCmds.GATT_ExchangeMTU GATT_ExchangeMTU = new HCICmds.GATTCmds.GATT_ExchangeMTU();
+		public HCICmds.GATTCmds.GATT_DiscAllPrimaryServices GATT_DiscAllPrimaryServices = new HCICmds.GATTCmds.GATT_DiscAllPrimaryServices();
+		public HCICmds.GATTCmds.GATT_DiscPrimaryServiceByUUID GATT_DiscPrimaryServiceByUUID = new HCICmds.GATTCmds.GATT_DiscPrimaryServiceByUUID();
+		public HCICmds.GATTCmds.GATT_FindIncludedServices GATT_FindIncludedServices = new HCICmds.GATTCmds.GATT_FindIncludedServices();
+		public HCICmds.GATTCmds.GATT_DiscAllChars GATT_DiscAllChars = new HCICmds.GATTCmds.GATT_DiscAllChars();
+		public HCICmds.GATTCmds.GATT_DiscCharsByUUID GATT_DiscCharsByUUID = new HCICmds.GATTCmds.GATT_DiscCharsByUUID();
+		public HCICmds.GATTCmds.GATT_DiscAllCharDescs GATT_DiscAllCharDescs = new HCICmds.GATTCmds.GATT_DiscAllCharDescs();
+		public HCICmds.GATTCmds.GATT_ReadCharValue GATT_ReadCharValue = new HCICmds.GATTCmds.GATT_ReadCharValue();
+		public HCICmds.GATTCmds.GATT_ReadUsingCharUUID GATT_ReadUsingCharUUID = new HCICmds.GATTCmds.GATT_ReadUsingCharUUID();
+		public HCICmds.GATTCmds.GATT_ReadLongCharValue GATT_ReadLongCharValue = new HCICmds.GATTCmds.GATT_ReadLongCharValue();
+		public HCICmds.GATTCmds.GATT_ReadMultiCharValues GATT_ReadMultiCharValues = new HCICmds.GATTCmds.GATT_ReadMultiCharValues();
+		public HCICmds.GATTCmds.GATT_WriteNoRsp GATT_WriteNoRsp = new HCICmds.GATTCmds.GATT_WriteNoRsp();
+		public HCICmds.GATTCmds.GATT_SignedWriteNoRsp GATT_SignedWriteNoRsp = new HCICmds.GATTCmds.GATT_SignedWriteNoRsp();
+		public HCICmds.GATTCmds.GATT_WriteCharValue GATT_WriteCharValue = new HCICmds.GATTCmds.GATT_WriteCharValue();
+		public HCICmds.GATTCmds.GATT_WriteLongCharValue GATT_WriteLongCharValue = new HCICmds.GATTCmds.GATT_WriteLongCharValue();
+		public HCICmds.GATTCmds.GATT_ReliableWrites GATT_ReliableWrites = new HCICmds.GATTCmds.GATT_ReliableWrites();
+		public HCICmds.GATTCmds.GATT_ReadCharDesc GATT_ReadCharDesc = new HCICmds.GATTCmds.GATT_ReadCharDesc();
+		public HCICmds.GATTCmds.GATT_ReadLongCharDesc GATT_ReadLongCharDesc = new HCICmds.GATTCmds.GATT_ReadLongCharDesc();
+		public HCICmds.GATTCmds.GATT_WriteCharDesc GATT_WriteCharDesc = new HCICmds.GATTCmds.GATT_WriteCharDesc();
+		public HCICmds.GATTCmds.GATT_WriteLongCharDesc GATT_WriteLongCharDesc = new HCICmds.GATTCmds.GATT_WriteLongCharDesc();
+		public HCICmds.GATTCmds.GATT_Notification GATT_Notification = new HCICmds.GATTCmds.GATT_Notification();
+		public HCICmds.GATTCmds.GATT_Indication GATT_Indication = new HCICmds.GATTCmds.GATT_Indication();
+		public HCICmds.GATTCmds.GATT_AddService GATT_AddService = new HCICmds.GATTCmds.GATT_AddService();
+		public HCICmds.GATTCmds.GATT_DelService GATT_DelService = new HCICmds.GATTCmds.GATT_DelService();
+		public HCICmds.GATTCmds.GATT_AddAttribute GATT_AddAttribute = new HCICmds.GATTCmds.GATT_AddAttribute();
+		public HCICmds.GAPCmds.GAP_DeviceInit GAP_DeviceInit = new HCICmds.GAPCmds.GAP_DeviceInit();
+		public HCICmds.GAPCmds.GAP_ConfigDeviceAddr GAP_ConfigDeviceAddr = new HCICmds.GAPCmds.GAP_ConfigDeviceAddr();
+		public HCICmds.GAPCmds.GAP_DeviceDiscoveryRequest GAP_DeviceDiscoveryRequest = new HCICmds.GAPCmds.GAP_DeviceDiscoveryRequest();
+		public HCICmds.GAPCmds.GAP_DeviceDiscoveryCancel GAP_DeviceDiscoveryCancel = new HCICmds.GAPCmds.GAP_DeviceDiscoveryCancel();
+		public HCICmds.GAPCmds.GAP_MakeDiscoverable GAP_MakeDiscoverable = new HCICmds.GAPCmds.GAP_MakeDiscoverable();
+		public HCICmds.GAPCmds.GAP_UpdateAdvertisingData GAP_UpdateAdvertisingData = new HCICmds.GAPCmds.GAP_UpdateAdvertisingData();
+		public HCICmds.GAPCmds.GAP_EndDiscoverable GAP_EndDiscoverable = new HCICmds.GAPCmds.GAP_EndDiscoverable();
+		public HCICmds.GAPCmds.GAP_EstablishLinkRequest GAP_EstablishLinkRequest = new HCICmds.GAPCmds.GAP_EstablishLinkRequest();
+		public HCICmds.GAPCmds.GAP_TerminateLinkRequest GAP_TerminateLinkRequest = new HCICmds.GAPCmds.GAP_TerminateLinkRequest();
+		public HCICmds.GAPCmds.GAP_Authenticate GAP_Authenticate = new HCICmds.GAPCmds.GAP_Authenticate();
+		public HCICmds.GAPCmds.GAP_PasskeyUpdate GAP_PasskeyUpdate = new HCICmds.GAPCmds.GAP_PasskeyUpdate();
+		public HCICmds.GAPCmds.GAP_SlaveSecurityRequest GAP_SlaveSecurityRequest = new HCICmds.GAPCmds.GAP_SlaveSecurityRequest();
+		public HCICmds.GAPCmds.GAP_Signable GAP_Signable = new HCICmds.GAPCmds.GAP_Signable();
+		public HCICmds.GAPCmds.GAP_Bond GAP_Bond = new HCICmds.GAPCmds.GAP_Bond();
+		public HCICmds.GAPCmds.GAP_TerminateAuth GAP_TerminateAuth = new HCICmds.GAPCmds.GAP_TerminateAuth();
+		public HCICmds.GAPCmds.GAP_UpdateLinkParamReq GAP_UpdateLinkParamReq = new HCICmds.GAPCmds.GAP_UpdateLinkParamReq();
+		public HCICmds.GAPCmds.GAP_SetParam GAP_SetParam = new HCICmds.GAPCmds.GAP_SetParam();
+		public HCICmds.GAPCmds.GAP_GetParam GAP_GetParam = new HCICmds.GAPCmds.GAP_GetParam();
+		public HCICmds.GAPCmds.GAP_ResolvePrivateAddr GAP_ResolvePrivateAddr = new HCICmds.GAPCmds.GAP_ResolvePrivateAddr();
+		public HCICmds.GAPCmds.GAP_SetAdvToken GAP_SetAdvToken = new HCICmds.GAPCmds.GAP_SetAdvToken();
+		public HCICmds.GAPCmds.GAP_RemoveAdvToken GAP_RemoveAdvToken = new HCICmds.GAPCmds.GAP_RemoveAdvToken();
+		public HCICmds.GAPCmds.GAP_UpdateAdvTokens GAP_UpdateAdvTokens = new HCICmds.GAPCmds.GAP_UpdateAdvTokens();
+		public HCICmds.GAPCmds.GAP_BondSetParam GAP_BondSetParam = new HCICmds.GAPCmds.GAP_BondSetParam();
+		public HCICmds.GAPCmds.GAP_BondGetParam GAP_BondGetParam = new HCICmds.GAPCmds.GAP_BondGetParam();
+		public HCICmds.UTILCmds.UTIL_Reset UTIL_Reset = new HCICmds.UTILCmds.UTIL_Reset();
+		public HCICmds.UTILCmds.UTIL_NVRead UTIL_NVRead = new HCICmds.UTILCmds.UTIL_NVRead();
+		public HCICmds.UTILCmds.UTIL_NVWrite UTIL_NVWrite = new HCICmds.UTILCmds.UTIL_NVWrite();
+		public HCICmds.UTILCmds.UTIL_ForceBoot UTIL_ForceBoot = new HCICmds.UTILCmds.UTIL_ForceBoot();
+		public HCICmds.HCIOtherCmds.HCIOther_ReadRSSI HCIOther_ReadRSSI = new HCICmds.HCIOtherCmds.HCIOther_ReadRSSI();
+		public HCICmds.HCIOtherCmds.HCIOther_LEClearWhiteList HCIOther_LEClearWhiteList = new HCICmds.HCIOtherCmds.HCIOther_LEClearWhiteList();
+		public HCICmds.HCIOtherCmds.HCIOther_LEAddDeviceToWhiteList HCIOther_LEAddDeviceToWhiteList = new HCICmds.HCIOtherCmds.HCIOther_LEAddDeviceToWhiteList();
+		public HCICmds.HCIOtherCmds.HCIOther_LERemoveDeviceFromWhiteList HCIOther_LERemoveDeviceFromWhiteList = new HCICmds.HCIOtherCmds.HCIOther_LERemoveDeviceFromWhiteList();
+		public HCICmds.HCIOtherCmds.HCIOther_LEConnectionUpdate HCIOther_LEConnectionUpdate = new HCICmds.HCIOtherCmds.HCIOther_LEConnectionUpdate();
+		public HCICmds.MISCCmds.MISC_GenericCommand MISC_GenericCommand = new HCICmds.MISCCmds.MISC_GenericCommand();
+		public HCICmds.MISCCmds.MISC_RawTxMessage MISC_RawTxMessage = new HCICmds.MISCCmds.MISC_RawTxMessage();
+		private DisplayCmdUtils dspCmdUtils = new DisplayCmdUtils();
+		private CommSelectForm commSelectForm;
+		private AttributesForm attributesForm;
+		private MsgLogForm msgLogForm;
+		public DeviceTabsForm devTabsForm;
+		public ThreadMgr threadMgr;
+		public SendCmds sendCmds;
+		private CommManager.FP_ReceiveDataInd ReceiveDataInd;
+		private Thread processRxProc;
+		public int numConnections;
+		private bool DeviceStarted;
+		public DeviceForm.GAPGetConnectionParams ConnParamState;
+		private bool formClosing;
+		private IContainer components;
+		private SplitContainer scTopLeftRight;
+		private System.Windows.Forms.Timer scanTimer;
+		private System.Windows.Forms.Timer initTimer;
+		private System.Windows.Forms.Timer establishTimer;
+		private System.Windows.Forms.Timer pairBondTimer;
+		private Panel plUserTabs;
+		private SplitContainer scTopBottom;
+		private Panel plLog;
+		private Panel plAttributes;
+
+		public event EventHandler BDAddressNotify;
+
+		public event EventHandler ConnectionNotify;
+
+		public event EventHandler DisconnectionNotify;
+
+		public event EventHandler ChangeActiveRoot;
+
+		public event EventHandler CloseActiveDevice;
+
+		static DeviceForm()
+		{
+		}
+
+		public DeviceForm()
+		{
+			devInfo.devForm = this;
+			connectInfo.bDA = "00:00:00:00:00:00";
+			connectInfo.handle = (ushort)0;
+			connectInfo.addrType = (byte)0;
+			disconnectInfo.bDA = "00:00:00:00:00:00";
+			disconnectInfo.handle = (ushort)0;
+			disconnectInfo.addrType = (byte)0;
+			Connections.Clear();
+			commMgr.InitCommManager();
+			msgLogForm = new MsgLogForm(this);
+			commSelectForm = new CommSelectForm();
+			InitializeComponent();
+			Text = FormMain.programTitle + FormMain.programVersion;
+			threadMgr = new ThreadMgr(this);
+			sendCmds = new SendCmds(this);
+			attrData.sendAutoCmds = false;
+			attributesForm = new AttributesForm(this);
+			devTabsForm = new DeviceTabsForm(this);
+			LoadUserInitializeValues();
+			LoadUserSettings();
+			sendCmds.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
+			threadMgr.txDataOut.DeviceTxDataCallback = new DeviceForm.DeviceTxDataDelegate(DeviceTxData);
+			threadMgr.txDataOut.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
+			threadMgr.rxDataIn.DeviceRxDataCallback = new DeviceForm.DeviceRxDataDelegate(DeviceRxData);
+			threadMgr.rxTxMgr.HandleRxTxMessageCallback = new DeviceForm.HandleRxTxMessageDelegate(HandleRxTxMessage);
+			dspTxCmds.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
+			dspTxCmds.DisplayMsgTimeCallback = new DeviceForm.DisplayMsgTimeDelegate(DisplayMsgTime);
+			attributesForm.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
+			msgLogForm.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
+			devTabsForm.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
+			threadMgr.Init(this);
+			msgLogForm.TopLevel = false;
+			msgLogForm.Parent = (Control)plLog;
+			msgLogForm.Visible = true;
+			msgLogForm.Dock = DockStyle.Fill;
+			msgLogForm.ControlBox = false;
+			msgLogForm.ShowIcon = false;
+			msgLogForm.FormBorderStyle = FormBorderStyle.None;
+			msgLogForm.StartPosition = FormStartPosition.Manual;
+			((Control)msgLogForm).Show();
+			devTabsForm.TopLevel = false;
+			devTabsForm.Parent = (Control)plUserTabs;
+			devTabsForm.Visible = true;
+			devTabsForm.Dock = DockStyle.Fill;
+			devTabsForm.ControlBox = false;
+			devTabsForm.ShowIcon = false;
+			devTabsForm.FormBorderStyle = FormBorderStyle.None;
+			devTabsForm.StartPosition = FormStartPosition.Manual;
+			((Control)devTabsForm).Show();
+			attributesForm.TopLevel = false;
+			attributesForm.Parent = (Control)plAttributes;
+			attributesForm.Visible = true;
+			attributesForm.Dock = DockStyle.Fill;
+			attributesForm.ControlBox = false;
+			attributesForm.ShowIcon = false;
+			attributesForm.FormBorderStyle = FormBorderStyle.None;
+			attributesForm.StartPosition = FormStartPosition.Manual;
+			((Control)attributesForm).Show();
+		}
+
+		~DeviceForm()
+		{
+			DeviceFormClose(true);
+		}
+
+		public void DeviceFormClose(bool closeDevice)
+		{
+			if (closeDevice && !formClosing)
+			{
+				formClosing = true;
+				CloseActiveDevice((object)this, (EventArgs)null);
+			}
+			threadMgr.PauseThreads();
+			threadMgr.WaitForPause();
+			threadMgr.ClearQueues();
+			commMgr.ClosePort();
+			if (processRxProc != null)
+			{
+				while (processRxProc.IsAlive)
+					;
+			}
+			msgLogForm.ResetMsgNumber();
+			threadMgr.ExitThreads();
+			SaveUserSettings();
+		}
+
+		protected void OnBDAddressNotify(string deviceBDAddressStr)
+		{
+			BDAddressStr = deviceBDAddressStr;
+			BDAddressNotify((object)this, EventArgs.Empty);
+		}
+
+		protected void OnConnectionNotify(ref ConnectInfo tmpConnectInfo)
+		{
+			++numConnections;
+			connectInfo = tmpConnectInfo;
+			Connections.Add(connectInfo);
+			ConnectionNotify((object)this, EventArgs.Empty);
+			DisplayMsg(SharedAppObjs.MsgType.Info, "Device Connected\nHandle = 0x" + connectInfo.handle.ToString("X4") + "\nAddr Type = 0x" + connectInfo.addrType.ToString("X2") + " (" + devUtils.GetGapAddrTypeStr(connectInfo.addrType) + ")\nBDAddr = " + connectInfo.bDA + "\n");
+			attributesForm.RemoveData(connectInfo.handle);
+		}
+
+		protected void OnDisconnectionNotify(ref ConnectInfo tmpDisconnectInfo)
+		{
+			disconnectInfo = tmpDisconnectInfo;
+			for (int index = 0; index < Connections.Count; ++index)
+			{
+				if ((int)Connections[index].handle == (int)disconnectInfo.handle)
+				{
+					DisplayMsg(SharedAppObjs.MsgType.Info, "Device Disconnected\nHandle = 0x" + disconnectInfo.handle.ToString("X4") + "\nAddr Type = 0x" + Connections[index].addrType.ToString("X2") + " (" + devUtils.GetGapAddrTypeStr(Connections[index].addrType) + ")\nBDAddr = " + Connections[index].bDA + "\n");
+					Connections.RemoveAt(index);
+					DisconnectionNotify((object)this, EventArgs.Empty);
+					if (numConnections > 0)
+						--numConnections;
+					attributesForm.RemoveData(disconnectInfo.handle);
+					break;
+				}
+			}
+		}
+
+		public bool DeviceFormInit()
+		{
+			int num = (int)commSelectForm.ShowDialog();
+			bool flag;
+			if (commSelectForm.DialogResult == DialogResult.OK)
+			{
+				commMgr.PortName = commSelectForm.cbPorts.Text;
+				commMgr.BaudRate = commSelectForm.cbBaud.Text;
+				commMgr.DataBits = commSelectForm.cbDataBits.Text;
+				commMgr.Parity = commSelectForm.cbParity.Text;
+				commMgr.StopBits = commSelectForm.cbStopBits.Text;
+				commMgr.HandShake = (Handshake)commSelectForm.cbFlow.SelectedIndex;
+				commMgr.CurrentTransmissionType = CommManager.TransmissionType.Hex;
+				commMgr.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
+				if (commMgr.OpenPort())
+				{
+					Text = commSelectForm.cbPorts.Text;
+					devInfo.devName = commMgr.PortName;
+					devInfo.connectStatus = "None";
+					devInfo.comPortInfo.baudRate = commMgr.BaudRate;
+					devInfo.comPortInfo.comPort = commMgr.PortName;
+					devInfo.comPortInfo.flow = commSelectForm.cbFlow.Text;
+					devInfo.comPortInfo.dataBits = commMgr.DataBits;
+					devInfo.comPortInfo.parity = commMgr.Parity;
+					devInfo.comPortInfo.stopBits = commMgr.StopBits;
+					ReceiveDataInd = new CommManager.FP_ReceiveDataInd(RxDataHandler);
+					commMgr.RxDataInd = ReceiveDataInd;
+					processRxProc = new Thread(new ThreadStart(ProcessRxProc));
+					processRxProc.Name = "ProcessRxProcThread";
+					processRxProc.Start();
+					while (!processRxProc.IsAlive)
+					{ }
+					flag = true;
+				}
+				else
+				{
+					string msg = string.Format("Failed Connecting To {0}\n", commSelectForm.cbPorts.SelectedItem);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					DisplayMsg(SharedAppObjs.MsgType.Error, msg);
+					flag = false;
+				}
+			}
+			else
+				flag = false;
+			return flag;
+		}
+
+		private void LoadUserInitializeValues()
+		{
+			scanTimer.Interval = EventTimeout[1];
+			scanTimer.Tick += new EventHandler(timerScanEvent);
+			initTimer.Interval = EventTimeout[0];
+			initTimer.Tick += new EventHandler(timerInitEvent);
+			establishTimer.Interval = EventTimeout[2];
+			establishTimer.Tick += new EventHandler(timerEstablishEvent);
+			pairBondTimer.Interval = EventTimeout[3];
+			pairBondTimer.Tick += new EventHandler(timerPairBondEvent);
+			devTabsForm.TabAdvCommandsInitValues();
+			devTabsForm.TabDiscoverConnectInitValues();
+			devTabsForm.TabPairBondInitValues();
+			devTabsForm.TabReadWriteInitValues();
+		}
+
+		public void SendGAPDeviceInit()
+		{
+			devTabsForm.ShowProgress(true);
+			devTabsForm.UserTabAccess(false);
+			StartTimer(DeviceForm.EventType.Init);
+			sendCmds.SendGAP(GAP_DeviceInit);
+		}
+
+		private void DeviceTxData(TxDataOut txDataOut)
+		{
+			if (InvokeRequired)
+			{
+				try
+				{
+					BeginInvoke((Delegate)new DeviceForm.DeviceTxDataDelegate(DeviceTxData), new object[1]
+          {
+             txDataOut
+          });
+				}
+				catch
+				{
+				}
+			}
+			else
+			{
+				if (formClosing)
+					return;
+				threadMgr.rxTxMgr.dataQ.AddQTail((object)new RxTxMgrData()
+				{
+					rxDataIn = (RxDataIn)null,
+					txDataOut = txDataOut
+				});
+			}
+		}
+
+		private void DeviceRxData(RxDataIn rxDataIn)
+		{
+			if (InvokeRequired)
+			{
+				try
+				{
+					BeginInvoke((Delegate)new DeviceForm.DeviceRxDataDelegate(DeviceRxData), new object[1]
+          {
+             rxDataIn
+          });
+				}
+				catch
+				{
+				}
+			}
+			else
+			{
+				if (formClosing)
+					return;
+				threadMgr.rxTxMgr.dataQ.AddQTail((object)new RxTxMgrData()
+				{
+					rxDataIn = rxDataIn,
+					txDataOut = (TxDataOut)null
+				});
+			}
+		}
+
+		internal void RxDataHandler(byte[] data, uint length)
+		{
+			if (InvokeRequired)
+				BeginInvoke((Delegate)new DeviceForm.RxDataHandlerDelegate(RxDataHandler), data, length);
+			else
+				commParser.EnQueueData(data);
+		}
+
+		private void ProcessRxProc()
+		{
+			byte type = (byte)0;
+			ushort opCode = ushort.MaxValue;
+			ushort eventOpCode = ushort.MaxValue;
+			byte length = (byte)0;
+			byte[] data = (byte[])null;
+			SharedObjects.log.Write(Logging.MsgType.Debug, "ProcessRxProc", "Starting Thread");
+			while (!formClosing)
+			{
+				if (commParser.GetDataSize() != 0)
+				{
+					if (commParser.ParseData(ref type, ref opCode, ref eventOpCode, ref length, ref data))
+					{
+						if (!formClosing)
+						{
+							threadMgr.rxDataIn.dataQ.AddQTail((object)new RxDataIn()
+							{
+								type = type,
+								cmdOpcode = opCode,
+								eventOpcode = eventOpCode,
+								length = length,
+								data = data
+							});
+							type = (byte)0;
+							opCode = ushort.MaxValue;
+							eventOpCode = ushort.MaxValue;
+							length = (byte)0;
+							data = (byte[])null;
+						}
+						else
+							break;
+					}
+				}
+				else
+					Thread.Sleep(10);
+			}
+			SharedObjects.log.Write(Logging.MsgType.Debug, "ProcessRxProc", "Exiting Thread");
+		}
+
+		private bool HandleRxTxMessage(RxTxMgrData rxTxMgrData)
+		{
+			bool flag = true;
+			if (InvokeRequired)
+			{
+				try
+				{
+					Invoke((Delegate)new DeviceForm.HandleRxTxMessageDelegate(HandleRxTxMessage), new object[1]
+          {
+             rxTxMgrData
+          });
+				}
+				catch
+				{
+				}
+			}
+			else
+			{
+				if (formClosing)
+					return flag;
+				if (rxTxMgrData.rxDataIn != null)
+					DisplayRxCmd(rxTxMgrData.rxDataIn, msgLogForm.GetDisplayRxDumps());
+				else if (rxTxMgrData.txDataOut != null)
+				{
+					if (commMgr.comPort.IsOpen)
+					{
+						dspTxCmds.DisplayTxCmd(rxTxMgrData.txDataOut, msgLogForm.GetDisplayTxDumps());
+						string str = "";
+						foreach (byte num in rxTxMgrData.txDataOut.data)
+							str = str + string.Format("{0:X2} ", num);
+						flag = commMgr.WriteData(str.Trim());
+						if (!flag && threadMgr.rxDataIn.DeviceTxStopWaitCallback != null)
+							threadMgr.rxDataIn.DeviceTxStopWaitCallback(false);
+					}
+					else
+					{
+						string msg = string.Format("Attempt To Send Empty Message Detected\nRequest Ignored\n", commSelectForm.cbPorts.SelectedItem);
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
+						flag = false;
+					}
+				}
+			}
+			return flag;
+		}
+
+		public void DisplayMsg(SharedAppObjs.MsgType msgType, string msg)
+		{
+			if (InvokeRequired)
+			{
+				try
+				{
+					BeginInvoke((Delegate)new DeviceForm.DisplayMsgDelegate(DisplayMsg), msgType, msg);
+				}
+				catch
+				{
+				}
+			}
+			else
+				msgLogForm.DisplayLogMsg(msgType, msg, (string)null);
+		}
+
+		public void DisplayMsgTime(SharedAppObjs.MsgType msgType, string msg, string time)
+		{
+			dspMsgMutex.WaitOne();
+			if (InvokeRequired)
+			{
+				try
+				{
+					BeginInvoke((Delegate)new DeviceForm.DisplayMsgTimeDelegate(DisplayMsgTime), msgType, msg, time);
+				}
+				catch
+				{
+				}
+			}
+			else
+				msgLogForm.DisplayLogMsg(msgType, msg, time);
+			dspMsgMutex.ReleaseMutex();
+		}
+
+		private void deviceForm_Activated(object sender, EventArgs e)
+		{
+			ChangeActiveRoot((object)this, (EventArgs)null);
+		}
+
+		private void DeviceForm_Load(object sender, EventArgs e)
+		{
+			if (sharedObjs.IsMonoRunning())
+				scTopBottom.SplitterDistance = 550;
+			else
+				scTopBottom.SplitterDistance = 530;
+		}
+
+		private void DeviceForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			DeviceFormClose(true);
+		}
+
+		private void LoadUserSettings()
+		{
+			attributesForm.LoadUserSettings();
+		}
+
+		private void SaveUserSettings()
+		{
+			attributesForm.SaveUserSettings();
+			Settings.Default.Save();
+		}
+
+		private void scTopLeftRightPanel2_SizeChanged(object sender, EventArgs e)
+		{
+			int width = scTopLeftRight.Panel2.Width;
+			int num1 = 427;
+			if (devTabsForm != null)
+				num1 = devTabsForm.GetTcDeviceTabsWidth() + 15;
+			int num2 = Width - num1 - 10;
+			if (width > num1 && num2 > 1)
+				scTopLeftRight.SplitterDistance = num2;
+			scTopLeftRight.Update();
+			if (devTabsForm == null)
+				return;
+			devTabsForm.DeviceTabsUpdate();
+		}
+
+		private void DeviceForm_LocationChanged(object sender, EventArgs e)
+		{
+			Location = new Point(0, 0);
+		}
+
+		public ConnectInfo GetConnectInfo()
+		{
+			return connectInfo;
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && components != null)
+				components.Dispose();
+			base.Dispose(disposing);
+		}
+
+		private void InitializeComponent()
+		{
+			components = new System.ComponentModel.Container();
+			scTopLeftRight = new System.Windows.Forms.SplitContainer();
+			plLog = new System.Windows.Forms.Panel();
+			plUserTabs = new System.Windows.Forms.Panel();
+			scanTimer = new System.Windows.Forms.Timer(components);
+			initTimer = new System.Windows.Forms.Timer(components);
+			establishTimer = new System.Windows.Forms.Timer(components);
+			pairBondTimer = new System.Windows.Forms.Timer(components);
+			scTopBottom = new System.Windows.Forms.SplitContainer();
+			plAttributes = new System.Windows.Forms.Panel();
+			((System.ComponentModel.ISupportInitialize)(scTopLeftRight)).BeginInit();
+			scTopLeftRight.Panel1.SuspendLayout();
+			scTopLeftRight.Panel2.SuspendLayout();
+			scTopLeftRight.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(scTopBottom)).BeginInit();
+			scTopBottom.Panel1.SuspendLayout();
+			scTopBottom.Panel2.SuspendLayout();
+			scTopBottom.SuspendLayout();
+			SuspendLayout();
+			// 
+			// scTopLeftRight
+			// 
+			scTopLeftRight.BackColor = System.Drawing.SystemColors.Highlight;
+			scTopLeftRight.Dock = System.Windows.Forms.DockStyle.Fill;
+			scTopLeftRight.Location = new System.Drawing.Point(0, 0);
+			scTopLeftRight.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			scTopLeftRight.Name = "scTopLeftRight";
+			// 
+			// scTopLeftRight.Panel1
+			// 
+			scTopLeftRight.Panel1.Controls.Add(plLog);
+			// 
+			// scTopLeftRight.Panel2
+			// 
+			scTopLeftRight.Panel2.Controls.Add(plUserTabs);
+			scTopLeftRight.Panel2.SizeChanged += new System.EventHandler(scTopLeftRightPanel2_SizeChanged);
+			scTopLeftRight.Size = new System.Drawing.Size(788, 515);
+			scTopLeftRight.SplitterDistance = 380;
+			scTopLeftRight.TabIndex = 11;
+			// 
+			// plLog
+			// 
+			plLog.BackColor = System.Drawing.SystemColors.Control;
+			plLog.Dock = System.Windows.Forms.DockStyle.Fill;
+			plLog.Location = new System.Drawing.Point(0, 0);
+			plLog.Name = "plLog";
+			plLog.Size = new System.Drawing.Size(380, 515);
+			plLog.TabIndex = 0;
+			// 
+			// plUserTabs
+			// 
+			plUserTabs.AutoScroll = true;
+			plUserTabs.BackColor = System.Drawing.SystemColors.Control;
+			plUserTabs.Dock = System.Windows.Forms.DockStyle.Fill;
+			plUserTabs.Location = new System.Drawing.Point(0, 0);
+			plUserTabs.Name = "plUserTabs";
+			plUserTabs.Size = new System.Drawing.Size(404, 515);
+			plUserTabs.TabIndex = 0;
+			// 
+			// scTopBottom
+			// 
+			scTopBottom.BackColor = System.Drawing.SystemColors.Highlight;
+			scTopBottom.Dock = System.Windows.Forms.DockStyle.Fill;
+			scTopBottom.Location = new System.Drawing.Point(0, 0);
+			scTopBottom.Name = "scTopBottom";
+			scTopBottom.Orientation = System.Windows.Forms.Orientation.Horizontal;
+			// 
+			// scTopBottom.Panel1
+			// 
+			scTopBottom.Panel1.Controls.Add(scTopLeftRight);
+			// 
+			// scTopBottom.Panel2
+			// 
+			scTopBottom.Panel2.Controls.Add(plAttributes);
+			scTopBottom.Size = new System.Drawing.Size(788, 667);
+			scTopBottom.SplitterDistance = 515;
+			scTopBottom.TabIndex = 1;
+			// 
+			// plAttributes
+			// 
+			plAttributes.BackColor = System.Drawing.SystemColors.Control;
+			plAttributes.Dock = System.Windows.Forms.DockStyle.Fill;
+			plAttributes.Location = new System.Drawing.Point(0, 0);
+			plAttributes.Name = "plAttributes";
+			plAttributes.Size = new System.Drawing.Size(788, 148);
+			plAttributes.TabIndex = 0;
+			// 
+			// DeviceForm
+			// 
+			AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			ClientSize = new System.Drawing.Size(788, 667);
+			ControlBox = false;
+			Controls.Add(scTopBottom);
+			Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			MaximizeBox = false;
+			MinimizeBox = false;
+			Name = "DeviceForm";
+			ShowIcon = false;
+			ShowInTaskbar = false;
+			StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+			Text = "Device";
+			Activated += new System.EventHandler(deviceForm_Activated);
+			FormClosing += new System.Windows.Forms.FormClosingEventHandler(DeviceForm_FormClosing);
+			Load += new System.EventHandler(DeviceForm_Load);
+			LocationChanged += new System.EventHandler(DeviceForm_LocationChanged);
+			scTopLeftRight.Panel1.ResumeLayout(false);
+			scTopLeftRight.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(scTopLeftRight)).EndInit();
+			scTopLeftRight.ResumeLayout(false);
+			scTopBottom.Panel1.ResumeLayout(false);
+			scTopBottom.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(scTopBottom)).EndInit();
+			scTopBottom.ResumeLayout(false);
+			ResumeLayout(false);
+
+		}
+
+		public void SendAllForever()
+		{
+			int num = 0;
+			string str = string.Empty;
+			while (true)
+			{
+				msgLogForm.AppendLog(string.Format("Msg Loop # {0:D}", num++));
+				SendAllMsgs();
+				SendEventWaves(true);
+				Thread.Sleep(1000);
+			}
+		}
+
+		public void SendAllMsgs()
+		{
+			sendCmds.SendHCIExt(HCIExt_SetRxGain);
+			sendCmds.SendHCIExt(HCIExt_SetTxPower);
+			sendCmds.SendHCIExt(HCIExt_OnePktPerEvt);
+			sendCmds.SendHCIExt(HCIExt_ClkDivideOnHalt);
+			sendCmds.SendHCIExt(HCIExt_DeclareNvUsage);
+			sendCmds.SendHCIExt(HCIExt_Decrypt);
+			sendCmds.SendHCIExt(HCIExt_SetLocalSupportedFeatures);
+			sendCmds.SendHCIExt(HCIExt_SetFastTxRespTime);
+			sendCmds.SendHCIExt(HCIExt_ModemTestTx);
+			sendCmds.SendHCIExt(HCIExt_ModemHopTestTx);
+			sendCmds.SendHCIExt(HCIExt_ModemTestRx);
+			sendCmds.SendHCIExt(HCIExt_EndModemTest);
+			sendCmds.SendHCIExt(HCIExt_SetBDADDR);
+			sendCmds.SendHCIExt(HCIExt_SetSCA);
+			sendCmds.SendHCIExt(HCIExt_EnablePTM);
+			sendCmds.SendHCIExt(HCIExt_SetFreqTune);
+			sendCmds.SendHCIExt(HCIExt_SaveFreqTune);
+			sendCmds.SendHCIExt(HCIExt_SetMaxDtmTxPower);
+			sendCmds.SendHCIExt(HCIExt_MapPmIoPort);
+			sendCmds.SendHCIExt(HCIExt_DisconnectImmed);
+			sendCmds.SendHCIExt(HCIExt_PER);
+			sendCmds.SendL2CAP(L2CAP_InfoReq);
+			sendCmds.SendL2CAP(L2CAP_ConnParamUpdateReq);
+			sendCmds.SendATT(ATT_ErrorRsp);
+			sendCmds.SendATT(ATT_ExchangeMTUReq);
+			sendCmds.SendATT(ATT_ExchangeMTURsp);
+			sendCmds.SendATT(ATT_FindInfoReq, TxDataOut.CmdType.General);
+			sendCmds.SendATT(ATT_FindInfoRsp);
+			sendCmds.SendATT(ATT_FindByTypeValueReq);
+			sendCmds.SendATT(ATT_FindByTypeValueRsp);
+			sendCmds.SendATT(ATT_ReadByTypeReq);
+			sendCmds.SendATT(ATT_ReadByTypeRsp);
+			sendCmds.SendATT(ATT_ReadReq, TxDataOut.CmdType.General, (SendCmds.SendCmdResult)null);
+			sendCmds.SendATT(ATT_ReadRsp);
+			sendCmds.SendATT(ATT_ReadBlobReq, TxDataOut.CmdType.General, (SendCmds.SendCmdResult)null);
+			sendCmds.SendATT(ATT_ReadBlobRsp);
+			sendCmds.SendATT(ATT_ReadMultiReq);
+			sendCmds.SendATT(ATT_ReadMultiRsp);
+			sendCmds.SendATT(ATT_ReadByGrpTypeReq, TxDataOut.CmdType.General);
+			sendCmds.SendATT(ATT_ReadByGrpTypeRsp);
+			sendCmds.SendATT(ATT_WriteReq, (SendCmds.SendCmdResult)null);
+			sendCmds.SendATT(ATT_WriteRsp);
+			sendCmds.SendATT(ATT_PrepareWriteReq);
+			sendCmds.SendATT(ATT_PrepareWriteRsp);
+			sendCmds.SendATT(ATT_ExecuteWriteReq, (SendCmds.SendCmdResult)null);
+			sendCmds.SendATT(ATT_ExecuteWriteRsp);
+			sendCmds.SendATT(ATT_HandleValueNotification);
+			sendCmds.SendATT(ATT_HandleValueIndication);
+			sendCmds.SendATT(ATT_HandleValueConfirmation);
+			sendCmds.SendGATT(GATT_ExchangeMTU);
+			sendCmds.SendGATT(GATT_DiscAllPrimaryServices, TxDataOut.CmdType.General);
+			sendCmds.SendGATT(GATT_DiscPrimaryServiceByUUID);
+			sendCmds.SendGATT(GATT_FindIncludedServices);
+			sendCmds.SendGATT(GATT_DiscAllChars);
+			sendCmds.SendGATT(GATT_DiscCharsByUUID);
+			sendCmds.SendGATT(GATT_DiscAllCharDescs, TxDataOut.CmdType.General);
+			sendCmds.SendGATT(GATT_ReadCharValue, TxDataOut.CmdType.General, (SendCmds.SendCmdResult)null);
+			sendCmds.SendGATT(GATT_ReadUsingCharUUID);
+			sendCmds.SendGATT(GATT_ReadLongCharValue, TxDataOut.CmdType.General, (SendCmds.SendCmdResult)null);
+			sendCmds.SendGATT(GATT_ReadMultiCharValues);
+			sendCmds.SendGATT(GATT_WriteNoRsp);
+			sendCmds.SendGATT(GATT_SignedWriteNoRsp);
+			sendCmds.SendGATT(GATT_WriteCharValue, (SendCmds.SendCmdResult)null);
+			sendCmds.SendGATT(GATT_WriteLongCharValue, (byte[])null, (SendCmds.SendCmdResult)null);
+			sendCmds.SendGATT(GATT_ReliableWrites);
+			sendCmds.SendGATT(GATT_ReadCharDesc);
+			sendCmds.SendGATT(GATT_ReadLongCharDesc);
+			sendCmds.SendGATT(GATT_WriteCharDesc);
+			sendCmds.SendGATT(GATT_WriteLongCharDesc);
+			sendCmds.SendGATT(GATT_Notification);
+			sendCmds.SendGATT(GATT_Indication);
+			sendCmds.SendGATT(GATT_AddService);
+			sendCmds.SendGATT(GATT_DelService);
+			sendCmds.SendGATT(GATT_AddAttribute);
+			sendCmds.SendGAP(GAP_DeviceInit);
+			sendCmds.SendGAP(GAP_ConfigDeviceAddr);
+			sendCmds.SendGAP(GAP_DeviceDiscoveryRequest);
+			sendCmds.SendGAP(GAP_DeviceDiscoveryCancel);
+			sendCmds.SendGAP(GAP_MakeDiscoverable);
+			sendCmds.SendGAP(GAP_UpdateAdvertisingData);
+			sendCmds.SendGAP(GAP_EndDiscoverable);
+			sendCmds.SendGAP(GAP_EstablishLinkRequest);
+			sendCmds.SendGAP(GAP_TerminateLinkRequest);
+			sendCmds.SendGAP(GAP_Authenticate);
+			sendCmds.SendGAP(GAP_PasskeyUpdate);
+			sendCmds.SendGAP(GAP_SlaveSecurityRequest);
+			sendCmds.SendGAP(GAP_Signable);
+			sendCmds.SendGAP(GAP_Bond);
+			sendCmds.SendGAP(GAP_TerminateAuth);
+			sendCmds.SendGAP(GAP_UpdateLinkParamReq);
+			sendCmds.SendGAP(GAP_SetParam);
+			sendCmds.SendGAP(GAP_GetParam);
+			sendCmds.SendGAP(GAP_ResolvePrivateAddr);
+			sendCmds.SendGAP(GAP_SetAdvToken);
+			sendCmds.SendGAP(GAP_RemoveAdvToken);
+			sendCmds.SendGAP(GAP_UpdateAdvTokens);
+			sendCmds.SendGAP(GAP_BondSetParam);
+			sendCmds.SendGAP(GAP_BondGetParam);
+			sendCmds.SendUTIL(UTIL_NVRead);
+			sendCmds.SendUTIL(UTIL_NVWrite);
+			sendCmds.SendHCIOther(HCIOther_ReadRSSI);
+			sendCmds.SendHCIOther(HCIOther_LEClearWhiteList);
+			sendCmds.SendHCIOther(HCIOther_LEAddDeviceToWhiteList);
+			sendCmds.SendHCIOther(HCIOther_LERemoveDeviceFromWhiteList);
+			sendCmds.SendHCIOther(HCIOther_LEConnectionUpdate);
+		}
+
+		public void SendEventWaves(bool skipCase)
+		{
+			byte num1 = byte.MaxValue;
+			byte[] data = new byte[(int)num1];
+			for (int index = 0; index < (int)num1; ++index)
+				data[index] = (byte)index;
+			byte length1 = (byte)((uint)num1 - 4U);
+			SendAllEvents(data, length1);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			if (!skipCase)
+			{
+				int num2 = (int)length1 - 1;
+				int index = 0;
+				while (index < (int)length1)
+				{
+					data[index] = (byte)num2;
+					++index;
+					--num2;
+				}
+				length1 -= (byte)4;
+				SendAllEvents(data, length1);
+				msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			}
+			for (int index = 0; index < (int)length1; ++index)
+				data[index] = (byte)0;
+			byte length2 = (byte)((uint)length1 - 4U);
+			SendAllEvents(data, length2);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			if (skipCase)
+				return;
+			for (int index = 0; index < (int)length2; ++index)
+				data[index] = byte.MaxValue;
+			byte length3 = (byte)((uint)length2 - 4U);
+			SendAllEvents(data, length3);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+		}
+
+		public void SendAllEvents(byte[] data, byte length)
+		{
+			bool dataErr = false;
+			RxDataIn rxDataIn = new RxDataIn();
+			rxDataIn.type = (byte)4;
+			rxDataIn.cmdOpcode = (ushort)byte.MaxValue;
+			rxDataIn.length = length;
+			rxDataIn.data = data;
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1024;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1025;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1026;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1027;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1028;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1029;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1030;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1031;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1032;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1033;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1034;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1035;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1036;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1037;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1038;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1039;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1040;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1041;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1042;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1043;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1044;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1153;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1163;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1171;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1281;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1282;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1283;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1284;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1285;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1286;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1287;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1288;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1289;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1290;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1291;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1292;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1293;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1294;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1295;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1295;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1296;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1297;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1298;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1299;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1302;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1303;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1304;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1305;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1307;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1309;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1310;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1536;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1537;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1538;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1539;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1540;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1541;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1542;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1543;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1544;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1545;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1546;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1547;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1548;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1549;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1550;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1551;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.eventOpcode = (ushort)1663;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			int index1 = 0;
+			rxDataIn.cmdOpcode = (ushort)14;
+			rxDataIn.eventOpcode = (ushort)0;
+			dataUtils.Load8Bits(ref data, ref index1, (byte)1, ref dataErr);
+			dataUtils.Load16Bits(ref data, ref index1, (ushort)5125, ref dataErr, false);
+			rxDataIn.data = data;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			int index2 = 0;
+			dataUtils.Load8Bits(ref data, ref index2, (byte)1, ref dataErr);
+			dataUtils.Load16Bits(ref data, ref index2, (ushort)8208, ref dataErr, false);
+			rxDataIn.data = data;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			int index3 = 0;
+			dataUtils.Load8Bits(ref data, ref index3, (byte)1, ref dataErr);
+			dataUtils.Load16Bits(ref data, ref index3, (ushort)8209, ref dataErr, false);
+			rxDataIn.data = data;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			int index4 = 0;
+			dataUtils.Load8Bits(ref data, ref index4, (byte)1, ref dataErr);
+			dataUtils.Load16Bits(ref data, ref index4, (ushort)8210, ref dataErr, false);
+			rxDataIn.data = data;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			int index5 = 0;
+			dataUtils.Load8Bits(ref data, ref index5, (byte)1, ref dataErr);
+			dataUtils.Load16Bits(ref data, ref index5, (ushort)8211, ref dataErr, false);
+			rxDataIn.data = data;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+			rxDataIn.cmdOpcode = (ushort)19;
+			DisplayRxCmd(rxDataIn, true);
+			msgLogForm.AppendLog("------------------------------------------------------------------------------------------------------------------------\n");
+		}
+
+		public void SendAttrDataCmds()
+		{
+			sendCmds.SendGATT(GATT_DiscAllPrimaryServices, TxDataOut.CmdType.General);
+			sendCmds.SendGATT(GATT_DiscPrimaryServiceByUUID);
+			sendCmds.SendGATT(GATT_FindIncludedServices);
+			sendCmds.SendGATT(GATT_DiscAllChars);
+			sendCmds.SendGATT(GATT_DiscCharsByUUID);
+			sendCmds.SendGATT(GATT_DiscAllCharDescs, TxDataOut.CmdType.General);
+		}
+
+		public void TestCase()
+		{
+			sendCmds.SendUTIL(new HCICmds.UTILCmds.UTIL_Reset()
+			{
+				resetType = HCICmds.UTIL_ResetType.Hard_Reset
+			});
+			sendCmds.SendHCIExt(new HCICmds.HCIExtCmds.HCIExt_SetBDADDR()
+			{
+				bleDevAddr = "70:55:44:33:22:11"
+			});
+			HCICmds.GAPCmds.GAP_DeviceInit gapDeviceInit = new HCICmds.GAPCmds.GAP_DeviceInit();
+			gapDeviceInit.broadcasterProfileRole = HCICmds.GAP_EnableDisable.Disable;
+			gapDeviceInit.observerProfileRole = HCICmds.GAP_EnableDisable.Disable;
+			gapDeviceInit.peripheralProfileRole = HCICmds.GAP_EnableDisable.Disable;
+			gapDeviceInit.centralProfileRole = HCICmds.GAP_EnableDisable.Enable;
+			gapDeviceInit.maxScanResponses = (byte)3;
+			string str1 = "33:42:CF:14:BC:55:17:31:75:4F:BB:A4:C7:F2:8C:13";
+			gapDeviceInit.irk = str1;
+			string str2 = "45:0A:F4:B0:03:07:B0:40:87:F4:18:23:75:4A:FB:A4";
+			gapDeviceInit.csrk = str2;
+			gapDeviceInit.signCounter = 0U;
+			sendCmds.SendGAP(gapDeviceInit);
+			sendCmds.SendGAP(new HCICmds.GAPCmds.GAP_EstablishLinkRequest()
+			{
+				highDutyCycle = HCICmds.GAP_EnableDisable.Disable,
+				whiteList = HCICmds.GAP_EnableDisable.Disable,
+				addrTypePeer = HCICmds.GAP_AddrType.Public,
+				peerAddr = "60:55:44:33:22:11"
+			});
+			sendCmds.SendGAP(new HCICmds.GAPCmds.GAP_Authenticate()
+			{
+				connHandle = (ushort)0,
+				secReq_ioCaps = HCICmds.GAP_IOCaps.KeyboardDisplay,
+				secReq_oobAvailable = HCICmds.GAP_TrueFalse.False,
+				secReq_oob = "4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00",
+				secReq_authReq = 1,
+				secReq_maxEncKeySize = 16,
+				secReq_keyDist = 0,
+				pairReq_Enable = HCICmds.GAP_EnableDisable.Disable,
+				pairReq_ioCaps = HCICmds.GAP_IOCaps.KeyboardDisplay,
+				pairReq_oobDataFlag = HCICmds.GAP_EnableDisable.Disable,
+				pairReq_authReq = 1,
+			});
+			sendCmds.SendGAP(new HCICmds.GAPCmds.GAP_TerminateLinkRequest()
+			{
+				connHandle = (ushort)0,
+				discReason = HCICmds.GAP_DisconnectReason.Remote_User_Terminated
+			});
+		}
+
+		public void StartTimer(DeviceForm.EventType eType)
+		{
+			switch (eType)
+			{
+				case DeviceForm.EventType.Init:
+					initTimer.Start();
+					break;
+				case DeviceForm.EventType.Scan:
+					scanTimer.Start();
+					break;
+				case DeviceForm.EventType.Establish:
+					establishTimer.Start();
+					break;
+				case DeviceForm.EventType.PairBond:
+					pairBondTimer.Start();
+					break;
+			}
+		}
+
+		public void StopTimer(DeviceForm.EventType eType)
+		{
+			switch (eType)
+			{
+				case DeviceForm.EventType.Init:
+					initTimer.Stop();
+					break;
+				case DeviceForm.EventType.Scan:
+					scanTimer.Stop();
+					break;
+				case DeviceForm.EventType.Establish:
+					establishTimer.Stop();
+					break;
+				case DeviceForm.EventType.PairBond:
+					pairBondTimer.Stop();
+					break;
+			}
+		}
+
+		private void timerScanEvent(object obj, EventArgs args)
+		{
+			StopTimer(DeviceForm.EventType.Scan);
+			devTabsForm.ShowProgress(false);
+			Cursor = Cursors.Default;
+			devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+			devTabsForm.DiscoverConnectUserInputControl();
+			string msg = "Device Scan Timeout.\n";
+			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
+			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+		}
+
+		private void timerInitEvent(object obj, EventArgs args)
+		{
+			StopTimer(DeviceForm.EventType.Init);
+			devTabsForm.ShowProgress(false);
+			Cursor = Cursors.Default;
+			string msg = "GAP Device Initialization Timeout.\nDevice May Not Function Properly.\n";
+			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
+			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+		}
+
+		private void timerEstablishEvent(object obj, EventArgs args)
+		{
+			StopTimer(DeviceForm.EventType.Establish);
+			devTabsForm.ShowProgress(false);
+			Cursor = Cursors.Default;
+			string msg = "GAP Link Establish Request Timeout.\n";
+			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
+			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+		}
+
+		private void timerPairBondEvent(object obj, EventArgs args)
+		{
+			StopTimer(DeviceForm.EventType.PairBond);
+			devTabsForm.ShowProgress(false);
+			Cursor = Cursors.Default;
+			devTabsForm.TabPairBondInitValues();
+			devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
+			devTabsForm.PairBondUserInputControl();
+			string msg = "Pairing Bonding Request Timeout.\n";
+			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
+			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+		}
+
+		private void DisplayRxCmd(RxDataIn rxDataIn, bool displayBytes)
+		{
+			if (InvokeRequired)
+			{
+				Invoke((Delegate)new DeviceForm.DisplayRxCmdDelegate(DisplayRxCmd), rxDataIn, displayBytes);
+			}
+			else
+			{
+				byte packetType = rxDataIn.type;
+				ushort opCode1 = rxDataIn.cmdOpcode;
+				ushort opCode2 = rxDataIn.eventOpcode;
+				byte num1 = rxDataIn.length;
+				byte[] data1 = rxDataIn.data;
+				string str1 = string.Empty;
+				string msg1 = string.Empty;
+				byte[] addr = new byte[6];
+				string msg2;
+				if (packetType == 4)
+					msg2 = str1 + string.Format("-Type\t\t: 0x{0:X2} ({1:S})\n-EventCode\t: 0x{2:X2} ({3:S})\n-Data Length\t: 0x{4:X2} ({5:D}) bytes(s)\n", packetType, devUtils.GetPacketTypeStr(packetType), opCode1, devUtils.GetOpCodeName(opCode1), num1, num1);
+				else
+					msg2 = str1 + string.Format("-Type\t\t: 0x{0:X2} ({1:S})\n-OpCode\t\t: 0x{2:X4} ({3:S})\n-Data Length\t: 0x{4:X2} ({5:D}) bytes(s)\n", packetType, devUtils.GetPacketTypeStr(packetType), opCode1, devUtils.GetOpCodeName(opCode1), num1, num1);
+				int index1 = 0;
+				byte bits1 = (byte)0;
+				ushort bits2 = (ushort)0;
+				string str2 = string.Empty;
+				bool dataErr = false;
+				switch (opCode1)
+				{
+					case 14:
+						int num2 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+						if (!dataErr)
+						{
+							msg2 += string.Format(" Packets\t\t: 0x{0:X2} ({1:D})\n", bits1, bits1);
+							ushort opCode3 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+							if (!dataErr)
+							{
+								msg2 += string.Format(" Opcode\t\t: 0x{0:X4} ({1:S})\n", opCode3, devUtils.GetOpCodeName(opCode3));
+								switch (opCode3)
+								{
+									case 5125:
+										dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+										if (!dataErr)
+										{
+											msg2 += string.Format(" Status\t\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetStatusStr(bits1));
+											dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+											{
+												dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+												if (!dataErr)
+													msg2 += string.Format(" RSSI\t\t: 0x{0:X2} ({1:D})\n", bits1, bits1);
+											}
+										}
+										break;
+									case 8208:
+									case 8209:
+									case 8210:
+										dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+										if (!dataErr)
+											msg2 += string.Format(" Status\t\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetStatusStr(bits1));
+										break;
+									case 64526:
+									case 64527:
+									case 64528:
+										dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+										if (!dataErr)
+										{
+											msg2 += string.Format(" Status\t\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetHCIExtStatusStr(bits1));
+										}
+										break;
+									default:
+										devUtils.BuildRawDataStr(data1, ref msg2, data1.Length);
+										break;
+								}
+							}
+						}
+						break;
+					case 19:
+						if (num1 == 5)
+						{
+							dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+							if (!dataErr)
+							{
+								msg2 = msg2 + string.Format(" NumOfHandles\t: 0x{0:X2} ({1:D})\n", bits1, bits1);
+								dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
+								if (!dataErr)
+								{
+									dataUtils.Unload16Bits(data1, ref index1, ref bits2, ref dataErr, false);
+									if (!dataErr)
+										msg2 = msg2 + string.Format(" PktsCompleted\t: 0x{0:X4} ({1:D})\n", bits2, bits2);
+									else
+										break;
+								}
+								else
+									break;
+							}
+							else
+								break;
+						}
+						devUtils.BuildRawDataStr(data1, ref msg2, data1.Length);
+						break;
+					case 0xff:
+						ushort num8 = (ushort)((opCode2 & 896U) >> 7);
+						byte status = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+						if (!dataErr)
+						{
+							string str3 = string.Empty;
+							string str4 = (int)num8 != 0 ? devUtils.GetStatusStr(status) : devUtils.GetHCIExtStatusStr(status);
+							msg2 = msg2 + string.Format(" Event\t\t: 0x{0:X4} ({1:S})\n Status\t\t: 0x{2:X2} ({3:S})\n", opCode2, devUtils.GetOpCodeName(opCode2), status, str4);
+							ushort num3 = opCode2;
+							byte num4;
+							if ((uint)num3 <= 1171U)
+							{
+								if ((uint)num3 <= 1153U)
+								{
+									switch (num3)
+									{
+										case 1024:
+										case 1025:
+										case 1026:
+										case 1027:
+										case 1028:
+										case 1029:
+										case 1030:
+										case 1031:
+										case 1032:
+										case 1033:
+										case 1034:
+										case 1035:
+										case 1036:
+										case 1037:
+										case 1038:
+										case 1039:
+										case 1040:
+										case 1041:
+										case 1042:
+										case 1043:
+										case 1044:
+											int num5 = (int)dataUtils.Unload16Bits(data1, ref index1, ref bits2, ref dataErr, false);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" Cmd Opcode\t: 0x{0:X4} ({1:S})\n", bits2, devUtils.GetOpCodeName(bits2));
+												goto label_319;
+											}
+											else
+												goto label_319;
+										case 1153:
+											int num6 = (int)dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+											{
+												int num7 = (int)dataUtils.Unload16Bits(data1, ref index1, ref bits2, ref dataErr, false);
+												if (!dataErr)
+												{
+													msg2 = msg2 + string.Format(" RejectReason\t: 0x{0:X4} ({1:S})\n", bits2, devUtils.GetL2CapRejectReasonsStr(bits2));
+													goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+									}
+								}
+								else if ((int)num3 != 1163)
+								{
+									if ((int)num3 == 1171)
+									{
+										int num7 = (int)dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
+										if (!dataErr)
+										{
+											int num9 = (int)dataUtils.Unload16Bits(data1, ref index1, ref bits2, ref dataErr, false);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" Result\t\t: 0x{0:X4} ({1:S})\n", bits2, devUtils.GetL2CapConnParamUpdateResultStr(bits2));
+												break;
+											}
+											else
+												break;
+										}
+										else
+											break;
+									}
+								}
+								else
+								{
+									int num7 = (int)dataUtils.Unload16Bits(data1, ref index1, ref bits2, ref dataErr, false);
+									if (!dataErr)
+									{
+										msg2 = msg2 + string.Format(" Cmd Opcode\t: 0x{0:X4} ({1:S})\n", bits2, devUtils.GetOpCodeName(bits2));
+										break;
+									}
+									else
+										break;
+								}
+							}
+							else if ((uint)num3 <= 1408U)
+							{
+								switch (num3)
+								{
+									case 1281:
+										num4 = (byte)0;
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											byte data2 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" ReqOpcode\t: 0x{0:X2} ({1:S})\n", data2, devUtils.GetHciReqOpCodeStr(data2));
+												dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
+												if (!dataErr)
+												{
+													byte errorStatus = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+													if (!dataErr)
+													{
+														msg2 = msg2 + string.Format(" ErrorCode\t: 0x{0:X2} ({1:S})\n", errorStatus, devUtils.GetShortErrorStatusStr(errorStatus));
+														msg2 = msg2 + string.Format("       \t\t: {0:S}\n", devUtils.GetErrorStatusStr(errorStatus));
+														if (devTabsForm.GetSelectedTab() == 1)
+														{
+															if ((int)data2 == 10 || (int)data2 == 8)
+																devTabsForm.SetTbReadStatusText(string.Format("{0:S}", devUtils.GetShortErrorStatusStr(errorStatus)));
+															if ((int)data2 == 18)
+															{
+																devTabsForm.SetTbWriteStatusText(string.Format("{0:S}", devUtils.GetShortErrorStatusStr(errorStatus)));
+																goto label_319;
+															}
+															else
+																goto label_319;
+														}
+														else
+															goto label_319;
+													}
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1282:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											ushort num7 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" ClientRxMTU\t: 0x{0:X4} ({1:D})\n", num7, num7);
+												goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1283:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											ushort num7 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" ServerRxMTU\t: 0x{0:X4} ({1:D})\n", num7, num7);
+												goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1284:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											dspCmdUtils.AddStartEndHandle(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+												goto label_319;
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1285:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											byte num7 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" Format\t\t: 0x{0:X2} ({1:S})\n", num7, devUtils.GetFindFormatStr(num7));
+												int uuidLength = devUtils.GetUuidLength(num7, ref dataErr);
+												if (!dataErr)
+												{
+													int dataLength = uuidLength + 2;
+													int totalLength = (int)num1 - index1;
+													msg2 = msg2 + devUtils.UnloadHandleValueData(data1, ref index1, totalLength, dataLength, ref dataErr, "Uuid");
+													if (!dataErr)
+														goto label_319;
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1286:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											dspCmdUtils.AddStartEndHandle(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+											{
+												ushort num7 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+												if (!dataErr)
+												{
+													msg2 = msg2 + string.Format(" Type\t\t: 0x{0:X4} ({1:D})\n", num7, num7);
+													goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1287:
+										byte num10;
+										if ((int)(num10 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											if ((int)num10 >= 2)
+											{
+												int num7 = (int)num10 / 2;
+												for (uint index2 = 0U; (long)index2 < (long)num7 && !dataErr; ++index2)
+												{
+													ushort num9 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+													if (!dataErr)
+														msg2 = msg2 + string.Format(" Handle\t\t: {0:X2}:{1:X2}\n", (byte)((uint)num9 & (uint)byte.MaxValue), (byte)((uint)num9 >> 8));
+													else
+														break;
+												}
+											}
+											if (!dataErr)
+												goto label_319;
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1288:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											dspCmdUtils.AddStartEndHandle(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" Type\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
+												if (!dataErr)
+													goto label_319;
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1289:
+										byte num11;
+										if ((int)(num11 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											int dataLength = (int)dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" Length\t\t: 0x{0:X2} ({1:D})\n", dataLength, dataLength);
+												byte num7 = (byte)((uint)num11 - 1U);
+												if (dataLength != 0)
+												{
+													string handleStr = string.Empty;
+													string valueStr = string.Empty;
+													msg2 = msg2 + devUtils.UnloadHandleValueData(data1, ref index1, (int)num7, dataLength, ref handleStr, ref valueStr, ref dataErr, "Data");
+													if (!dataErr && devTabsForm.GetSelectedTab() == 1)
+													{
+														devTabsForm.SetTbReadValueTag((object)valueStr);
+														if (devTabsForm.GetRbASCIIReadChecked())
+															devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(valueStr, SharedAppObjs.StringType.ASCII));
+														else if (devTabsForm.GetRbDecimalReadChecked())
+															devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(valueStr, SharedAppObjs.StringType.DEC));
+														else
+															devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(valueStr, SharedAppObjs.StringType.HEX));
+														if (!string.IsNullOrEmpty(handleStr))
+														{
+															devTabsForm.SetTbReadAttrHandleText(handleStr);
+															goto label_319;
+														}
+														else
+															goto label_319;
+													}
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1290:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											int num7 = (int)dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+												goto label_319;
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1291:
+										byte num12;
+										if ((int)(num12 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											string msg3 = string.Empty;
+											for (uint index2 = 0U; index2 < (uint)num12 && !dataErr; ++index2)
+											{
+												byte num7 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+												msg3 = msg3 + string.Format("{0:X2} ", num7);
+											}
+											if (!dataErr)
+											{
+												msg3.Trim();
+												msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", msg3);
+												if (devTabsForm.GetSelectedTab() == 1)
+												{
+													devTabsForm.SetTbReadValueTag((object)msg3);
+													if (devTabsForm.GetRbASCIIReadChecked())
+													{
+														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg3, SharedAppObjs.StringType.ASCII));
+														goto label_319;
+													}
+													else if (devTabsForm.GetRbDecimalReadChecked())
+													{
+														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg3, SharedAppObjs.StringType.DEC));
+														goto label_319;
+													}
+													else
+													{
+														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg3, SharedAppObjs.StringType.HEX));
+														goto label_319;
+													}
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1292:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											dspCmdUtils.AddHandleOffset(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+												goto label_319;
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1293:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
+											if (!dataErr)
+												goto label_319;
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1294:
+										byte num13;
+										if ((int)(num13 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											for (uint index2 = 0U; index2 < (uint)num13 && !dataErr; ++index2)
+												msg1 = msg1 + string.Format("{0:X2} ", dataUtils.Unload8Bits(data1, ref index1, ref dataErr));
+											if (!dataErr)
+											{
+												msg1.Trim();
+												msg2 = msg2 + string.Format(" Handles\t\t: {0:S}\n", msg1);
+												goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1295:
+										byte num14;
+										if ((int)(num14 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											for (uint index2 = 0U; index2 < (uint)num14 && !dataErr; ++index2)
+												msg1 = msg1 + string.Format("{0:X2} ", dataUtils.Unload8Bits(data1, ref index1, ref dataErr));
+											if (!dataErr)
+											{
+												msg1.Trim();
+												msg2 = msg2 + string.Format(" Values\t\t: {0:S}\n", msg1);
+												if (devTabsForm.GetSelectedTab() == 1)
+												{
+													devTabsForm.SetTbReadValueTag((object)msg1);
+													if (devTabsForm.GetRbASCIIReadChecked())
+													{
+														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg1, SharedAppObjs.StringType.ASCII));
+														goto label_319;
+													}
+													else if (devTabsForm.GetRbDecimalReadChecked())
+													{
+														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg1, SharedAppObjs.StringType.DEC));
+														goto label_319;
+													}
+													else
+													{
+														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg1, SharedAppObjs.StringType.HEX));
+														goto label_319;
+													}
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1296:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											dspCmdUtils.AddStartEndHandle(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" GroupType\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
+												if (!dataErr)
+													goto label_319;
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1297:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											byte num7 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" Length\t\t: 0x{0:X2} ({1:D})\n", num7, num7);
+												if ((int)num7 != 0)
+												{
+													int dataLength = (int)num7;
+													int totalLength = (int)num1 - 3 - index1 + 1;
+													msg2 = msg2 + string.Format(" DataList\t:\n{0:S}\n", devUtils.UnloadHandleHandleValueData(data1, ref index1, totalLength, dataLength, ref dataErr));
+													if (!dataErr)
+														goto label_319;
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1298:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											byte sigAuth = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" Signature\t: 0x{0:X2} ({1:S})\n", sigAuth, devUtils.GetSigAuthStr(sigAuth));
+												byte gapYesNo = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+												if (!dataErr)
+												{
+													msg2 = msg2 + string.Format(" Command\t: 0x{0:X2} ({1:S})\n", gapYesNo, devUtils.GetGapYesNoStr(gapYesNo));
+													int num7 = (int)dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
+													if (!dataErr)
+													{
+														msg1.Trim();
+														msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
+														if (!dataErr)
+															goto label_319;
+														else
+															goto label_319;
+													}
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1299:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) == 0 || !dataErr)
+											goto label_319;
+										else
+											goto label_319;
+									case 1302:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											dspCmdUtils.AddHandleOffset(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
+												if (!dataErr)
+													goto label_319;
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1303:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											dspCmdUtils.AddHandleOffset(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
+												if (!dataErr)
+													goto label_319;
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1304:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											msg2 = msg2 + string.Format(" Flages\t\t: 0x{0:X2}\n", dataUtils.Unload8Bits(data1, ref index1, ref dataErr));
+											if (!dataErr)
+												goto label_319;
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1305:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) == 0 || !dataErr)
+											goto label_319;
+										else
+											goto label_319;
+									case 1307:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										{
+											int num7 = (int)dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
+												if (!dataErr)
+													goto label_319;
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1309:
+										try
+										{
+											if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0)
+											{
+												if (!dataErr)
+												{
+													int num7 = (int)dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
+													if (!dataErr)
+													{
+														msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
+														if (!dataErr)
+															goto label_319;
+														else
+															goto label_319;
+													}
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										catch (Exception ex)
+										{
+											string msg3 = string.Format("Message Data Conversion Issue.\n\n{0}\n", ex.Message);
+											msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg3);
+											DisplayMsg(SharedAppObjs.MsgType.Error, "Could Not Convert All The Data In The Following Message\n(Message Is Missing Data Bytes To Process)\n");
+											dataErr = true;
+											goto label_319;
+										}
+									case 1310:
+										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) == 0 || !dataErr)
+											goto label_319;
+										else
+											goto label_319;
+									case 1408:
+										dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
+										if (!dataErr)
+										{
+											int num7 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" PduLen\t\t: 0x{0:X2} ({1:D})\n", bits1, bits1);
+												ushort num9 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+												if (!dataErr)
+												{
+													msg2 = msg2 + string.Format(" AttrHandle\t: 0x{0:X4} ({1:D})\n", num9, num9);
+													int num15 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+													if (!dataErr)
+													{
+														msg2 = msg2 + string.Format(" Value\t\t: 0x{0:X2} ({1:D})\n", bits1, bits1);
+														goto label_319;
+													}
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+								}
+							}
+							else
+							{
+								switch (num3)
+								{
+									case 1536:
+										string deviceBDAddressStr = devUtils.UnloadDeviceAddr(data1, ref addr, ref index1, false, ref dataErr);
+										if (!dataErr)
+										{
+											msg2 = msg2 + string.Format(" DevAddr\t\t: {0:S}\n", deviceBDAddressStr);
+											OnBDAddressNotify(deviceBDAddressStr);
+											ushort num7 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" DataPktLen\t: 0x{0:X4} ({1:D})\n", num7, num7);
+												byte num9 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+												if (!dataErr)
+												{
+													msg2 = msg2 + string.Format(" NumDataPkts\t: 0x{0:X2} ({1:D})\n", num9, num9) + string.Format(" IRK\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, 16, ref dataErr));
+													if (!dataErr)
+													{
+														msg2 = msg2 + string.Format(" CSRK\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, 16, ref dataErr));
+														if (!dataErr && !DeviceStarted)
+														{
+															StopTimer(DeviceForm.EventType.Init);
+															devTabsForm.ShowProgress(false);
+															devTabsForm.UserTabAccess(true);
+															DeviceStarted = true;
+															devTabsForm.GetConnectionParameters();
+															goto label_319;
+														}
+														else
+															goto label_319;
+													}
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1537:
+										StopTimer(DeviceForm.EventType.Scan);
+										devTabsForm.ShowProgress(false);
+										if ((int)status != 0 && (int)status != 48)
+										{
+											string msg3 = string.Format("GAP_DeviceDiscoveryDone Failed.\n{0}\n", str4);
+											msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg3);
+										}
+										byte num16 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+										if (!dataErr)
+										{
+											msg2 = msg2 + string.Format(" NumDevs\t: 0x{0:X2} ({1:D})\n", num16, num16);
+											if ((int)num16 > 0)
+											{
+												for (uint index2 = 0U; index2 < (uint)num16 && !dataErr; ++index2)
+												{
+													string str5 = msg2 + string.Format(" Device #{0:D}\n", index2);
+													byte eventType = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+													string str6 = str5 + string.Format(" EventType\t: 0x{0:X2} ({1:S})\n", eventType, devUtils.GetGapEventTypeStr(eventType));
+													byte addrType = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+													msg2 = str6 + string.Format(" AddrType\t: 0x{0:X2} ({1:S})\n", addrType, devUtils.GetGapAddrTypeStr(addrType)) + string.Format(" Addr\t\t: {0:S}\n", devUtils.UnloadDeviceAddr(data1, ref addr, ref index1, false, ref dataErr));
+													DeviceTabsForm.LinkSlave linkSlave;
+													linkSlave.slaveBDA = addr;
+													linkSlave.addrBDA = "";
+													linkSlave.addrType = (HCICmds.GAP_AddrType)addrType;
+													devTabsForm.AddSlaveDevice(linkSlave);
+												}
+												if (!dataErr)
+													goto label_319;
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1538:
+										int num17 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+										if (!dataErr)
+										{
+											msg2 = msg2 + string.Format(" AdType\t\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetGapAdventAdTypeStr(bits1));
+											goto label_319;
+										}
+										else
+											goto label_319;
+									case 1539:
+									case 1540:
+										goto label_319;
+									case 1541:
+										StopTimer(DeviceForm.EventType.Establish);
+										devTabsForm.ShowProgress(false);
+										byte addrType1 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+										if (!dataErr)
+										{
+											msg2 = msg2 + string.Format(" DevAddrType\t: 0x{0:X2} ({1:S})\n", addrType1, devUtils.GetGapAddrTypeStr(addrType1));
+											string str5 = devUtils.UnloadDeviceAddr(data1, ref addr, ref index1, false, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" DevAddr\t\t: {0:S}\n", str5);
+												ushort num7 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+												if (!dataErr)
+												{
+													msg2 = msg2 + string.Format(" ConnHandle\t: 0x{0:X4} ({1:D})\n", num7, num7);
+													if ((int)status == 0)
+													{
+														ConnectInfo tmpConnectInfo = new ConnectInfo();
+														tmpConnectInfo.handle = num7;
+														tmpConnectInfo.addrType = addrType1;
+														tmpConnectInfo.bDA = str5;
+														OnConnectionNotify(ref tmpConnectInfo);
+														devTabsForm.SetConnHandles(tmpConnectInfo.handle);
+													}
+													ushort num9 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+													if (!dataErr)
+													{
+														msg2 = msg2 + string.Format(" ConnInterval\t: 0x{0:X4} ({1:D})\n", num9, num9);
+														ushort num15 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+														if (!dataErr)
+														{
+															msg2 = msg2 + string.Format(" ConnLatency\t: 0x{0:X4} ({1:D})\n", num15, num15);
+															ushort num18 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+															if (!dataErr)
+															{
+																msg2 = msg2 + string.Format(" ConnTimeout\t: 0x{0:X4} ({1:D})\n", num18, num18);
+																byte num19 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+																if (!dataErr)
+																{
+																	msg2 = msg2 + string.Format(" ClockAccuracy\t: 0x{0:X2} ({1:D})\n", num19, num19);
+																	goto label_319;
+																}
+																else
+																	goto label_319;
+															}
+															else
+																goto label_319;
+														}
+														else
+															goto label_319;
+													}
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1542:
+										ushort num20 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+										if (!dataErr)
+										{
+											msg2 = msg2 + string.Format(" ConnHandle\t: 0x{0:X4} ({1:D})\n", num20, num20);
+											int num7 = dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" Reason\t\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetGapTerminationReasonStr(bits1));
+												if (status == 0)
+												{
+													ConnectInfo connectInfo = new ConnectInfo()
+													{
+														handle = num20,
+														bDA = "00:00:00:00:00:00",
+														addrType = (byte)0
+													};
+													OnDisconnectionNotify(ref connectInfo);
+													devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotConnected);
+													goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1543:
+										dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
+										if (!dataErr)
+										{
+											ushort num7 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" ConnInterval\t: 0x{0:X4} ({1:D})\n", num7, num7);
+												ushort num9 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+												if (!dataErr)
+												{
+													msg2 = msg2 + string.Format(" ConnLatency\t: 0x{0:X4} ({1:D})\n", num9, num9);
+													ushort num15 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+													if (!dataErr)
+													{
+														msg2 = msg2 + string.Format(" ConnTimeout\t: 0x{0:X4} ({1:D})\n", num15, num15);
+														goto label_319;
+													}
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1544:
+										int num21 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+										if (!dataErr)
+										{
+											msg2 = msg2 + string.Format(" AddrType\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetGapAddrTypeStr(bits1)) + string.Format(" NewRandAddr\t: {0:S}\n", devUtils.UnloadDeviceAddr(data1, ref addr, ref index1, false, ref dataErr));
+											if (!dataErr)
+												goto label_319;
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1545:
+										int num22 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+										if (!dataErr)
+										{
+											msg2 = msg2 + string.Format(" AddrType\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetGapAddrTypeStr(bits1)) + string.Format(" DevAddr\t\t: {0:S}\n", devUtils.UnloadDeviceAddr(data1, ref addr, ref index1, false, ref dataErr));
+											if (!dataErr)
+											{
+												uint num7 = dataUtils.Unload32Bits(data1, ref index1, ref dataErr, false);
+												if (!dataErr)
+												{
+													msg2 = msg2 + string.Format(" SignCounter\t: 0x{0:X8} ({1:D})\n", num7, num7);
+													goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1546:
+										HCICmds.GAPEvts.GAP_AuthenticationComplete authenticationComplete = new HCICmds.GAPEvts.GAP_AuthenticationComplete();
+										dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
+										if (!dataErr)
+										{
+											authenticationComplete.connHandle = bits2;
+											byte authReq = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" AuthState\t: 0x{0:X2} ({1:S})\n", authReq,devUtils.GetGapAuthReqStr(authReq));
+												authenticationComplete.authState = authReq;
+												byte num7 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+												if (!dataErr)
+												{
+													msg2 = msg2 + string.Format(" SecInf.Enable\t: 0x{0:X2} ({1:D})\n",num7,num7);
+													authenticationComplete.secInfo_enable = (HCICmds.GAP_EnableDisable)num7;
+													byte num9 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+													if (!dataErr)
+													{
+														msg2 = msg2 + string.Format(" SecInf.LTKSize\t: 0x{0:X2} ({1:D})\n",num9,num9);
+														authenticationComplete.secInfo_LTKsize = num9;
+														string str5 = devUtils.UnloadColonData(data1, ref index1, 16, ref dataErr);
+														if (!dataErr)
+														{
+															msg2 = msg2 + string.Format(" SecInf.LTK\t: {0:S}\n",str5);
+															authenticationComplete.secInfo_LTK = str5;
+															ushort num15 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+															if (!dataErr)
+															{
+																msg2 = msg2 + string.Format(" SecInf.DIV\t: 0x{0:X4} ({1:D})\n",num15,num15);
+																authenticationComplete.secInfo_DIV = num15;
+																string str6 = devUtils.UnloadColonData(data1, ref index1, 8, ref dataErr);
+																if (!dataErr)
+																{
+																	msg2 = msg2 + string.Format(" SecInf.Rand\t: {0:S}\n",str6);
+																	authenticationComplete.secInfo_RAND = str6;
+																	byte num18 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+																	if (!dataErr)
+																	{
+																		msg2 = msg2 + string.Format(" DSInf.Enable\t: 0x{0:X2} ({1:D})\n",num18,num18);
+																		authenticationComplete.devSecInfo_enable = (HCICmds.GAP_EnableDisable)num18;
+																		byte num19 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+																		if (!dataErr)
+																		{
+																			msg2 = msg2 + string.Format(" DSInf.LTKSize\t: 0x{0:X2} ({1:D})\n",num19,num19);
+																			authenticationComplete.devSecInfo_LTKsize = num19;
+																			string str7 = devUtils.UnloadColonData(data1, ref index1, 16, ref dataErr);
+																			if (!dataErr)
+																			{
+																				msg2 = msg2 + string.Format(" DSInf.LTK\t: {0:S}\n",str7);
+																				authenticationComplete.devSecInfo_LTK = str7;
+																				ushort num23 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+																				if (!dataErr)
+																				{
+																					msg2 = msg2 + string.Format(" DSInf.DIV\t: 0x{0:X4} ({1:D})\n",num23,num23);
+																					authenticationComplete.devSecInfo_DIV = num23;
+																					string str8 = devUtils.UnloadColonData(data1, ref index1, 8, ref dataErr);
+																					if (!dataErr)
+																					{
+																						msg2 = msg2 + string.Format(" DSInf.Rand\t: {0:S}\n",str8);
+																						authenticationComplete.devSecInfo_RAND = str8;
+																						byte num24 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+																						if (!dataErr)
+																						{
+																							msg2 = msg2 + string.Format(" IdInfo.Enable\t: 0x{0:X2} ({1:D})\n",num24,num24);
+																							authenticationComplete.idInfo_enable = (HCICmds.GAP_EnableDisable)num24;
+																							string str9 = devUtils.UnloadColonData(data1, ref index1, 16, ref dataErr);
+																							if (!dataErr)
+																							{
+																								msg2 = msg2 + string.Format(" IdInfo.IRK\t: {0:S}\n",str9);
+																								authenticationComplete.idInfo_IRK = str9;
+																								string str10 = devUtils.UnloadDeviceAddr(data1, ref addr, ref index1, false, ref dataErr);
+																								if (!dataErr)
+																								{
+																									msg2 = msg2 + string.Format(" IdInfo.BD_Addr\t: {0:S}\n",str10);
+																									authenticationComplete.idInfo_BdAddr = str10;
+																									byte num25 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+																									if (!dataErr)
+																									{
+																										msg2 = msg2 + string.Format(" SignInfo.Enable\t: 0x{0:X2} ({1:D})\n",num25,num25);
+																										authenticationComplete.signInfo_enable = (HCICmds.GAP_EnableDisable)num25;
+																										string str11 = devUtils.UnloadColonData(data1, ref index1, 16, ref dataErr);
+																										if (!dataErr)
+																										{
+																											msg2 = msg2 + string.Format(" SignInfo.CSRK\t: {0:S}\n",str11);
+																											authenticationComplete.signInfo_CSRK = str11;
+																											uint num26 = dataUtils.Unload32Bits(data1, ref index1, ref dataErr, false);
+																											if (!dataErr)
+																											{
+																												msg2 = msg2 + string.Format(" SignCounter\t: 0x{0:X8} ({1:D})\n",num26,num26);
+																												authenticationComplete.signCounter = num26;
+																												if (devTabsForm.GetSelectedTab() == 2)
+																												{
+																													StopTimer(DeviceForm.EventType.PairBond);
+																													devTabsForm.ShowProgress(false);
+																													if ((int)status == 23)
+																													{
+																														devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
+																														goto label_319;
+																													}
+																													else if ((int)status == 4)
+																													{
+																														devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.PasskeyIncorrect);
+																														goto label_319;
+																													}
+																													else if ((int)status == 0)
+																													{
+																														byte num27 = (byte)1;
+																														if (((int)authenticationComplete.authState & (int)num27) == (int)num27)
+																															devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.DevicesPairedBonded);
+																														else
+																															devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.DevicesPaired);
+																														byte num28 = (byte)4;
+																														if (((int)authenticationComplete.authState & (int)num28) == (int)num28)
+																															devTabsForm.SetAuthenticatedBond(true);
+																														else
+																															devTabsForm.SetAuthenticatedBond(false);
+																														devTabsForm.SetGapAuthCompleteInfo(authenticationComplete);
+																													}
+																												}
+																											}
+																										}
+																									}
+																								}
+																							}
+																						}
+																					}
+																				}
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+										goto label_319;
+									case 1547:
+										msg2 = msg2 + string.Format(" DevAddr\t\t: {0:S}\n",devUtils.UnloadDeviceAddr(data1, ref addr, ref index1, false, ref dataErr));
+										if (!dataErr)
+										{
+											dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
+											if (!dataErr)
+											{
+												int num7 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+												if (!dataErr)
+												{
+													msg2 = msg2 + string.Format(" UiInput\t\t: 0x{0:X2} ({1:S})\n",bits1,devUtils.GetGapUiInputStr(bits1));
+													if (devTabsForm.GetSelectedTab() == 2 && (int)bits1 == 1)
+														devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.PasskeyNeeded);
+													int num9 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+													if (!dataErr)
+													{
+														msg2 = msg2 + string.Format(" UiOutput\t\t: 0x{0:X2} ({1:S})\n",bits1,devUtils.GetGapUiOutputStr(bits1));
+														if (devTabsForm.GetSelectedTab() == 2)
+														{
+															StopTimer(DeviceForm.EventType.PairBond);
+															devTabsForm.ShowProgress(false);
+															devTabsForm.UsePasskeySecurity((HCICmds.GAP_UiOutput)bits1);
+														}
+													}
+												}
+											}
+										}
+										goto label_319;
+
+									case 1548:
+										dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
+										if (!dataErr)
+										{
+											msg2 += string.Format(" DevAddr\t\t: {0:S}\n", devUtils.UnloadDeviceAddr(data1, ref addr, ref index1, false, ref dataErr));
+											if (!dataErr)
+											{
+												int num7 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+												if (!dataErr)
+												{
+													msg2 = msg2 + string.Format(" AuthReq\t\t: 0x{0:X2} ({1:D})\n", bits1, bits1);
+													goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1549:
+										byte eventType1 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+										if (!dataErr)
+										{
+											msg2 += string.Format(" EventType\t: 0x{0:X2} ({1:S})\n", eventType1, devUtils.GetGapEventTypeStr(eventType1));
+											byte addrType2 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 = msg2 + string.Format(" AddrType\t: 0x{0:X2} ({1:S})\n", addrType2, devUtils.GetGapAddrTypeStr(addrType2)) + string.Format(" Addr\t\t: {0:S}\n",devUtils.UnloadDeviceAddr(data1, ref addr, ref index1, false, ref dataErr));
+												if (!dataErr)
+												{
+													byte num7 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+													if (!dataErr)
+													{
+														msg2 += string.Format(" Rssi\t\t: 0x{0:X2} ({1:D})\n", num7, num7);
+														byte num9 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+														if (!dataErr)
+														{
+															msg2 = msg2 + string.Format(" DataLength\t: 0x{0:X2} ({1:D})\n", num9, num9);
+															if (num9 != 0)
+															{
+																msg2 = msg2 + string.Format(" Data\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, num9, ref dataErr));
+																if (!dataErr && (eventType1 == 0 || eventType1 == 4))
+																{
+																	DeviceTabsForm.LinkSlave linkSlave;
+																	linkSlave.slaveBDA = addr;
+																	linkSlave.addrBDA = "";
+																	linkSlave.addrType = (HCICmds.GAP_AddrType)addrType2;
+																	devTabsForm.AddSlaveDevice(linkSlave);
+																	goto label_319;
+																}
+																else
+																	goto label_319;
+															}
+															else
+																goto label_319;
+														}
+														else
+															goto label_319;
+													}
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1550:
+										dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
+										if (!dataErr && devTabsForm.GetSelectedTab() == 2)
+										{
+											StopTimer(DeviceForm.EventType.PairBond);
+											devTabsForm.ShowProgress(false);
+											if (status == 0)
+											{
+												devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.DevicesPairedBonded);
+											}
+											else
+											{
+												devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
+												msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_BondComplete: Failed.\n{0}\n", str4));
+											}
+											devTabsForm.PairBondUserInputControl();
+											goto label_319;
+										}
+										else
+											goto label_319;
+									case 1551:
+										dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
+										if (!dataErr)
+										{
+											dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 += string.Format(" IOCap\t\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetGapIOCapsStr(bits1));
+												int num9 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+												if (!dataErr)
+												{
+													msg2 += string.Format(" OobDataFlag\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetGapOobDataFlagStr(bits1));
+													int num15 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+													if (!dataErr)
+													{
+														msg2 += string.Format(" AuthReq\t\t: 0x{0:X2} ({1:S})\n",bits1,devUtils.GetGapAuthReqStr(bits1));
+														bits1 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+														if (!dataErr)
+														{
+															msg2 = msg2 + string.Format(" MaxEncKeySiz\t: 0x{0:X4} ({1:D})\n",bits1,bits1);
+															int num18 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+															if (!dataErr)
+															{
+																msg2 = msg2 + string.Format(" KeyDist\t\t: 0x{0:X2} ({1:S})\n",bits1,devUtils.GetGapKeyDiskStr(bits1));
+																goto label_319;
+															}
+															else
+																goto label_319;
+														}
+														else
+															goto label_319;
+													}
+													else
+														goto label_319;
+												}
+												else
+													goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+									case 1663:
+										ushort opCode3 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
+										if (!dataErr)
+										{
+											msg2 += string.Format(" OpCode\t\t: 0x{0:X4} ({1:S})\n", opCode3, devUtils.GetOpCodeName(opCode3));
+											byte num7 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
+											if (!dataErr)
+											{
+												msg2 += string.Format(" DataLength\t: 0x{0:X2} ({1:D})\n", num7, num7);
+												ushort num9 = opCode3;
+												if (num9 <= 64918U)
+												{
+													if (num9 <= 64658U)
+													{
+														if (num9 == 64650 || num9 == 64658)
+															goto label_319;
+													}
+													else
+													{
+														switch (num9)
+														{
+															case 64769:
+															case 64770:
+															case 64771:
+															case 64772:
+															case 64773:
+															case 64774:
+															case 64775:
+															case 64776:
+															case 64777:
+															case 64778:
+															case 64779:
+															case 64780:
+															case 64781:
+															case 64782:
+															case 64783:
+															case 64784:
+															case 64785:
+															case 64786:
+															case 64787:
+															case 64790:
+															case 64791:
+															case 64792:
+															case 64793:
+															case 64795:
+															case 64797:
+															case 64798:
+															case 64898:
+															case 64900:
+															case 64902:
+															case 64908:
+															case 64912:
+															case 64918:
+																goto label_319;
+															case 64904:
+																if (devTabsForm.GetTbReadStatusText() == "Reading...")
+																{
+																	devTabsForm.SetTbReadStatusText(string.Format("{0:S}",devUtils.GetStatusStr(status)));
+																	goto label_319;
+																}
+																else
+																	goto label_319;
+															case 64906:
+																if (devTabsForm.GetTbReadStatusText() == "Reading...")
+																{
+																	devTabsForm.SetTbReadStatusText(string.Format("{0:S}",devUtils.GetStatusStr(status)));
+																	goto label_319;
+																}
+																else
+																	goto label_319;
+															case 64910:
+																if (devTabsForm.GetTbReadStatusText() == "Reading...")
+																{
+																	devTabsForm.SetTbReadStatusText(string.Format("{0:S}",devUtils.GetStatusStr(status)));
+																	goto label_319;
+																}
+																else
+																	goto label_319;
+															case 64914:
+																if (devTabsForm.GetTbWriteStatusText() == "Writing...")
+																{
+																	devTabsForm.SetTbWriteStatusText(string.Format("{0:S}",devUtils.GetStatusStr(status)));
+																	goto label_319;
+																}
+																else
+																	goto label_319;
+														}
+													}
+												}
+												else if ((uint)num9 <= 64962U)
+												{
+													switch (num9)
+													{
+														case 64923:
+														case 64925:
+														case 64944:
+														case 64946:
+														case 64950:
+														case 64952:
+														case 64954:
+														case 64956:
+														case 64958:
+														case 64960:
+														case 64962:
+															goto label_319;
+														case 64948:
+															if (devTabsForm.GetTbReadStatusText() == "Reading...")
+															{
+																devTabsForm.SetTbReadStatusText(string.Format("{0:S}",devUtils.GetStatusStr(status)));
+																goto label_319;
+															}
+															else
+																goto label_319;
+													}
+												}
+												else
+												{
+													switch (num9)
+													{
+														case 65020:
+														case 65021:
+														case 65022:
+														case 65024:
+														case 65027:
+														case 65030:
+														case 65031:
+														case 65032:
+														case 65036:
+														case 65037:
+														case 65038:
+														case 65040:
+														case 65041:
+														case 65074:
+														case 65075:
+														case 65076:
+														case 65077:
+														case 65078:
+														case 65079:
+														case 65152:
+														case 65154:
+														case 65155:
+															goto label_319;
+														case 65028:
+															if ((int)status != 0)
+															{
+																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_DeviceDiscoveryRequest Failed.\n{0}\n", str4));
+																devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+																devTabsForm.DiscoverConnectUserInputControl();
+																goto label_319;
+															}
+															else
+																goto label_319;
+														case 65029:
+															if (status != 0)
+																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_DeviceDiscoveryCancel Failed.\n{0}\n", str4));
+
+															devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+															devTabsForm.DiscoverConnectUserInputControl();
+															goto label_319;
+														case 65033:
+															StopTimer(DeviceForm.EventType.Establish);
+															devTabsForm.ShowProgress(false);
+															if (status != 0)
+																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_EstablishLinkRequest Failed.\n{0}\n", str4));
+
+															devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+															devTabsForm.DiscoverConnectUserInputControl();
+															goto label_319;
+														case 65034:
+															if (status != 0)
+																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_TerminateLinkRequest Failed.\n{0}\n", str4));
+
+															devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+															devTabsForm.DiscoverConnectUserInputControl();
+															goto label_319;
+														case 65035:
+															if (status != 0)
+															{
+																StopTimer(DeviceForm.EventType.PairBond);
+																devTabsForm.ShowProgress(false);
+																Cursor = Cursors.Default;
+																devTabsForm.TabPairBondInitValues();
+																devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
+																devTabsForm.PairBondUserInputControl();
+																string msg3 = string.Format("GAP Authenticate Failed.\n{0}\n",str4);
+																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg3);
+																goto label_319;
+															}
+															else
+																goto label_319;
+														case 65039:
+															if (devTabsForm.GetSelectedTab() == 2 && (int)status != 0)
+															{
+																StopTimer(DeviceForm.EventType.PairBond);
+																devTabsForm.ShowProgress(false);
+																devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
+																devTabsForm.PairBondUserInputControl();
+																string msg3 = string.Format("GAP_Bond: Failed.\n{0}\n",str4);
+																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg3);
+																goto label_319;
+															}
+															else
+																goto label_319;
+														case 65072:
+															if (status != 0)
+																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_SetParam: Failed.\n{0}\n", str4));
+
+															devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+															devTabsForm.DiscoverConnectUserInputControl();
+															goto label_319;
+														case 65073:
+															if (status != 0)
+																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_GetParam: Failed.\n{0}\n", str4));
+
+															devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+															devTabsForm.DiscoverConnectUserInputControl();
+															if ((int)num7 != 0)
+															{
+																int num15 = (int)dataUtils.Unload16Bits(data1, ref index1, ref bits2, ref dataErr, false);
+																if (!dataErr)
+																{
+																	msg2 = msg2 + string.Format(" ParamValue\t: 0x{0:X4} ({1:D})\n",bits2,bits2);
+																	switch (ConnParamState)
+																	{
+																		case DeviceForm.GAPGetConnectionParams.MinConnIntSeq:
+																			devTabsForm.SetMinConnectionInterval((uint)bits2);
+																			ConnParamState = DeviceForm.GAPGetConnectionParams.MaxConnIntSeq;
+																			goto label_319;
+																		case DeviceForm.GAPGetConnectionParams.MaxConnIntSeq:
+																			devTabsForm.SetMaxConnectionInterval((uint)bits2);
+																			ConnParamState = DeviceForm.GAPGetConnectionParams.SlaveLatencySeq;
+																			goto label_319;
+																		case DeviceForm.GAPGetConnectionParams.SlaveLatencySeq:
+																			devTabsForm.SetSlaveLatency((uint)bits2);
+																			ConnParamState = DeviceForm.GAPGetConnectionParams.SupervisionTimeoutSeq;
+																			goto label_319;
+																		case DeviceForm.GAPGetConnectionParams.SupervisionTimeoutSeq:
+																			devTabsForm.SetSupervisionTimeout((uint)bits2);
+																			ConnParamState = DeviceForm.GAPGetConnectionParams.None;
+																			goto label_319;
+																		case DeviceForm.GAPGetConnectionParams.MinConnIntSingle:
+																			devTabsForm.SetNudMinConnIntValue((int)bits2);
+																			ConnParamState = DeviceForm.GAPGetConnectionParams.None;
+																			goto label_319;
+																		case DeviceForm.GAPGetConnectionParams.MaxConnIntSingle:
+																			devTabsForm.SetNudMaxConnIntValue((int)bits2);
+																			ConnParamState = DeviceForm.GAPGetConnectionParams.None;
+																			goto label_319;
+																		case DeviceForm.GAPGetConnectionParams.SlaveLatencySingle:
+																			devTabsForm.SetNudSlaveLatencyValue((int)bits2);
+																			ConnParamState = DeviceForm.GAPGetConnectionParams.None;
+																			goto label_319;
+																		case DeviceForm.GAPGetConnectionParams.SupervisionTimeoutSingle:
+																			devTabsForm.SetNudSprVisionTimeoutValue((int)bits2);
+																			ConnParamState = DeviceForm.GAPGetConnectionParams.None;
+																			goto label_319;
+																		default:
+																			goto label_319;
+																	}
+																}
+																else
+																	goto label_319;
+															}
+															else
+																goto label_319;
+														case 65153:
+															if ((int)num7 != 0)
+															{
+																msg2 = msg2 + string.Format(" nvData\t\t: {0:S}\n",devUtils.UnloadColonData(data1, ref index1, (int)num7, ref dataErr));
+																if (!dataErr)
+																	goto label_319;
+																else
+																	goto label_319;
+															}
+															else
+																goto label_319;
+													}
+												}
+												devUtils.BuildRawDataStr(data1, ref msg2, data1.Length);
+												goto label_319;
+											}
+											else
+												goto label_319;
+										}
+										else
+											goto label_319;
+								}
+							}
+							devUtils.BuildRawDataStr(data1, ref msg2, data1.Length);
+						}
+						break;
+					default:
+						devUtils.BuildRawDataStr(data1, ref msg2, data1.Length);
+						break;
+				}
+
+			label_319:
+				if (dataErr)
+					DisplayMsg(SharedAppObjs.MsgType.Error, "Could Not Convert All The Data In The Following Message\n(Message Is Missing Data Bytes To Process)\n");
+
+				DisplayMsgTime(SharedAppObjs.MsgType.Incoming, msg2, rxDataIn.time);
+				if (!displayBytes)
+					return;
+
+				string str12 = string.Empty;
+				string msg4 = string.Format("{0:X2} {1:X2} {2:X2} ",packetType,(opCode1 & 0xff),num1);
+				if ((int)opCode1 == 19 || (int)opCode1 == (int)byte.MaxValue)
+					msg4 = string.Format("{0:X2} {1:X2} {2:X2} {3:X2} {4:X2} ",packetType,((int)opCode1 & (int)byte.MaxValue),num1, ((int)opCode2 & (int)byte.MaxValue), ((int)opCode2 >> 8 & (int)byte.MaxValue));
+				byte num29 = (byte)5;
+				foreach (byte num3 in data1)
+				{
+					msg4 = msg4 + string.Format("{0:X2} ", num3);
+					devUtils.CheckLineLength(ref msg4, (uint)num29++, false);
+				}
+				DisplayMsg(SharedAppObjs.MsgType.RxDump, msg4);
+			}
+		}
+
+		public delegate void DisplayMsgDelegate(SharedAppObjs.MsgType msgType, string msg);
+
+		public delegate void DisplayMsgTimeDelegate(SharedAppObjs.MsgType msgType, string msg, string time);
+
+		public delegate void DeviceTxDataDelegate(TxDataOut txDataOut);
+
+		public delegate void DeviceRxDataDelegate(RxDataIn rxDataIn);
+
+		public delegate bool HandleRxTxMessageDelegate(RxTxMgrData rxTxMgrData);
+
+		public enum EventType
+		{
+			Init,
+			Scan,
+			Establish,
+			PairBond,
+		}
+
+		public enum GAPGetConnectionParams
+		{
+			None,
+			MinConnIntSeq,
+			MaxConnIntSeq,
+			SlaveLatencySeq,
+			SupervisionTimeoutSeq,
+			MinConnIntSingle,
+			MaxConnIntSingle,
+			SlaveLatencySingle,
+			SupervisionTimeoutSingle,
+		}
+
+		private delegate void RxDataHandlerDelegate(byte[] data, uint length);
+
+		private delegate void DisplayRxCmdDelegate(RxDataIn rxDataIn, bool displayBytes);
+	}
 }
-

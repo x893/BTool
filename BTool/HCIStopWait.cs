@@ -1,910 +1,1583 @@
-﻿namespace BTool
+﻿using System.Collections.Generic;
+
+namespace BTool
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Runtime.InteropServices;
-
-    public class HCIStopWait
+	public class HCIStopWait
+	{
+		public Dictionary<ushort, HCIStopWait.TxCheck> cmdChkDict = new Dictionary<ushort, HCIStopWait.TxCheck>()
     {
-        public Dictionary<ushort, TxCheck> cmdChkDict;
-        public Dictionary<ushort, StopWaitData> cmdDict;
-
-        public HCIStopWait()
+      {
+        (ushort) 64512,
+        new HCIStopWait.TxCheck()
         {
-            Dictionary<ushort, TxCheck> dictionary = new Dictionary<ushort, TxCheck>();
-            TxCheck check = new TxCheck();
-            check.stopWait = false;
-            dictionary.Add(0xfc00, check);
-            TxCheck check2 = new TxCheck();
-            check2.stopWait = false;
-            dictionary.Add(0xfc01, check2);
-            TxCheck check3 = new TxCheck();
-            check3.stopWait = false;
-            dictionary.Add(0xfc02, check3);
-            TxCheck check4 = new TxCheck();
-            check4.stopWait = false;
-            dictionary.Add(0xfc03, check4);
-            TxCheck check5 = new TxCheck();
-            check5.stopWait = false;
-            dictionary.Add(0xfc04, check5);
-            TxCheck check6 = new TxCheck();
-            check6.stopWait = false;
-            dictionary.Add(0xfc05, check6);
-            TxCheck check7 = new TxCheck();
-            check7.stopWait = false;
-            dictionary.Add(0xfc06, check7);
-            TxCheck check8 = new TxCheck();
-            check8.stopWait = false;
-            dictionary.Add(0xfc07, check8);
-            TxCheck check9 = new TxCheck();
-            check9.stopWait = false;
-            dictionary.Add(0xfc08, check9);
-            TxCheck check10 = new TxCheck();
-            check10.stopWait = false;
-            dictionary.Add(0xfc09, check10);
-            TxCheck check11 = new TxCheck();
-            check11.stopWait = false;
-            dictionary.Add(0xfc0a, check11);
-            TxCheck check12 = new TxCheck();
-            check12.stopWait = false;
-            dictionary.Add(0xfc0b, check12);
-            TxCheck check13 = new TxCheck();
-            check13.stopWait = false;
-            dictionary.Add(0xfc0c, check13);
-            TxCheck check14 = new TxCheck();
-            check14.stopWait = false;
-            dictionary.Add(0xfc0d, check14);
-            TxCheck check15 = new TxCheck();
-            check15.stopWait = false;
-            dictionary.Add(0xfc0e, check15);
-            TxCheck check16 = new TxCheck();
-            check16.stopWait = false;
-            dictionary.Add(0xfc0f, check16);
-            TxCheck check17 = new TxCheck();
-            check17.stopWait = false;
-            dictionary.Add(0xfc10, check17);
-            TxCheck check18 = new TxCheck();
-            check18.stopWait = false;
-            dictionary.Add(0xfc11, check18);
-            TxCheck check19 = new TxCheck();
-            check19.stopWait = false;
-            dictionary.Add(0xfc12, check19);
-            TxCheck check20 = new TxCheck();
-            check20.stopWait = false;
-            dictionary.Add(0xfc13, check20);
-            TxCheck check21 = new TxCheck();
-            check21.stopWait = false;
-            dictionary.Add(0xfc14, check21);
-            TxCheck check22 = new TxCheck();
-            check22.stopWait = false;
-            dictionary.Add(0xfc8a, check22);
-            TxCheck check23 = new TxCheck();
-            check23.stopWait = false;
-            dictionary.Add(0xfc92, check23);
-            TxCheck check24 = new TxCheck();
-            check24.stopWait = true;
-            dictionary.Add(0xfd01, check24);
-            TxCheck check25 = new TxCheck();
-            check25.stopWait = true;
-            dictionary.Add(0xfd02, check25);
-            TxCheck check26 = new TxCheck();
-            check26.stopWait = true;
-            dictionary.Add(0xfd03, check26);
-            TxCheck check27 = new TxCheck();
-            check27.stopWait = true;
-            dictionary.Add(0xfd04, check27);
-            TxCheck check28 = new TxCheck();
-            check28.stopWait = true;
-            dictionary.Add(0xfd05, check28);
-            TxCheck check29 = new TxCheck();
-            check29.stopWait = true;
-            dictionary.Add(0xfd06, check29);
-            TxCheck check30 = new TxCheck();
-            check30.stopWait = true;
-            dictionary.Add(0xfd07, check30);
-            TxCheck check31 = new TxCheck();
-            check31.stopWait = true;
-            dictionary.Add(0xfd08, check31);
-            TxCheck check32 = new TxCheck();
-            check32.stopWait = true;
-            dictionary.Add(0xfd09, check32);
-            TxCheck check33 = new TxCheck();
-            check33.stopWait = true;
-            dictionary.Add(0xfd0a, check33);
-            TxCheck check34 = new TxCheck();
-            check34.stopWait = true;
-            dictionary.Add(0xfd0b, check34);
-            TxCheck check35 = new TxCheck();
-            check35.stopWait = true;
-            dictionary.Add(0xfd0c, check35);
-            TxCheck check36 = new TxCheck();
-            check36.stopWait = true;
-            dictionary.Add(0xfd0d, check36);
-            TxCheck check37 = new TxCheck();
-            check37.stopWait = true;
-            dictionary.Add(0xfd0e, check37);
-            TxCheck check38 = new TxCheck();
-            check38.stopWait = true;
-            dictionary.Add(0xfd0f, check38);
-            TxCheck check39 = new TxCheck();
-            check39.stopWait = true;
-            dictionary.Add(0xfd10, check39);
-            TxCheck check40 = new TxCheck();
-            check40.stopWait = true;
-            dictionary.Add(0xfd11, check40);
-            TxCheck check41 = new TxCheck();
-            check41.stopWait = true;
-            dictionary.Add(0xfd12, check41);
-            TxCheck check42 = new TxCheck();
-            check42.stopWait = true;
-            dictionary.Add(0xfd13, check42);
-            TxCheck check43 = new TxCheck();
-            check43.stopWait = true;
-            dictionary.Add(0xfd16, check43);
-            TxCheck check44 = new TxCheck();
-            check44.stopWait = true;
-            dictionary.Add(0xfd17, check44);
-            TxCheck check45 = new TxCheck();
-            check45.stopWait = true;
-            dictionary.Add(0xfd18, check45);
-            TxCheck check46 = new TxCheck();
-            check46.stopWait = true;
-            dictionary.Add(0xfd19, check46);
-            TxCheck check47 = new TxCheck();
-            check47.stopWait = true;
-            dictionary.Add(0xfd1b, check47);
-            TxCheck check48 = new TxCheck();
-            check48.stopWait = true;
-            dictionary.Add(0xfd1d, check48);
-            TxCheck check49 = new TxCheck();
-            check49.stopWait = true;
-            dictionary.Add(0xfd1e, check49);
-            TxCheck check50 = new TxCheck();
-            check50.stopWait = true;
-            dictionary.Add(0xfd82, check50);
-            TxCheck check51 = new TxCheck();
-            check51.stopWait = true;
-            dictionary.Add(0xfd90, check51);
-            TxCheck check52 = new TxCheck();
-            check52.stopWait = true;
-            dictionary.Add(0xfd86, check52);
-            TxCheck check53 = new TxCheck();
-            check53.stopWait = true;
-            dictionary.Add(0xfdb0, check53);
-            TxCheck check54 = new TxCheck();
-            check54.stopWait = true;
-            dictionary.Add(0xfdb2, check54);
-            TxCheck check55 = new TxCheck();
-            check55.stopWait = true;
-            dictionary.Add(0xfd88, check55);
-            TxCheck check56 = new TxCheck();
-            check56.stopWait = true;
-            dictionary.Add(0xfd84, check56);
-            TxCheck check57 = new TxCheck();
-            check57.stopWait = true;
-            dictionary.Add(0xfd8a, check57);
-            TxCheck check58 = new TxCheck();
-            check58.stopWait = true;
-            dictionary.Add(0xfdb4, check58);
-            TxCheck check59 = new TxCheck();
-            check59.stopWait = true;
-            dictionary.Add(0xfd8c, check59);
-            TxCheck check60 = new TxCheck();
-            check60.stopWait = true;
-            dictionary.Add(0xfd8e, check60);
-            TxCheck check61 = new TxCheck();
-            check61.stopWait = true;
-            dictionary.Add(0xfdb6, check61);
-            TxCheck check62 = new TxCheck();
-            check62.stopWait = true;
-            dictionary.Add(0xfdb8, check62);
-            TxCheck check63 = new TxCheck();
-            check63.stopWait = true;
-            dictionary.Add(0xfd92, check63);
-            TxCheck check64 = new TxCheck();
-            check64.stopWait = true;
-            dictionary.Add(0xfd96, check64);
-            TxCheck check65 = new TxCheck();
-            check65.stopWait = true;
-            dictionary.Add(0xfdba, check65);
-            TxCheck check66 = new TxCheck();
-            check66.stopWait = true;
-            dictionary.Add(0xfdbc, check66);
-            TxCheck check67 = new TxCheck();
-            check67.stopWait = true;
-            dictionary.Add(0xfdbe, check67);
-            TxCheck check68 = new TxCheck();
-            check68.stopWait = true;
-            dictionary.Add(0xfdc0, check68);
-            TxCheck check69 = new TxCheck();
-            check69.stopWait = true;
-            dictionary.Add(0xfdc2, check69);
-            TxCheck check70 = new TxCheck();
-            check70.stopWait = true;
-            dictionary.Add(0xfd9b, check70);
-            TxCheck check71 = new TxCheck();
-            check71.stopWait = true;
-            dictionary.Add(0xfd9d, check71);
-            TxCheck check72 = new TxCheck();
-            check72.stopWait = true;
-            dictionary.Add(0xfdfc, check72);
-            TxCheck check73 = new TxCheck();
-            check73.stopWait = true;
-            dictionary.Add(0xfdfd, check73);
-            TxCheck check74 = new TxCheck();
-            check74.stopWait = true;
-            dictionary.Add(0xfdfe, check74);
-            TxCheck check75 = new TxCheck();
-            check75.stopWait = false;
-            dictionary.Add(0xfe00, check75);
-            TxCheck check76 = new TxCheck();
-            check76.stopWait = false;
-            dictionary.Add(0xfe03, check76);
-            TxCheck check77 = new TxCheck();
-            check77.stopWait = false;
-            dictionary.Add(0xfe04, check77);
-            TxCheck check78 = new TxCheck();
-            check78.stopWait = false;
-            dictionary.Add(0xfe05, check78);
-            TxCheck check79 = new TxCheck();
-            check79.stopWait = false;
-            dictionary.Add(0xfe06, check79);
-            TxCheck check80 = new TxCheck();
-            check80.stopWait = false;
-            dictionary.Add(0xfe07, check80);
-            TxCheck check81 = new TxCheck();
-            check81.stopWait = false;
-            dictionary.Add(0xfe08, check81);
-            TxCheck check82 = new TxCheck();
-            check82.stopWait = false;
-            dictionary.Add(0xfe09, check82);
-            TxCheck check83 = new TxCheck();
-            check83.stopWait = false;
-            dictionary.Add(0xfe0a, check83);
-            TxCheck check84 = new TxCheck();
-            check84.stopWait = false;
-            dictionary.Add(0xfe0b, check84);
-            TxCheck check85 = new TxCheck();
-            check85.stopWait = false;
-            dictionary.Add(0xfe0c, check85);
-            TxCheck check86 = new TxCheck();
-            check86.stopWait = false;
-            dictionary.Add(0xfe0d, check86);
-            TxCheck check87 = new TxCheck();
-            check87.stopWait = false;
-            dictionary.Add(0xfe0e, check87);
-            TxCheck check88 = new TxCheck();
-            check88.stopWait = false;
-            dictionary.Add(0xfe0f, check88);
-            TxCheck check89 = new TxCheck();
-            check89.stopWait = false;
-            dictionary.Add(0xfe10, check89);
-            TxCheck check90 = new TxCheck();
-            check90.stopWait = false;
-            dictionary.Add(0xfe11, check90);
-            TxCheck check91 = new TxCheck();
-            check91.stopWait = false;
-            dictionary.Add(0xfe30, check91);
-            TxCheck check92 = new TxCheck();
-            check92.stopWait = false;
-            dictionary.Add(0xfe31, check92);
-            TxCheck check93 = new TxCheck();
-            check93.stopWait = false;
-            dictionary.Add(0xfe32, check93);
-            TxCheck check94 = new TxCheck();
-            check94.stopWait = false;
-            dictionary.Add(0xfe33, check94);
-            TxCheck check95 = new TxCheck();
-            check95.stopWait = false;
-            dictionary.Add(0xfe34, check95);
-            TxCheck check96 = new TxCheck();
-            check96.stopWait = false;
-            dictionary.Add(0xfe35, check96);
-            TxCheck check97 = new TxCheck();
-            check97.stopWait = false;
-            dictionary.Add(0xfe36, check97);
-            TxCheck check98 = new TxCheck();
-            check98.stopWait = false;
-            dictionary.Add(0xfe37, check98);
-            TxCheck check99 = new TxCheck();
-            check99.stopWait = false;
-            dictionary.Add(0xfe80, check99);
-            TxCheck check100 = new TxCheck();
-            check100.stopWait = false;
-            dictionary.Add(0xfe81, check100);
-            TxCheck check101 = new TxCheck();
-            check101.stopWait = false;
-            dictionary.Add(0xfe82, check101);
-            TxCheck check102 = new TxCheck();
-            check102.stopWait = false;
-            dictionary.Add(0xfe83, check102);
-            TxCheck check103 = new TxCheck();
-            check103.stopWait = false;
-            dictionary.Add(0x1405, check103);
-            TxCheck check104 = new TxCheck();
-            check104.stopWait = false;
-            dictionary.Add(0x2010, check104);
-            TxCheck check105 = new TxCheck();
-            check105.stopWait = false;
-            dictionary.Add(0x2011, check105);
-            TxCheck check106 = new TxCheck();
-            check106.stopWait = false;
-            dictionary.Add(0x2012, check106);
-            TxCheck check107 = new TxCheck();
-            check107.stopWait = false;
-            dictionary.Add(0x2013, check107);
-            this.cmdChkDict = dictionary;
-            Dictionary<ushort, StopWaitData> dictionary2 = new Dictionary<ushort, StopWaitData>();
-            StopWaitData data = new StopWaitData();
-            data.reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ErrorRsp;
-            data.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat = new ExtCmdStat();
-            stat.msgComp = MsgComp.AnyStatVal;
-            data.extCmdStat = stat;
-            data.cmdGrp = CmdGrp.ATT;
-            data.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd01, data);
-            StopWaitData data2 = new StopWaitData();
-            data2.reqEvt = HCICmds.HCIEvtOpCode.ATT_ExchangeMTUReq;
-            data2.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExchangeMTURsp;
-            data2.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat2 = new ExtCmdStat();
-            stat2.msgComp = MsgComp.AnyStatNotSucc;
-            data2.extCmdStat = stat2;
-            data2.cmdGrp = CmdGrp.ATT;
-            data2.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd02, data2);
-            StopWaitData data3 = new StopWaitData();
-            data3.reqEvt = HCICmds.HCIEvtOpCode.ATT_ExchangeMTUReq;
-            data3.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExchangeMTURsp;
-            data3.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat3 = new ExtCmdStat();
-            stat3.msgComp = MsgComp.AnyStatVal;
-            data3.extCmdStat = stat3;
-            data3.cmdGrp = CmdGrp.ATT;
-            data3.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd03, data3);
-            StopWaitData data4 = new StopWaitData();
-            data4.reqEvt = HCICmds.HCIEvtOpCode.ATT_FindInfoReq;
-            data4.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindInfoRsp;
-            data4.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat4 = new ExtCmdStat();
-            stat4.msgComp = MsgComp.AnyStatNotSucc;
-            data4.extCmdStat = stat4;
-            data4.cmdGrp = CmdGrp.ATT;
-            data4.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfd04, data4);
-            StopWaitData data5 = new StopWaitData();
-            data5.reqEvt = HCICmds.HCIEvtOpCode.ATT_FindInfoReq;
-            data5.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindInfoRsp;
-            data5.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat5 = new ExtCmdStat();
-            stat5.msgComp = MsgComp.AnyStatVal;
-            data5.extCmdStat = stat5;
-            data5.cmdGrp = CmdGrp.ATT;
-            data5.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd05, data5);
-            StopWaitData data6 = new StopWaitData();
-            data6.reqEvt = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueReq;
-            data6.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueRsp;
-            data6.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat6 = new ExtCmdStat();
-            stat6.msgComp = MsgComp.AnyStatNotSucc;
-            data6.extCmdStat = stat6;
-            data6.cmdGrp = CmdGrp.ATT;
-            data6.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd06, data6);
-            StopWaitData data7 = new StopWaitData();
-            data7.reqEvt = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueReq;
-            data7.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueRsp;
-            data7.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat7 = new ExtCmdStat();
-            stat7.msgComp = MsgComp.AnyStatVal;
-            data7.extCmdStat = stat7;
-            data7.cmdGrp = CmdGrp.ATT;
-            data7.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd07, data7);
-            StopWaitData data8 = new StopWaitData();
-            data8.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq;
-            data8.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp;
-            data8.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat8 = new ExtCmdStat();
-            stat8.msgComp = MsgComp.AnyStatNotSucc;
-            data8.extCmdStat = stat8;
-            data8.cmdGrp = CmdGrp.ATT;
-            data8.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd08, data8);
-            StopWaitData data9 = new StopWaitData();
-            data9.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq;
-            data9.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp;
-            data9.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat9 = new ExtCmdStat();
-            stat9.msgComp = MsgComp.AnyStatVal;
-            data9.extCmdStat = stat9;
-            data9.cmdGrp = CmdGrp.ATT;
-            data9.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd09, data9);
-            StopWaitData data10 = new StopWaitData();
-            data10.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadReq;
-            data10.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadRsp;
-            data10.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat10 = new ExtCmdStat();
-            stat10.msgComp = MsgComp.AnyStatNotSucc;
-            data10.extCmdStat = stat10;
-            data10.cmdGrp = CmdGrp.ATT;
-            data10.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd0a, data10);
-            StopWaitData data11 = new StopWaitData();
-            data11.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadReq;
-            data11.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadRsp;
-            data11.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat11 = new ExtCmdStat();
-            stat11.msgComp = MsgComp.AnyStatVal;
-            data11.extCmdStat = stat11;
-            data11.cmdGrp = CmdGrp.ATT;
-            data11.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd0b, data11);
-            StopWaitData data12 = new StopWaitData();
-            data12.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadBlobReq;
-            data12.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadBlobRsp;
-            data12.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat12 = new ExtCmdStat();
-            stat12.msgComp = MsgComp.AnyStatNotSucc;
-            data12.extCmdStat = stat12;
-            data12.cmdGrp = CmdGrp.ATT;
-            data12.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfd0c, data12);
-            StopWaitData data13 = new StopWaitData();
-            data13.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadBlobReq;
-            data13.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadBlobRsp;
-            data13.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat13 = new ExtCmdStat();
-            stat13.msgComp = MsgComp.AnyStatVal;
-            data13.extCmdStat = stat13;
-            data13.cmdGrp = CmdGrp.ATT;
-            data13.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd0d, data13);
-            StopWaitData data14 = new StopWaitData();
-            data14.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadMultiReq;
-            data14.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadMultiRsp;
-            data14.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat14 = new ExtCmdStat();
-            stat14.msgComp = MsgComp.AnyStatNotSucc;
-            data14.extCmdStat = stat14;
-            data14.cmdGrp = CmdGrp.ATT;
-            data14.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd0e, data14);
-            StopWaitData data15 = new StopWaitData();
-            data15.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadMultiReq;
-            data15.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadMultiRsp;
-            data15.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat15 = new ExtCmdStat();
-            stat15.msgComp = MsgComp.AnyStatVal;
-            data15.extCmdStat = stat15;
-            data15.cmdGrp = CmdGrp.ATT;
-            data15.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd0f, data15);
-            StopWaitData data16 = new StopWaitData();
-            data16.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeReq;
-            data16.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeRsp;
-            data16.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat16 = new ExtCmdStat();
-            stat16.msgComp = MsgComp.AnyStatNotSucc;
-            data16.extCmdStat = stat16;
-            data16.cmdGrp = CmdGrp.ATT;
-            data16.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd10, data16);
-            StopWaitData data17 = new StopWaitData();
-            data17.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeReq;
-            data17.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeRsp;
-            data17.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat17 = new ExtCmdStat();
-            stat17.msgComp = MsgComp.AnyStatVal;
-            data17.extCmdStat = stat17;
-            data17.cmdGrp = CmdGrp.ATT;
-            data17.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd11, data17);
-            StopWaitData data18 = new StopWaitData();
-            data18.reqEvt = HCICmds.HCIEvtOpCode.ATT_WriteReq;
-            data18.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_WriteRsp;
-            data18.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat18 = new ExtCmdStat();
-            stat18.msgComp = MsgComp.AnyStatNotSucc;
-            data18.extCmdStat = stat18;
-            data18.cmdGrp = CmdGrp.ATT;
-            data18.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd12, data18);
-            StopWaitData data19 = new StopWaitData();
-            data19.reqEvt = HCICmds.HCIEvtOpCode.ATT_WriteReq;
-            data19.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_WriteRsp;
-            data19.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat19 = new ExtCmdStat();
-            stat19.msgComp = MsgComp.AnyStatVal;
-            data19.extCmdStat = stat19;
-            data19.cmdGrp = CmdGrp.ATT;
-            data19.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd13, data19);
-            StopWaitData data20 = new StopWaitData();
-            data20.reqEvt = HCICmds.HCIEvtOpCode.ATT_PrepareWriteReq;
-            data20.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_PrepareWriteRsp;
-            data20.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat20 = new ExtCmdStat();
-            stat20.msgComp = MsgComp.AnyStatVal;
-            data20.extCmdStat = stat20;
-            data20.cmdGrp = CmdGrp.ATT;
-            data20.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd16, data20);
-            StopWaitData data21 = new StopWaitData();
-            data21.reqEvt = HCICmds.HCIEvtOpCode.ATT_PrepareWriteReq;
-            data21.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_PrepareWriteRsp;
-            data21.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat21 = new ExtCmdStat();
-            stat21.msgComp = MsgComp.AnyStatVal;
-            data21.extCmdStat = stat21;
-            data21.cmdGrp = CmdGrp.ATT;
-            data21.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd17, data21);
-            StopWaitData data22 = new StopWaitData();
-            data22.reqEvt = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteReq;
-            data22.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteRsp;
-            data22.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat22 = new ExtCmdStat();
-            stat22.msgComp = MsgComp.AnyStatNotSucc;
-            data22.extCmdStat = stat22;
-            data22.cmdGrp = CmdGrp.ATT;
-            data22.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd18, data22);
-            StopWaitData data23 = new StopWaitData();
-            data23.reqEvt = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteReq;
-            data23.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteRsp;
-            data23.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat23 = new ExtCmdStat();
-            stat23.msgComp = MsgComp.AnyStatVal;
-            data23.extCmdStat = stat23;
-            data23.cmdGrp = CmdGrp.ATT;
-            data23.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd19, data23);
-            StopWaitData data24 = new StopWaitData();
-            data24.reqEvt = HCICmds.HCIEvtOpCode.ATT_HandleValueNotification;
-            data24.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_HandleValueNotification;
-            data24.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat24 = new ExtCmdStat();
-            stat24.msgComp = MsgComp.AnyStatNotSucc;
-            data24.extCmdStat = stat24;
-            data24.cmdGrp = CmdGrp.ATT;
-            data24.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd1b, data24);
-            StopWaitData data25 = new StopWaitData();
-            data25.reqEvt = HCICmds.HCIEvtOpCode.ATT_HandleValueIndication;
-            data25.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_HandleValueConfirmation;
-            data25.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat25 = new ExtCmdStat();
-            stat25.msgComp = MsgComp.AnyStatNotSucc;
-            data25.extCmdStat = stat25;
-            data25.cmdGrp = CmdGrp.ATT;
-            data25.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd1d, data25);
-            StopWaitData data26 = new StopWaitData();
-            data26.reqEvt = HCICmds.HCIEvtOpCode.ATT_HandleValueConfirmation;
-            data26.rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data26.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat26 = new ExtCmdStat();
-            stat26.msgComp = MsgComp.AnyStatVal;
-            data26.extCmdStat = stat26;
-            data26.cmdGrp = CmdGrp.ATT;
-            data26.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd1e, data26);
-            StopWaitData data27 = new StopWaitData();
-            data27.reqEvt = HCICmds.HCIEvtOpCode.ATT_ExchangeMTUReq;
-            data27.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExchangeMTURsp;
-            data27.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat27 = new ExtCmdStat();
-            stat27.msgComp = MsgComp.AnyStatNotSucc;
-            data27.extCmdStat = stat27;
-            data27.cmdGrp = CmdGrp.GATT;
-            data27.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd82, data27);
-            StopWaitData data28 = new StopWaitData();
-            data28.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeReq;
-            data28.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeRsp;
-            data28.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat28 = new ExtCmdStat();
-            stat28.msgComp = MsgComp.AnyStatNotSucc;
-            data28.extCmdStat = stat28;
-            data28.cmdGrp = CmdGrp.GATT;
-            data28.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfd90, data28);
-            StopWaitData data29 = new StopWaitData();
-            data29.reqEvt = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueReq;
-            data29.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueRsp;
-            data29.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat29 = new ExtCmdStat();
-            stat29.msgComp = MsgComp.AnyStatNotSucc;
-            data29.extCmdStat = stat29;
-            data29.cmdGrp = CmdGrp.GATT;
-            data29.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfd86, data29);
-            StopWaitData data30 = new StopWaitData();
-            data30.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq;
-            data30.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp;
-            data30.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat30 = new ExtCmdStat();
-            stat30.msgComp = MsgComp.AnyStatNotSucc;
-            data30.extCmdStat = stat30;
-            data30.cmdGrp = CmdGrp.GATT;
-            data30.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfdb0, data30);
-            StopWaitData data31 = new StopWaitData();
-            data31.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq;
-            data31.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp;
-            data31.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat31 = new ExtCmdStat();
-            stat31.msgComp = MsgComp.AnyStatNotSucc;
-            data31.extCmdStat = stat31;
-            data31.cmdGrp = CmdGrp.GATT;
-            data31.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfdb2, data31);
-            StopWaitData data32 = new StopWaitData();
-            data32.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq;
-            data32.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp;
-            data32.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat32 = new ExtCmdStat();
-            stat32.msgComp = MsgComp.AnyStatNotSucc;
-            data32.extCmdStat = stat32;
-            data32.cmdGrp = CmdGrp.GATT;
-            data32.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfd88, data32);
-            StopWaitData data33 = new StopWaitData();
-            data33.reqEvt = HCICmds.HCIEvtOpCode.ATT_FindInfoReq;
-            data33.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindInfoRsp;
-            data33.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat33 = new ExtCmdStat();
-            stat33.msgComp = MsgComp.AnyStatNotSucc;
-            data33.extCmdStat = stat33;
-            data33.cmdGrp = CmdGrp.GATT;
-            data33.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfd84, data33);
-            StopWaitData data34 = new StopWaitData();
-            data34.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadReq;
-            data34.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadRsp;
-            data34.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat34 = new ExtCmdStat();
-            stat34.msgComp = MsgComp.AnyStatNotSucc;
-            data34.extCmdStat = stat34;
-            data34.cmdGrp = CmdGrp.GATT;
-            data34.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd8a, data34);
-            StopWaitData data35 = new StopWaitData();
-            data35.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq;
-            data35.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp;
-            data35.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat35 = new ExtCmdStat();
-            stat35.msgComp = MsgComp.AnyStatNotSucc;
-            data35.extCmdStat = stat35;
-            data35.cmdGrp = CmdGrp.GATT;
-            data35.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfdb4, data35);
-            StopWaitData data36 = new StopWaitData();
-            data36.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadBlobReq;
-            data36.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadBlobRsp;
-            data36.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat36 = new ExtCmdStat();
-            stat36.msgComp = MsgComp.AnyStatNotSucc;
-            data36.extCmdStat = stat36;
-            data36.cmdGrp = CmdGrp.GATT;
-            data36.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfd8c, data36);
-            StopWaitData data37 = new StopWaitData();
-            data37.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadMultiReq;
-            data37.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadMultiRsp;
-            data37.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat37 = new ExtCmdStat();
-            stat37.msgComp = MsgComp.AnyStatNotSucc;
-            data37.extCmdStat = stat37;
-            data37.cmdGrp = CmdGrp.GATT;
-            data37.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd8e, data37);
-            StopWaitData data38 = new StopWaitData();
-            data38.reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data38.rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data38.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat38 = new ExtCmdStat();
-            stat38.msgComp = MsgComp.AnyStatVal;
-            data38.extCmdStat = stat38;
-            data38.cmdGrp = CmdGrp.GATT;
-            data38.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfdb6, data38);
-            StopWaitData data39 = new StopWaitData();
-            data39.reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data39.rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data39.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat39 = new ExtCmdStat();
-            stat39.msgComp = MsgComp.AnyStatVal;
-            data39.extCmdStat = stat39;
-            data39.cmdGrp = CmdGrp.GATT;
-            data39.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfdb8, data39);
-            StopWaitData data40 = new StopWaitData();
-            data40.reqEvt = HCICmds.HCIEvtOpCode.ATT_WriteReq;
-            data40.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_WriteRsp;
-            data40.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat40 = new ExtCmdStat();
-            stat40.msgComp = MsgComp.AnyStatNotSucc;
-            data40.extCmdStat = stat40;
-            data40.cmdGrp = CmdGrp.GATT;
-            data40.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd92, data40);
-            StopWaitData data41 = new StopWaitData();
-            data41.reqEvt = HCICmds.HCIEvtOpCode.ATT_PrepareWriteReq;
-            data41.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteRsp;
-            data41.rspEvt2 = HCICmds.HCIEvtOpCode.ATT_PrepareWriteRsp;
-            ExtCmdStat stat41 = new ExtCmdStat();
-            stat41.msgComp = MsgComp.AnyStatNotSucc;
-            data41.extCmdStat = stat41;
-            data41.cmdGrp = CmdGrp.GATT;
-            data41.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd96, data41);
-            StopWaitData data42 = new StopWaitData();
-            data42.reqEvt = HCICmds.HCIEvtOpCode.ATT_PrepareWriteReq;
-            data42.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteRsp;
-            data42.rspEvt2 = HCICmds.HCIEvtOpCode.ATT_PrepareWriteRsp;
-            ExtCmdStat stat42 = new ExtCmdStat();
-            stat42.msgComp = MsgComp.AnyStatNotSucc;
-            data42.extCmdStat = stat42;
-            data42.cmdGrp = CmdGrp.GATT;
-            data42.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfdba, data42);
-            StopWaitData data43 = new StopWaitData();
-            data43.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadReq;
-            data43.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadRsp;
-            data43.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat43 = new ExtCmdStat();
-            stat43.msgComp = MsgComp.AnyStatNotSucc;
-            data43.extCmdStat = stat43;
-            data43.cmdGrp = CmdGrp.GATT;
-            data43.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfdbc, data43);
-            StopWaitData data44 = new StopWaitData();
-            data44.reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadBlobReq;
-            data44.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadBlobRsp;
-            data44.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat44 = new ExtCmdStat();
-            stat44.msgComp = MsgComp.AnyStatNotSucc;
-            data44.extCmdStat = stat44;
-            data44.cmdGrp = CmdGrp.GATT;
-            data44.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfdbe, data44);
-            StopWaitData data45 = new StopWaitData();
-            data45.reqEvt = HCICmds.HCIEvtOpCode.ATT_WriteReq;
-            data45.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_WriteRsp;
-            data45.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat45 = new ExtCmdStat();
-            stat45.msgComp = MsgComp.AnyStatNotSucc;
-            data45.extCmdStat = stat45;
-            data45.cmdGrp = CmdGrp.GATT;
-            data45.msgComp = MsgComp.AnyStatNotSucc;
-            dictionary2.Add(0xfdc0, data45);
-            StopWaitData data46 = new StopWaitData();
-            data46.reqEvt = HCICmds.HCIEvtOpCode.ATT_PrepareWriteReq;
-            data46.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteRsp;
-            data46.rspEvt2 = HCICmds.HCIEvtOpCode.ATT_PrepareWriteRsp;
-            ExtCmdStat stat46 = new ExtCmdStat();
-            stat46.msgComp = MsgComp.AnyStatNotSucc;
-            data46.extCmdStat = stat46;
-            data46.cmdGrp = CmdGrp.GATT;
-            data46.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfdc2, data46);
-            StopWaitData data47 = new StopWaitData();
-            data47.reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data47.rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data47.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat47 = new ExtCmdStat();
-            stat47.msgComp = MsgComp.AnyStatVal;
-            data47.extCmdStat = stat47;
-            data47.cmdGrp = CmdGrp.GATT;
-            data47.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfd9b, data47);
-            StopWaitData data48 = new StopWaitData();
-            data48.reqEvt = HCICmds.HCIEvtOpCode.ATT_HandleValueConfirmation;
-            data48.rspEvt1 = HCICmds.HCIEvtOpCode.ATT_HandleValueConfirmation;
-            data48.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat48 = new ExtCmdStat();
-            stat48.msgComp = MsgComp.AnyStatNotSucc;
-            data48.extCmdStat = stat48;
-            data48.cmdGrp = CmdGrp.GATT;
-            data48.msgComp = MsgComp.AnyStatVal;
-            dictionary2.Add(0xfd9d, data48);
-            StopWaitData data49 = new StopWaitData();
-            data49.reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data49.rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data49.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat49 = new ExtCmdStat();
-            stat49.msgComp = MsgComp.AnyStatVal;
-            data49.extCmdStat = stat49;
-            data49.cmdGrp = CmdGrp.GATT;
-            data49.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfdfc, data49);
-            StopWaitData data50 = new StopWaitData();
-            data50.reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data50.rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data50.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat50 = new ExtCmdStat();
-            stat50.msgComp = MsgComp.AnyStatVal;
-            data50.extCmdStat = stat50;
-            data50.cmdGrp = CmdGrp.GATT;
-            data50.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfdfd, data50);
-            StopWaitData data51 = new StopWaitData();
-            data51.reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data51.rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            data51.rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode;
-            ExtCmdStat stat51 = new ExtCmdStat();
-            stat51.msgComp = MsgComp.AnyStatVal;
-            data51.extCmdStat = stat51;
-            data51.cmdGrp = CmdGrp.GATT;
-            data51.msgComp = MsgComp.NotUsed;
-            dictionary2.Add(0xfdfe, data51);
-            this.cmdDict = dictionary2;
+          stopWait = false
         }
-
-        public enum CmdGrp
+      },
+      {
+        (ushort) 64513,
+        new HCIStopWait.TxCheck()
         {
-            HCI,
-            L2CAP,
-            ATT,
-            GATT,
-            GAP,
-            UTIL,
-            Reserved,
-            UserProfile
+          stopWait = false
         }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct ExtCmdStat
+      },
+      {
+        (ushort) 64514,
+        new HCIStopWait.TxCheck()
         {
-            public HCIStopWait.MsgComp msgComp;
+          stopWait = false
         }
-
-        public enum MsgComp
+      },
+      {
+        (ushort) 64515,
+        new HCIStopWait.TxCheck()
         {
-            NotUsed,
-            AnyStatVal,
-            AnyStatNotSucc
+          stopWait = false
         }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct StopWaitData
+      },
+      {
+        (ushort) 64516,
+        new HCIStopWait.TxCheck()
         {
-            public HCICmds.HCIEvtOpCode reqEvt;
-            public HCICmds.HCIEvtOpCode rspEvt1;
-            public HCICmds.HCIEvtOpCode rspEvt2;
-            public HCIStopWait.ExtCmdStat extCmdStat;
-            public HCIStopWait.CmdGrp cmdGrp;
-            public HCIStopWait.MsgComp msgComp;
+          stopWait = false
         }
-
-        public class StopWaitEvent
+      },
+      {
+        (ushort) 64517,
+        new HCIStopWait.TxCheck()
         {
-            public SendCmdResult callback;
-            public HCIStopWait.CmdGrp cmdGrp;
-            public string cmdName;
-            public TxDataOut.CmdType cmdType;
-            public HCIStopWait.ExtCmdStat extCmdStat;
-            public HCIStopWait.MsgComp msgComp;
-            public HCICmds.HCIEvtOpCode reqEvt;
-            public HCICmds.HCIEvtOpCode rspEvt1;
-            public HCICmds.HCIEvtOpCode rspEvt2;
-            public object tag;
-            public HCICmds.HCICmdOpcode txOpcode;
-            public string txTime;
+          stopWait = false
         }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct TxCheck
+      },
+      {
+        (ushort) 64518,
+        new HCIStopWait.TxCheck()
         {
-            public bool stopWait;
+          stopWait = false
         }
-    }
+      },
+      {
+        (ushort) 64519,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64520,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64521,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64522,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64523,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64524,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64525,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64526,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64527,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64528,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64529,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64530,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64531,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64532,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64650,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64658,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 64769,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64770,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64771,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64772,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64773,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64774,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64775,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64776,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64777,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64778,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64779,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64780,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64781,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64782,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64783,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64784,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64785,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64786,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64787,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64790,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64791,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64792,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64793,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64795,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64797,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64798,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64898,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64912,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64902,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64944,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64946,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64904,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64900,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64906,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64948,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64908,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64910,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64950,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64952,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64914,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64918,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64954,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64956,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64958,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64960,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64962,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64923,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 64925,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 65020,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 65021,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 65022,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = true
+        }
+      },
+      {
+        (ushort) 65024,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65027,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65028,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65029,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65030,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65031,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65032,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65033,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65034,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65035,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65036,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65037,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65038,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65039,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65040,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65041,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65072,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65073,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65074,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65075,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65076,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65077,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65078,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65079,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65152,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65153,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65154,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 65155,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 5125,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 8208,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 8209,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 8210,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      },
+      {
+        (ushort) 8211,
+        new HCIStopWait.TxCheck()
+        {
+          stopWait = false
+        }
+      }
+    };
+		public Dictionary<ushort, HCIStopWait.StopWaitData> cmdDict = new Dictionary<ushort, HCIStopWait.StopWaitData>()
+    {
+      {
+        (ushort) 64769,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ErrorRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64770,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ExchangeMTUReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExchangeMTURsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64771,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ExchangeMTUReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExchangeMTURsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64772,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_FindInfoReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindInfoRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64773,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_FindInfoReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindInfoRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64774,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64775,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64776,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64777,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64778,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64779,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64780,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadBlobReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadBlobRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64781,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadBlobReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadBlobRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64782,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadMultiReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadMultiRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64783,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadMultiReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadMultiRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64784,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64785,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64786,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_WriteReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_WriteRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64787,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_WriteReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_WriteRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64790,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_PrepareWriteReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_PrepareWriteRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64791,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_PrepareWriteReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_PrepareWriteRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64792,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64793,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64795,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_HandleValueNotification,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_HandleValueNotification,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64797,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_HandleValueIndication,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_HandleValueConfirmation,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64798,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_HandleValueConfirmation,
+          rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.ATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64898,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ExchangeMTUReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExchangeMTURsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64912,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByGrpTypeRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64902,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindByTypeValueRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64944,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64946,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64904,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64900,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_FindInfoReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_FindInfoRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64906,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64948,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadByTypeReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadByTypeRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64908,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadBlobReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadBlobRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64910,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadMultiReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadMultiRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64950,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64952,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64914,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_WriteReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_WriteRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64918,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_PrepareWriteReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.ATT_PrepareWriteRsp,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64954,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_PrepareWriteReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.ATT_PrepareWriteRsp,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64956,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64958,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_ReadBlobReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ReadBlobRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64960,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_WriteReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_WriteRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+        }
+      },
+      {
+        (ushort) 64962,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_PrepareWriteReq,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_ExecuteWriteRsp,
+          rspEvt2 = HCICmds.HCIEvtOpCode.ATT_PrepareWriteRsp,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 64923,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 64925,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.ATT_HandleValueConfirmation,
+          rspEvt1 = HCICmds.HCIEvtOpCode.ATT_HandleValueConfirmation,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatNotSucc
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.AnyStatVal
+        }
+      },
+      {
+        (ushort) 65020,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 65021,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      },
+      {
+        (ushort) 65022,
+        new HCIStopWait.StopWaitData()
+        {
+          reqEvt = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt1 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          rspEvt2 = HCICmds.HCIEvtOpCode.InvalidEventCode,
+          extCmdStat = new HCIStopWait.ExtCmdStat()
+          {
+            msgComp = HCIStopWait.MsgComp.AnyStatVal
+          },
+          cmdGrp = HCIStopWait.CmdGrp.GATT,
+          msgComp = HCIStopWait.MsgComp.NotUsed
+        }
+      }
+    };
+
+		public enum CmdGrp
+		{
+			HCI,
+			L2CAP,
+			ATT,
+			GATT,
+			GAP,
+			UTIL,
+			Reserved,
+			UserProfile,
+		}
+
+		public enum MsgComp
+		{
+			NotUsed,
+			AnyStatVal,
+			AnyStatNotSucc,
+		}
+
+		public class StopWaitEvent
+		{
+			public string cmdName;
+			public HCICmds.HCICmdOpcode txOpcode;
+			public HCICmds.HCIEvtOpCode reqEvt;
+			public HCICmds.HCIEvtOpCode rspEvt1;
+			public HCICmds.HCIEvtOpCode rspEvt2;
+			public HCIStopWait.ExtCmdStat extCmdStat;
+			public HCIStopWait.CmdGrp cmdGrp;
+			public HCIStopWait.MsgComp msgComp;
+			public TxDataOut.CmdType cmdType;
+			public string txTime;
+			public object tag;
+			public SendCmds.SendCmdResult callback;
+		}
+
+		public struct TxCheck
+		{
+			public bool stopWait;
+		}
+
+		public struct ExtCmdStat
+		{
+			public HCIStopWait.MsgComp msgComp;
+		}
+
+		public struct StopWaitData
+		{
+			public HCICmds.HCIEvtOpCode reqEvt;
+			public HCICmds.HCIEvtOpCode rspEvt1;
+			public HCICmds.HCIEvtOpCode rspEvt2;
+			public HCIStopWait.ExtCmdStat extCmdStat;
+			public HCIStopWait.CmdGrp cmdGrp;
+			public HCIStopWait.MsgComp msgComp;
+		}
+	}
 }
-

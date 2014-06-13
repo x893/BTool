@@ -1,70 +1,60 @@
 ﻿namespace BTool
 {
-    using System;
-    using System.Runtime.InteropServices;
+	public class AttExecuteWriteRsp
+	{
+		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
+		private const string moduleName = "AttExecuteWriteRsp";
+		public AttExecuteWriteRsp.AttExecuteWriteRspDelegate AttExecuteWriteRspCallback;
 
-    public class AttExecuteWriteRsp
-    {
-        public AttExecuteWriteRspDelegate AttExecuteWriteRspCallback;
-        private const string moduleName = "AttExecuteWriteRsp";
-        private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
+		public bool GetATT_ExecuteWriteRsp(HCIReplies hciReplies, ref bool dataFound)
+		{
+			dataFound = false;
+			bool flag;
+			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
+			{
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_ExecuteWriteRsp attExecuteWriteRsp = hciLeExtEvent.attExecuteWriteRsp;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
+				if (attExecuteWriteRsp != null && hciReplies.objTag != null)
+				{
+					dataFound = true;
+					switch (leExtEventHeader.eventStatus)
+					{
+						case (byte)0:
+						case (byte)23:
+							int num = (int)(ushort)hciReplies.objTag;
+							SendRspCallback(hciReplies, true);
+							break;
+						default:
+							flag = rspHdlrsUtils.UnexpectedRspEventStatus(hciReplies, "AttExecuteWriteRsp");
+							break;
+					}
+				}
+			}
+			if (!flag && dataFound)
+				SendRspCallback(hciReplies, false);
+			return flag;
+		}
 
-        public bool GetATT_ExecuteWriteRsp(HCIReplies hciReplies, ref bool dataFound)
-        {
-            bool flag = true;
-            dataFound = false;
-            if (flag = this.rspHdlrsUtils.CheckValidResponse(hciReplies))
-            {
-                HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-                HCIReplies.HCI_LE_ExtEvent.ATT_ExecuteWriteRsp attExecuteWriteRsp = hciLeExtEvent.attExecuteWriteRsp;
-                HCIReplies.LE_ExtEventHeader header = hciLeExtEvent.header;
-                if ((attExecuteWriteRsp != null) && (hciReplies.objTag != null))
-                {
-                    dataFound = true;
-                    byte eventStatus = header.eventStatus;
-                    switch (eventStatus)
-                    {
-                        case 0:
-                        case 0x17:
-                        {
-                            ushort objTag = (ushort) hciReplies.objTag;
-                            this.SendRspCallback(hciReplies, true);
-                            goto Label_0080;
-                        }
-                    }
-                    if (eventStatus == 0x1a)
-                    {
-                    }
-                    flag = this.rspHdlrsUtils.UnexpectedRspEventStatus(hciReplies, "AttExecuteWriteRsp");
-                }
-            }
-        Label_0080:
-            if (!flag && dataFound)
-            {
-                this.SendRspCallback(hciReplies, false);
-            }
-            return flag;
-        }
+		private void SendRspCallback(HCIReplies hciReplies, bool success)
+		{
+			if (AttExecuteWriteRspCallback == null)
+				return;
+			AttExecuteWriteRspCallback(new AttExecuteWriteRsp.RspInfo()
+			{
+				success = success,
+				header = hciReplies.hciLeExtEvent.header,
+				aTT_ExecuteWriteRsp = hciReplies.hciLeExtEvent.attExecuteWriteRsp
+			});
+		}
 
-        private void SendRspCallback(HCIReplies hciReplies, bool success)
-        {
-            if (this.AttExecuteWriteRspCallback != null)
-            {
-                RspInfo rspInfo = new RspInfo();
-                rspInfo.success = success;
-                rspInfo.header = hciReplies.hciLeExtEvent.header;
-                rspInfo.aTT_ExecuteWriteRsp = hciReplies.hciLeExtEvent.attExecuteWriteRsp;
-                this.AttExecuteWriteRspCallback(rspInfo);
-            }
-        }
+		public delegate void AttExecuteWriteRspDelegate(AttExecuteWriteRsp.RspInfo rspInfo);
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RspInfo
-        {
-            public bool success;
-            public HCIReplies.LE_ExtEventHeader header;
-            public HCIReplies.HCI_LE_ExtEvent.ATT_ExecuteWriteRsp aTT_ExecuteWriteRsp;
-        }
-    }
+		public struct RspInfo
+		{
+			public bool success;
+			public HCIReplies.LE_ExtEventHeader header;
+			public HCIReplies.HCI_LE_ExtEvent.ATT_ExecuteWriteRsp aTT_ExecuteWriteRsp;
+		}
+	}
 }
-

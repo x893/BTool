@@ -1,17 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Project was exported from assembly: C:\Tools\TI\BTool\BTool.exe-->
   <PropertyGroup>
-    <ProjectType>local</ProjectType>
-    <ProjectVersion>7.10.377</ProjectVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B33B8F8E-5869-4E51-B71A-D09304D2B793}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <AssemblyName>BTool</AssemblyName>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{04BB7FC9-5383-4B6D-9CC0-4E5A055A1491}</ProjectGuid>
     <OutputType>WinExe</OutputType>
+    <AssemblyName>BTool</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <ApplicationVersion>0.1.40.5</ApplicationVersion>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -20,8 +22,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,39 +34,25 @@
   <PropertyGroup>
     <RootNamespace>BTool</RootNamespace>
   </PropertyGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Reference Include="System.Data" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Global.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="SharedThreadObjs.cs" />
-    <Compile Include="DeviceTxStopWaitDelegate.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="TxDataOutThread.cs" />
     <Compile Include="RxTxMgrData.cs" />
     <Compile Include="CommSelectForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ThreadControl.cs" />
-    <Compile Include="MouseUtils.cs" />
     <Compile Include="ThreadMgr.cs" />
-    <Compile Include="SendCmdResult.cs" />
     <Compile Include="SendCmds.cs" />
-    <Compile Include="RspDataInChangedDelegate.cs" />
     <Compile Include="RspDataInThread.cs" />
-    <Compile Include="AttWriteRspDelegate.cs" />
     <Compile Include="AttWriteRsp.cs" />
-    <Compile Include="AttReadByGrpTypeRspDelegate.cs" />
     <Compile Include="AttReadByGrpTypeRsp.cs" />
-    <Compile Include="AttReadBlobRspDelegate.cs" />
     <Compile Include="AttReadBlobRsp.cs" />
     <Compile Include="TxDataOut.cs" />
     <Compile Include="WaitingForm.cs">
@@ -76,17 +64,10 @@
     <Compile Include="DeviceTabsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AttPrepareWriteRspDelegate.cs" />
     <Compile Include="AttPrepareWriteRsp.cs" />
-    <Compile Include="DisplayLogMsgDelegate.cs" />
     <Compile Include="MsgLogForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DisplayMsgDelegate.cs" />
-    <Compile Include="DisplayMsgTimeDelegate.cs" />
-    <Compile Include="DeviceTxDataDelegate.cs" />
-    <Compile Include="DeviceRxDataDelegate.cs" />
-    <Compile Include="HandleRxTxMessageDelegate.cs" />
     <Compile Include="DeviceForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -94,7 +75,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="AttrUuidUtils.cs" />
-    <Compile Include="SharedObjects.cs" />
     <Compile Include="SharedAppObjs.cs" />
     <Compile Include="DeviceInfo.cs" />
     <Compile Include="ComPortInfo.cs" />
@@ -108,59 +88,30 @@
     <Compile Include="AttrDataItemForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="XmlDataReaderUtils.cs" />
     <Compile Include="DeviceFormUtils.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AttrDataItemChangedDelegate.cs" />
-    <Compile Include="TreeViewUtils.cs" />
-    <Compile Include="ListViewSort.cs" />
-    <Compile Include="DataUtils.cs" />
-    <Compile Include="CmdLineArgs.cs" />
-    <Compile Include="ExtCmdStatusDelegate.cs" />
     <Compile Include="ExtCmdStatus.cs" />
-    <Compile Include="AttReadRspDelegate.cs" />
     <Compile Include="AttReadRsp.cs" />
-    <Compile Include="AttExecuteWriteRspDelegate.cs" />
     <Compile Include="AttExecuteWriteRsp.cs" />
     <Compile Include="RxTxMgrThread.cs" />
-    <Compile Include="FP_ReceiveDataInd.cs" />
     <Compile Include="CommManager.cs" />
-    <Compile Include="TreeViewWrapper.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="DisplayCmdUtils.cs" />
-    <Compile Include="ShowProgressDelegate.cs" />
     <Compile Include="HCIReplies.cs" />
     <Compile Include="AttributeFormUtils.cs" />
-    <Compile Include="AttReadByTypeRspDelegate.cs" />
     <Compile Include="AttReadByTypeRsp.cs" />
-    <Compile Include="AttFindInfoRspDelegate.cs" />
     <Compile Include="AttFindInfoRsp.cs" />
-    <Compile Include="DisplayUtils.cs" />
-    <Compile Include="ListViewWrapper.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="RspHandlersUtils.cs" />
-    <Compile Include="MonoUtils.cs" />
     <Compile Include="HCICmds.cs" />
     <Compile Include="RxDataInRspData.cs" />
     <Compile Include="CommParser.cs" />
-    <Compile Include="Logging.cs" />
-    <Compile Include="GetActiveDeviceFormDelegate.cs" />
-    <Compile Include="MsgBox.cs" />
     <Compile Include="RxDataIn.cs" />
-    <Compile Include="QueueMgr.cs" />
     <Compile Include="HCIStopWait.cs" />
-    <Compile Include="AttHandleValueNotificationDelegate.cs" />
     <Compile Include="AttHandleValueNotification.cs" />
-    <Compile Include="Properties\Resources.cs" />
     <Compile Include="DisplayTxCmds.cs" />
-    <Compile Include="AttHandleValueIndicationDelegate.cs" />
     <Compile Include="AttHandleValueIndication.cs" />
-    <Compile Include="AttErrorRspDelegate.cs" />
     <Compile Include="AttErrorRsp.cs" />
     <Compile Include="DataAttr.cs" />
     <Compile Include="ValueDisplay.cs" />
@@ -169,14 +120,39 @@
     <Compile Include="WriteLimits.cs" />
     <Compile Include="GATT_CharProperties.cs" />
     <Compile Include="AttrData.cs" />
-    <Compile Include="DeviceRxStopWaitDelegate.cs" />
     <Compile Include="RxDataInThread.cs" />
     <Compile Include="UuidData.cs" />
     <Compile Include="AttrUuid.cs" />
     <Compile Include="AttrDataUtils.cs" />
-    <Compile Include="AttFindByTypeValueRspDelegate.cs" />
     <Compile Include="AttFindByTypeValueRsp.cs" />
     <Compile Include="XmlDataReader.cs" />
+    <Compile Include="Properties\Resources.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="TI\Toolbox\CmdLineArgs.cs" />
+    <Compile Include="TI\Toolbox\ThreadControl.cs" />
+    <Compile Include="TI\Toolbox\DataUtils.cs" />
+    <Compile Include="TI\Toolbox\SharedThreadObjs.cs" />
+    <Compile Include="TI\Toolbox\MsgBox.cs" />
+    <Compile Include="TI\Toolbox\TreeViewWrapper.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TI\Toolbox\QueueMgr.cs" />
+    <Compile Include="TI\Toolbox\TreeViewUtils.cs" />
+    <Compile Include="TI\Toolbox\MonoUtils.cs" />
+    <Compile Include="TI\Toolbox\ListViewWrapper.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TI\Toolbox\XmlDataReaderUtils.cs" />
+    <Compile Include="TI\Toolbox\Logging.cs" />
+    <Compile Include="TI\Toolbox\SharedObjects.cs" />
+    <Compile Include="TI\Toolbox\ListViewSort.cs" />
+    <Compile Include="TI\Toolbox\MouseUtils.cs" />
+    <Compile Include="TI\Toolbox\DisplayUtils.cs" />
+    <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="AboutForm.resx">
@@ -217,19 +193,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ti_banner.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ti_icon.ico">
+    <None Include="ReadMe.rtf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -237,5 +206,15 @@
     <None Include="BToolGattUuid.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="ReadMe.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ti_banner.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ti_icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

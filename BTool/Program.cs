@@ -1,20 +1,24 @@
-﻿namespace BTool
+﻿using System;
+using System.Windows.Forms;
+using TI.Toolbox;
+
+namespace BTool
 {
-    using System;
-    using System.Windows.Forms;
+	internal static class Program
+	{
+		private static CmdLineArgs cmdLineArgs = new CmdLineArgs();
 
-    internal static class Program
-    {
-        private static CmdLineArgs cmdLineArgs = new CmdLineArgs();
+		static Program()
+		{
+		}
 
-        [STAThread]
-        private static void Main(string[] args)
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            cmdLineArgs.SetCmdLineArgs(args);
-            Application.Run(new FormMain(cmdLineArgs));
-        }
-    }
+		[STAThread]
+		private static void Main(string[] args)
+		{
+			Application.EnableVisualStyles();
+			Application.SetCompatibleTextRenderingDefault(false);
+			Program.cmdLineArgs.Set(args);
+			Application.Run((Form)new FormMain(Program.cmdLineArgs));
+		}
+	}
 }
-

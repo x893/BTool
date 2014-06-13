@@ -1,644 +1,675 @@
-﻿namespace BTool
+﻿using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
+using TI.Toolbox;
+
+namespace BTool
 {
-    using System;
-    using System.ComponentModel;
-    using System.Drawing;
-    using System.Windows.Forms;
+	public class ComPortTreeForm : Form
+	{
+		public static string moduleName = "ComPortTreeForm";
+		private MsgBox msgBox = new MsgBox();
+		private TreeViewUtils treeViewUtils = new TreeViewUtils();
+		private DeviceFormUtils devUtils = new DeviceFormUtils();
+		private const string NodeNames_PortName = "PortName";
+		private const string NodeNames_PortInfo = "PortInfo";
+		private const string NodeNames_Port = "Port";
+		private const string NodeNames_Baudrate = "Baudrate";
+		private const string NodeNames_FlowControl = "FlowControl";
+		private const string NodeNames_DataBits = "DataBits";
+		private const string NodeNames_Parity = "Parity";
+		private const string NodeNames_StopBits = "StopBits";
+		private const string NodeNames_DeviceInfo = "DeviceInfo";
+		private const string NodeNames_HostHandle = "HostHandle";
+		private const string NodeNames_HostBda = "HostBda";
+		private const string NodeNames_ConnectionInfo = "ConnectionInfo";
+		private const string NodeNames_SlaveHandle = "SlaveHandle";
+		private const string NodeNames_SlaveAddrType = "SlaveAddrType";
+		private const string NodeNames_SlaveBda = "SlaveBda";
+		private const ushort HostHandle = (ushort)65534;
+		public FormMain.GetActiveDeviceFormDelegate GetActiveDeviceFormCallback;
+		private Font boldFont;
+		private Font underlineFont;
+		private Font regularFont;
+		private IContainer components;
+		private TreeViewWrapper tvPorts;
+		private ContextMenuStrip cmsTreeHandle;
+		private ToolStripMenuItem tsmiSetConnectionHandle;
+		private ToolStripMenuItem tsmiCopyHandle;
+		private ToolStripSeparator toolStripSeparator2;
+		private ToolStripMenuItem tsmiDiscoverUuids;
+		private ToolStripMenuItem tsmiReadValues;
+		private ToolStripSeparator toolStripSeparator4;
+		private ToolStripMenuItem tsmiClearTransmitQueue2;
+		private ContextMenuStrip cmsTreeBda;
+		private ToolStripMenuItem tsmiCopyAddress;
+		private ContextMenuStrip cmsTreeComPort;
+		private ToolStripMenuItem tsmiDiscoverAllUuids;
+		private ToolStripMenuItem tsmiReadAllValues;
+		private ToolStripSeparator toolStripSeparator3;
+		private ToolStripMenuItem tsmiClearTransmitQueue;
 
-    public class ComPortTreeForm : Form
-    {
-        private Font boldFont;
-        private ContextMenuStrip cmsTreeBda;
-        private ContextMenuStrip cmsTreeComPort;
-        private ContextMenuStrip cmsTreeHandle;
-        private IContainer components;
-        private DeviceFormUtils devUtils = new DeviceFormUtils();
-        public GetActiveDeviceFormDelegate GetActiveDeviceFormCallback;
-        private const ushort HostHandle = 0xfffe;
-        public static string moduleName = "ComPortTreeForm";
-        private MsgBox msgBox = new MsgBox();
-        private const string NodeNames_Baudrate = "Baudrate";
-        private const string NodeNames_ConnectionInfo = "ConnectionInfo";
-        private const string NodeNames_DataBits = "DataBits";
-        private const string NodeNames_DeviceInfo = "DeviceInfo";
-        private const string NodeNames_FlowControl = "FlowControl";
-        private const string NodeNames_HostBda = "HostBda";
-        private const string NodeNames_HostHandle = "HostHandle";
-        private const string NodeNames_Parity = "Parity";
-        private const string NodeNames_Port = "Port";
-        private const string NodeNames_PortInfo = "PortInfo";
-        private const string NodeNames_PortName = "PortName";
-        private const string NodeNames_SlaveAddrType = "SlaveAddrType";
-        private const string NodeNames_SlaveBda = "SlaveBda";
-        private const string NodeNames_SlaveHandle = "SlaveHandle";
-        private const string NodeNames_StopBits = "StopBits";
-        private Font regularFont;
-        private ToolStripSeparator toolStripSeparator2;
-        private ToolStripSeparator toolStripSeparator3;
-        private ToolStripSeparator toolStripSeparator4;
-        private TreeViewUtils treeViewUtils = new TreeViewUtils();
-        private ToolStripMenuItem tsmiClearTransmitQueue;
-        private ToolStripMenuItem tsmiClearTransmitQueue2;
-        private ToolStripMenuItem tsmiCopyAddress;
-        private ToolStripMenuItem tsmiCopyHandle;
-        private ToolStripMenuItem tsmiDiscoverAllUuids;
-        private ToolStripMenuItem tsmiDiscoverUuids;
-        private ToolStripMenuItem tsmiReadAllValues;
-        private ToolStripMenuItem tsmiReadValues;
-        private ToolStripMenuItem tsmiSetConnectionHandle;
-        private TreeViewWrapper tvPorts;
-        private Font underlineFont;
+		static ComPortTreeForm()
+		{
+		}
 
-        public ComPortTreeForm()
-        {
-            this.InitializeComponent();
-            this.boldFont = new Font(this.tvPorts.Font, FontStyle.Bold);
-            this.underlineFont = new Font(this.tvPorts.Font, FontStyle.Underline);
-            this.regularFont = new Font(this.tvPorts.Font, FontStyle.Regular);
-            this.tvPorts.ShowNodeToolTips = true;
-            this.tvPorts.ContextMenuStrip = null;
-        }
+		public ComPortTreeForm()
+		{
+			InitializeComponent();
+			boldFont = new Font(tvPorts.Font, FontStyle.Bold);
+			underlineFont = new Font(tvPorts.Font, FontStyle.Underline);
+			regularFont = new Font(tvPorts.Font, FontStyle.Regular);
+			tvPorts.ShowNodeToolTips = true;
+			tvPorts.ContextMenuStrip = (ContextMenuStrip)null;
+		}
 
-        public bool AddConnectionInfo(DeviceForm devForm)
-        {
-            bool flag = true;
-            ConnectInfo connectInfo = devForm.GetConnectInfo();
-            if (devForm != null)
-            {
-                foreach (TreeNode node in this.tvPorts.Nodes)
-                {
-                    DeviceInfo tag = (DeviceInfo) node.Tag;
-                    if (tag.comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
-                    {
-                        TreeNode node2 = new TreeNode();
-                        node2.Name = NodeNames.ConnectionInfo.ToString();
-                        node2.Text = string.Format("Connection Info:", new object[0]);
-                        node2.NodeFont = this.underlineFont;
-                        node2.Tag = node.Tag;
-                        node2.ToolTipText = string.Format("Device Connection Information (Over the Air Connection)", new object[0]);
-                        TreeNode node3 = new TreeNode();
-                        node3.Name = NodeNames.SlaveHandle.ToString();
-                        node3.Text = string.Format("Handle: 0x{0:X4}", connectInfo.handle);
-                        tag.connectInfo.handle = connectInfo.handle;
-                        node3.Tag = node.Tag;
-                        node3.ToolTipText = string.Format("Connection Handle\nSelect Handle Then Right Click To See Options.", new object[0]);
-                        TreeNode node4 = new TreeNode();
-                        node4.Name = NodeNames.SlaveAddrType.ToString();
-                        node4.Text = string.Format("Addr Type: 0x{0:X2} ({1:S})", connectInfo.addrType, this.devUtils.GetGapAddrTypeStr(connectInfo.addrType));
-                        node4.Tag = node.Tag;
-                        node4.ToolTipText = string.Format("Address Type", new object[0]);
-                        TreeNode node5 = new TreeNode();
-                        node5.Name = NodeNames.SlaveBda.ToString();
-                        node5.Text = string.Format("Slave BDA: {0:S}", connectInfo.bDA);
-                        node5.Tag = node.Tag;
-                        node5.ToolTipText = string.Format("Slave Bluetooth Device Address\nSelect Address Then Right Click To See Options.", new object[0]);
-                        node.Nodes.Add(node2);
-                        node2.Nodes.Add(node3);
-                        node2.Nodes.Add(node4);
-                        node2.Nodes.Add(node5);
-                        node2.Expand();
-                    }
-                }
-                return flag;
-            }
-            return false;
-        }
+		private void tsmiSetConnectionHandle_Click(object sender, EventArgs e)
+		{
+			DeviceForm deviceForm = GetActiveDeviceFormCallback();
+			if (deviceForm == null)
+				return;
+			TreeNode selectedNode = tvPorts.SelectedNode;
+			if (selectedNode == null || !(selectedNode.Name == "HostHandle") && !(selectedNode.Name == "SlaveHandle"))
+				return;
+			string str = selectedNode.Text.Replace("Handle: ", "");
+			if (str == null)
+				return;
+			ushort handle = Convert.ToUInt16(str, 16);
+			deviceForm.devTabsForm.SetConnHandles(handle);
+		}
 
-        public bool AddDeviceInfo(DeviceForm devForm)
-        {
-            bool flag = true;
-            string bDAddressStr = devForm.BDAddressStr;
-            if (devForm != null)
-            {
-                foreach (TreeNode node in this.tvPorts.Nodes)
-                {
-                    DeviceInfo tag = (DeviceInfo) node.Tag;
-                    if (tag.comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
-                    {
-                        TreeNode node2 = new TreeNode();
-                        node2.Name = NodeNames.DeviceInfo.ToString();
-                        node2.Text = string.Format("Device Info:", new object[0]);
-                        node2.NodeFont = this.underlineFont;
-                        node2.Tag = node.Tag;
-                        node2.ToolTipText = string.Format("Information About The Direct Connect Device.", new object[0]);
-                        TreeNode node3 = new TreeNode();
-                        node3.Name = NodeNames.HostHandle.ToString();
-                        node3.Text = string.Format("Handle: 0x{0:X4}", (ushort) 0xfffe);
-                        tag.handle = 0xfffe;
-                        node3.Tag = node.Tag;
-                        node3.ToolTipText = string.Format("Device Handle\nSelect Handle Then Right Click To See Options.", new object[0]);
-                        TreeNode node4 = new TreeNode();
-                        node4.Name = NodeNames.HostBda.ToString();
-                        node4.Text = string.Format("BDAddr: {0:S}", bDAddressStr);
-                        node4.Tag = node.Tag;
-                        node4.ToolTipText = string.Format("Bluetooth Device Address\nSelect Address Then Right Click To See Options.", new object[0]);
-                        if (node.FirstNode.NextNode == null)
-                        {
-                            node.Nodes.Add(node2);
-                            node2.Nodes.Add(node3);
-                            node2.Nodes.Add(node4);
-                            node2.Expand();
-                        }
-                    }
-                }
-                return flag;
-            }
-            return false;
-        }
+		private void tsmiDiscoverUuids_Click(object sender, EventArgs e)
+		{
+			if (GetActiveDeviceFormCallback() == null || tvPorts == null)
+				return;
+			SendGattDiscoverCmds(tvPorts.SelectedNode, TxDataOut.CmdType.DiscUuidOnly);
+		}
 
-        public bool AddPortInfo(DeviceInfo devInfo)
-        {
-            TreeNode node = new TreeNode();
-            node.Name = NodeNames.PortName.ToString();
-            node.Text = devInfo.comPortInfo.comPort;
-            node.Tag = devInfo;
-            node.ToolTipText = string.Format("Device Port Name\nSelect Port Name To Switch View To This Device\nSelect Port Name Then Right Click To See Options.", new object[0]);
-            this.tvPorts.Nodes.Add(node);
-            node.NodeFont = this.boldFont;
-            TreeNode node2 = new TreeNode();
-            node2.Name = NodeNames.PortInfo.ToString();
-            node2.Text = "Port Info";
-            node2.Tag = devInfo;
-            node2.ToolTipText = string.Format("Information About The Device Port", new object[0]);
-            node.Nodes.Add(node2);
-            node2.NodeFont = this.underlineFont;
-            TreeNode node3 = new TreeNode();
-            node3.Name = NodeNames.Port.ToString();
-            node3.Text = string.Format("Port: {0:S}", devInfo.comPortInfo.comPort);
-            node3.Tag = devInfo;
-            node3.ToolTipText = string.Format("Port Name", new object[0]);
-            node2.Nodes.Add(node3);
-            TreeNode node4 = new TreeNode();
-            node4.Name = NodeNames.Baudrate.ToString();
-            node4.Text = string.Format("Baudrate: {0:S}", devInfo.comPortInfo.baudRate);
-            node4.Tag = devInfo;
-            node4.ToolTipText = string.Format("Port Baudrate", new object[0]);
-            node2.Nodes.Add(node4);
-            TreeNode node5 = new TreeNode();
-            node5.Name = NodeNames.FlowControl.ToString();
-            node5.Text = string.Format("Flow Control: {0:S}", devInfo.comPortInfo.flow);
-            node5.Tag = devInfo;
-            node5.ToolTipText = string.Format("Port Flow Of Control Method", new object[0]);
-            node2.Nodes.Add(node5);
-            TreeNode node6 = new TreeNode();
-            node6.Name = NodeNames.DataBits.ToString();
-            node6.Text = string.Format("Data Bits: {0:S}", devInfo.comPortInfo.dataBits);
-            node6.Tag = devInfo;
-            node6.ToolTipText = string.Format("Port Data Bits", new object[0]);
-            node2.Nodes.Add(node6);
-            TreeNode node7 = new TreeNode();
-            node7.Name = NodeNames.Parity.ToString();
-            node7.Text = string.Format("Parity: {0:S}", devInfo.comPortInfo.parity);
-            node7.ToolTipText = string.Format("Port Parity Bits", new object[0]);
-            node7.Tag = devInfo;
-            node2.Nodes.Add(node7);
-            TreeNode node8 = new TreeNode();
-            node8.Name = NodeNames.StopBits.ToString();
-            node8.Text = string.Format("Stop Bits: {0:S}", devInfo.comPortInfo.stopBits);
-            node8.Tag = devInfo;
-            node8.ToolTipText = string.Format("Port Stop Bits", new object[0]);
-            node2.Nodes.Add(node8);
-            node.Expand();
-            return true;
-        }
+		private void tsmiReadValues_Click(object sender, EventArgs e)
+		{
+			if (GetActiveDeviceFormCallback() == null || tvPorts == null)
+				return;
+			SendGattDiscoverCmds(tvPorts.SelectedNode, TxDataOut.CmdType.DiscUuidAndValues);
+		}
 
-        public bool ChangeActiveRoot(DeviceForm devForm)
-        {
-            bool flag = false;
-            if (devForm != null)
-            {
-                foreach (TreeNode node in this.tvPorts.Nodes)
-                {
-                    DeviceInfo tag = (DeviceInfo) node.Tag;
-                    if (tag.devName == devForm.devInfo.devName)
-                    {
-                        node.NodeFont = this.underlineFont;
-                    }
-                    else
-                    {
-                        node.NodeFont = this.regularFont;
-                    }
-                }
-                return flag;
-            }
-            return false;
-        }
+		private void tsmiClearTransmitQ_Click(object sender, EventArgs e)
+		{
+			DeviceForm deviceForm = GetActiveDeviceFormCallback();
+			if (deviceForm == null)
+				return;
+			int qlength = deviceForm.threadMgr.txDataOut.dataQ.GetQLength();
+			deviceForm.threadMgr.txDataOut.dataQ.ClearQ();
+			string msg = "Pending Transmit Messages Cleared\n" + qlength.ToString() + " Messages Were Discarded\n";
+			deviceForm.DisplayMsg(SharedAppObjs.MsgType.Info, msg);
+			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Info, msg);
+		}
 
-        public void ClearSelectedNode()
-        {
-            this.treeViewUtils.ClearSelectedNode(this.tvPorts);
-        }
+		private void tsmiDiscoverAllUuids_Click(object sender, EventArgs e)
+		{
+			if (tvPorts == null)
+				return;
+			foreach (TreeNode treeNode in tvPorts.Nodes)
+				GetTreeTextRecursive_DiscoverAllUuids(treeNode);
+		}
 
-        public bool DisconnectDevice(DeviceForm devForm)
-        {
-            bool flag = false;
-            ConnectInfo disconnectInfo = devForm.disconnectInfo;
-            if (devForm != null)
-            {
-                foreach (TreeNode node in this.tvPorts.Nodes)
-                {
-                    DeviceInfo tag = (DeviceInfo) node.Tag;
-                    if (tag.comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
-                    {
-                        string target = "";
-                        target = string.Format("Handle: 0x{0:X4}", disconnectInfo.handle);
-                        SharedObjects.log.Write(Logging.MsgType.Debug, moduleName, "Disconnecting Device " + target);
-                        if (flag = this.treeViewUtils.TreeNodeTextSearchAndDestroy(node, target))
-                        {
-                            return flag;
-                        }
-                    }
-                    if (flag)
-                    {
-                        return flag;
-                    }
-                }
-                return flag;
-            }
-            return false;
-        }
+		private void GetTreeTextRecursive_DiscoverAllUuids(TreeNode treeNode)
+		{
+			SendGattDiscoverCmds(treeNode, TxDataOut.CmdType.DiscUuidOnly);
+			foreach (TreeNode treeNode1 in treeNode.Nodes)
+				GetTreeTextRecursive_DiscoverAllUuids(treeNode1);
+		}
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (this.components != null))
-            {
-                this.components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+		private void tsmiReadAllValues_Click(object sender, EventArgs e)
+		{
+			if (tvPorts == null)
+				return;
+			foreach (TreeNode treeNode in tvPorts.Nodes)
+				GetTreeTextRecursive_ReadAllValues(treeNode);
+		}
 
-        public bool FindNodeToOpen()
-        {
-            foreach (TreeNode node in this.tvPorts.Nodes)
-            {
-                DeviceInfo tag = (DeviceInfo) node.Tag;
-                DeviceForm devForm = tag.devForm;
-                if (devForm != null)
-                {
-                    devForm.Show();
-                    node.NodeFont = this.underlineFont;
-                }
-            }
-            return true;
-        }
+		private void GetTreeTextRecursive_ReadAllValues(TreeNode treeNode)
+		{
+			SendGattDiscoverCmds(treeNode, TxDataOut.CmdType.DiscUuidAndValues);
+			foreach (TreeNode treeNode1 in treeNode.Nodes)
+				GetTreeTextRecursive_ReadAllValues(treeNode1);
+		}
 
-        private void GetTreeTextRecursive_DiscoverAllUuids(TreeNode treeNode)
-        {
-            this.SendGattDiscoverCmds(treeNode, TxDataOut.CmdType.DiscUuidOnly);
-            foreach (TreeNode node in treeNode.Nodes)
-            {
-                this.GetTreeTextRecursive_DiscoverAllUuids(node);
-            }
-        }
+		private void SendGattDiscoverCmds(TreeNode treeNode, TxDataOut.CmdType cmdType)
+		{
+			DeviceForm deviceForm = GetActiveDeviceFormCallback();
+			if (deviceForm == null || treeNode == null || !(treeNode.Name == "HostHandle") && !(treeNode.Name == "SlaveHandle"))
+				return;
+			string str = treeNode.Text.Replace("Handle: ", "");
+			if (str == null)
+				return;
+			try
+			{
+				ushort handle = Convert.ToUInt16(str, 16);
+				deviceForm.sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_DiscAllPrimaryServices() { connHandle = handle }, cmdType);
+				deviceForm.sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_DiscAllCharDescs() { connHandle = handle }, cmdType);
+			}
+			catch { }
+		}
 
-        private void GetTreeTextRecursive_ReadAllValues(TreeNode treeNode)
-        {
-            this.SendGattDiscoverCmds(treeNode, TxDataOut.CmdType.DiscUuidAndValues);
-            foreach (TreeNode node in treeNode.Nodes)
-            {
-                this.GetTreeTextRecursive_ReadAllValues(node);
-            }
-        }
+		private void tsmiCopyAddress_Click(object sender, EventArgs e)
+		{
+			if (GetActiveDeviceFormCallback() == null)
+				return;
+			TreeNode selectedNode = tvPorts.SelectedNode;
+			if (selectedNode == null)
+				return;
+			string text = (string)null;
+			if (selectedNode.Name == "HostBda")
+				text = selectedNode.Text.Replace("BDAddr: ", "");
+			if (selectedNode.Name == "SlaveBda")
+				text = selectedNode.Text.Replace("Slave BDA: ", "");
+			if (text == null)
+				return;
+			Clipboard.SetText(text);
+		}
 
-        private void InitializeComponent()
-        {
-            this.components = new Container();
-            this.tvPorts = new TreeViewWrapper();
-            this.cmsTreeHandle = new ContextMenuStrip(this.components);
-            this.tsmiSetConnectionHandle = new ToolStripMenuItem();
-            this.tsmiCopyHandle = new ToolStripMenuItem();
-            this.toolStripSeparator2 = new ToolStripSeparator();
-            this.tsmiDiscoverUuids = new ToolStripMenuItem();
-            this.tsmiReadValues = new ToolStripMenuItem();
-            this.toolStripSeparator4 = new ToolStripSeparator();
-            this.tsmiClearTransmitQueue2 = new ToolStripMenuItem();
-            this.cmsTreeBda = new ContextMenuStrip(this.components);
-            this.tsmiCopyAddress = new ToolStripMenuItem();
-            this.cmsTreeComPort = new ContextMenuStrip(this.components);
-            this.tsmiDiscoverAllUuids = new ToolStripMenuItem();
-            this.tsmiReadAllValues = new ToolStripMenuItem();
-            this.toolStripSeparator3 = new ToolStripSeparator();
-            this.tsmiClearTransmitQueue = new ToolStripMenuItem();
-            this.cmsTreeHandle.SuspendLayout();
-            this.cmsTreeBda.SuspendLayout();
-            this.cmsTreeComPort.SuspendLayout();
-            base.SuspendLayout();
-            this.tvPorts.Dock = DockStyle.Fill;
-            this.tvPorts.Indent = 12;
-            this.tvPorts.Location = new Point(0, 0);
-            this.tvPorts.Name = "tvPorts";
-            this.tvPorts.Size = new Size(210, 0x242);
-            this.tvPorts.TabIndex = 4;
-            this.tvPorts.AfterSelect += new TreeViewEventHandler(this.tvPorts_AfterSelect);
-            this.cmsTreeHandle.Items.AddRange(new ToolStripItem[] { this.tsmiSetConnectionHandle, this.tsmiCopyHandle, this.toolStripSeparator2, this.tsmiDiscoverUuids, this.tsmiReadValues, this.toolStripSeparator4, this.tsmiClearTransmitQueue2 });
-            this.cmsTreeHandle.Name = "contextMenuStrip1";
-            this.cmsTreeHandle.Size = new Size(0xc5, 0x7e);
-            this.tsmiSetConnectionHandle.Name = "tsmiSetConnectionHandle";
-            this.tsmiSetConnectionHandle.Size = new Size(0xc4, 0x16);
-            this.tsmiSetConnectionHandle.Text = "&Set Connection Handle";
-            this.tsmiSetConnectionHandle.ToolTipText = "Set The Connection Handle Used By BTool";
-            this.tsmiSetConnectionHandle.Click += new EventHandler(this.tsmiSetConnectionHandle_Click);
-            this.tsmiCopyHandle.Name = "tsmiCopyHandle";
-            this.tsmiCopyHandle.Size = new Size(0xc4, 0x16);
-            this.tsmiCopyHandle.Text = "&Copy Handle";
-            this.tsmiCopyHandle.ToolTipText = "Copy The Handle To The Clipboard";
-            this.tsmiCopyHandle.Click += new EventHandler(this.tsmiCopyHandle_Click);
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new Size(0xc1, 6);
-            this.tsmiDiscoverUuids.Name = "tsmiDiscoverUuids";
-            this.tsmiDiscoverUuids.Size = new Size(0xc4, 0x16);
-            this.tsmiDiscoverUuids.Text = "&Discover UUIDs";
-            this.tsmiDiscoverUuids.ToolTipText = "Start A Message Sequence To Discover UUID's";
-            this.tsmiDiscoverUuids.Click += new EventHandler(this.tsmiDiscoverUuids_Click);
-            this.tsmiReadValues.Name = "tsmiReadValues";
-            this.tsmiReadValues.Size = new Size(0xc4, 0x16);
-            this.tsmiReadValues.Text = "&Read Values";
-            this.tsmiReadValues.ToolTipText = "Start A Message Sequence To Discover UUID's And Read Values";
-            this.tsmiReadValues.Click += new EventHandler(this.tsmiReadValues_Click);
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new Size(0xc1, 6);
-            this.tsmiClearTransmitQueue2.Name = "tsmiClearTransmitQueue2";
-            this.tsmiClearTransmitQueue2.Size = new Size(0xc4, 0x16);
-            this.tsmiClearTransmitQueue2.Text = "Clear Transmit &Queue";
-            this.tsmiClearTransmitQueue2.ToolTipText = "Clears All Pending Transmit Commands";
-            this.tsmiClearTransmitQueue2.Click += new EventHandler(this.tsmiClearTransmitQ_Click);
-            this.cmsTreeBda.Items.AddRange(new ToolStripItem[] { this.tsmiCopyAddress });
-            this.cmsTreeBda.Name = "cmsTreeBda";
-            this.cmsTreeBda.Size = new Size(0x94, 0x1a);
-            this.tsmiCopyAddress.Name = "tsmiCopyAddress";
-            this.tsmiCopyAddress.Size = new Size(0x93, 0x16);
-            this.tsmiCopyAddress.Text = "&Copy Address";
-            this.tsmiCopyAddress.ToolTipText = "Copy The Address To The Clipboard";
-            this.tsmiCopyAddress.Click += new EventHandler(this.tsmiCopyAddress_Click);
-            this.cmsTreeComPort.Items.AddRange(new ToolStripItem[] { this.tsmiDiscoverAllUuids, this.tsmiReadAllValues, this.toolStripSeparator3, this.tsmiClearTransmitQueue });
-            this.cmsTreeComPort.Name = "cmsTreeComPort";
-            this.cmsTreeComPort.Size = new Size(0x15f, 0x4c);
-            this.tsmiDiscoverAllUuids.Name = "tsmiDiscoverAllUuids";
-            this.tsmiDiscoverAllUuids.Size = new Size(350, 0x16);
-            this.tsmiDiscoverAllUuids.Text = "Discover &UUIDs (All Devices Connected To This Port)";
-            this.tsmiDiscoverAllUuids.ToolTipText = "Start A Message Sequence To Discover UUID's \r\nOn All Connected Devices To This Port";
-            this.tsmiDiscoverAllUuids.Click += new EventHandler(this.tsmiDiscoverAllUuids_Click);
-            this.tsmiReadAllValues.Name = "tsmiReadAllValues";
-            this.tsmiReadAllValues.Size = new Size(350, 0x16);
-            this.tsmiReadAllValues.Text = "Read &Values (All Devices Connected To This Port)";
-            this.tsmiReadAllValues.ToolTipText = "Start A Message Sequence To Discover UUID's And Read Values \r\nOn All Connected Devices To This Port\r\n";
-            this.tsmiReadAllValues.Click += new EventHandler(this.tsmiReadAllValues_Click);
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new Size(0x15b, 6);
-            this.tsmiClearTransmitQueue.Name = "tsmiClearTransmitQueue";
-            this.tsmiClearTransmitQueue.Size = new Size(350, 0x16);
-            this.tsmiClearTransmitQueue.Text = "&Clear Transmit Queue";
-            this.tsmiClearTransmitQueue.ToolTipText = "Clears All Pending Transmit Commands";
-            this.tsmiClearTransmitQueue.Click += new EventHandler(this.tsmiClearTransmitQ_Click);
-            base.AutoScaleDimensions = new SizeF(6f, 13f);
-            base.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            base.ClientSize = new Size(210, 0x242);
-            base.Controls.Add(this.tvPorts);
-            base.Name = "ComPortTreeForm";
-            this.Text = "Com Port Tree";
-            this.cmsTreeHandle.ResumeLayout(false);
-            this.cmsTreeBda.ResumeLayout(false);
-            this.cmsTreeComPort.ResumeLayout(false);
-            base.ResumeLayout(false);
-        }
+		private void tsmiCopyHandle_Click(object sender, EventArgs e)
+		{
+			if (GetActiveDeviceFormCallback() == null)
+				return;
+			TreeNode selectedNode = tvPorts.SelectedNode;
+			if (selectedNode == null || !(selectedNode.Name == "HostHandle") && !(selectedNode.Name == "SlaveHandle"))
+				return;
+			string text = selectedNode.Text.Replace("Handle: ", "");
+			if (text == null)
+				return;
+			Clipboard.SetText(text);
+		}
 
-        public bool RemoveAll()
-        {
-            bool flag = false;
-            if (this.tvPorts.Nodes != null)
-            {
-                DeviceForm devForm = null;
-                foreach (TreeNode node in this.tvPorts.Nodes)
-                {
-                    if (node != null)
-                    {
-                        DeviceInfo tag = (DeviceInfo) node.Tag;
-                        devForm = tag.devForm;
-                        devForm.DeviceFormClose(true);
-                        devForm.Close();
-                        this.treeViewUtils.RemoveTextFromTree(this.tvPorts, devForm.devInfo.comPortInfo.comPort);
-                    }
-                }
-                return flag;
-            }
-            return false;
-        }
+		public bool RemovePort(string portName)
+		{
+			bool flag = true;
+			treeViewUtils.RemoveTextFromTree((TreeView)tvPorts, portName);
+			return flag;
+		}
 
-        public bool RemovePort(string portName)
-        {
-            this.treeViewUtils.RemoveTextFromTree(this.tvPorts, portName);
-            return true;
-        }
+		public bool FindNodeToOpen()
+		{
+			bool flag = true;
+			foreach (TreeNode treeNode in tvPorts.Nodes)
+			{
+				DeviceForm deviceForm = ((DeviceInfo)treeNode.Tag).devForm;
+				if (deviceForm != null)
+				{
+					((Control)deviceForm).Show();
+					treeNode.NodeFont = underlineFont;
+				}
+			}
+			return flag;
+		}
 
-        private void SendGattDiscoverCmds(TreeNode treeNode, TxDataOut.CmdType cmdType)
-        {
-            DeviceForm form = this.GetActiveDeviceFormCallback();
-            if (((form != null) && (treeNode != null)) && ((treeNode.Name == "HostHandle") || (treeNode.Name == "SlaveHandle")))
-            {
-                string str = treeNode.Text.Replace("Handle: ", "");
-                if (str != null)
-                {
-                    try
-                    {
-                        ushort num = Convert.ToUInt16(str, 0x10);
-                        HCICmds.GATTCmds.GATT_DiscAllPrimaryServices services = new HCICmds.GATTCmds.GATT_DiscAllPrimaryServices();
-                        services.connHandle = num;
-                        form.sendCmds.SendGATT(services, cmdType);
-                        HCICmds.GATTCmds.GATT_DiscAllCharDescs descs = new HCICmds.GATTCmds.GATT_DiscAllCharDescs();
-                        descs.connHandle = num;
-                        form.sendCmds.SendGATT(descs, cmdType);
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
-        }
+		public void ClearSelectedNode()
+		{
+			treeViewUtils.ClearSelectedNode((TreeView)tvPorts);
+		}
 
-        private void tsmiClearTransmitQ_Click(object sender, EventArgs e)
-        {
-            DeviceForm form = this.GetActiveDeviceFormCallback();
-            if (form != null)
-            {
-                int qLength = form.threadMgr.txDataOut.dataQ.GetQLength();
-                form.threadMgr.txDataOut.dataQ.ClearQ();
-                string msg = "Pending Transmit Messages Cleared\n" + qLength.ToString() + " Messages Were Discarded\n";
-                form.DisplayMsg(SharedAppObjs.MsgType.Info, msg);
-                this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Info, msg);
-            }
-        }
+		public bool AddDeviceInfo(DeviceForm devForm)
+		{
+			bool flag = true;
+			string str = devForm.BDAddressStr;
+			if (devForm != null)
+			{
+				foreach (TreeNode treeNode in tvPorts.Nodes)
+				{
+					DeviceInfo deviceInfo = (DeviceInfo)treeNode.Tag;
+					if (deviceInfo.comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
+					{
+						TreeNode node1 = new TreeNode();
+						node1.Name = ((object)ComPortTreeForm.NodeNames.DeviceInfo).ToString();
+						node1.Text = string.Format("Device Info:", new object[0]);
+						node1.NodeFont = underlineFont;
+						node1.Tag = treeNode.Tag;
+						node1.ToolTipText = string.Format("Information About The Direct Connect Device.", new object[0]);
+						TreeNode node2 = new TreeNode();
+						node2.Name = ((object)ComPortTreeForm.NodeNames.HostHandle).ToString();
+						node2.Text = string.Format("Handle: 0x{0:X4}", (object)65534);
+						deviceInfo.handle = (ushort)65534;
+						node2.Tag = treeNode.Tag;
+						node2.ToolTipText = string.Format("Device Handle\nSelect Handle Then Right Click To See Options.", new object[0]);
+						TreeNode node3 = new TreeNode();
+						node3.Name = ((object)ComPortTreeForm.NodeNames.HostBda).ToString();
+						node3.Text = string.Format("BDAddr: {0:S}", (object)str);
+						node3.Tag = treeNode.Tag;
+						node3.ToolTipText = string.Format("Bluetooth Device Address\nSelect Address Then Right Click To See Options.", new object[0]);
+						if (treeNode.FirstNode.NextNode == null)
+						{
+							treeNode.Nodes.Add(node1);
+							node1.Nodes.Add(node2);
+							node1.Nodes.Add(node3);
+							node1.Expand();
+						}
+					}
+				}
+			}
+			else
+				flag = false;
+			return flag;
+		}
 
-        private void tsmiCopyAddress_Click(object sender, EventArgs e)
-        {
-            if (this.GetActiveDeviceFormCallback() != null)
-            {
-                TreeNode selectedNode = this.tvPorts.SelectedNode;
-                if (selectedNode != null)
-                {
-                    string text = null;
-                    if (selectedNode.Name == "HostBda")
-                    {
-                        text = selectedNode.Text.Replace("BDAddr: ", "");
-                    }
-                    if (selectedNode.Name == "SlaveBda")
-                    {
-                        text = selectedNode.Text.Replace("Slave BDA: ", "");
-                    }
-                    if (text != null)
-                    {
-                        Clipboard.SetText(text);
-                    }
-                }
-            }
-        }
+		public bool AddConnectionInfo(DeviceForm devForm)
+		{
+			bool flag = true;
+			ConnectInfo connectInfo = devForm.GetConnectInfo();
+			if (devForm != null)
+			{
+				foreach (TreeNode treeNode in tvPorts.Nodes)
+				{
+					DeviceInfo deviceInfo = (DeviceInfo)treeNode.Tag;
+					if (deviceInfo.comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
+					{
+						TreeNode node1 = new TreeNode();
+						node1.Name = ((object)ComPortTreeForm.NodeNames.ConnectionInfo).ToString();
+						node1.Text = string.Format("Connection Info:", new object[0]);
+						node1.NodeFont = underlineFont;
+						node1.Tag = treeNode.Tag;
+						node1.ToolTipText = string.Format("Device Connection Information (Over the Air Connection)", new object[0]);
+						TreeNode node2 = new TreeNode();
+						node2.Name = ((object)ComPortTreeForm.NodeNames.SlaveHandle).ToString();
+						node2.Text = string.Format("Handle: 0x{0:X4}", (object)connectInfo.handle);
+						deviceInfo.connectInfo.handle = connectInfo.handle;
+						node2.Tag = treeNode.Tag;
+						node2.ToolTipText = string.Format("Connection Handle\nSelect Handle Then Right Click To See Options.", new object[0]);
+						TreeNode node3 = new TreeNode();
+						node3.Name = ((object)ComPortTreeForm.NodeNames.SlaveAddrType).ToString();
+						node3.Text = string.Format("Addr Type: 0x{0:X2} ({1:S})", (object)connectInfo.addrType, (object)devUtils.GetGapAddrTypeStr(connectInfo.addrType));
+						node3.Tag = treeNode.Tag;
+						node3.ToolTipText = string.Format("Address Type", new object[0]);
+						TreeNode node4 = new TreeNode();
+						node4.Name = ((object)ComPortTreeForm.NodeNames.SlaveBda).ToString();
+						node4.Text = string.Format("Slave BDA: {0:S}", (object)connectInfo.bDA);
+						node4.Tag = treeNode.Tag;
+						node4.ToolTipText = string.Format("Slave Bluetooth Device Address\nSelect Address Then Right Click To See Options.", new object[0]);
+						treeNode.Nodes.Add(node1);
+						node1.Nodes.Add(node2);
+						node1.Nodes.Add(node3);
+						node1.Nodes.Add(node4);
+						node1.Expand();
+					}
+				}
+			}
+			else
+				flag = false;
+			return flag;
+		}
 
-        private void tsmiCopyHandle_Click(object sender, EventArgs e)
-        {
-            if (this.GetActiveDeviceFormCallback() != null)
-            {
-                TreeNode selectedNode = this.tvPorts.SelectedNode;
-                if ((selectedNode != null) && ((selectedNode.Name == "HostHandle") || (selectedNode.Name == "SlaveHandle")))
-                {
-                    string text = selectedNode.Text.Replace("Handle: ", "");
-                    if (text != null)
-                    {
-                        Clipboard.SetText(text);
-                    }
-                }
-            }
-        }
+		public bool DisconnectDevice(DeviceForm devForm)
+		{
+			bool flag = false;
+			ConnectInfo connectInfo = devForm.disconnectInfo;
+			if (devForm != null)
+			{
+				foreach (TreeNode treeNode in tvPorts.Nodes)
+				{
+					if (((DeviceInfo)treeNode.Tag).comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
+					{
+						string target = string.Format("Handle: 0x{0:X4}", (object)connectInfo.handle);
+						SharedObjects.log.Write(Logging.MsgType.Debug, ComPortTreeForm.moduleName, "Disconnecting Device " + target);
+						if (flag = treeViewUtils.TreeNodeTextSearchAndDestroy(treeNode, target))
+							break;
+					}
+					if (flag)
+						break;
+				}
+			}
+			else
+				flag = false;
+			return flag;
+		}
 
-        private void tsmiDiscoverAllUuids_Click(object sender, EventArgs e)
-        {
-            if (this.tvPorts != null)
-            {
-                foreach (TreeNode node in this.tvPorts.Nodes)
-                {
-                    this.GetTreeTextRecursive_DiscoverAllUuids(node);
-                }
-            }
-        }
+		public bool AddPortInfo(DeviceInfo devInfo)
+		{
+			bool flag = true;
+			TreeNode node1 = new TreeNode();
+			node1.Name = ((object)ComPortTreeForm.NodeNames.PortName).ToString();
+			node1.Text = devInfo.comPortInfo.comPort;
+			node1.Tag = (object)devInfo;
+			node1.ToolTipText = string.Format("Device Port Name\nSelect Port Name To Switch View To This Device\nSelect Port Name Then Right Click To See Options.", new object[0]);
+			tvPorts.Nodes.Add(node1);
+			node1.NodeFont = boldFont;
+			TreeNode node2 = new TreeNode();
+			node2.Name = ((object)ComPortTreeForm.NodeNames.PortInfo).ToString();
+			node2.Text = "Port Info";
+			node2.Tag = (object)devInfo;
+			node2.ToolTipText = string.Format("Information About The Device Port", new object[0]);
+			node1.Nodes.Add(node2);
+			node2.NodeFont = underlineFont;
+			node2.Nodes.Add(new TreeNode()
+			{
+				Name = ((object)ComPortTreeForm.NodeNames.Port).ToString(),
+				Text = string.Format("Port: {0:S}", (object)devInfo.comPortInfo.comPort),
+				Tag = (object)devInfo,
+				ToolTipText = string.Format("Port Name", new object[0])
+			});
+			node2.Nodes.Add(new TreeNode()
+			{
+				Name = ((object)ComPortTreeForm.NodeNames.Baudrate).ToString(),
+				Text = string.Format("Baudrate: {0:S}", (object)devInfo.comPortInfo.baudRate),
+				Tag = (object)devInfo,
+				ToolTipText = string.Format("Port Baudrate", new object[0])
+			});
+			node2.Nodes.Add(new TreeNode()
+			{
+				Name = ((object)ComPortTreeForm.NodeNames.FlowControl).ToString(),
+				Text = string.Format("Flow Control: {0:S}", (object)devInfo.comPortInfo.flow),
+				Tag = (object)devInfo,
+				ToolTipText = string.Format("Port Flow Of Control Method", new object[0])
+			});
+			node2.Nodes.Add(new TreeNode()
+			{
+				Name = ((object)ComPortTreeForm.NodeNames.DataBits).ToString(),
+				Text = string.Format("Data Bits: {0:S}", (object)devInfo.comPortInfo.dataBits),
+				Tag = (object)devInfo,
+				ToolTipText = string.Format("Port Data Bits", new object[0])
+			});
+			node2.Nodes.Add(new TreeNode()
+			{
+				Name = ((object)ComPortTreeForm.NodeNames.Parity).ToString(),
+				Text = string.Format("Parity: {0:S}", (object)devInfo.comPortInfo.parity),
+				ToolTipText = string.Format("Port Parity Bits", new object[0]),
+				Tag = (object)devInfo
+			});
+			node2.Nodes.Add(new TreeNode()
+			{
+				Name = ((object)ComPortTreeForm.NodeNames.StopBits).ToString(),
+				Text = string.Format("Stop Bits: {0:S}", (object)devInfo.comPortInfo.stopBits),
+				Tag = (object)devInfo,
+				ToolTipText = string.Format("Port Stop Bits", new object[0])
+			});
+			node1.Expand();
+			return flag;
+		}
 
-        private void tsmiDiscoverUuids_Click(object sender, EventArgs e)
-        {
-            if ((this.GetActiveDeviceFormCallback() != null) && (this.tvPorts != null))
-            {
-                TreeNode selectedNode = this.tvPorts.SelectedNode;
-                this.SendGattDiscoverCmds(selectedNode, TxDataOut.CmdType.DiscUuidOnly);
-            }
-        }
+		public bool ChangeActiveRoot(DeviceForm devForm)
+		{
+			bool flag = false;
+			if (devForm != null)
+			{
+				foreach (TreeNode treeNode in tvPorts.Nodes)
+					treeNode.NodeFont = !(((DeviceInfo)treeNode.Tag).devName == devForm.devInfo.devName) ? regularFont : underlineFont;
+			}
+			else
+				flag = false;
+			return flag;
+		}
 
-        private void tsmiReadAllValues_Click(object sender, EventArgs e)
-        {
-            if (this.tvPorts != null)
-            {
-                foreach (TreeNode node in this.tvPorts.Nodes)
-                {
-                    this.GetTreeTextRecursive_ReadAllValues(node);
-                }
-            }
-        }
+		public bool RemoveAll()
+		{
+			bool flag = false;
+			if (tvPorts.Nodes != null)
+			{
+				foreach (TreeNode treeNode in tvPorts.Nodes)
+				{
+					if (treeNode != null)
+					{
+						DeviceForm deviceForm = ((DeviceInfo)treeNode.Tag).devForm;
+						deviceForm.DeviceFormClose(true);
+						deviceForm.Close();
+						treeViewUtils.RemoveTextFromTree((TreeView)tvPorts, deviceForm.devInfo.comPortInfo.comPort);
+					}
+				}
+			}
+			else
+				flag = false;
+			return flag;
+		}
 
-        private void tsmiReadValues_Click(object sender, EventArgs e)
-        {
-            if ((this.GetActiveDeviceFormCallback() != null) && (this.tvPorts != null))
-            {
-                TreeNode selectedNode = this.tvPorts.SelectedNode;
-                this.SendGattDiscoverCmds(selectedNode, TxDataOut.CmdType.DiscUuidAndValues);
-            }
-        }
+		private void tvPorts_AfterSelect(object sender, TreeViewEventArgs e)
+		{
+			string name = e.Node.Name;
+			DeviceInfo deviceInfo = (DeviceInfo)e.Node.Tag;
+			tvPorts.ContextMenuStrip = (ContextMenuStrip)null;
+			DeviceForm deviceForm = GetActiveDeviceFormCallback();
+			if (deviceForm == null)
+				return;
+			if (deviceInfo.comPortInfo.comPort != deviceForm.devInfo.comPortInfo.comPort)
+			{
+				((Control)deviceInfo.devForm).Show();
+				deviceForm.devInfo.devForm.Hide();
+			}
+			switch (name)
+			{
+				case "PortName":
+					if (!(deviceInfo.comPortInfo.comPort == deviceForm.devInfo.comPortInfo.comPort))
+						break;
+					tvPorts.ContextMenuStrip = cmsTreeComPort;
+					break;
+				case "PortInfo":
+					break;
+				case "Port":
+					break;
+				case "Baudrate":
+					break;
+				case "FlowControl":
+					break;
+				case "DataBits":
+					break;
+				case "Parity":
+					break;
+				case "StopBits":
+					break;
+				case "DeviceInfo":
+					break;
+				case "ConnectionInfo":
+					break;
+				case "HostHandle":
+				case "SlaveHandle":
+					if (!(deviceInfo.comPortInfo.comPort == deviceForm.devInfo.comPortInfo.comPort))
+						break;
+					tvPorts.ContextMenuStrip = cmsTreeHandle;
+					break;
+				case "SlaveAddrType":
+					break;
+				case "HostBda":
+				case "SlaveBda":
+					if (!(deviceInfo.comPortInfo.comPort == deviceForm.devInfo.comPortInfo.comPort))
+						break;
+					tvPorts.ContextMenuStrip = cmsTreeBda;
+					break;
+				default:
+					string msg = string.Format("Unknown Tree Node Name = {0}\n", (object)name);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					break;
+			}
+		}
 
-        private void tsmiSetConnectionHandle_Click(object sender, EventArgs e)
-        {
-            DeviceForm form = this.GetActiveDeviceFormCallback();
-            if (form != null)
-            {
-                TreeNode selectedNode = this.tvPorts.SelectedNode;
-                if ((selectedNode != null) && ((selectedNode.Name == "HostHandle") || (selectedNode.Name == "SlaveHandle")))
-                {
-                    string str = selectedNode.Text.Replace("Handle: ", "");
-                    if (str != null)
-                    {
-                        ushort handle = Convert.ToUInt16(str, 0x10);
-                        form.devTabsForm.SetConnHandles(handle);
-                    }
-                }
-            }
-        }
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && components != null)
+				components.Dispose();
+			base.Dispose(disposing);
+		}
 
-        private void tvPorts_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            string name = e.Node.Name;
-            DeviceInfo tag = (DeviceInfo) e.Node.Tag;
-            this.tvPorts.ContextMenuStrip = null;
-            DeviceForm form = this.GetActiveDeviceFormCallback();
-            if (form != null)
-            {
-                if (tag.comPortInfo.comPort != form.devInfo.comPortInfo.comPort)
-                {
-                    tag.devForm.Show();
-                    form.devInfo.devForm.Hide();
-                }
-                switch (name)
-                {
-                    case "PortName":
-                        if (tag.comPortInfo.comPort == form.devInfo.comPortInfo.comPort)
-                        {
-                            this.tvPorts.ContextMenuStrip = this.cmsTreeComPort;
-                        }
-                        return;
+		private void InitializeComponent()
+		{
+			this.components = new System.ComponentModel.Container();
+			this.tvPorts = new TI.Toolbox.TreeViewWrapper();
+			this.cmsTreeHandle = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.tsmiSetConnectionHandle = new System.Windows.Forms.ToolStripMenuItem();
+			this.tsmiCopyHandle = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+			this.tsmiDiscoverUuids = new System.Windows.Forms.ToolStripMenuItem();
+			this.tsmiReadValues = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.tsmiClearTransmitQueue2 = new System.Windows.Forms.ToolStripMenuItem();
+			this.cmsTreeBda = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.tsmiCopyAddress = new System.Windows.Forms.ToolStripMenuItem();
+			this.cmsTreeComPort = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.tsmiDiscoverAllUuids = new System.Windows.Forms.ToolStripMenuItem();
+			this.tsmiReadAllValues = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.tsmiClearTransmitQueue = new System.Windows.Forms.ToolStripMenuItem();
+			this.cmsTreeHandle.SuspendLayout();
+			this.cmsTreeBda.SuspendLayout();
+			this.cmsTreeComPort.SuspendLayout();
+			this.SuspendLayout();
+			// 
+			// tvPorts
+			// 
+			this.tvPorts.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tvPorts.Indent = 12;
+			this.tvPorts.Location = new System.Drawing.Point(0, 0);
+			this.tvPorts.Name = "tvPorts";
+			this.tvPorts.Size = new System.Drawing.Size(210, 579);
+			this.tvPorts.TabIndex = 4;
+			this.tvPorts.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvPorts_AfterSelect);
+			// 
+			// cmsTreeHandle
+			// 
+			this.cmsTreeHandle.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiSetConnectionHandle,
+            this.tsmiCopyHandle,
+            this.toolStripSeparator2,
+            this.tsmiDiscoverUuids,
+            this.tsmiReadValues,
+            this.toolStripSeparator4,
+            this.tsmiClearTransmitQueue2});
+			this.cmsTreeHandle.Name = "contextMenuStrip1";
+			this.cmsTreeHandle.Size = new System.Drawing.Size(209, 126);
+			// 
+			// tsmiSetConnectionHandle
+			// 
+			this.tsmiSetConnectionHandle.Name = "tsmiSetConnectionHandle";
+			this.tsmiSetConnectionHandle.Size = new System.Drawing.Size(208, 22);
+			this.tsmiSetConnectionHandle.Text = "&Set Connection Handle";
+			this.tsmiSetConnectionHandle.ToolTipText = "Set The Connection Handle Used By BTool";
+			this.tsmiSetConnectionHandle.Click += new System.EventHandler(this.tsmiSetConnectionHandle_Click);
+			// 
+			// tsmiCopyHandle
+			// 
+			this.tsmiCopyHandle.Name = "tsmiCopyHandle";
+			this.tsmiCopyHandle.Size = new System.Drawing.Size(208, 22);
+			this.tsmiCopyHandle.Text = "&Copy Handle";
+			this.tsmiCopyHandle.ToolTipText = "Copy The Handle To The Clipboard";
+			this.tsmiCopyHandle.Click += new System.EventHandler(this.tsmiCopyHandle_Click);
+			// 
+			// toolStripSeparator2
+			// 
+			this.toolStripSeparator2.Name = "toolStripSeparator2";
+			this.toolStripSeparator2.Size = new System.Drawing.Size(205, 6);
+			// 
+			// tsmiDiscoverUuids
+			// 
+			this.tsmiDiscoverUuids.Name = "tsmiDiscoverUuids";
+			this.tsmiDiscoverUuids.Size = new System.Drawing.Size(208, 22);
+			this.tsmiDiscoverUuids.Text = "&Discover UUIDs";
+			this.tsmiDiscoverUuids.ToolTipText = "Start A Message Sequence To Discover UUID\'s";
+			this.tsmiDiscoverUuids.Click += new System.EventHandler(this.tsmiDiscoverUuids_Click);
+			// 
+			// tsmiReadValues
+			// 
+			this.tsmiReadValues.Name = "tsmiReadValues";
+			this.tsmiReadValues.Size = new System.Drawing.Size(208, 22);
+			this.tsmiReadValues.Text = "&Read Values";
+			this.tsmiReadValues.ToolTipText = "Start A Message Sequence To Discover UUID\'s And Read Values";
+			this.tsmiReadValues.Click += new System.EventHandler(this.tsmiReadValues_Click);
+			// 
+			// toolStripSeparator4
+			// 
+			this.toolStripSeparator4.Name = "toolStripSeparator4";
+			this.toolStripSeparator4.Size = new System.Drawing.Size(205, 6);
+			// 
+			// tsmiClearTransmitQueue2
+			// 
+			this.tsmiClearTransmitQueue2.Name = "tsmiClearTransmitQueue2";
+			this.tsmiClearTransmitQueue2.Size = new System.Drawing.Size(208, 22);
+			this.tsmiClearTransmitQueue2.Text = "Clear Transmit &Queue";
+			this.tsmiClearTransmitQueue2.ToolTipText = "Clears All Pending Transmit Commands";
+			this.tsmiClearTransmitQueue2.Click += new System.EventHandler(this.tsmiClearTransmitQ_Click);
+			// 
+			// cmsTreeBda
+			// 
+			this.cmsTreeBda.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiCopyAddress});
+			this.cmsTreeBda.Name = "cmsTreeBda";
+			this.cmsTreeBda.Size = new System.Drawing.Size(159, 26);
+			// 
+			// tsmiCopyAddress
+			// 
+			this.tsmiCopyAddress.Name = "tsmiCopyAddress";
+			this.tsmiCopyAddress.Size = new System.Drawing.Size(158, 22);
+			this.tsmiCopyAddress.Text = "&Copy Address";
+			this.tsmiCopyAddress.ToolTipText = "Copy The Address To The Clipboard";
+			this.tsmiCopyAddress.Click += new System.EventHandler(this.tsmiCopyAddress_Click);
+			// 
+			// cmsTreeComPort
+			// 
+			this.cmsTreeComPort.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiDiscoverAllUuids,
+            this.tsmiReadAllValues,
+            this.toolStripSeparator3,
+            this.tsmiClearTransmitQueue});
+			this.cmsTreeComPort.Name = "cmsTreeComPort";
+			this.cmsTreeComPort.Size = new System.Drawing.Size(381, 76);
+			// 
+			// tsmiDiscoverAllUuids
+			// 
+			this.tsmiDiscoverAllUuids.Name = "tsmiDiscoverAllUuids";
+			this.tsmiDiscoverAllUuids.Size = new System.Drawing.Size(380, 22);
+			this.tsmiDiscoverAllUuids.Text = "Discover &UUIDs (All Devices Connected To This Port)";
+			this.tsmiDiscoverAllUuids.ToolTipText = "Start A Message Sequence To Discover UUID\'s \r\nOn All Connected Devices To This Po" +
+    "rt";
+			this.tsmiDiscoverAllUuids.Click += new System.EventHandler(this.tsmiDiscoverAllUuids_Click);
+			// 
+			// tsmiReadAllValues
+			// 
+			this.tsmiReadAllValues.Name = "tsmiReadAllValues";
+			this.tsmiReadAllValues.Size = new System.Drawing.Size(380, 22);
+			this.tsmiReadAllValues.Text = "Read &Values (All Devices Connected To This Port)";
+			this.tsmiReadAllValues.ToolTipText = "Start A Message Sequence To Discover UUID\'s And Read Values \r\nOn All Connected De" +
+    "vices To This Port\r\n";
+			this.tsmiReadAllValues.Click += new System.EventHandler(this.tsmiReadAllValues_Click);
+			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(377, 6);
+			// 
+			// tsmiClearTransmitQueue
+			// 
+			this.tsmiClearTransmitQueue.Name = "tsmiClearTransmitQueue";
+			this.tsmiClearTransmitQueue.Size = new System.Drawing.Size(380, 22);
+			this.tsmiClearTransmitQueue.Text = "&Clear Transmit Queue";
+			this.tsmiClearTransmitQueue.ToolTipText = "Clears All Pending Transmit Commands";
+			this.tsmiClearTransmitQueue.Click += new System.EventHandler(this.tsmiClearTransmitQ_Click);
+			// 
+			// ComPortTreeForm
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(210, 579);
+			this.Controls.Add(this.tvPorts);
+			this.Name = "ComPortTreeForm";
+			this.Text = "Com Port Tree";
+			this.cmsTreeHandle.ResumeLayout(false);
+			this.cmsTreeBda.ResumeLayout(false);
+			this.cmsTreeComPort.ResumeLayout(false);
+			this.ResumeLayout(false);
 
-                    case "PortInfo":
-                    case "Port":
-                    case "Baudrate":
-                    case "FlowControl":
-                    case "DataBits":
-                    case "Parity":
-                    case "StopBits":
-                    case "DeviceInfo":
-                    case "ConnectionInfo":
-                    case "SlaveAddrType":
-                        return;
+		}
 
-                    case "HostHandle":
-                    case "SlaveHandle":
-                        if (tag.comPortInfo.comPort == form.devInfo.comPortInfo.comPort)
-                        {
-                            this.tvPorts.ContextMenuStrip = this.cmsTreeHandle;
-                        }
-                        return;
-
-                    case "HostBda":
-                    case "SlaveBda":
-                        if (tag.comPortInfo.comPort == form.devInfo.comPortInfo.comPort)
-                        {
-                            this.tvPorts.ContextMenuStrip = this.cmsTreeBda;
-                        }
-                        return;
-                }
-                string msg = string.Format("Unknown Tree Node Name = {0}\n", name);
-                this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-            }
-        }
-
-        private enum NodeNames
-        {
-            PortName,
-            PortInfo,
-            Port,
-            Baudrate,
-            FlowControl,
-            DataBits,
-            Parity,
-            StopBits,
-            DeviceInfo,
-            HostHandle,
-            HostBda,
-            ConnectionInfo,
-            SlaveHandle,
-            SlaveAddrType,
-            SlaveBda
-        }
-    }
+		private enum NodeNames
+		{
+			PortName,
+			PortInfo,
+			Port,
+			Baudrate,
+			FlowControl,
+			DataBits,
+			Parity,
+			StopBits,
+			DeviceInfo,
+			HostHandle,
+			HostBda,
+			ConnectionInfo,
+			SlaveHandle,
+			SlaveAddrType,
+			SlaveBda,
+		}
+	}
 }
-

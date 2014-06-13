@@ -1,22 +1,23 @@
-﻿namespace BTool
+﻿using TI.Toolbox;
+
+namespace BTool
 {
-    using System;
+	public class RspHandlersUtils
+	{
+		private MsgBox msgBox = new MsgBox();
+		private const string moduleName = "RspHandlersUtils";
 
-    public class RspHandlersUtils
-    {
-        private const string moduleName = "RspHandlersUtils";
-        private MsgBox msgBox = new MsgBox();
+		public bool CheckValidResponse(HCIReplies hciReplies)
+		{
+			bool flag = true;
+			if (hciReplies == null || hciReplies.hciLeExtEvent == null)
+				flag = false;
+			return flag;
+		}
 
-        public bool CheckValidResponse(HCIReplies hciReplies)
-        {
-            bool flag = true;
-            return (((hciReplies != null) && (hciReplies.hciLeExtEvent != null)) && flag);
-        }
-
-        public bool UnexpectedRspEventStatus(HCIReplies hciReplies, string moduleName)
-        {
-            return false;
-        }
-    }
+		public bool UnexpectedRspEventStatus(HCIReplies hciReplies, string moduleName)
+		{
+			return false;
+		}
+	}
 }
-

@@ -1,434 +1,96 @@
-﻿namespace BTool
+﻿using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.Threading;
+using System.Windows.Forms;
+using TI.Toolbox;
+
+namespace BTool
 {
-    using System;
-    using System.ComponentModel;
-    using System.Drawing;
-    using System.Runtime.CompilerServices;
-    using System.Threading;
-    using System.Windows.Forms;
+	public class AttrDataItemForm : Form
+	{
 
-    public class AttrDataItemForm : Form
-    {
-        public AttrDataItemChangedDelegate AttrDataItemChangedCallback;
-        private AttrDataUtils attrDataUtils;
-        private Button btnReadValue;
-        private Button btnWriteValue;
-        private ComboBox cbDataType;
-        private IContainer components;
-        private DataAttr dataAttr = new DataAttr();
-        private DeviceForm devForm;
-        private DeviceFormUtils devUtils = new DeviceFormUtils();
-        public DisplayMsgDelegate DisplayMsgCallback;
-        private Mutex formDataAccess = new Mutex();
-        private DataAttr gattWriteDataAttr = new DataAttr();
-        private GroupBox gbProperties;
-        private GroupBox gbSummary;
-        private GroupBox gbUuid;
-        private GroupBox gbValue;
-        private string key = string.Empty;
-        private ValueDisplay lastValueDisplay;
-        private bool lastValueDisplaySet;
-        private Label lblAuthenticatedSignedWrites;
-        private Label lblBroadcast;
-        private Label lblConnHnd;
-        private Label lblExtendedProperties;
-        private Label lblHandle;
-        private Label lblIndicate;
-        private Label lblNotify;
-        private Label lblProperties;
-        private Label lblProperties_gb;
-        private Label lblRead;
-        private Label lblSummary_gb;
-        private Label lblUuid;
-        private Label lblUuid_gb;
-        private Label lblUuidDesc;
-        private Label lblValue;
-        private Label lblValue_gb;
-        private Label lblValueDesc;
-        private Label lblValueEdit;
-        private Label lblWrite;
-        private Label lblWriteWithoutResponse;
-        private const string moduleName = "AttrDataItemForm";
-        private MonoUtils monoUtils = new MonoUtils();
-        private MsgBox msgBox = new MsgBox();
-        private SendCmds sendCmds;
-        private TextBox tbConnHnd;
-        private TextBox tbHandle;
-        private TextBox tbProperties;
-        private TextBox tbUuid;
-        private TextBox tbUuidDesc;
-        private TextBox tbValue;
-        private TextBox tbValueDesc;
-        private TableLayoutPanel tlpProperties;
-        private TableLayoutPanel tlpPropertiesBits;
-        private TableLayoutPanel tlpSummary;
-        private TableLayoutPanel tlpUuid_1;
-        private TableLayoutPanel tlpUuid_2;
-        private TableLayoutPanel tlpValue_1;
-        private TableLayoutPanel tlpValue_2;
-        private TableLayoutPanel tlpValue_3;
+		public delegate void AttrDataItemChangedDelegate();
+		private delegate void LoadDataDelegate(string dataKey);
+		private delegate void SendCmdResultDelegate(bool result, string cmdName);
+		private delegate void RestoreFormInputDelegate();
 
-        public AttrDataItemForm(DeviceForm deviceForm)
-        {
-            this.InitializeComponent();
-            this.devForm = deviceForm;
-            this.sendCmds = new SendCmds(deviceForm);
-            this.attrDataUtils = new AttrDataUtils(deviceForm);
-        }
+		private MsgBox msgBox = new MsgBox();
+		private DeviceFormUtils devUtils = new DeviceFormUtils();
+		private DataAttr dataAttr = new DataAttr();
+		private DataAttr gattWriteDataAttr = new DataAttr();
+		private string key = string.Empty;
+		private Mutex formDataAccess = new Mutex();
+		private MonoUtils monoUtils = new MonoUtils();
+		private const string moduleName = "AttrDataItemForm";
+		private IContainer components;
+		private GroupBox gbSummary;
+		private TableLayoutPanel tlpSummary;
+		private TextBox tbHandle;
+		private Label lblHandle;
+		private TextBox tbConnHnd;
+		private Label lblConnHnd;
+		private Label lblSummary_gb;
+		private GroupBox gbUuid;
+		private Label lblUuid_gb;
+		private GroupBox gbValue;
+		private Label lblValue_gb;
+		private GroupBox gbProperties;
+		private Label lblProperties_gb;
+		private TableLayoutPanel tlpUuid_2;
+		private Label lblUuidDesc;
+		private TextBox tbUuidDesc;
+		private TableLayoutPanel tlpUuid_1;
+		private TextBox tbUuid;
+		private Label lblUuid;
+		private TableLayoutPanel tlpValue_3;
+		private TextBox tbValueDesc;
+		private Label lblValueDesc;
+		private TableLayoutPanel tlpValue_2;
+		private TableLayoutPanel tlpValue_1;
+		private TextBox tbValue;
+		private Label lblValue;
+		private TableLayoutPanel tlpProperties;
+		private Label lblValueEdit;
+		private ComboBox cbDataType;
+		private Button btnWriteValue;
+		private Label lblProperties;
+		private TextBox tbProperties;
+		private Button btnReadValue;
+		private TableLayoutPanel tlpPropertiesBits;
+		private Label lblWrite;
+		private Label lblExtendedProperties;
+		private Label lblIndicate;
+		private Label lblBroadcast;
+		private Label lblNotify;
+		private Label lblWriteWithoutResponse;
+		private Label lblRead;
+		private Label lblAuthenticatedSignedWrites;
+		public AttrDataItemForm.AttrDataItemChangedDelegate AttrDataItemChangedCallback;
+		public DeviceForm.DisplayMsgDelegate DisplayMsgCallback;
+		private ValueDisplay lastValueDisplay;
+		private bool lastValueDisplaySet;
+		private SendCmds sendCmds;
+		private AttrDataUtils attrDataUtils;
+		private DeviceForm devForm;
 
-        public void AttErrorRsp(BTool.AttErrorRsp.RspInfo rspInfo)
-        {
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.Invoke(new AttErrorRspDelegate(this.AttErrorRsp), new object[] { rspInfo });
-                }
-                catch
-                {
-                }
-            }
-            else
-            {
-                this.ClearRspDelegates();
-                string msg = "ATT Command Failed\n";
-                if (rspInfo.aTT_ErrorRsp != null)
-                {
-                    msg = ((msg + "Command = " + this.devUtils.GetHciReqOpCodeStr(rspInfo.aTT_ErrorRsp.reqOpCode) + "\n") + "Handle = 0x" + rspInfo.aTT_ErrorRsp.handle.ToString("X4") + "\n") + "Error = " + this.devUtils.GetErrorStatusStr(rspInfo.aTT_ErrorRsp.errorCode, "") + "\n";
-                }
-                this.DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-                this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-                this.RestoreFormInput();
-            }
-        }
+		public AttrDataItemForm(DeviceForm deviceForm)
+		{
+			InitializeComponent();
+			devForm = deviceForm;
+			sendCmds = new SendCmds(deviceForm);
+			attrDataUtils = new AttrDataUtils(deviceForm);
+		}
 
-        public void AttExecuteWriteRsp(BTool.AttExecuteWriteRsp.RspInfo rspInfo)
-        {
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.Invoke(new AttExecuteWriteRspDelegate(this.AttExecuteWriteRsp), new object[] { rspInfo });
-                }
-                catch
-                {
-                }
-            }
-            else
-            {
-                this.ClearRspDelegates();
-                if (!rspInfo.success)
-                {
-                    string msg = "Att Execute Write Command Failed\n";
-                    this.DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-                    this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-                }
-                else if (rspInfo.header.eventStatus != 0)
-                {
-                    string str2 = "Att Execute Write Command Failed\n";
-                    str2 = str2 + "Status = " + this.devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n";
-                    this.DisplayMsgCallback(SharedAppObjs.MsgType.Error, str2);
-                    this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str2);
-                }
-                else
-                {
-                    this.formDataAccess.WaitOne();
-                    this.gattWriteDataAttr.dataUpdate = true;
-                    if (!this.attrDataUtils.UpdateAttrDictItem(this.gattWriteDataAttr))
-                    {
-                        string str3 = "Att Write Execute Command Data Update Failed\nAttribute Form Data For This Items Did Not Update\n";
-                        this.DisplayMsgCallback(SharedAppObjs.MsgType.Warning, str3);
-                        this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, str3);
-                    }
-                    else if (this.AttrDataItemChangedCallback != null)
-                    {
-                        this.AttrDataItemChangedCallback();
-                    }
-                    this.formDataAccess.ReleaseMutex();
-                }
-                this.RestoreFormInput();
-            }
-        }
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && components != null)
+				components.Dispose();
+			base.Dispose(disposing);
+		}
 
-        public void AttPrepareWriteRsp(BTool.AttPrepareWriteRsp.RspInfo rspInfo)
-        {
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.Invoke(new AttPrepareWriteRspDelegate(this.AttPrepareWriteRsp), new object[] { rspInfo });
-                }
-                catch
-                {
-                }
-            }
-            else
-            {
-                this.ClearRspDelegates();
-                if (!rspInfo.success)
-                {
-                    string msg = "Att Prepare Write Command Failed\n";
-                    this.DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-                    this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-                }
-                else
-                {
-                    string str2 = "Att Prepare Write Command Failed\n";
-                    str2 = str2 + "Status = " + this.devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n";
-                    this.DisplayMsgCallback(SharedAppObjs.MsgType.Error, str2);
-                    this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str2);
-                }
-                this.RestoreFormInput();
-            }
-        }
-
-        private void AttrDataItemForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            this.ClearRspDelegates();
-        }
-
-        private void AttrDataItemForm_FormLoad(object sender, EventArgs e)
-        {
-            ToolTip tip = new ToolTip();
-            tip.ShowAlways = true;
-            tip.SetToolTip(this.tbConnHnd, "Connection Handle Value");
-            tip.SetToolTip(this.tbHandle, "Handle Value");
-            tip.SetToolTip(this.tbUuid, "UUID Value");
-            tip.SetToolTip(this.tbUuidDesc, "UUID Description");
-            tip.SetToolTip(this.tbValue, "Value Entry");
-            tip.SetToolTip(this.cbDataType, "Value Data Type");
-            tip.SetToolTip(this.btnReadValue, "Read Value From Device");
-            tip.SetToolTip(this.btnWriteValue, "Write Value From Device");
-            tip.SetToolTip(this.tbValueDesc, "Value Description");
-            tip.SetToolTip(this.tbProperties, "Short Abbreviations Of Each Bit Set\nFollowed By Property Value In Hex");
-            string str = "\n(Green = Bit Set)\n(Red = Bit Clear)";
-            tip.SetToolTip(this.lblBroadcast, "Broadcast Bit -> Bcst 0x01" + str);
-            tip.SetToolTip(this.lblRead, "Read Bit -> Rd 0x02" + str);
-            tip.SetToolTip(this.lblWriteWithoutResponse, "WriteWithoutResponse Bit -> Wwr 0x04" + str);
-            tip.SetToolTip(this.lblWrite, "Write Bit -> Wr 0x08" + str);
-            tip.SetToolTip(this.lblNotify, "Notify Bit -> Nfy 0x10" + str);
-            tip.SetToolTip(this.lblIndicate, "Indicate Bit -> Ind 0x20" + str);
-            tip.SetToolTip(this.lblAuthenticatedSignedWrites, "AuthenticatedSignedWrites Bit -> Asw 0x40" + str);
-            tip.SetToolTip(this.lblExtendedProperties, "ExtendedProperties Bit -> Exp 0x80" + str);
-            this.LoadUserSettings();
-            this.monoUtils.SetMaximumSize(this);
-        }
-
-        public void AttReadBlobRsp(BTool.AttReadBlobRsp.RspInfo rspInfo)
-        {
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.Invoke(new AttReadBlobRspDelegate(this.AttReadBlobRsp), new object[] { rspInfo });
-                }
-                catch
-                {
-                }
-            }
-            else
-            {
-                this.ClearRspDelegates();
-                if (!rspInfo.success)
-                {
-                    string msg = "Att Read Blob Command Failed\n";
-                    this.DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-                    this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-                }
-                else if (rspInfo.header.eventStatus != 0x1a)
-                {
-                    string str2 = "Att Read Blob Command Failed\n";
-                    str2 = str2 + "Status = " + this.devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n";
-                    this.DisplayMsgCallback(SharedAppObjs.MsgType.Error, str2);
-                    this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str2);
-                }
-                else
-                {
-                    this.LoadData(this.key);
-                }
-                this.RestoreFormInput();
-            }
-        }
-
-        private void btnReadValue_Click(object sender, EventArgs e)
-        {
-            this.formDataAccess.WaitOne();
-            this.devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = new ExtCmdStatusDelegate(this.ExtCmdStatus);
-            this.devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = new AttErrorRspDelegate(this.AttErrorRsp);
-            this.devForm.threadMgr.rspDataIn.attReadBlobRsp.AttReadBlobRspCallback = new AttReadBlobRspDelegate(this.AttReadBlobRsp);
-            HCICmds.GATTCmds.GATT_ReadLongCharValue value2 = new HCICmds.GATTCmds.GATT_ReadLongCharValue();
-            value2.connHandle = this.dataAttr.connHandle;
-            value2.handle = this.dataAttr.handle;
-            if (this.sendCmds.SendGATT(value2, TxDataOut.CmdType.General, new BTool.SendCmdResult(this.SendCmdResult)))
-            {
-                base.Enabled = false;
-            }
-            else
-            {
-                this.ClearRspDelegates();
-            }
-            this.formDataAccess.ReleaseMutex();
-        }
-
-        private void btnWriteValue_Click(object sender, EventArgs e)
-        {
-            this.formDataAccess.WaitOne();
-            if ((this.tbValue.Text == null) || (this.tbValue.Text == string.Empty))
-            {
-                string msg = "A Value Must Be Entered To Perform A Write\n";
-                this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
-            }
-            else
-            {
-                string outStr = string.Empty;
-                ValueDisplay valueDsp = this.dataAttr.valueDsp;
-                ValueDisplay hex = ValueDisplay.Hex;
-                if (this.lastValueDisplaySet)
-                {
-                    valueDsp = this.lastValueDisplay;
-                }
-                if (this.devUtils.ConvertDisplayTypes(valueDsp, this.tbValue.Text, ref hex, ref outStr, true))
-                {
-                    string str = this.devUtils.HexStr2UserDefinedStr(outStr, SharedAppObjs.StringType.HEX);
-                    switch (str)
-                    {
-                        case null:
-                        case "":
-                        {
-                            string str4 = "Value Data Cannot Be Converted To Hex For Write Command\n";
-                            this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, str4);
-                            goto Label_0313;
-                        }
-                    }
-                    this.devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = new ExtCmdStatusDelegate(this.ExtCmdStatus);
-                    this.devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = new AttErrorRspDelegate(this.AttErrorRsp);
-                    this.devForm.threadMgr.rspDataIn.attPrepareWriteRsp.AttPrepareWriteRspCallback = new AttPrepareWriteRspDelegate(this.AttPrepareWriteRsp);
-                    this.devForm.threadMgr.rspDataIn.attExecuteWriteRsp.AttExecuteWriteRspCallback = new AttExecuteWriteRspDelegate(this.AttExecuteWriteRsp);
-                    HCICmds.GATTCmds.GATT_WriteLongCharValue value2 = new HCICmds.GATTCmds.GATT_WriteLongCharValue();
-                    value2.connHandle = this.dataAttr.connHandle;
-                    value2.handle = this.dataAttr.handle;
-                    value2.value = str;
-                    this.gattWriteDataAttr = this.dataAttr;
-                    this.gattWriteDataAttr.value = str;
-                    int length = 0;
-                    if (AttrData.writeLimits.maxPacketSize < (AttrData.writeLimits.maxNumPreparedWrites * 0x12))
-                    {
-                        length = AttrData.writeLimits.maxPacketSize;
-                    }
-                    else
-                    {
-                        length = AttrData.writeLimits.maxNumPreparedWrites * 0x12;
-                    }
-                    byte[] sourceArray = this.devUtils.String2Bytes_LSBMSB(str, 0x10);
-                    if (sourceArray == null)
-                    {
-                        this.sendCmds.DisplayInvalidValue(value2.value);
-                    }
-                    else
-                    {
-                        int num2 = 0;
-                        int num3 = sourceArray.Length;
-                        for (int i = 0; i < sourceArray.Length; i += num2)
-                        {
-                            byte[] destinationArray = null;
-                            if (num3 > length)
-                            {
-                                destinationArray = new byte[length];
-                                Array.Copy(sourceArray, i, destinationArray, 0, length);
-                            }
-                            else
-                            {
-                                destinationArray = new byte[num3];
-                                Array.Copy(sourceArray, i, destinationArray, 0, num3);
-                            }
-                            value2.value = string.Empty;
-                            value2.offset = (ushort) i;
-                            if (this.sendCmds.SendGATT(value2, destinationArray, new BTool.SendCmdResult(this.SendCmdResult)))
-                            {
-                                base.Enabled = false;
-                            }
-                            else
-                            {
-                                string str5 = "GATT_WriteLongCharValue Command Failed\n";
-                                if (i > 0)
-                                {
-                                    str5 = str5 + "Multi-Part Write Sequenece Error\n" + "All Requested Data May Not Have Been Written To The Device\n";
-                                }
-                                this.DisplayMsgCallback(SharedAppObjs.MsgType.Error, str5);
-                                this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str5);
-                                this.ClearRspDelegates();
-                                break;
-                            }
-                            num2 = destinationArray.Length;
-                            num3 -= destinationArray.Length;
-                        }
-                    }
-                }
-            }
-        Label_0313:
-            this.formDataAccess.ReleaseMutex();
-        }
-
-        private void cbDataType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            this.formDataAccess.WaitOne();
-            ComboBox box = sender as ComboBox;
-            string outStr = string.Empty;
-            ValueDisplay selectedIndex = (ValueDisplay) box.SelectedIndex;
-            bool flag = this.devUtils.ConvertDisplayTypes(this.lastValueDisplay, this.tbValue.Text, ref selectedIndex, ref outStr, true);
-            box.SelectedIndex = (int) selectedIndex;
-            if (flag)
-            {
-                this.lastValueDisplay = (ValueDisplay) box.SelectedIndex;
-                this.lastValueDisplaySet = true;
-            }
-            else
-            {
-                box.SelectedIndex = (int) this.lastValueDisplay;
-            }
-            this.tbValue.Text = outStr;
-            this.formDataAccess.ReleaseMutex();
-        }
-
-        private void ClearRspDelegates()
-        {
-            this.devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = null;
-            this.devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = null;
-            this.devForm.threadMgr.rspDataIn.attReadBlobRsp.AttReadBlobRspCallback = null;
-            this.devForm.threadMgr.rspDataIn.attExecuteWriteRsp.AttExecuteWriteRspCallback = null;
-            this.devForm.threadMgr.rspDataIn.attPrepareWriteRsp.AttPrepareWriteRspCallback = null;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (this.components != null))
-            {
-                this.components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        public void ExtCmdStatus(BTool.ExtCmdStatus.RspInfo rspInfo)
-        {
-            this.ClearRspDelegates();
-            if (!rspInfo.success)
-            {
-                string msg = "Command Failed\n";
-                this.DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-                this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-            }
-            else
-            {
-                string str2 = "Command Failed\n";
-                str2 = (str2 + "Status = " + this.devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n") + "Event = " + this.devUtils.GetOpCodeName(rspInfo.header.eventCode) + "\n";
-                this.DisplayMsgCallback(SharedAppObjs.MsgType.Error, str2);
-                this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, str2);
-            }
-            this.RestoreFormInput();
-        }
-
-        private void InitializeComponent()
-        {
+		private void InitializeComponent()
+		{
 			this.gbSummary = new System.Windows.Forms.GroupBox();
 			this.tlpSummary = new System.Windows.Forms.TableLayoutPanel();
 			this.tbHandle = new System.Windows.Forms.TextBox();
@@ -997,7 +659,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoScroll = true;
-			this.ClientSize = new System.Drawing.Size(467, 547);
+			this.ClientSize = new System.Drawing.Size(467, 548);
 			this.Controls.Add(this.gbProperties);
 			this.Controls.Add(this.gbValue);
 			this.Controls.Add(this.gbUuid);
@@ -1037,215 +699,495 @@
 			this.tlpProperties.PerformLayout();
 			this.ResumeLayout(false);
 
-        }
+		}
 
-        public void LoadData(string dataKey)
-        {
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.Invoke(new LoadDataDelegate(this.LoadData), new object[] { dataKey });
-                }
-                catch
-                {
-                }
-            }
-            else
-            {
-                this.formDataAccess.WaitOne();
-                this.key = dataKey;
-                this.dataAttr = new DataAttr();
-                bool dataChanged = false;
-                if (this.attrDataUtils.GetDataAttr(ref this.dataAttr, ref dataChanged, this.key, "LoadData"))
-                {
-                    if (dataChanged)
-                    {
-                        this.tbConnHnd.Text = "0x" + this.dataAttr.connHandle.ToString("X4");
-                        this.tbHandle.Text = "0x" + this.dataAttr.handle.ToString("X4");
-                        if ((this.dataAttr.uuidHex != string.Empty) && (this.dataAttr.uuidHex != null))
-                        {
-                            this.tbUuid.Text = "0x" + this.dataAttr.uuidHex;
-                        }
-                        this.tbUuidDesc.Text = this.dataAttr.uuidDesc;
-                        string outStr = string.Empty;
-                        if (this.lastValueDisplaySet)
-                        {
-                            this.devUtils.ConvertDisplayTypes(ValueDisplay.Hex, this.dataAttr.value, ref this.lastValueDisplay, ref outStr, false);
-                        }
-                        else
-                        {
-                            this.devUtils.ConvertDisplayTypes(ValueDisplay.Hex, this.dataAttr.value, ref this.dataAttr.valueDsp, ref outStr, false);
-                            this.lastValueDisplay = this.dataAttr.valueDsp;
-                            this.lastValueDisplaySet = true;
-                            this.cbDataType.SelectedIndex = (int) this.lastValueDisplay;
-                        }
-                        this.tbValue.Text = outStr;
-                        this.tbValueDesc.Text = this.dataAttr.valueDesc;
-                        this.tbProperties.Text = this.dataAttr.propertiesStr;
-                        bool flag2 = false;
-                        if ((this.dataAttr.propertiesStr != null) && (this.dataAttr.propertiesStr != string.Empty))
-                        {
-                            flag2 = true;
-                            Color green = Color.Green;
-                            Color red = Color.Red;
-                            byte num = 0;
-                            num = 1;
-                            if ((this.dataAttr.properties & num) == num)
-                            {
-                                this.lblBroadcast.ForeColor = green;
-                            }
-                            else
-                            {
-                                this.lblBroadcast.ForeColor = red;
-                            }
-                            num = 2;
-                            if ((this.dataAttr.properties & num) == num)
-                            {
-                                this.lblRead.ForeColor = green;
-                            }
-                            else
-                            {
-                                this.lblRead.ForeColor = red;
-                            }
-                            num = 4;
-                            if ((this.dataAttr.properties & num) == num)
-                            {
-                                this.lblWriteWithoutResponse.ForeColor = green;
-                            }
-                            else
-                            {
-                                this.lblWriteWithoutResponse.ForeColor = red;
-                            }
-                            num = 8;
-                            if ((this.dataAttr.properties & num) == num)
-                            {
-                                this.lblWrite.ForeColor = green;
-                            }
-                            else
-                            {
-                                this.lblWrite.ForeColor = red;
-                            }
-                            num = 0x10;
-                            if ((this.dataAttr.properties & num) == num)
-                            {
-                                this.lblNotify.ForeColor = green;
-                            }
-                            else
-                            {
-                                this.lblNotify.ForeColor = red;
-                            }
-                            num = 0x20;
-                            if ((this.dataAttr.properties & num) == num)
-                            {
-                                this.lblIndicate.ForeColor = green;
-                            }
-                            else
-                            {
-                                this.lblIndicate.ForeColor = red;
-                            }
-                            num = 0x40;
-                            if ((this.dataAttr.properties & num) == num)
-                            {
-                                this.lblAuthenticatedSignedWrites.ForeColor = green;
-                            }
-                            else
-                            {
-                                this.lblAuthenticatedSignedWrites.ForeColor = red;
-                            }
-                            num = 0x80;
-                            if ((this.dataAttr.properties & num) == num)
-                            {
-                                this.lblExtendedProperties.ForeColor = green;
-                            }
-                            else
-                            {
-                                this.lblExtendedProperties.ForeColor = red;
-                            }
-                        }
-                        this.gbProperties.Enabled = flag2;
-                        this.tbProperties.Enabled = flag2;
-                        this.lblProperties.Enabled = flag2;
-                        this.lblBroadcast.Enabled = flag2;
-                        this.lblRead.Enabled = flag2;
-                        this.lblWriteWithoutResponse.Enabled = flag2;
-                        this.lblWrite.Enabled = flag2;
-                        this.lblNotify.Enabled = flag2;
-                        this.lblIndicate.Enabled = flag2;
-                        this.lblAuthenticatedSignedWrites.Enabled = flag2;
-                        this.lblExtendedProperties.Enabled = flag2;
-                    }
-                    if (this.dataAttr.valueEdit == ValueEdit.ReadOnly)
-                    {
-                        this.btnWriteValue.Enabled = false;
-                        this.tbValue.ReadOnly = true;
-                    }
-                    else
-                    {
-                        this.btnWriteValue.Enabled = true;
-                        this.tbValue.ReadOnly = false;
-                    }
-                    if (!this.lastValueDisplaySet)
-                    {
-                        this.cbDataType.SelectedIndex = (int) this.dataAttr.valueDsp;
-                    }
-                }
-                this.formDataAccess.ReleaseMutex();
-            }
-        }
+		private void AttrDataItemForm_FormLoad(object sender, EventArgs e)
+		{
+			ToolTip toolTip = new ToolTip();
+			toolTip.ShowAlways = true;
+			toolTip.SetToolTip((Control)tbConnHnd, "Connection Handle Value");
+			toolTip.SetToolTip((Control)tbHandle, "Handle Value");
+			toolTip.SetToolTip((Control)tbUuid, "UUID Value");
+			toolTip.SetToolTip((Control)tbUuidDesc, "UUID Description");
+			toolTip.SetToolTip((Control)tbValue, "Value Entry");
+			toolTip.SetToolTip((Control)cbDataType, "Value Data Type");
+			toolTip.SetToolTip((Control)btnReadValue, "Read Value From Device");
+			toolTip.SetToolTip((Control)btnWriteValue, "Write Value From Device");
+			toolTip.SetToolTip((Control)tbValueDesc, "Value Description");
+			toolTip.SetToolTip((Control)tbProperties, "Short Abbreviations Of Each Bit Set\nFollowed By Property Value In Hex");
 
-        public void LoadUserSettings()
-        {
-        }
+			string str = "\n(Green = Bit Set)\n(Red = Bit Clear)";
+			toolTip.SetToolTip((Control)lblBroadcast, "Broadcast Bit -> Bcst 0x01" + str);
+			toolTip.SetToolTip((Control)lblRead, "Read Bit -> Rd 0x02" + str);
+			toolTip.SetToolTip((Control)lblWriteWithoutResponse, "WriteWithoutResponse Bit -> Wwr 0x04" + str);
+			toolTip.SetToolTip((Control)lblWrite, "Write Bit -> Wr 0x08" + str);
+			toolTip.SetToolTip((Control)lblNotify, "Notify Bit -> Nfy 0x10" + str);
+			toolTip.SetToolTip((Control)lblIndicate, "Indicate Bit -> Ind 0x20" + str);
+			toolTip.SetToolTip((Control)lblAuthenticatedSignedWrites, "AuthenticatedSignedWrites Bit -> Asw 0x40" + str);
+			toolTip.SetToolTip((Control)lblExtendedProperties, "ExtendedProperties Bit -> Exp 0x80" + str);
+			LoadUserSettings();
+			monoUtils.SetMaximumSize((Form)this);
+		}
 
-        public void RestoreFormInput()
-        {
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.Invoke(new RestoreFormInputDelegate(this.RestoreFormInput), new object[0]);
-                }
-                catch
-                {
-                }
-            }
-            else
-            {
-                base.Enabled = true;
-            }
-        }
+		private void AttrDataItemForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			ClearRspDelegates();
+		}
 
-        public void SaveUserSettings()
-        {
-        }
+		public void LoadUserSettings()
+		{
+		}
 
-        public void SendCmdResult(bool result, string cmdName)
-        {
-            if (base.InvokeRequired)
-            {
-                try
-                {
-                    base.Invoke(new SendCmdResultDelegate(this.SendCmdResult), new object[] { result, cmdName });
-                }
-                catch
-                {
-                }
-            }
-            else if (!result)
-            {
-                string msg = "Send Command Failed\nMessage Name = " + cmdName + "\n";
-                this.DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-                this.msgBox.UserMsgBox(this, MsgBox.MsgTypes.Error, msg);
-                this.RestoreFormInput();
-            }
-        }
+		public void SaveUserSettings()
+		{
+		}
 
-        private delegate void LoadDataDelegate(string dataKey);
+		public void LoadData(string dataKey)
+		{
+			if (InvokeRequired)
+			{
+				try
+				{
+					Invoke((Delegate)new AttrDataItemForm.LoadDataDelegate(LoadData), dataKey);
+				}
+				catch { }
+			}
+			else
+			{
+				formDataAccess.WaitOne();
+				key = dataKey;
+				dataAttr = new DataAttr();
+				bool dataChanged = false;
+				if (attrDataUtils.GetDataAttr(ref dataAttr, ref dataChanged, key, "LoadData"))
+				{
+					if (dataChanged)
+					{
+						tbConnHnd.Text = "0x" + dataAttr.connHandle.ToString("X4");
+						tbHandle.Text = "0x" + dataAttr.handle.ToString("X4");
+						if (dataAttr.uuidHex != string.Empty && dataAttr.uuidHex != null)
+							tbUuid.Text = "0x" + dataAttr.uuidHex;
+						tbUuidDesc.Text = dataAttr.uuidDesc;
+						string outStr = string.Empty;
+						if (lastValueDisplaySet)
+						{
+							devUtils.ConvertDisplayTypes(ValueDisplay.Hex, dataAttr.value, ref lastValueDisplay, ref outStr, false);
+						}
+						else
+						{
+							devUtils.ConvertDisplayTypes(ValueDisplay.Hex, dataAttr.value, ref dataAttr.valueDsp, ref outStr, false);
+							lastValueDisplay = dataAttr.valueDsp;
+							lastValueDisplaySet = true;
+							cbDataType.SelectedIndex = (int)lastValueDisplay;
+						}
+						tbValue.Text = outStr;
+						tbValueDesc.Text = dataAttr.valueDesc;
+						tbProperties.Text = dataAttr.propertiesStr;
+						bool flag = false;
+						if (dataAttr.propertiesStr != null && dataAttr.propertiesStr != string.Empty)
+						{
+							flag = true;
+							Color green = Color.Green;
+							Color red = Color.Red;
 
-        private delegate void RestoreFormInputDelegate();
+							if ((dataAttr.properties & 0x01) == 0x01)
+								lblBroadcast.ForeColor = green;
+							else
+								lblBroadcast.ForeColor = red;
 
-        private delegate void SendCmdResultDelegate(bool result, string cmdName);
-    }
+							if ((dataAttr.properties & 0x02) == 0x02)
+								lblRead.ForeColor = green;
+							else
+								lblRead.ForeColor = red;
+
+							if ((dataAttr.properties & 0x04) == 0x04)
+								lblWriteWithoutResponse.ForeColor = green;
+							else
+								lblWriteWithoutResponse.ForeColor = red;
+
+							if ((dataAttr.properties & 0x08) == 0x08)
+								lblWrite.ForeColor = green;
+							else
+								lblWrite.ForeColor = red;
+
+							if ((dataAttr.properties & 0x10) == 0x10)
+								lblNotify.ForeColor = green;
+							else
+								lblNotify.ForeColor = red;
+
+							if ((dataAttr.properties & 0x20) == 0x20)
+								lblIndicate.ForeColor = green;
+							else
+								lblIndicate.ForeColor = red;
+
+							if ((dataAttr.properties & 0x40) == 0x40)
+								lblAuthenticatedSignedWrites.ForeColor = green;
+							else
+								lblAuthenticatedSignedWrites.ForeColor = red;
+
+							if ((dataAttr.properties & 0x80) == 0x80)
+								lblExtendedProperties.ForeColor = green;
+							else
+								lblExtendedProperties.ForeColor = red;
+						}
+						gbProperties.Enabled = flag;
+						tbProperties.Enabled = flag;
+						lblProperties.Enabled = flag;
+						lblBroadcast.Enabled = flag;
+						lblRead.Enabled = flag;
+						lblWriteWithoutResponse.Enabled = flag;
+						lblWrite.Enabled = flag;
+						lblNotify.Enabled = flag;
+						lblIndicate.Enabled = flag;
+						lblAuthenticatedSignedWrites.Enabled = flag;
+						lblExtendedProperties.Enabled = flag;
+					}
+					if (dataAttr.valueEdit == ValueEdit.ReadOnly)
+					{
+						btnWriteValue.Enabled = false;
+						tbValue.ReadOnly = true;
+					}
+					else
+					{
+						btnWriteValue.Enabled = true;
+						tbValue.ReadOnly = false;
+					}
+					if (!lastValueDisplaySet)
+						cbDataType.SelectedIndex = (int)dataAttr.valueDsp;
+				}
+				formDataAccess.ReleaseMutex();
+			}
+		}
+
+		private void cbDataType_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			formDataAccess.WaitOne();
+			ComboBox comboBox = sender as ComboBox;
+			string outStr = string.Empty;
+			ValueDisplay outValueDisplay = (ValueDisplay)comboBox.SelectedIndex;
+			bool flag = devUtils.ConvertDisplayTypes(lastValueDisplay, tbValue.Text, ref outValueDisplay, ref outStr, true);
+			comboBox.SelectedIndex = (int)outValueDisplay;
+			if (flag)
+			{
+				lastValueDisplay = (ValueDisplay)comboBox.SelectedIndex;
+				lastValueDisplaySet = true;
+			}
+			else
+				comboBox.SelectedIndex = (int)lastValueDisplay;
+			tbValue.Text = outStr;
+			formDataAccess.ReleaseMutex();
+		}
+
+		private void btnReadValue_Click(object sender, EventArgs e)
+		{
+			formDataAccess.WaitOne();
+			devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = new ExtCmdStatus.ExtCmdStatusDelegate(ExtCmdStatus);
+			devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = new AttErrorRsp.AttErrorRspDelegate(AttErrorRsp);
+			devForm.threadMgr.rspDataIn.attReadBlobRsp.AttReadBlobRspCallback = new AttReadBlobRsp.AttReadBlobRspDelegate(AttReadBlobRsp);
+
+			if (sendCmds.SendGATT(
+							new HCICmds.GATTCmds.GATT_ReadLongCharValue()
+							{
+								connHandle = dataAttr.connHandle,
+								handle = dataAttr.handle
+							},
+							TxDataOut.CmdType.General,
+							new SendCmds.SendCmdResult(SendCmdResult)
+							)
+				)
+				Enabled = false;
+			else
+				ClearRspDelegates();
+			formDataAccess.ReleaseMutex();
+		}
+
+		private void btnWriteValue_Click(object sender, EventArgs e)
+		{
+			formDataAccess.WaitOne();
+			if (tbValue.Text == null || tbValue.Text == string.Empty)
+			{
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, "A Value Must Be Entered To Perform A Write\n");
+			}
+			else
+			{
+				string outStr = string.Empty;
+				ValueDisplay inValueDisplay = dataAttr.valueDsp;
+				ValueDisplay outValueDisplay = ValueDisplay.Hex;
+				if (lastValueDisplaySet)
+					inValueDisplay = lastValueDisplay;
+				if (devUtils.ConvertDisplayTypes(inValueDisplay, tbValue.Text, ref outValueDisplay, ref outStr, true))
+				{
+					string str = devUtils.HexStr2UserDefinedStr(outStr, SharedAppObjs.StringType.HEX);
+					if (str == null || str == string.Empty)
+					{
+						string msg = "Value Data Cannot Be Converted To Hex For Write Command\n";
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
+					}
+					else
+					{
+						devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = new ExtCmdStatus.ExtCmdStatusDelegate(ExtCmdStatus);
+						devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = new AttErrorRsp.AttErrorRspDelegate(AttErrorRsp);
+						devForm.threadMgr.rspDataIn.attPrepareWriteRsp.AttPrepareWriteRspCallback = new AttPrepareWriteRsp.AttPrepareWriteRspDelegate(AttPrepareWriteRsp);
+						devForm.threadMgr.rspDataIn.attExecuteWriteRsp.AttExecuteWriteRspCallback = new AttExecuteWriteRsp.AttExecuteWriteRspDelegate(AttExecuteWriteRsp);
+						HCICmds.GATTCmds.GATT_WriteLongCharValue writeLongCharValue = new HCICmds.GATTCmds.GATT_WriteLongCharValue();
+						writeLongCharValue.connHandle = dataAttr.connHandle;
+						writeLongCharValue.handle = dataAttr.handle;
+						writeLongCharValue.value = str;
+						gattWriteDataAttr = dataAttr;
+						gattWriteDataAttr.value = str;
+						int length1 = AttrData.writeLimits.maxPacketSize >= AttrData.writeLimits.maxNumPreparedWrites * 18 ? AttrData.writeLimits.maxNumPreparedWrites * 18 : AttrData.writeLimits.maxPacketSize;
+						byte[] numArray = devUtils.String2Bytes_LSBMSB(str, (byte)16);
+						if (numArray == null)
+						{
+							sendCmds.DisplayInvalidValue(writeLongCharValue.value);
+						}
+						else
+						{
+							int length2 = numArray.Length;
+							int sourceIndex = 0;
+							while (sourceIndex < numArray.Length)
+							{
+								byte[] valueData;
+								if (length2 > length1)
+								{
+									valueData = new byte[length1];
+									Array.Copy((Array)numArray, sourceIndex, (Array)valueData, 0, length1);
+								}
+								else
+								{
+									valueData = new byte[length2];
+									Array.Copy((Array)numArray, sourceIndex, (Array)valueData, 0, length2);
+								}
+								writeLongCharValue.value = string.Empty;
+								writeLongCharValue.offset = (ushort)sourceIndex;
+								if (sendCmds.SendGATT(writeLongCharValue, valueData, new SendCmds.SendCmdResult(SendCmdResult)))
+								{
+									Enabled = false;
+									int length3 = valueData.Length;
+									length2 -= valueData.Length;
+									sourceIndex += length3;
+								}
+								else
+								{
+									string msg = "GATT_WriteLongCharValue Command Failed\n";
+									if (sourceIndex > 0)
+										msg = msg + "Multi-Part Write Sequenece Error\n" + "All Requested Data May Not Have Been Written To The Device\n";
+									if (DisplayMsgCallback != null)
+										DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+									msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+									ClearRspDelegates();
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+			formDataAccess.ReleaseMutex();
+		}
+
+		public void ExtCmdStatus(ExtCmdStatus.RspInfo rspInfo)
+		{
+			ClearRspDelegates();
+			if (!rspInfo.success)
+			{
+				string msg = "Command Failed\n";
+				if (DisplayMsgCallback != null)
+					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+			}
+			else
+			{
+				string msg = "Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n" + "Event = " + devUtils.GetOpCodeName(rspInfo.header.eventCode) + "\n";
+				if (DisplayMsgCallback != null)
+					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+			}
+			RestoreFormInput();
+		}
+
+		public void AttErrorRsp(AttErrorRsp.RspInfo rspInfo)
+		{
+			if (InvokeRequired)
+			{
+				try
+				{
+					Invoke((Delegate)new AttErrorRsp.AttErrorRspDelegate(AttErrorRsp), rspInfo);
+				}
+				catch { }
+			}
+			else
+			{
+				ClearRspDelegates();
+				string msg = "ATT Command Failed\n";
+				if (rspInfo.aTT_ErrorRsp != null)
+					msg = msg + "Command = " + devUtils.GetHciReqOpCodeStr(rspInfo.aTT_ErrorRsp.reqOpCode) + "\n" + "Handle = 0x" + rspInfo.aTT_ErrorRsp.handle.ToString("X4") + "\n" + "Error = " + devUtils.GetErrorStatusStr(rspInfo.aTT_ErrorRsp.errorCode, "") + "\n";
+				if (DisplayMsgCallback != null)
+					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				RestoreFormInput();
+			}
+		}
+
+		public void AttReadBlobRsp(AttReadBlobRsp.RspInfo rspInfo)
+		{
+			if (InvokeRequired)
+			{
+				try
+				{
+					Invoke((Delegate)new AttReadBlobRsp.AttReadBlobRspDelegate(AttReadBlobRsp), rspInfo);
+				}
+				catch { }
+			}
+			else
+			{
+				ClearRspDelegates();
+				if (!rspInfo.success)
+				{
+					string msg = "Att Read Blob Command Failed\n";
+					if (DisplayMsgCallback != null)
+						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				}
+				else if ((int)rspInfo.header.eventStatus != 26)
+				{
+					string msg = "Att Read Blob Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n";
+					if (DisplayMsgCallback != null)
+						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				}
+				else
+					LoadData(key);
+				RestoreFormInput();
+			}
+		}
+
+		public void AttPrepareWriteRsp(AttPrepareWriteRsp.RspInfo rspInfo)
+		{
+			if (InvokeRequired)
+			{
+				try
+				{
+					Invoke((Delegate)new AttPrepareWriteRsp.AttPrepareWriteRspDelegate(AttPrepareWriteRsp), rspInfo);
+				}
+				catch { }
+			}
+			else
+			{
+				ClearRspDelegates();
+				if (!rspInfo.success)
+				{
+					string msg = "Att Prepare Write Command Failed\n";
+					if (DisplayMsgCallback != null)
+						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				}
+				else
+				{
+					string msg = "Att Prepare Write Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n";
+					if (DisplayMsgCallback != null)
+						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				}
+				RestoreFormInput();
+			}
+		}
+
+		public void AttExecuteWriteRsp(AttExecuteWriteRsp.RspInfo rspInfo)
+		{
+			if (InvokeRequired)
+			{
+				try
+				{
+					Invoke((Delegate)new AttExecuteWriteRsp.AttExecuteWriteRspDelegate(AttExecuteWriteRsp), new object[1]
+          {
+            (object) rspInfo
+          });
+				}
+				catch
+				{
+				}
+			}
+			else
+			{
+				ClearRspDelegates();
+				if (!rspInfo.success)
+				{
+					string msg = "Att Execute Write Command Failed\n";
+					if (DisplayMsgCallback != null)
+						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				}
+				else if ((int)rspInfo.header.eventStatus != 0)
+				{
+					string msg = "Att Execute Write Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n";
+					if (DisplayMsgCallback != null)
+						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				}
+				else
+				{
+					formDataAccess.WaitOne();
+					gattWriteDataAttr.dataUpdate = true;
+					if (!attrDataUtils.UpdateAttrDictItem(gattWriteDataAttr))
+					{
+						string msg = "Att Write Execute Command Data Update Failed\nAttribute Form Data For This Items Did Not Update\n";
+						if (DisplayMsgCallback != null)
+							DisplayMsgCallback(SharedAppObjs.MsgType.Warning, msg);
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
+					}
+					else if (AttrDataItemChangedCallback != null)
+						AttrDataItemChangedCallback();
+					formDataAccess.ReleaseMutex();
+				}
+				RestoreFormInput();
+			}
+		}
+
+		public void SendCmdResult(bool result, string cmdName)
+		{
+			if (InvokeRequired)
+			{
+				try
+				{
+					Invoke((Delegate)new AttrDataItemForm.SendCmdResultDelegate(SendCmdResult), result, cmdName);
+				}
+				catch
+				{
+				}
+			}
+			else
+			{
+				if (result)
+					return;
+				string msg = "Send Command Failed\nMessage Name = " + cmdName + "\n";
+				if (DisplayMsgCallback != null)
+					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+				msgBox.UserMsgBox((Form)this, MsgBox.MsgTypes.Error, msg);
+				RestoreFormInput();
+			}
+		}
+
+		public void RestoreFormInput()
+		{
+			if (InvokeRequired)
+			{
+				try
+				{
+					Invoke((Delegate)new AttrDataItemForm.RestoreFormInputDelegate(RestoreFormInput), new object[0]);
+				}
+				catch { }
+			}
+			else
+				Enabled = true;
+		}
+
+		private void ClearRspDelegates()
+		{
+			devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = (ExtCmdStatus.ExtCmdStatusDelegate)null;
+			devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = (AttErrorRsp.AttErrorRspDelegate)null;
+			devForm.threadMgr.rspDataIn.attReadBlobRsp.AttReadBlobRspCallback = (AttReadBlobRsp.AttReadBlobRspDelegate)null;
+			devForm.threadMgr.rspDataIn.attExecuteWriteRsp.AttExecuteWriteRspCallback = (AttExecuteWriteRsp.AttExecuteWriteRspDelegate)null;
+			devForm.threadMgr.rspDataIn.attPrepareWriteRsp.AttPrepareWriteRspCallback = (AttPrepareWriteRsp.AttPrepareWriteRspDelegate)null;
+		}
+	}
 }
-

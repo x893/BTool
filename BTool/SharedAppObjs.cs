@@ -1,25 +1,23 @@
-﻿using System;
-
-public class SharedAppObjs
+﻿namespace BTool
 {
-    public const string ProgramNameStr = "BTool";
+	public class SharedAppObjs
+	{
+		public enum MsgType
+		{
+			Incoming,
+			Outgoing,
+			Info,
+			Warning,
+			Error,
+			RxDump,
+			TxDump,
+		}
 
-    public enum MsgType
-    {
-        Incoming,
-        Outgoing,
-        Info,
-        Warning,
-        Error,
-        RxDump,
-        TxDump
-    }
-
-    public enum StringType
-    {
-        HEX,
-        DEC,
-        ASCII
-    }
+		public enum StringType
+		{
+			HEX,
+			DEC,
+			ASCII,
+		}
+	}
 }
-

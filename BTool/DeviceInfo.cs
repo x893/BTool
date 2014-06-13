@@ -1,16 +1,13 @@
 ﻿namespace BTool
 {
-    using System;
-
-    public class DeviceInfo
-    {
-        public string bleAddr;
-        public ComPortInfo comPortInfo;
-        public ConnectInfo connectInfo;
-        public string connectStatus;
-        public DeviceForm devForm;
-        public string devName;
-        public ushort handle;
-    }
+	public class DeviceInfo
+	{
+		public string devName;
+		public DeviceForm devForm;
+		public ushort handle;
+		public string bleAddr;
+		public string connectStatus;
+		public ComPortInfo comPortInfo;
+		public ConnectInfo connectInfo;
+	}
 }
-

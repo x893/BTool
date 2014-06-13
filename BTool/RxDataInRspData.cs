@@ -1,422 +1,637 @@
-﻿namespace BTool
+﻿using System;
+using System.Collections.Generic;
+using TI.Toolbox;
+
+namespace BTool
 {
-    using System;
-    using System.Collections.Generic;
+	public class RxDataInRspData
+	{
+		private MsgBox msgBox = new MsgBox();
+		private DataUtils dataUtils = new DataUtils();
+		private DeviceFormUtils devUtils = new DeviceFormUtils();
+		private const string moduleName = "RxDataInRspData";
+		private DeviceForm devForm;
 
-    public class RxDataInRspData
-    {
-        private DataUtils dataUtils = new DataUtils();
-        private DeviceForm devForm;
-        private DeviceFormUtils devUtils = new DeviceFormUtils();
-        private const string moduleName = "RxDataInRspData";
-        private MsgBox msgBox = new MsgBox();
+		public RxDataInRspData(DeviceForm deviceForm)
+		{
+			devForm = deviceForm;
+		}
 
-        public RxDataInRspData(DeviceForm deviceForm)
-        {
-            this.devForm = deviceForm;
-        }
+		public void GetRspData(RxDataIn rxDataIn, HCIStopWait.StopWaitEvent stopWaitEvent)
+		{
+			int index1 = 0;
+			bool dataErr = false;
+			int num1 = 0;
+			try
+			{
+				HCIReplies hciReplies = new HCIReplies();
+				hciReplies.objTag = (object)null;
+				hciReplies.cmdType = TxDataOut.CmdType.General;
+				if (stopWaitEvent != null)
+				{
+					hciReplies.objTag = stopWaitEvent.tag;
+					hciReplies.cmdType = stopWaitEvent.cmdType;
+				}
+				switch (rxDataIn.cmdOpcode)
+				{
+					case (ushort)byte.MaxValue:
+						byte num2 = dataUtils.Unload8Bits(rxDataIn.data, ref index1, ref dataErr);
+						if (dataErr)
+							break;
+						hciReplies.hciLeExtEvent = new HCIReplies.HCI_LE_ExtEvent();
+						hciReplies.hciLeExtEvent.header.eventCode = rxDataIn.eventOpcode;
+						hciReplies.hciLeExtEvent.header.eventStatus = num2;
+						ushort num3 = rxDataIn.eventOpcode;
+						if ((uint)num3 <= 1171U)
+						{
+							if ((uint)num3 <= 1153U)
+							{
+								switch (num3)
+								{
+									case (ushort)1024:
+										return;
+									case (ushort)1025:
+										return;
+									case (ushort)1026:
+										return;
+									case (ushort)1027:
+										return;
+									case (ushort)1028:
+										return;
+									case (ushort)1029:
+										return;
+									case (ushort)1030:
+										return;
+									case (ushort)1031:
+										return;
+									case (ushort)1032:
+										return;
+									case (ushort)1033:
+										return;
+									case (ushort)1034:
+										return;
+									case (ushort)1035:
+										return;
+									case (ushort)1036:
+										return;
+									case (ushort)1037:
+										return;
+									case (ushort)1038:
+										return;
+									case (ushort)1039:
+										return;
+									case (ushort)1040:
+										return;
+									case (ushort)1041:
+										return;
+									case (ushort)1042:
+										return;
+									case (ushort)1043:
+										return;
+									case (ushort)1044:
+										return;
+									case (ushort)1153:
+										return;
+									default:
+										return;
+								}
+							}
+							else if ((int)num3 == 1163 || (int)num3 == 1171)
+								break;
+							else
+								break;
+						}
+						else if ((uint)num3 <= 1408U)
+						{
+							switch (num3)
+							{
+								case (ushort)1281:
+									hciReplies.hciLeExtEvent.attErrorRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ErrorRsp();
+									if ((num1 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attErrorRsp.attMsgHdr)) == 0 || dataErr)
+										return;
+									byte num4 = dataUtils.Unload8Bits(rxDataIn.data, ref index1, ref dataErr);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attErrorRsp.reqOpCode = num4;
+									hciReplies.hciLeExtEvent.attErrorRsp.handle = dataUtils.Unload16Bits(rxDataIn.data, ref index1, ref dataErr, false);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attErrorRsp.errorCode = dataUtils.Unload8Bits(rxDataIn.data, ref index1, ref dataErr);
+									if (dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1282:
+									return;
+								case (ushort)1283:
+									return;
+								case (ushort)1284:
+									return;
+								case (ushort)1285:
+									hciReplies.hciLeExtEvent.attFindInfoRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_FindInfoRsp();
+									if ((num1 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attFindInfoRsp.attMsgHdr)) == 0 || dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attFindInfoRsp.format = dataUtils.Unload8Bits(rxDataIn.data, ref index1, ref dataErr);
+									if (dataErr)
+										return;
+									int uuidLength = devUtils.GetUuidLength(hciReplies.hciLeExtEvent.attFindInfoRsp.format, ref dataErr);
+									if (dataErr)
+										return;
+									int dataLength1 = uuidLength + 2;
+									int totalLength1 = (int)rxDataIn.length - index1;
+									hciReplies.hciLeExtEvent.attFindInfoRsp.handleData = new List<HCIReplies.HandleData>();
+									devUtils.UnloadHandleValueData(rxDataIn.data, ref index1, totalLength1, dataLength1, ref dataErr, "Uuid", ref hciReplies.hciLeExtEvent.attFindInfoRsp.handleData);
+									if (dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1286:
+									return;
+								case (ushort)1287:
+									hciReplies.hciLeExtEvent.attFindByTypeValueRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_FindByTypeValueRsp();
+									int num5;
+									if ((num5 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attFindByTypeValueRsp.attMsgHdr)) == 0 || dataErr)
+										return;
+									if (num5 >= 2)
+									{
+										int length = num5 / 2;
+										hciReplies.hciLeExtEvent.attFindByTypeValueRsp.handle = new ushort[length];
+										for (int index2 = 0; index2 < length && !dataErr; ++index2)
+										{
+											hciReplies.hciLeExtEvent.attFindByTypeValueRsp.handle[index2] = dataUtils.Unload16Bits(rxDataIn.data, ref index1, ref dataErr, false);
+											if (dataErr)
+												break;
+										}
+									}
+									if (dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1288:
+									return;
+								case (ushort)1289:
+									hciReplies.hciLeExtEvent.attReadByTypeRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ReadByTypeRsp();
+									int num6;
+									if ((num6 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attReadByTypeRsp.attMsgHdr)) == 0 || dataErr)
+										return;
+									int dataLength2 = (int)dataUtils.Unload8Bits(rxDataIn.data, ref index1, ref dataErr);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attReadByTypeRsp.length = (byte)dataLength2;
+									int totalLength2 = num6 - 1;
+									if (dataLength2 == 0)
+										return;
+									string handleStr = string.Empty;
+									string valueStr = string.Empty;
+									hciReplies.hciLeExtEvent.attReadByTypeRsp.handleData = new List<HCIReplies.HandleData>();
+									devUtils.UnloadHandleValueData(rxDataIn.data, ref index1, totalLength2, dataLength2, ref handleStr, ref valueStr, ref dataErr, "Data", ref hciReplies.hciLeExtEvent.attReadByTypeRsp.handleData);
+									if (dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1290:
+									return;
+								case (ushort)1291:
+									hciReplies.hciLeExtEvent.attReadRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ReadRsp();
+									int length1;
+									if ((length1 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attReadRsp.attMsgHdr)) == 0 || dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attReadRsp.data = new byte[length1];
+									for (int index2 = 0; index2 < length1 && !dataErr; ++index2)
+										hciReplies.hciLeExtEvent.attReadRsp.data[index2] = dataUtils.Unload8Bits(rxDataIn.data, ref index1, ref dataErr);
+									if (dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1292:
+									return;
+								case (ushort)1293:
+									hciReplies.hciLeExtEvent.attReadBlobRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ReadBlobRsp();
+									int length2 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attReadBlobRsp.attMsgHdr);
+									if (dataErr)
+										return;
+									if (length2 > 0)
+									{
+										hciReplies.hciLeExtEvent.attReadBlobRsp.data = new byte[length2];
+										for (int index2 = 0; index2 < length2 && !dataErr; ++index2)
+											hciReplies.hciLeExtEvent.attReadBlobRsp.data[index2] = dataUtils.Unload8Bits(rxDataIn.data, ref index1, ref dataErr);
+									}
+									if (dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1294:
+									return;
+								case (ushort)1295:
+									return;
+								case (ushort)1296:
+									return;
+								case (ushort)1297:
+									hciReplies.hciLeExtEvent.attReadByGrpTypeRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ReadByGrpTypeRsp();
+									if ((num1 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attReadByGrpTypeRsp.attMsgHdr)) == 0 || dataErr)
+										return;
+									byte num7 = dataUtils.Unload8Bits(rxDataIn.data, ref index1, ref dataErr);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attReadByGrpTypeRsp.length = num7;
+									if ((int)num7 == 0)
+										return;
+									int dataLength3 = (int)num7;
+									int totalLength3 = (int)rxDataIn.length - 3 - index1 + 1;
+									hciReplies.hciLeExtEvent.attReadByGrpTypeRsp.handleHandleData = new List<HCIReplies.HandleHandleData>();
+									devUtils.UnloadHandleHandleValueData(rxDataIn.data, ref index1, totalLength3, dataLength3, ref dataErr, ref hciReplies.hciLeExtEvent.attReadByGrpTypeRsp.handleHandleData);
+									if (dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1298:
+									return;
+								case (ushort)1299:
+									hciReplies.hciLeExtEvent.attWriteRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_WriteRsp();
+									if ((num1 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attWriteRsp.attMsgHdr)) == 0 || dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1300:
+									return;
+								case (ushort)1301:
+									return;
+								case (ushort)1302:
+									return;
+								case (ushort)1303:
+									hciReplies.hciLeExtEvent.attPrepareWriteRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_PrepareWriteRsp();
+									num1 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attPrepareWriteRsp.attMsgHdr);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attPrepareWriteRsp.handle = dataUtils.Unload16Bits(rxDataIn.data, ref index1, ref dataErr, false);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attPrepareWriteRsp.offset = dataUtils.Unload16Bits(rxDataIn.data, ref index1, ref dataErr, false);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attPrepareWriteRsp.value = devUtils.UnloadColonData(rxDataIn.data, ref index1, rxDataIn.data.Length - index1, ref dataErr);
+									if (dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1304:
+									return;
+								case (ushort)1305:
+									hciReplies.hciLeExtEvent.attExecuteWriteRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ExecuteWriteRsp();
+									num1 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attExecuteWriteRsp.attMsgHdr);
+									if (dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1306:
+									return;
+								case (ushort)1307:
+									hciReplies.hciLeExtEvent.attHandleValueNotification = new HCIReplies.HCI_LE_ExtEvent.ATT_HandleValueNotification();
+									num1 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attHandleValueNotification.attMsgHdr);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attHandleValueNotification.handle = dataUtils.Unload16Bits(rxDataIn.data, ref index1, ref dataErr, false);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attHandleValueNotification.value = devUtils.UnloadColonData(rxDataIn.data, ref index1, rxDataIn.data.Length - index1, ref dataErr);
+									if (dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1308:
+									return;
+								case (ushort)1309:
+									hciReplies.hciLeExtEvent.attHandleValueIndication = new HCIReplies.HCI_LE_ExtEvent.ATT_HandleValueIndication();
+									num1 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attHandleValueIndication.attMsgHdr);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attHandleValueIndication.handle = dataUtils.Unload16Bits(rxDataIn.data, ref index1, ref dataErr, false);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.attHandleValueIndication.value = devUtils.UnloadColonData(rxDataIn.data, ref index1, rxDataIn.data.Length - index1, ref dataErr);
+									if (dataErr)
+										return;
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								case (ushort)1310:
+									return;
+								case (ushort)1408:
+									return;
+								default:
+									return;
+							}
+						}
+						else
+						{
+							switch (num3)
+							{
+								case (ushort)1536:
+									return;
+								case (ushort)1537:
+									return;
+								case (ushort)1538:
+									return;
+								case (ushort)1539:
+									return;
+								case (ushort)1540:
+									return;
+								case (ushort)1541:
+									return;
+								case (ushort)1542:
+									return;
+								case (ushort)1543:
+									return;
+								case (ushort)1544:
+									return;
+								case (ushort)1545:
+									return;
+								case (ushort)1546:
+									return;
+								case (ushort)1547:
+									return;
+								case (ushort)1548:
+									return;
+								case (ushort)1549:
+									return;
+								case (ushort)1550:
+									return;
+								case (ushort)1551:
+									return;
+								case (ushort)1663:
+									hciReplies.hciLeExtEvent.gapHciCmdStat = new HCIReplies.HCI_LE_ExtEvent.GAP_HCI_ExtentionCommandStatus();
+									hciReplies.hciLeExtEvent.gapHciCmdStat.cmdOpCode = dataUtils.Unload16Bits(rxDataIn.data, ref index1, ref dataErr, false);
+									if (dataErr)
+										return;
+									hciReplies.hciLeExtEvent.gapHciCmdStat.dataLength = dataUtils.Unload8Bits(rxDataIn.data, ref index1, ref dataErr);
+									if (dataErr)
+										return;
+									ushort num8 = hciReplies.hciLeExtEvent.gapHciCmdStat.cmdOpCode;
+									if ((uint)num8 <= 64918U)
+									{
+										if ((uint)num8 <= 64658U)
+										{
+											if ((int)num8 == 64650 || (int)num8 == 64658)
+												return;
+											else
+												return;
+										}
+										else
+										{
+											switch (num8)
+											{
+												case (ushort)64769:
+													return;
+												case (ushort)64770:
+													return;
+												case (ushort)64771:
+													return;
+												case (ushort)64772:
+													return;
+												case (ushort)64773:
+													return;
+												case (ushort)64774:
+													return;
+												case (ushort)64775:
+													return;
+												case (ushort)64776:
+													return;
+												case (ushort)64777:
+													return;
+												case (ushort)64778:
+												case (ushort)64779:
+												case (ushort)64780:
+												case (ushort)64781:
+													devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+													return;
+												case (ushort)64782:
+													return;
+												case (ushort)64783:
+													return;
+												case (ushort)64784:
+													return;
+												case (ushort)64785:
+													return;
+												case (ushort)64786:
+												case (ushort)64787:
+												case (ushort)64790:
+												case (ushort)64791:
+												case (ushort)64792:
+												case (ushort)64793:
+													devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+													return;
+												case (ushort)64788:
+													return;
+												case (ushort)64789:
+													return;
+												case (ushort)64794:
+													return;
+												case (ushort)64795:
+													return;
+												case (ushort)64796:
+													return;
+												case (ushort)64797:
+													return;
+												case (ushort)64798:
+													return;
+												case (ushort)64898:
+													return;
+												case (ushort)64899:
+													return;
+												case (ushort)64900:
+												case (ushort)64904:
+												case (ushort)64906:
+													break;
+												case (ushort)64901:
+													return;
+												case (ushort)64902:
+												case (ushort)64912:
+													devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+													return;
+												case (ushort)64903:
+													return;
+												case (ushort)64905:
+													return;
+												case (ushort)64907:
+													return;
+												case (ushort)64908:
+													devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+													return;
+												case (ushort)64909:
+													return;
+												case (ushort)64910:
+													return;
+												case (ushort)64911:
+													return;
+												case (ushort)64913:
+													return;
+												case (ushort)64914:
+												case (ushort)64918:
+													devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+													return;
+												default:
+													return;
+											}
+										}
+									}
+									else if ((uint)num8 <= 64962U)
+									{
+										switch (num8)
+										{
+											case (ushort)64923:
+												return;
+											case (ushort)64924:
+												return;
+											case (ushort)64925:
+												return;
+											case (ushort)64944:
+												return;
+											case (ushort)64945:
+												return;
+											case (ushort)64946:
+												break;
+											case (ushort)64947:
+												return;
+											case (ushort)64948:
+												return;
+											case (ushort)64949:
+												return;
+											case (ushort)64950:
+												return;
+											case (ushort)64951:
+												return;
+											case (ushort)64952:
+												return;
+											case (ushort)64953:
+												return;
+											case (ushort)64954:
+												return;
+											case (ushort)64955:
+												return;
+											case (ushort)64956:
+												return;
+											case (ushort)64957:
+												return;
+											case (ushort)64958:
+												return;
+											case (ushort)64959:
+												return;
+											case (ushort)64960:
+												return;
+											case (ushort)64961:
+												return;
+											case (ushort)64962:
+												return;
+											default:
+												return;
+										}
+									}
+									else
+									{
+										switch (num8)
+										{
+											case (ushort)65020:
+												return;
+											case (ushort)65021:
+												return;
+											case (ushort)65022:
+												return;
+											case (ushort)65023:
+												return;
+											case (ushort)65024:
+												return;
+											case (ushort)65025:
+												return;
+											case (ushort)65026:
+												return;
+											case (ushort)65027:
+												return;
+											case (ushort)65028:
+												return;
+											case (ushort)65029:
+												return;
+											case (ushort)65030:
+												return;
+											case (ushort)65031:
+												return;
+											case (ushort)65032:
+												return;
+											case (ushort)65033:
+												return;
+											case (ushort)65034:
+												return;
+											case (ushort)65035:
+												return;
+											case (ushort)65036:
+												return;
+											case (ushort)65037:
+												return;
+											case (ushort)65038:
+												return;
+											case (ushort)65039:
+												return;
+											case (ushort)65040:
+												return;
+											case (ushort)65041:
+												return;
+											case (ushort)65072:
+												return;
+											case (ushort)65073:
+												return;
+											case (ushort)65074:
+												return;
+											case (ushort)65075:
+												return;
+											case (ushort)65076:
+												return;
+											case (ushort)65077:
+												return;
+											case (ushort)65078:
+												return;
+											case (ushort)65079:
+												return;
+											case (ushort)65152:
+												return;
+											case (ushort)65153:
+												return;
+											case (ushort)65154:
+												return;
+											case (ushort)65155:
+												return;
+											default:
+												return;
+										}
+									}
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									return;
+								default:
+									return;
+							}
+						}
+				}
+			}
+			catch (Exception ex)
+			{
+				string msg = "Get Response Data Problem.\n" + ex.Message + "\nRxDataInRspData\n";
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+			}
+		}
 
-        public void GetRspData(RxDataIn rxDataIn, HCIStopWait.StopWaitEvent stopWaitEvent)
-        {
-            int index = 0;
-            bool dataErr = false;
-            int totalLength = 0;
-            try
-            {
-                int num7;
-                int num8;
-                int num9;
-                int num10;
-                ushort cmdOpCode;
-                HCIReplies data = new HCIReplies();
-                data.objTag = null;
-                data.cmdType = TxDataOut.CmdType.General;
-                if (stopWaitEvent != null)
-                {
-                    data.objTag = stopWaitEvent.tag;
-                    data.cmdType = stopWaitEvent.cmdType;
-                }
-                ushort cmdOpcode = rxDataIn.cmdOpcode;
-                if (((cmdOpcode != 14) && (cmdOpcode != 0x13)) && (cmdOpcode == 0xff))
-                {
-                    byte num3 = this.dataUtils.Unload8Bits(rxDataIn.data, ref index, ref dataErr);
-                    if (!dataErr)
-                    {
-                        data.hciLeExtEvent = new HCIReplies.HCI_LE_ExtEvent();
-                        data.hciLeExtEvent.header.eventCode = rxDataIn.eventOpcode;
-                        data.hciLeExtEvent.header.eventStatus = num3;
-                        ushort eventOpcode = rxDataIn.eventOpcode;
-                        if (eventOpcode <= 0x493)
-                        {
-                            if (eventOpcode <= 0x481)
-                            {
-                            }
-                            else if ((eventOpcode == 0x48b) || (eventOpcode == 0x493))
-                            {
-                            }
-                        }
-                        else
-                        {
-                            int uuidLength;
-                            int num6;
-                            switch (eventOpcode)
-                            {
-                                case 0x501:
-                                    data.hciLeExtEvent.attErrorRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ErrorRsp();
-                                    if (((totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attErrorRsp.attMsgHdr)) != 0) && !dataErr)
-                                    {
-                                        byte num4 = this.dataUtils.Unload8Bits(rxDataIn.data, ref index, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            data.hciLeExtEvent.attErrorRsp.reqOpCode = num4;
-                                            data.hciLeExtEvent.attErrorRsp.handle = this.dataUtils.Unload16Bits(rxDataIn.data, ref index, ref dataErr, false);
-                                            if (!dataErr)
-                                            {
-                                                data.hciLeExtEvent.attErrorRsp.errorCode = this.dataUtils.Unload8Bits(rxDataIn.data, ref index, ref dataErr);
-                                                if (!dataErr)
-                                                {
-                                                    this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
-
-                                case 0x505:
-                                    data.hciLeExtEvent.attFindInfoRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_FindInfoRsp();
-                                    if (((totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attFindInfoRsp.attMsgHdr)) != 0) && !dataErr)
-                                    {
-                                        data.hciLeExtEvent.attFindInfoRsp.format = this.dataUtils.Unload8Bits(rxDataIn.data, ref index, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            uuidLength = this.devUtils.GetUuidLength(data.hciLeExtEvent.attFindInfoRsp.format, ref dataErr);
-                                            if (!dataErr)
-                                            {
-                                                uuidLength += 2;
-                                                num6 = rxDataIn.length - index;
-                                                data.hciLeExtEvent.attFindInfoRsp.handleData = new List<HCIReplies.HandleData>();
-                                                this.devUtils.UnloadHandleValueData(rxDataIn.data, ref index, num6, uuidLength, ref dataErr, "Uuid", ref data.hciLeExtEvent.attFindInfoRsp.handleData);
-                                                if (!dataErr)
-                                                {
-                                                    this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
-
-                                case 0x507:
-                                    data.hciLeExtEvent.attFindByTypeValueRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_FindByTypeValueRsp();
-                                    if (((totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attFindByTypeValueRsp.attMsgHdr)) == 0) || dataErr)
-                                    {
-                                        break;
-                                    }
-                                    if (totalLength < 2)
-                                    {
-                                        goto Label_04E0;
-                                    }
-                                    num7 = totalLength / 2;
-                                    data.hciLeExtEvent.attFindByTypeValueRsp.handle = new ushort[num7];
-                                    num8 = 0;
-                                    goto Label_04D7;
-
-                                case 0x509:
-                                    data.hciLeExtEvent.attReadByTypeRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ReadByTypeRsp();
-                                    if (((totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attReadByTypeRsp.attMsgHdr)) != 0) && !dataErr)
-                                    {
-                                        uuidLength = this.dataUtils.Unload8Bits(rxDataIn.data, ref index, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            data.hciLeExtEvent.attReadByTypeRsp.length = (byte) uuidLength;
-                                            totalLength--;
-                                            if (uuidLength != 0)
-                                            {
-                                                string handleStr = string.Empty;
-                                                string valueStr = string.Empty;
-                                                data.hciLeExtEvent.attReadByTypeRsp.handleData = new List<HCIReplies.HandleData>();
-                                                this.devUtils.UnloadHandleValueData(rxDataIn.data, ref index, totalLength, uuidLength, ref handleStr, ref valueStr, ref dataErr, "Data", ref data.hciLeExtEvent.attReadByTypeRsp.handleData);
-                                                if (!dataErr)
-                                                {
-                                                    this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
-
-                                case 0x50b:
-                                    data.hciLeExtEvent.attReadRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ReadRsp();
-                                    if (((totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attReadRsp.attMsgHdr)) == 0) || dataErr)
-                                    {
-                                        break;
-                                    }
-                                    data.hciLeExtEvent.attReadRsp.data = new byte[totalLength];
-                                    num9 = 0;
-                                    goto Label_0681;
-
-                                case 0x50d:
-                                    data.hciLeExtEvent.attReadBlobRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ReadBlobRsp();
-                                    totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attReadBlobRsp.attMsgHdr);
-                                    if (dataErr)
-                                    {
-                                        break;
-                                    }
-                                    if (totalLength <= 0)
-                                    {
-                                        goto Label_073C;
-                                    }
-                                    data.hciLeExtEvent.attReadBlobRsp.data = new byte[totalLength];
-                                    num10 = 0;
-                                    goto Label_0734;
-
-                                case 0x511:
-                                    data.hciLeExtEvent.attReadByGrpTypeRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ReadByGrpTypeRsp();
-                                    if (((totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attReadByGrpTypeRsp.attMsgHdr)) != 0) && !dataErr)
-                                    {
-                                        byte num11 = this.dataUtils.Unload8Bits(rxDataIn.data, ref index, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            data.hciLeExtEvent.attReadByGrpTypeRsp.length = num11;
-                                            if (num11 != 0)
-                                            {
-                                                uuidLength = num11;
-                                                num6 = ((rxDataIn.length - 3) - index) + 1;
-                                                data.hciLeExtEvent.attReadByGrpTypeRsp.handleHandleData = new List<HCIReplies.HandleHandleData>();
-                                                this.devUtils.UnloadHandleHandleValueData(rxDataIn.data, ref index, num6, uuidLength, ref dataErr, ref data.hciLeExtEvent.attReadByGrpTypeRsp.handleHandleData);
-                                                if (!dataErr)
-                                                {
-                                                    this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
-
-                                case 0x513:
-                                    data.hciLeExtEvent.attWriteRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_WriteRsp();
-                                    if (((totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attWriteRsp.attMsgHdr)) != 0) && !dataErr)
-                                    {
-                                        this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                    }
-                                    break;
-
-                                case 0x517:
-                                    data.hciLeExtEvent.attPrepareWriteRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_PrepareWriteRsp();
-                                    totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attPrepareWriteRsp.attMsgHdr);
-                                    if (!dataErr)
-                                    {
-                                        data.hciLeExtEvent.attPrepareWriteRsp.handle = this.dataUtils.Unload16Bits(rxDataIn.data, ref index, ref dataErr, false);
-                                        if (!dataErr)
-                                        {
-                                            data.hciLeExtEvent.attPrepareWriteRsp.offset = this.dataUtils.Unload16Bits(rxDataIn.data, ref index, ref dataErr, false);
-                                            if (!dataErr)
-                                            {
-                                                data.hciLeExtEvent.attPrepareWriteRsp.value = this.devUtils.UnloadColonData(rxDataIn.data, ref index, rxDataIn.data.Length - index, ref dataErr);
-                                                if (!dataErr)
-                                                {
-                                                    this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
-
-                                case 0x519:
-                                    data.hciLeExtEvent.attExecuteWriteRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_ExecuteWriteRsp();
-                                    totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attExecuteWriteRsp.attMsgHdr);
-                                    if (!dataErr)
-                                    {
-                                        this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                    }
-                                    break;
-
-                                case 0x51b:
-                                    data.hciLeExtEvent.attHandleValueNotification = new HCIReplies.HCI_LE_ExtEvent.ATT_HandleValueNotification();
-                                    totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attHandleValueNotification.attMsgHdr);
-                                    if (!dataErr)
-                                    {
-                                        data.hciLeExtEvent.attHandleValueNotification.handle = this.dataUtils.Unload16Bits(rxDataIn.data, ref index, ref dataErr, false);
-                                        if (!dataErr)
-                                        {
-                                            data.hciLeExtEvent.attHandleValueNotification.value = this.devUtils.UnloadColonData(rxDataIn.data, ref index, rxDataIn.data.Length - index, ref dataErr);
-                                            if (!dataErr)
-                                            {
-                                                this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                            }
-                                        }
-                                    }
-                                    break;
-
-                                case 0x51d:
-                                    data.hciLeExtEvent.attHandleValueIndication = new HCIReplies.HCI_LE_ExtEvent.ATT_HandleValueIndication();
-                                    totalLength = this.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref data.hciLeExtEvent.attHandleValueIndication.attMsgHdr);
-                                    if (!dataErr)
-                                    {
-                                        data.hciLeExtEvent.attHandleValueIndication.handle = this.dataUtils.Unload16Bits(rxDataIn.data, ref index, ref dataErr, false);
-                                        if (!dataErr)
-                                        {
-                                            data.hciLeExtEvent.attHandleValueIndication.value = this.devUtils.UnloadColonData(rxDataIn.data, ref index, rxDataIn.data.Length - index, ref dataErr);
-                                            if (!dataErr)
-                                            {
-                                                this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                            }
-                                        }
-                                    }
-                                    break;
-
-                                case 0x67f:
-                                    data.hciLeExtEvent.gapHciCmdStat = new HCIReplies.HCI_LE_ExtEvent.GAP_HCI_ExtentionCommandStatus();
-                                    data.hciLeExtEvent.gapHciCmdStat.cmdOpCode = this.dataUtils.Unload16Bits(rxDataIn.data, ref index, ref dataErr, false);
-                                    if (!dataErr)
-                                    {
-                                        data.hciLeExtEvent.gapHciCmdStat.dataLength = this.dataUtils.Unload8Bits(rxDataIn.data, ref index, ref dataErr);
-                                        if (!dataErr)
-                                        {
-                                            cmdOpCode = data.hciLeExtEvent.gapHciCmdStat.cmdOpCode;
-                                            if (cmdOpCode > 0xfd96)
-                                            {
-                                                goto Label_0CED;
-                                            }
-                                            if (cmdOpCode <= 0xfc92)
-                                            {
-                                                if ((cmdOpCode == 0xfc8a) || (cmdOpCode == 0xfc92))
-                                                {
-                                                }
-                                            }
-                                            else
-                                            {
-                                                switch (cmdOpCode)
-                                                {
-                                                    case 0xfd0a:
-                                                    case 0xfd0b:
-                                                    case 0xfd0c:
-                                                    case 0xfd0d:
-                                                        this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                                        break;
-
-                                                    case 0xfd12:
-                                                    case 0xfd13:
-                                                    case 0xfd16:
-                                                    case 0xfd17:
-                                                    case 0xfd18:
-                                                    case 0xfd19:
-                                                        this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                                        break;
-
-                                                    case 0xfd84:
-                                                    case 0xfd88:
-                                                    case 0xfd8a:
-                                                        goto Label_0E7E;
-
-                                                    case 0xfd86:
-                                                    case 0xfd90:
-                                                        this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                                                        break;
-
-                                                    case 0xfd8c:
-                                                        goto Label_0E9C;
-
-                                                    case 0xfd92:
-                                                    case 0xfd96:
-                                                        goto Label_0EBA;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-                }
-                return;
-            Label_04A5:
-                data.hciLeExtEvent.attFindByTypeValueRsp.handle[num8] = this.dataUtils.Unload16Bits(rxDataIn.data, ref index, ref dataErr, false);
-                if (dataErr)
-                {
-                    goto Label_04E0;
-                }
-                num8++;
-            Label_04D7:
-                if ((num8 < num7) && !dataErr)
-                {
-                    goto Label_04A5;
-                }
-            Label_04E0:
-                if (!dataErr)
-                {
-                    this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                }
-                return;
-            Label_0653:
-                data.hciLeExtEvent.attReadRsp.data[num9] = this.dataUtils.Unload8Bits(rxDataIn.data, ref index, ref dataErr);
-                num9++;
-            Label_0681:
-                if ((num9 < totalLength) && !dataErr)
-                {
-                    goto Label_0653;
-                }
-                if (!dataErr)
-                {
-                    this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                }
-                return;
-            Label_0706:
-                data.hciLeExtEvent.attReadBlobRsp.data[num10] = this.dataUtils.Unload8Bits(rxDataIn.data, ref index, ref dataErr);
-                num10++;
-            Label_0734:
-                if ((num10 < totalLength) && !dataErr)
-                {
-                    goto Label_0706;
-                }
-            Label_073C:
-                if (!dataErr)
-                {
-                    this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                }
-                return;
-            Label_0CED:
-                if (cmdOpCode <= 0xfdc2)
-                {
-                    switch (cmdOpCode)
-                    {
-                        case 0xfdb2:
-                            goto Label_0E7E;
-                    }
-                }
-                return;
-            Label_0E7E:
-                this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                return;
-            Label_0E9C:
-                this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-                return;
-            Label_0EBA:
-                this.devForm.threadMgr.rspDataIn.dataQ.AddQTail(data);
-            }
-            catch (Exception exception)
-            {
-                string msg = "Get Response Data Problem.\n" + exception.Message + "\nRxDataInRspData\n";
-                this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-            }
-        }
-
-        public byte UnloadAttMsgHeader(ref byte[] data, ref int index, ref bool dataErr, ref HCIReplies.ATT_MsgHeader attMsgHdr)
-        {
-            attMsgHdr.connHandle = 0;
-            attMsgHdr.pduLength = 0;
-            try
-            {
-                attMsgHdr.connHandle = this.dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-                attMsgHdr.pduLength = this.dataUtils.Unload8Bits(data, ref index, ref dataErr);
-            }
-            catch (Exception exception)
-            {
-                string msg = string.Format("UnloadAttMsgHeader Failed\nMessage Data Transfer Issue.\n\n{0}\n", exception.Message);
-                this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-                dataErr = true;
-            }
-            return attMsgHdr.pduLength;
-        }
-    }
+		public byte UnloadAttMsgHeader(ref byte[] data, ref int index, ref bool dataErr, ref HCIReplies.ATT_MsgHeader attMsgHdr)
+		{
+			attMsgHdr.connHandle = (ushort)0;
+			attMsgHdr.pduLength = (byte)0;
+			try
+			{
+				attMsgHdr.connHandle = dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
+				attMsgHdr.pduLength = dataUtils.Unload8Bits(data, ref index, ref dataErr);
+			}
+			catch (Exception ex)
+			{
+				string msg = string.Format("UnloadAttMsgHeader Failed\nMessage Data Transfer Issue.\n\n{0}\n", (object)ex.Message);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				dataErr = true;
+			}
+			return attMsgHdr.pduLength;
+		}
+	}
 }
-

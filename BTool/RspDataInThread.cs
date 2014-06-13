@@ -1,273 +1,213 @@
-﻿namespace BTool
+﻿using System;
+using System.Threading;
+using TI.Toolbox;
+
+namespace BTool
 {
-    using System;
-    using System.Threading;
+	public class RspDataInThread
+	{
+		public QueueMgr dataQ = new QueueMgr("RspDataInThread");
+		private RspDataInThread.ThreadData threadData = new RspDataInThread.ThreadData();
+		public ThreadControl threadCtrl = new ThreadControl();
+		private MsgBox msgBox = new MsgBox();
+		private const string moduleName = "RspDataInThread";
+		public RspDataInThread.RspDataInChangedDelegate RspDataInChangedCallback;
+		private Thread taskThread;
+		public ExtCmdStatus extCmdStatus;
+		public AttErrorRsp attErrorRsp;
+		private AttFindInfoRsp attFindInfoRsp;
+		private AttFindByTypeValueRsp attFindByTypeValueRsp;
+		private AttReadByTypeRsp attReadByTypeRsp;
+		public AttReadRsp attReadRsp;
+		public AttReadBlobRsp attReadBlobRsp;
+		private AttReadByGrpTypeRsp attReadByGrpTypeRsp;
+		public AttWriteRsp attWriteRsp;
+		public AttPrepareWriteRsp attPrepareWriteRsp;
+		public AttExecuteWriteRsp attExecuteWriteRsp;
+		public AttHandleValueNotification attHandleValueNotification;
+		public AttHandleValueIndication attHandleValueIndication;
 
-    public class RspDataInThread
-    {
-        public AttErrorRsp attErrorRsp = new AttErrorRsp();
-        public AttExecuteWriteRsp attExecuteWriteRsp;
-        private AttFindByTypeValueRsp attFindByTypeValueRsp;
-        private AttFindInfoRsp attFindInfoRsp;
-        public AttHandleValueIndication attHandleValueIndication;
-        public AttHandleValueNotification attHandleValueNotification;
-        public AttPrepareWriteRsp attPrepareWriteRsp;
-        public AttReadBlobRsp attReadBlobRsp;
-        private AttReadByGrpTypeRsp attReadByGrpTypeRsp;
-        private AttReadByTypeRsp attReadByTypeRsp;
-        public AttReadRsp attReadRsp;
-        public AttWriteRsp attWriteRsp;
-        public QueueMgr dataQ = new QueueMgr("RspDataInThread");
-        public ExtCmdStatus extCmdStatus = new ExtCmdStatus();
-        private const string moduleName = "RspDataInThread";
-        private MsgBox msgBox = new MsgBox();
-        public RspDataInChangedDelegate RspDataInChangedCallback;
-        private Thread taskThread;
-        public ThreadControl threadCtrl = new ThreadControl();
-        private ThreadData threadData = new ThreadData();
+		public RspDataInThread(DeviceForm deviceForm)
+		{
+			extCmdStatus = new ExtCmdStatus();
+			attErrorRsp = new AttErrorRsp();
+			attFindInfoRsp = new AttFindInfoRsp(deviceForm);
+			attFindByTypeValueRsp = new AttFindByTypeValueRsp(deviceForm);
+			attReadByTypeRsp = new AttReadByTypeRsp(deviceForm);
+			attReadRsp = new AttReadRsp(deviceForm);
+			attReadBlobRsp = new AttReadBlobRsp(deviceForm);
+			attReadByGrpTypeRsp = new AttReadByGrpTypeRsp(deviceForm);
+			attWriteRsp = new AttWriteRsp();
+			attPrepareWriteRsp = new AttPrepareWriteRsp();
+			attExecuteWriteRsp = new AttExecuteWriteRsp();
+			attHandleValueNotification = new AttHandleValueNotification(deviceForm);
+			attHandleValueIndication = new AttHandleValueIndication(deviceForm);
+			taskThread = new Thread(new ParameterizedThreadStart(TaskThread));
+			taskThread.Name = "RspDataInThread";
+			taskThread.Start((object)threadData);
+			Thread.Sleep(0);
+			while (!taskThread.IsAlive)
+			{ }
+		}
 
-        public RspDataInThread(DeviceForm deviceForm)
-        {
-            this.attFindInfoRsp = new AttFindInfoRsp(deviceForm);
-            this.attFindByTypeValueRsp = new AttFindByTypeValueRsp(deviceForm);
-            this.attReadByTypeRsp = new AttReadByTypeRsp(deviceForm);
-            this.attReadRsp = new AttReadRsp(deviceForm);
-            this.attReadBlobRsp = new AttReadBlobRsp(deviceForm);
-            this.attReadByGrpTypeRsp = new AttReadByGrpTypeRsp(deviceForm);
-            this.attWriteRsp = new AttWriteRsp();
-            this.attPrepareWriteRsp = new AttPrepareWriteRsp();
-            this.attExecuteWriteRsp = new AttExecuteWriteRsp();
-            this.attHandleValueNotification = new AttHandleValueNotification(deviceForm);
-            this.attHandleValueIndication = new AttHandleValueIndication(deviceForm);
-            this.taskThread = new Thread(new ParameterizedThreadStart(this.TaskThread));
-            this.taskThread.Name = "RspDataInThread";
-            this.taskThread.Start(this.threadData);
-            Thread.Sleep(0);
-            while (!this.taskThread.IsAlive)
+		[STAThread]
+		private void TaskThread(object threadData)
+		{
+			try
+			{
+				bool flag = false;
+				threadCtrl.Init();
+				threadCtrl.runningThread = true;
+				SharedObjects.log.Write(Logging.MsgType.Debug, "RspDataInThread", "Starting Thread");
+				while (!flag)
+				{
+					if (!threadCtrl.exitThread)
+					{
+						if (threadCtrl.pauseThread)
+						{
+							threadCtrl.idleThread = true;
+							SharedObjects.log.Write(Logging.MsgType.Debug, "RspDataInThread", "Pausing Thread");
+							threadCtrl.eventPause.WaitOne();
+							threadCtrl.idleThread = false;
+							if (threadCtrl.exitThread)
+								break;
+						}
+						switch (WaitHandle.WaitAny(new WaitHandle[3]
             {
-            }
-        }
+              (WaitHandle) threadCtrl.eventExit,
+              (WaitHandle) threadCtrl.eventPause,
+              (WaitHandle) dataQ.qDataReadyEvent
+            }))
+						{
+							case 0:
+								flag = true;
+								if (!threadCtrl.exitThread)
+									continue;
+								else
+									continue;
+							case 1:
+								threadCtrl.eventPause.Reset();
+								SharedObjects.log.Write(Logging.MsgType.Debug, "RspDataInThread", "Resuming Thread");
+								continue;
+							case 2:
+								dataQ.qDataReadyEvent.Reset();
+								QueueDataReady();
+								continue;
+							default:
+								flag = true;
+								continue;
+						}
+					}
+					else
+						break;
+				}
+			}
+			catch (Exception ex)
+			{
+				string msg = "Task Thread Problem.\n" + ex.Message + "\nRspDataInThread\n";
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+			}
+			SharedObjects.log.Write(Logging.MsgType.Debug, "RspDataInThread", "Exiting Thread");
+			threadCtrl.Exit();
+		}
 
-        private bool ProcessQData(HCIReplies hciReplies, ref bool dataFound)
-        {
-            bool flag = true;
-            dataFound = false;
-            if ((hciReplies == null) || (hciReplies.hciLeExtEvent == null))
-            {
-                return false;
-            }
-            ushort eventCode = hciReplies.hciLeExtEvent.header.eventCode;
-            if (eventCode <= 0x493)
-            {
-                if (eventCode <= 0x481)
-                {
-                    switch (eventCode)
-                    {
-                        case 0x400:
-                        case 0x401:
-                        case 0x402:
-                        case 0x403:
-                        case 0x404:
-                        case 0x405:
-                        case 0x406:
-                        case 0x407:
-                        case 0x408:
-                        case 0x409:
-                        case 0x40a:
-                        case 0x40b:
-                        case 0x40c:
-                        case 0x40d:
-                        case 0x40e:
-                        case 0x40f:
-                        case 0x410:
-                        case 0x411:
-                        case 0x412:
-                        case 0x413:
-                        case 0x414:
-                            return flag;
+		private bool QueueDataReady()
+		{
+			object data = (object)new HCIReplies();
+			bool flag = dataQ.RemoveQHead(ref data);
+			if (flag)
+			{
+				HCIReplies hciReplies = (HCIReplies)data;
+				bool dataFound = false;
+				flag = ProcessQData(hciReplies, ref dataFound);
+				if (flag && dataFound && RspDataInChangedCallback != null)
+					RspDataInChangedCallback();
+			}
+			Thread.Sleep(10);
+			return flag;
+		}
 
-                        case 0x481:
-                            return flag;
-                    }
-                    return flag;
-                }
-                if ((eventCode == 0x48b) || (eventCode == 0x493))
-                {
-                }
-                return flag;
-            }
-            if (eventCode <= 0x580)
-            {
-                switch (eventCode)
-                {
-                    case 0x501:
-                        return this.attErrorRsp.GetATT_ErrorRsp(hciReplies, ref dataFound);
+		private bool ProcessQData(HCIReplies hciReplies, ref bool dataFound)
+		{
+			bool flag = true;
+			dataFound = false;
+			if (hciReplies == null || hciReplies.hciLeExtEvent == null)
+			{
+				flag = false;
+			}
+			else
+			{
+				ushort num = hciReplies.hciLeExtEvent.header.eventCode;
+				if ((uint)num <= 1171U)
+				{
+					if ((uint)num <= 1153U)
+					{
+						switch (num)
+						{
+						}
+					}
+					else if ((int)num == 1163 || (int)num == 1171)
+						;
+				}
+				else if ((uint)num <= 1408U)
+				{
+					switch (num)
+					{
+						case (ushort)1281:
+							flag = attErrorRsp.GetATT_ErrorRsp(hciReplies, ref dataFound);
+							break;
+						case (ushort)1285:
+							flag = attFindInfoRsp.GetATT_FindInfoRsp(hciReplies, ref dataFound);
+							break;
+						case (ushort)1287:
+							flag = attFindByTypeValueRsp.GetATT_FindByTypeValueRsp(hciReplies, ref dataFound);
+							break;
+						case (ushort)1289:
+							flag = attReadByTypeRsp.GetATT_ReadByTypeRsp(hciReplies, ref dataFound);
+							break;
+						case (ushort)1291:
+							flag = attReadRsp.GetATT_ReadRsp(hciReplies, ref dataFound);
+							break;
+						case (ushort)1293:
+							flag = attReadBlobRsp.GetATT_ReadBlobRsp(hciReplies, ref dataFound);
+							break;
+						case (ushort)1297:
+							flag = attReadByGrpTypeRsp.GetATT_ReadByGrpTypeRsp(hciReplies, ref dataFound);
+							break;
+						case (ushort)1299:
+							flag = attWriteRsp.GetATT_WriteRsp(hciReplies, ref dataFound);
+							break;
+						case (ushort)1303:
+							flag = attPrepareWriteRsp.GetATT_PrepareWriteRsp(hciReplies, ref dataFound);
+							break;
+						case (ushort)1305:
+							flag = attExecuteWriteRsp.GetATT_ExecuteWriteRsp(hciReplies, ref dataFound);
+							break;
+						case (ushort)1307:
+							flag = attHandleValueNotification.GetATT_HandleValueNotification(hciReplies, ref dataFound);
+							break;
+						case (ushort)1309:
+							flag = attHandleValueIndication.GetATT_HandleValueIndication(hciReplies, ref dataFound);
+							break;
+					}
+				}
+				else
+				{
+					switch (num)
+					{
+						case (ushort)1663:
+							flag = extCmdStatus.GetExtensionCommandStatus(hciReplies, ref dataFound);
+							break;
+					}
+				}
+			}
+			return flag;
+		}
 
-                    case 0x502:
-                    case 0x503:
-                    case 0x504:
-                    case 0x506:
-                    case 0x508:
-                    case 0x50a:
-                    case 0x50c:
-                    case 0x50e:
-                    case 0x50f:
-                    case 0x510:
-                    case 0x512:
-                    case 0x514:
-                    case 0x515:
-                    case 0x516:
-                    case 0x518:
-                    case 0x51a:
-                    case 0x51c:
-                    case 0x51e:
-                        return flag;
+		public delegate void RspDataInChangedDelegate();
 
-                    case 0x505:
-                        return this.attFindInfoRsp.GetATT_FindInfoRsp(hciReplies, ref dataFound);
-
-                    case 0x507:
-                        return this.attFindByTypeValueRsp.GetATT_FindByTypeValueRsp(hciReplies, ref dataFound);
-
-                    case 0x509:
-                        return this.attReadByTypeRsp.GetATT_ReadByTypeRsp(hciReplies, ref dataFound);
-
-                    case 0x50b:
-                        return this.attReadRsp.GetATT_ReadRsp(hciReplies, ref dataFound);
-
-                    case 0x50d:
-                        return this.attReadBlobRsp.GetATT_ReadBlobRsp(hciReplies, ref dataFound);
-
-                    case 0x511:
-                        return this.attReadByGrpTypeRsp.GetATT_ReadByGrpTypeRsp(hciReplies, ref dataFound);
-
-                    case 0x513:
-                        return this.attWriteRsp.GetATT_WriteRsp(hciReplies, ref dataFound);
-
-                    case 0x517:
-                        return this.attPrepareWriteRsp.GetATT_PrepareWriteRsp(hciReplies, ref dataFound);
-
-                    case 0x519:
-                        return this.attExecuteWriteRsp.GetATT_ExecuteWriteRsp(hciReplies, ref dataFound);
-
-                    case 0x51b:
-                        return this.attHandleValueNotification.GetATT_HandleValueNotification(hciReplies, ref dataFound);
-
-                    case 0x51d:
-                        return this.attHandleValueIndication.GetATT_HandleValueIndication(hciReplies, ref dataFound);
-
-                    case 0x580:
-                        return flag;
-                }
-                return flag;
-            }
-            switch (eventCode)
-            {
-                case 0x600:
-                case 0x601:
-                case 0x602:
-                case 0x603:
-                case 0x604:
-                case 0x605:
-                case 0x606:
-                case 0x607:
-                case 0x608:
-                case 0x609:
-                case 0x60a:
-                case 0x60b:
-                case 0x60c:
-                case 0x60d:
-                case 0x60e:
-                case 0x60f:
-                    return flag;
-
-                case 0x67f:
-                    return this.extCmdStatus.GetExtensionCommandStatus(hciReplies, ref dataFound);
-            }
-            return flag;
-        }
-
-        private bool QueueDataReady()
-        {
-            bool flag = true;
-            HCIReplies hciReplies = new HCIReplies();
-            object data = hciReplies;
-            flag = this.dataQ.RemoveQHead(ref data);
-            if (flag)
-            {
-                hciReplies = (HCIReplies) data;
-                bool dataFound = false;
-                flag = this.ProcessQData(hciReplies, ref dataFound);
-                if ((flag && dataFound) && (this.RspDataInChangedCallback != null))
-                {
-                    this.RspDataInChangedCallback();
-                }
-            }
-            Thread.Sleep(10);
-            return flag;
-        }
-
-        [STAThread]
-        private void TaskThread(object threadData)
-        {
-            try
-            {
-                bool flag = false;
-                this.threadCtrl.Init();
-                this.threadCtrl.runningThread = true;
-                SharedObjects.log.Write(Logging.MsgType.Debug, "RspDataInThread", "Starting Thread");
-                while (!flag && !this.threadCtrl.exitThread)
-                {
-                    if (this.threadCtrl.pauseThread)
-                    {
-                        this.threadCtrl.idleThread = true;
-                        SharedObjects.log.Write(Logging.MsgType.Debug, "RspDataInThread", "Pausing Thread");
-                        this.threadCtrl.eventPause.WaitOne();
-                        this.threadCtrl.idleThread = false;
-                        if (this.threadCtrl.exitThread)
-                        {
-                            goto Label_017B;
-                        }
-                    }
-                    switch (WaitHandle.WaitAny(new WaitHandle[] { this.threadCtrl.eventExit, this.threadCtrl.eventPause, this.dataQ.qDataReadyEvent }))
-                    {
-                        case 0:
-                        {
-                            flag = true;
-                            if (!this.threadCtrl.exitThread)
-                            {
-                            }
-                            continue;
-                        }
-                        case 1:
-                        {
-                            this.threadCtrl.eventPause.Reset();
-                            SharedObjects.log.Write(Logging.MsgType.Debug, "RspDataInThread", "Resuming Thread");
-                            continue;
-                        }
-                        case 2:
-                        {
-                            this.dataQ.qDataReadyEvent.Reset();
-                            this.QueueDataReady();
-                            continue;
-                        }
-                    }
-                    flag = true;
-                }
-            }
-            catch (Exception exception)
-            {
-                string msg = "Task Thread Problem.\n" + exception.Message + "\nRspDataInThread\n";
-                this.msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-            }
-        Label_017B:
-            SharedObjects.log.Write(Logging.MsgType.Debug, "RspDataInThread", "Exiting Thread");
-            this.threadCtrl.Exit();
-        }
-
-        private class ThreadData
-        {
-        }
-    }
+		private class ThreadData
+		{
+		}
+	}
 }
-

@@ -1,66 +1,54 @@
 ﻿namespace BTool
 {
-    using System;
-    using System.Runtime.InteropServices;
+	public class AttErrorRsp
+	{
+		public delegate void AttErrorRspDelegate(AttErrorRsp.RspInfo rspInfo);
 
-    public class AttErrorRsp
-    {
-        public AttErrorRspDelegate AttErrorRspCallback;
-        private const string moduleName = "AttErrorRsp";
-        private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
+		public struct RspInfo
+		{
+			public bool success;
+			public HCIReplies.LE_ExtEventHeader header;
+			public HCIReplies.HCI_LE_ExtEvent.ATT_ErrorRsp aTT_ErrorRsp;
+		}
 
-        public bool GetATT_ErrorRsp(HCIReplies hciReplies, ref bool dataFound)
-        {
-            bool flag = true;
-            dataFound = false;
-            if (flag = this.rspHdlrsUtils.CheckValidResponse(hciReplies))
-            {
-                HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-                HCIReplies.HCI_LE_ExtEvent.ATT_ErrorRsp attErrorRsp = hciLeExtEvent.attErrorRsp;
-                HCIReplies.LE_ExtEventHeader header = hciLeExtEvent.header;
-                if (attErrorRsp != null)
-                {
-                    dataFound = true;
-                    byte eventStatus = header.eventStatus;
-                    if (eventStatus != 0)
-                    {
-                        if (eventStatus == 0x1a)
-                        {
-                        }
-                        flag = this.rspHdlrsUtils.UnexpectedRspEventStatus(hciReplies, "AttErrorRsp");
-                    }
-                    else
-                    {
-                        this.SendRspCallback(hciReplies, true);
-                    }
-                }
-            }
-            if (!flag && dataFound)
-            {
-                this.SendRspCallback(hciReplies, false);
-            }
-            return flag;
-        }
+		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
+		private const string moduleName = "AttErrorRsp";
+		public AttErrorRsp.AttErrorRspDelegate AttErrorRspCallback;
 
-        private void SendRspCallback(HCIReplies hciReplies, bool success)
-        {
-            if (this.AttErrorRspCallback != null)
-            {
-                RspInfo rspInfo = new RspInfo();
-                rspInfo.success = success;
-                rspInfo.header = hciReplies.hciLeExtEvent.header;
-                rspInfo.aTT_ErrorRsp = hciReplies.hciLeExtEvent.attErrorRsp;
-                this.AttErrorRspCallback(rspInfo);
-            }
-        }
+		public bool GetATT_ErrorRsp(HCIReplies hciReplies, ref bool dataFound)
+		{
+			dataFound = false;
+			bool flag;
+			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
+			{
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_ErrorRsp attErrorRsp = hciLeExtEvent.attErrorRsp;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
+				if (attErrorRsp != null)
+				{
+					dataFound = true;
+					if (leExtEventHeader.eventStatus != 0)
+						flag = rspHdlrsUtils.UnexpectedRspEventStatus(hciReplies, "AttErrorRsp");
+					else
+						SendRspCallback(hciReplies, true);
+				}
+			}
+			if (!flag && dataFound)
+				SendRspCallback(hciReplies, false);
+			return flag;
+		}
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RspInfo
-        {
-            public bool success;
-            public HCIReplies.LE_ExtEventHeader header;
-            public HCIReplies.HCI_LE_ExtEvent.ATT_ErrorRsp aTT_ErrorRsp;
-        }
-    }
+		private void SendRspCallback(HCIReplies hciReplies, bool success)
+		{
+			if (AttErrorRspCallback == null)
+				return;
+			AttErrorRspCallback(new AttErrorRsp.RspInfo()
+									{
+										success = success,
+										header = hciReplies.hciLeExtEvent.header,
+										aTT_ErrorRsp = hciReplies.hciLeExtEvent.attErrorRsp
+									}
+								);
+		}
+	}
 }
-
