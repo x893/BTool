@@ -11,26 +11,14 @@ namespace TI.Toolbox
 
 		public int SortColumn
 		{
-			get
-			{
-				return columnToSort;
-			}
-			set
-			{
-				columnToSort = value;
-			}
+			get { return columnToSort; }
+			set { columnToSort = value; }
 		}
 
 		public SortOrder Order
 		{
-			get
-			{
-				return orderOfSort;
-			}
-			set
-			{
-				orderOfSort = value;
-			}
+			get { return orderOfSort; }
+			set { orderOfSort = value; }
 		}
 
 		public ListViewSort()
@@ -46,7 +34,7 @@ namespace TI.Toolbox
 			ListViewItem listViewItem2 = (ListViewItem)y;
 			if (listViewItem1.SubItems.Count - 1 < columnToSort || listViewItem2.SubItems.Count - 1 < columnToSort)
 				return 0;
-			int num = objectCompare.Compare((object)listViewItem1.SubItems[columnToSort].Text, (object)listViewItem2.SubItems[columnToSort].Text);
+			int num = objectCompare.Compare(listViewItem1.SubItems[columnToSort].Text, listViewItem2.SubItems[columnToSort].Text);
 			if (orderOfSort == SortOrder.Ascending)
 				return num;
 			if (orderOfSort == SortOrder.Descending)

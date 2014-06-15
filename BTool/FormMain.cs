@@ -289,7 +289,7 @@ namespace BTool
 						}
 					}
 					((Control)deviceForm).Show();
-					AddToTreeDeviceInfo(deviceForm.devInfo, (object)deviceForm);
+					AddToTreeDeviceInfo(deviceForm.devInfo, deviceForm);
 					comPortTreeForm.ClearSelectedNode();
 					deviceForm.SendGAPDeviceInit();
 				}
@@ -305,7 +305,7 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.DeviceBDAddressNotifyDelegate(DeviceBDAddressNotify), sender, (object)e);
+					Invoke((Delegate)new FormMain.DeviceBDAddressNotifyDelegate(DeviceBDAddressNotify), sender, e);
 				}
 				catch
 				{
@@ -327,7 +327,7 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.DeviceConnectionNotifyDelegate(DeviceConnectionNotify), sender, (object)e);
+					Invoke((Delegate)new FormMain.DeviceConnectionNotifyDelegate(DeviceConnectionNotify), sender, e);
 				}
 				catch
 				{
@@ -349,7 +349,7 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.DeviceDisconnectionNotifyDelegate(DeviceConnectionNotify), sender, (object)e);
+					Invoke((Delegate)new FormMain.DeviceDisconnectionNotifyDelegate(DeviceConnectionNotify), sender, e);
 				}
 				catch
 				{
@@ -379,7 +379,7 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.DeviceChangeActiveRootDelegate(DeviceChangeActiveRoot), sender, (object)e);
+					Invoke((Delegate)new FormMain.DeviceChangeActiveRootDelegate(DeviceChangeActiveRoot), sender, e);
 				}
 				catch
 				{
@@ -401,7 +401,7 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.DeviceCloseActiveDeviceDelegate(DeviceCloseActiveDevice), sender, (object)e);
+					Invoke((Delegate)new FormMain.DeviceCloseActiveDeviceDelegate(DeviceCloseActiveDevice), sender, e);
 				}
 				catch
 				{

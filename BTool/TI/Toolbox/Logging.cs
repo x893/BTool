@@ -7,6 +7,19 @@ namespace TI.Toolbox
 {
 	public class Logging
 	{
+		public enum MsgType
+		{
+			Debug,
+			Info,
+			Warning,
+			Error,
+			Fatal,
+			None,
+		}
+
+		private const string moduleName = "Logging";
+		private const string startMarker = "\r\n----------------------------------------------------\r\n- Log Start Marker                                 -\r\n----------------------------------------------------\r\n\r\n";
+
 		private static Logging.MsgType msgFileLevel = Logging.MsgType.Info;
 		private static Logging.MsgType msgConsoleLevel = Logging.MsgType.Info;
 		private static bool useFileLogging = false;
@@ -21,10 +34,9 @@ namespace TI.Toolbox
 		private static long logFilePosition = 0L;
 		private static FileStream posFileStream = (FileStream)null;
 		private static int posLength = 0;
+
 		private MsgBox msgBox = new MsgBox();
 		private DataUtils dataUtils = new DataUtils();
-		private const string moduleName = "Logging";
-		private const string startMarker = "\r\n----------------------------------------------------\r\n- Log Start Marker                                 -\r\n----------------------------------------------------\r\n\r\n";
 
 		static Logging()
 		{
@@ -32,7 +44,7 @@ namespace TI.Toolbox
 
 		public Logging()
 		{
-			Logging.posLength = Marshal.SizeOf((object)Logging.logFilePosition);
+			Logging.posLength = Marshal.SizeOf(Logging.logFilePosition);
 		}
 
 		public bool SetFileMsgLevel(Logging.MsgType newMsgLevel)
@@ -232,13 +244,12 @@ namespace TI.Toolbox
 					str2 = str3 + num.ToString("D6") + "] ";
 				}
 				string str4 = "<" + GetMsgTypeStr(msgType) + "> ";
-				string str5 = string.Empty;
-				if (message != null)
-					str5 = message;
+				string str5 = message ?? string.Empty;
 				string str6 = string.Empty;
-				if (extraInfo != null && extraInfo.Length > 0)
+				if (!string.IsNullOrEmpty(extraInfo))
 					str6 = " {" + extraInfo + "}";
 				string str7 = string.Empty;
+
 				if (Logging.useConsoleLogging && msgType >= Logging.msgConsoleLevel)
 				{
 					string str3 = str2 + str4 + str5 + str6 + "\r\n";
@@ -285,10 +296,8 @@ namespace TI.Toolbox
 				catch (Exception ex)
 				{
 					if (Logging.useMsgBox)
-					{
-						string msg = "Cannot Open Log Message File\n" + ex.Message + "\nLogging\n";
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-					}
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Cannot Open Log Message File\n" + ex.Message + "\nLogging\n");
+					
 					flag1 = false;
 					Close();
 					goto label_26;
@@ -300,10 +309,8 @@ namespace TI.Toolbox
 				catch (Exception ex)
 				{
 					if (Logging.useMsgBox)
-					{
-						string msg = "Cannot Open Log Position File\n" + ex.Message + "\nLogging\n";
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-					}
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Cannot Open Log Position File\n" + ex.Message + "\nLogging\n");
+					
 					flag1 = false;
 					Close();
 					goto label_26;
@@ -323,10 +330,7 @@ namespace TI.Toolbox
 					catch (Exception ex)
 					{
 						if (Logging.useMsgBox)
-						{
-							string msg = "Cannot Read Log Position File\n" + ex.Message + "\nLogging\n";
-							msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
-						}
+							msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, "Cannot Read Log Position File\n" + ex.Message + "\nLogging\n");
 						Logging.logFilePosition = 0L;
 					}
 				}
@@ -339,10 +343,8 @@ namespace TI.Toolbox
 				catch (Exception ex)
 				{
 					if (Logging.useMsgBox)
-					{
-						string msg = "Cannot Seek To Log Position File\n" + ex.Message + "\nLogging\n";
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-					}
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Cannot Seek To Log Position File\n" + ex.Message + "\nLogging\n");
+					
 					flag1 = false;
 					Close();
 					goto label_26;
@@ -356,21 +358,22 @@ namespace TI.Toolbox
 		public bool Close()
 		{
 			bool flag = true;
+
 			Logging.logMutex.WaitOne();
 			Logging.useFileLogging = false;
 			if (Logging.logFileStream != null)
 			{
-				((Stream)Logging.logFileStream).Flush();
+				Logging.logFileStream.Flush();
 				Logging.logFileStream.Close();
 			}
-			Logging.logFileStream = (FileStream)null;
+			Logging.logFileStream = null;
 			Logging.logFilePosition = 0L;
 			if (Logging.posFileStream != null)
 			{
-				((Stream)Logging.posFileStream).Flush();
+				Logging.posFileStream.Flush();
 				Logging.posFileStream.Close();
 			}
-			Logging.posFileStream = (FileStream)null;
+			Logging.posFileStream = null;
 			Logging.logMutex.ReleaseMutex();
 			return flag;
 		}
@@ -392,10 +395,7 @@ namespace TI.Toolbox
 			catch (Exception ex)
 			{
 				if (Logging.useMsgBox)
-				{
-					string msg = "Cannot Write To Log Position File\n" + ex.Message + "\nLogging\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Cannot Write To Log Position File\n" + ex.Message + "\nLogging\n");
 				flag = false;
 				Close();
 			}
@@ -419,20 +419,15 @@ namespace TI.Toolbox
 				}
 				Logging.logFileStream.Write(bytesFromAsciiString, 0, bytesFromAsciiString.Length);
 				Logging.logFileStream.Flush(true);
+				UpdatePositionLog(bytesFromAsciiString.Length);
 			}
 			catch (Exception ex)
 			{
 				if (Logging.useMsgBox)
-				{
-					string msg = "Cannot Write To Log File\n" + ex.Message + "\nLogging\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Cannot Write To Log File\n" + ex.Message + "\nLogging\n");
 				flag = false;
 				Close();
-				goto label_8;
 			}
-			UpdatePositionLog((long)bytesFromAsciiString.Length);
-		label_8:
 			return flag;
 		}
 
@@ -453,10 +448,7 @@ namespace TI.Toolbox
 			catch (Exception ex)
 			{
 				if (Logging.useMsgBox)
-				{
-					string msg = "Cannot Erase Trailing Log File Data\n" + ex.Message + "\nLogging\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Cannot Erase Trailing Log File Data\n" + ex.Message + "\nLogging\n");
 				flag = false;
 				Close();
 			}
@@ -465,43 +457,32 @@ namespace TI.Toolbox
 
 		public string GetMsgTypeStr(Logging.MsgType msgType)
 		{
-			string str1 = string.Empty;
-			string str2;
+			string s_type;
 			switch (msgType)
 			{
 				case Logging.MsgType.Debug:
-					str2 = "Debug  ";
+					s_type = "Debug  ";
 					break;
 				case Logging.MsgType.Info:
-					str2 = "Info   ";
+					s_type = "Info   ";
 					break;
 				case Logging.MsgType.Warning:
-					str2 = "Warning";
+					s_type = "Warning";
 					break;
 				case Logging.MsgType.Error:
-					str2 = "Error  ";
+					s_type = "Error  ";
 					break;
 				case Logging.MsgType.Fatal:
-					str2 = "Fatal  ";
+					s_type = "Fatal  ";
 					break;
 				case Logging.MsgType.None:
-					str2 = "       ";
+					s_type = "       ";
 					break;
 				default:
-					str2 = "Unknown";
+					s_type = "Unknown";
 					break;
 			}
-			return str2;
-		}
-
-		public enum MsgType
-		{
-			Debug,
-			Info,
-			Warning,
-			Error,
-			Fatal,
-			None,
+			return s_type;
 		}
 	}
 }

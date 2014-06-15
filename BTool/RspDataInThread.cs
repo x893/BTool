@@ -6,6 +6,13 @@ namespace BTool
 {
 	public class RspDataInThread
 	{
+
+		public delegate void RspDataInChangedDelegate();
+
+		private class ThreadData
+		{
+		}
+
 		public QueueMgr dataQ = new QueueMgr("RspDataInThread");
 		private RspDataInThread.ThreadData threadData = new RspDataInThread.ThreadData();
 		public ThreadControl threadCtrl = new ThreadControl();
@@ -44,7 +51,7 @@ namespace BTool
 			attHandleValueIndication = new AttHandleValueIndication(deviceForm);
 			taskThread = new Thread(new ParameterizedThreadStart(TaskThread));
 			taskThread.Name = "RspDataInThread";
-			taskThread.Start((object)threadData);
+			taskThread.Start(threadData);
 			Thread.Sleep(0);
 			while (!taskThread.IsAlive)
 			{ }
@@ -113,7 +120,7 @@ namespace BTool
 
 		private bool QueueDataReady()
 		{
-			object data = (object)new HCIReplies();
+			object data = new HCIReplies();
 			bool flag = dataQ.RemoveQHead(ref data);
 			if (flag)
 			{
@@ -140,6 +147,7 @@ namespace BTool
 				ushort num = hciReplies.hciLeExtEvent.header.eventCode;
 				if ((uint)num <= 1171U)
 				{
+					/*
 					if ((uint)num <= 1153U)
 					{
 						switch (num)
@@ -148,6 +156,7 @@ namespace BTool
 					}
 					else if ((int)num == 1163 || (int)num == 1171)
 						;
+					*/
 				}
 				else if ((uint)num <= 1408U)
 				{
@@ -202,12 +211,6 @@ namespace BTool
 				}
 			}
 			return flag;
-		}
-
-		public delegate void RspDataInChangedDelegate();
-
-		private class ThreadData
-		{
 		}
 	}
 }

@@ -16,8 +16,8 @@ namespace BTool
 			HCICmds hciCmds = new HCICmds();
 			for (uint index = 0U; (long)index < (long)(hciCmds.OpCodeLookupTable.Length / 2); ++index)
 			{
-				if (hciCmds.OpCodeLookupTable[(int)(IntPtr)index, 0] == string.Format("0x{0:X4}", (object)opCode))
-					return hciCmds.OpCodeLookupTable[(int)(IntPtr)index, 1];
+				if (hciCmds.OpCodeLookupTable[(int)(IntPtr)index, 0] == string.Format("0x{0:X4}", opCode))
+					return hciCmds.OpCodeLookupTable[index, 1];
 			}
 			return "Unknown Op Code";
 		}
@@ -142,11 +142,11 @@ namespace BTool
 							}
 							catch (Exception ex)
 							{
-								string msg1 = string.Format("Cannot Convert The Value Into Decimal.\n\n{0}\n", (object)ex.Message);
+								string msg1 = string.Format("Cannot Convert The Value Into Decimal.\n\n{0}\n", ex.Message);
 								msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg1);
 							}
 						}
-						str = str + string.Format("{0:D} ", (object)num);
+						str = str + string.Format("{0:D} ", num);
 					}
 					else
 						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Cannot Convert The Value Into Decimal.\n");
@@ -158,12 +158,11 @@ namespace BTool
 						try
 						{
 							char ch = Convert.ToChar(Convert.ToByte(strArray[index], 16));
-							str = str + string.Format("{0:S} ", (object)ch.ToString());
+							str = str + string.Format("{0:S} ", ch.ToString());
 						}
 						catch (Exception ex)
 						{
-							string msg1 = string.Format("Can Not Convert The Value Into ASCII.\n\n{0}\n", (object)ex.Message);
-							msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg1);
+							msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Can Not Convert The Value Into ASCII.\n\n{0}\n", ex.Message));
 						}
 					}
 				}
@@ -453,8 +452,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Load Msg Header Failed\nMessage Data Transfer Issue\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Load Msg Header Failed\nMessage Data Transfer Issue\n\n{0}\n", ex.Message));
 				flag = false;
 			}
 			return flag;
@@ -480,8 +478,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Load Msg Header Failed\nMessage Data Transfer Issue\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Load Msg Header Failed\nMessage Data Transfer Issue\n\n{0}\n", ex.Message));
 				flag = false;
 			}
 			return flag;
@@ -523,7 +520,9 @@ namespace BTool
 						if (!dataErr)
 						{
 							addr[index1] = bits;
-							str = !direction ? (index1 == 0 ? string.Format("{0:X2}", (object)bits) + str : string.Format("{0:X2}:", (object)bits) + str) : (index1 == 5 ? str + string.Format("{0:X2}", (object)bits) : str + string.Format("{0:X2}:", (object)bits));
+							str = !direction
+								? (index1 == 0 ? string.Format("{0:X2}", bits) + str : string.Format("{0:X2}:", bits) + str)
+								: (index1 == 5 ? str + string.Format("{0:X2}", bits) : str + string.Format("{0:X2}:", bits));
 						}
 						else
 							break;
@@ -534,8 +533,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Unload Device Address Failed\nMessage Data Transfer Issue.\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Unload Device Address Failed\nMessage Data Transfer Issue.\n\n{0}\n", ex.Message));
 				dataErr = true;
 			}
 			return str;
@@ -553,7 +551,7 @@ namespace BTool
 					if (!dataErr)
 					{
 						int num = (int)dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-						msg1 = index1 == numBytes - 1 ? msg1 + string.Format("{0:X2}", (object)bits) : msg1 + string.Format("{0:X2}:", (object)bits);
+						msg1 = index1 == numBytes - 1 ? msg1 + string.Format("{0:X2}", bits) : msg1 + string.Format("{0:X2}:", bits);
 						if (limitLen && index1 != numBytes - 1)
 							CheckLineLength(ref msg1, (uint)index1, true);
 					}
@@ -563,8 +561,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg2 = string.Format("Unload Colon Data Failed\nMessage Data Transfer Issue.\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg2);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Unload Colon Data Failed\nMessage Data Transfer Issue.\n\n{0}\n", ex.Message));
 				dataErr = true;
 			}
 			return msg1;

@@ -8,6 +8,18 @@ namespace BTool
 {
 	public class CommManager
 	{
+		public delegate void FP_ReceiveDataInd(byte[] data, uint length);
+
+		private class ThreadData
+		{
+		}
+
+		public enum TransmissionType
+		{
+			Text,
+			Hex,
+		}
+
 		private MsgBox msgBox = new MsgBox();
 		private CommManager.ThreadData threadData = new CommManager.ThreadData();
 		private ThreadControl threadCtrl = new ThreadControl();
@@ -173,7 +185,7 @@ namespace BTool
 					}
 					catch (Exception ex)
 					{
-						string msg1 = string.Format("Error Writing To {0:S} (Text)\n" + ex.Message + "\n", (object)comPort.PortName);
+						string msg1 = string.Format("Error Writing To {0:S} (Text)\n" + ex.Message + "\n", comPort.PortName);
 						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg1);
 						flag = false;
 						break;
@@ -189,7 +201,7 @@ namespace BTool
 						}
 						catch (Exception ex)
 						{
-							string msg1 = string.Format("Error Writing To {0:S} (Hex)\n" + ex.Message + "\n", (object)comPort.PortName);
+							string msg1 = string.Format("Error Writing To {0:S} (Hex)\n" + ex.Message + "\n", comPort.PortName);
 							if (DisplayMsgCallback != null)
 								DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg1);
 							msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg1);
@@ -199,7 +211,7 @@ namespace BTool
 					}
 					catch (Exception ex)
 					{
-						string msg1 = string.Format("Com Port Error\n Port Number = {0:S} (Hex)\n" + ex.Message + "\n", (object)comPort.PortName);
+						string msg1 = string.Format("Com Port Error\n Port Number = {0:S} (Hex)\n" + ex.Message + "\n", comPort.PortName);
 						if (DisplayMsgCallback != null)
 							DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg1);
 						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg1);
@@ -214,7 +226,7 @@ namespace BTool
 					}
 					catch (Exception ex)
 					{
-						string msg1 = string.Format("Error Writing To {0:S} (Default)\n" + ex.Message + "\n", (object)comPort.PortName);
+						string msg1 = string.Format("Error Writing To {0:S} (Default)\n" + ex.Message + "\n", comPort.PortName);
 						if (DisplayMsgCallback != null)
 							DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg1);
 						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg1);
@@ -381,18 +393,6 @@ namespace BTool
 			}
 			SharedObjects.log.Write(Logging.MsgType.Debug, "CommManager", "Exiting Thread");
 			threadCtrl.Exit();
-		}
-
-		public delegate void FP_ReceiveDataInd(byte[] data, uint length);
-
-		private class ThreadData
-		{
-		}
-
-		public enum TransmissionType
-		{
-			Text,
-			Hex,
 		}
 	}
 }

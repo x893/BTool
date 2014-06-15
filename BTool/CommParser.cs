@@ -6,6 +6,16 @@ namespace BTool
 {
 	internal class CommParser
 	{
+		private enum ParserStateEnum
+		{
+			packet_type_token,
+			event_code_token,
+			eop0_token,
+			eop1_token,
+			length_token,
+			data_token,
+		}
+
 		private Queue _dataBuffer;
 		private Mutex bufferMutex;
 		private CommParser.ParserStateEnum ParserState;
@@ -21,7 +31,7 @@ namespace BTool
 		{
 			bufferMutex.WaitOne();
 			foreach (int num in data)
-				_dataBuffer.Enqueue((object)(byte)num);
+				_dataBuffer.Enqueue(num);
 			bufferMutex.ReleaseMutex();
 		}
 
@@ -29,14 +39,10 @@ namespace BTool
 		{
 			bufferMutex.WaitOne();
 			if (length >= _dataBuffer.Count)
-			{
 				_dataBuffer.Clear();
-			}
 			else
-			{
-				for (uint index = 0U; (long)index < (long)length; ++index)
+				for (int index = 0; index < length; ++index)
 					_dataBuffer.Dequeue();
-			}
 			bufferMutex.ReleaseMutex();
 		}
 
@@ -54,7 +60,7 @@ namespace BTool
 				switch (ParserState)
 				{
 					case CommParser.ParserStateEnum.packet_type_token:
-						if ((int)(byte)_dataBuffer.Peek() == 4)
+						if ((byte)_dataBuffer.Peek() == 4)
 						{
 							type = (byte)_dataBuffer.Dequeue();
 							ParserState = CommParser.ParserStateEnum.event_code_token;
@@ -66,20 +72,20 @@ namespace BTool
 							break;
 						}
 					case CommParser.ParserStateEnum.event_code_token:
-						opCode = (ushort)(short)(byte)_dataBuffer.Dequeue();
+						opCode = (ushort)_dataBuffer.Dequeue();
 						ParserState = CommParser.ParserStateEnum.length_token;
 						break;
 					case CommParser.ParserStateEnum.eop0_token:
-						eventOpCode = (ushort)(short)(byte)_dataBuffer.Dequeue();
+						eventOpCode = (ushort)_dataBuffer.Dequeue();
 						ParserState = CommParser.ParserStateEnum.eop1_token;
 						break;
 					case CommParser.ParserStateEnum.eop1_token:
-						eventOpCode |= (ushort)((uint)(byte)_dataBuffer.Dequeue() << 8);
+						eventOpCode |= (ushort)((int)_dataBuffer.Dequeue() << 8);
 						ParserState = CommParser.ParserStateEnum.data_token;
 						break;
 					case CommParser.ParserStateEnum.length_token:
 						length = (byte)_dataBuffer.Dequeue();
-						ParserState = (int)opCode == 19 || (int)opCode == (int)byte.MaxValue ? CommParser.ParserStateEnum.eop0_token : CommParser.ParserStateEnum.data_token;
+						ParserState = opCode == 19 || opCode == 0xff ? CommParser.ParserStateEnum.eop0_token : CommParser.ParserStateEnum.data_token;
 						break;
 					case CommParser.ParserStateEnum.data_token:
 						if (type == 4)
@@ -90,7 +96,7 @@ namespace BTool
 							if (_dataBuffer.Count >= length1)
 							{
 								data = new byte[length1];
-								for (uint index = 0U; (long)index < (long)data.Length; ++index)
+								for (int index = 0; index < data.Length; ++index)
 									data[index] = (byte)_dataBuffer.Dequeue();
 								flag = true;
 								ParserState = CommParser.ParserStateEnum.packet_type_token;
@@ -109,16 +115,6 @@ namespace BTool
 			}
 			bufferMutex.ReleaseMutex();
 			return flag;
-		}
-
-		private enum ParserStateEnum
-		{
-			packet_type_token,
-			event_code_token,
-			eop0_token,
-			eop1_token,
-			length_token,
-			data_token,
 		}
 	}
 }

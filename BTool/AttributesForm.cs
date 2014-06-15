@@ -81,15 +81,12 @@ namespace BTool
 			lvAttributes.MouseUp += new MouseEventHandler(lvAttributes_MouseUtils.MouseClick_MouseUp);
 			chKey.Width = 0;
 			ClearAll();
-			tsmiRestoreDefaultColumnWidths_Click((object)null, EventArgs.Empty);
+			tsmiRestoreDefaultColumnWidths_Click(null, EventArgs.Empty);
 		}
 
 		private void AttributesForm_FormLoad(object sender, EventArgs e)
 		{
-			new ToolTip()
-			{
-				ShowAlways = true
-			}.SetToolTip((Control)lvAttributes, "Right Click For Menu Of Options");
+			new ToolTip() { ShowAlways = true }.SetToolTip((Control)lvAttributes, "Right Click For Menu Of Options");
 			LoadUserSettings();
 			tsmiSendAutoCmds.Visible = false;
 			toolStripSeparator5.Visible = false;
@@ -227,10 +224,9 @@ namespace BTool
 				return;
 			formDataAccess.WaitOne();
 			lvAttributes.ListViewItemSorter = (IComparer)listViewSort;
+
 			if (e.Column == listViewSort.SortColumn)
-			{
 				listViewSort.Order = listViewSort.Order != SortOrder.Ascending ? SortOrder.Ascending : SortOrder.Descending;
-			}
 			else
 			{
 				listViewSort.SortColumn = e.Column;
@@ -248,9 +244,7 @@ namespace BTool
 				{
 					BeginInvoke((Delegate)new RspDataInThread.RspDataInChangedDelegate(RspDataInChanged), new object[0]);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else if (dataUpdating)
 			{
@@ -308,25 +302,23 @@ namespace BTool
 									{
 										AttributesForm.ListSubItem listSubItem2 = AttributesForm.ListSubItem.Key;
 										UpdateItemColor(nodeIndex, (int)listSubItem2, fore, back);
+
 										AttributesForm.ListSubItem listSubItem3 = AttributesForm.ListSubItem.ConnectionHandle;
 										if ((int)dataAttr1.connHandle != (int)ushort.MaxValue)
-										{
-											string data = "0x" + dataAttr1.connHandle.ToString("X4");
-											UpdateSubItem(nodeIndex, (int)listSubItem3, data, fore, back);
-										}
+											UpdateSubItem(nodeIndex, (int)listSubItem3, "0x" + dataAttr1.connHandle.ToString("X4"), fore, back);
+										
 										UpdateItemColor(nodeIndex, (int)listSubItem3, fore, back);
 										AttributesForm.ListSubItem listSubItem4 = AttributesForm.ListSubItem.Handle;
-										if ((int)dataAttr1.handle != 0)
+										if (dataAttr1.handle != 0)
 										{
-											string data = "0x" + dataAttr1.handle.ToString("X4");
-											UpdateSubItem(nodeIndex, (int)listSubItem4, data, fore, back);
+											UpdateSubItem(nodeIndex, (int)listSubItem4, "0x" + dataAttr1.handle.ToString("X4"), fore, back);
 										}
+
 										UpdateItemColor(nodeIndex, (int)listSubItem4, fore, back);
 										AttributesForm.ListSubItem listSubItem5 = AttributesForm.ListSubItem.Uuid;
 										if (CheckForStringData(dataAttr1.uuidHex))
 										{
-											string data = "0x" + dataAttr1.uuidHex;
-											UpdateSubItem(nodeIndex, (int)listSubItem5, data, fore, back);
+											UpdateSubItem(nodeIndex, (int)listSubItem5, "0x" + dataAttr1.uuidHex, fore, back);
 										}
 										UpdateItemColor(nodeIndex, (int)listSubItem5, fore, back);
 										AttributesForm.ListSubItem listSubItem6 = AttributesForm.ListSubItem.UuidDesc;
@@ -336,8 +328,7 @@ namespace BTool
 											string str2 = "";
 											for (int index = 0; index < num; ++index)
 												str2 = str2 + " ";
-											string data = str2 + dataAttr1.uuidDesc;
-											UpdateSubItem(nodeIndex, (int)listSubItem6, data, fore, back);
+											UpdateSubItem(nodeIndex, (int)listSubItem6, str2 + dataAttr1.uuidDesc, fore, back);
 										}
 										UpdateItemColor(nodeIndex, (int)listSubItem6, fore, back);
 										AttributesForm.ListSubItem listSubItem7 = AttributesForm.ListSubItem.Value;
@@ -345,23 +336,17 @@ namespace BTool
 										{
 											string outStr = string.Empty;
 											devUtils.ConvertDisplayTypes(ValueDisplay.Hex, dataAttr1.value, ref dataAttr1.valueDsp, ref outStr, false);
-											string data = outStr;
-											UpdateSubItem(nodeIndex, (int)listSubItem7, data, fore, back);
+											UpdateSubItem(nodeIndex, (int)listSubItem7, outStr, fore, back);
 										}
 										UpdateItemColor(nodeIndex, (int)listSubItem7, fore, back);
 										AttributesForm.ListSubItem listSubItem8 = AttributesForm.ListSubItem.ValueDesc;
 										if (CheckForStringData(dataAttr1.valueDesc))
-										{
-											string data = dataAttr1.valueDesc;
-											UpdateSubItem(nodeIndex, (int)listSubItem8, data, fore, back);
-										}
+											UpdateSubItem(nodeIndex, (int)listSubItem8, dataAttr1.valueDesc, fore, back);
+
 										UpdateItemColor(nodeIndex, (int)listSubItem8, fore, back);
 										AttributesForm.ListSubItem listSubItem9 = AttributesForm.ListSubItem.Properties;
 										if (CheckForStringData(dataAttr1.propertiesStr))
-										{
-											string data = dataAttr1.propertiesStr;
-											UpdateSubItem(nodeIndex, (int)listSubItem9, data, fore, back);
-										}
+											UpdateSubItem(nodeIndex, (int)listSubItem9, dataAttr1.propertiesStr, fore, back);
 										UpdateItemColor(nodeIndex, (int)listSubItem9, fore, back);
 									}
 									catch (Exception ex)
@@ -382,39 +367,41 @@ namespace BTool
 										lvItem.BackColor = back;
 										lvAttributes.Items.Insert(lvAttributes.Items.Count, lvItem);
 										str1 = string.Empty;
-										string data1;
+										string data;
 										if ((int)dataAttr1.connHandle != (int)ushort.MaxValue)
-										{
-											data1 = "0x" + dataAttr1.connHandle.ToString("X4");
-										}
+											data = "0x" + dataAttr1.connHandle.ToString("X4");
 										else
-											data1 = "";
-										InsertSubItem(lvItem, data1, fore, back);
-										string data2;
+											data = "";
+										InsertSubItem(lvItem, data, fore, back);
+
 										if ((int)dataAttr1.handle != 0)
 										{
-											data2 = "0x" + dataAttr1.handle.ToString("X4");
+											data = "0x" + dataAttr1.handle.ToString("X4");
 										}
 										else
-											data2 = "";
-										InsertSubItem(lvItem, data2, fore, back);
-										string data3 = !CheckForStringData(dataAttr1.uuidHex) ? "" : "0x" + dataAttr1.uuidHex;
-										InsertSubItem(lvItem, data3, fore, back);
+											data = "";
+										InsertSubItem(lvItem, data, fore, back);
+
+										data = !CheckForStringData(dataAttr1.uuidHex) ? "" : "0x" + dataAttr1.uuidHex;
+										InsertSubItem(lvItem, data, fore, back);
+
 										int num = (int)dataAttr1.indentLevel;
 										string str2 = "";
 										for (int index = 0; index < num; ++index)
 											str2 = str2 + " ";
-										string data4 = !CheckForStringData(dataAttr1.uuidDesc) ? "" : str2 + dataAttr1.uuidDesc;
-										InsertSubItem(lvItem, data4, fore, back);
+										data = !CheckForStringData(dataAttr1.uuidDesc) ? "" : str2 + dataAttr1.uuidDesc;
+										InsertSubItem(lvItem, data, fore, back);
+
 										string inStr = !CheckForStringData(dataAttr1.value) ? "" : dataAttr1.value;
 										string outStr = string.Empty;
 										devUtils.ConvertDisplayTypes(ValueDisplay.Hex, inStr, ref dataAttr1.valueDsp, ref outStr, false);
-										string data5 = outStr;
-										InsertSubItem(lvItem, data5, fore, back);
-										string data6 = !CheckForStringData(dataAttr1.valueDesc) ? "" : dataAttr1.valueDesc;
-										InsertSubItem(lvItem, data6, fore, back);
-										string data7 = !CheckForStringData(dataAttr1.propertiesStr) ? "" : dataAttr1.propertiesStr;
-										InsertSubItem(lvItem, data7, fore, back);
+										InsertSubItem(lvItem, outStr, fore, back);
+
+										data = !CheckForStringData(dataAttr1.valueDesc) ? "" : dataAttr1.valueDesc;
+										InsertSubItem(lvItem, data, fore, back);
+
+										data = !CheckForStringData(dataAttr1.propertiesStr) ? "" : dataAttr1.propertiesStr;
+										InsertSubItem(lvItem, data, fore, back);
 									}
 									catch (Exception ex)
 									{
@@ -451,20 +438,15 @@ namespace BTool
 			lvAttributes.BeginUpdate();
 			try
 			{
-				if (devForm.attrData.attrDict != null)
+				if (devForm.attrData.attrDict != null && devForm.attrData.attrDict.Count > 0)
 				{
-					if (devForm.attrData.attrDict.Count > 0)
-					{
-						string str = "0x" + connHandle.ToString("X4");
-						foreach (ListViewItem listViewItem in lvAttributes.Items)
+					string str = "0x" + connHandle.ToString("X4");
+					foreach (ListViewItem listViewItem in lvAttributes.Items)
+						if (listViewItem.SubItems[1].Text == str)
 						{
-							if (listViewItem.SubItems[1].Text == str)
-							{
-								attrDataUtils.RemoveAttrDictItem(listViewItem.Text);
-								listViewItem.Remove();
-							}
+							attrDataUtils.RemoveAttrDictItem(listViewItem.Text);
+							listViewItem.Remove();
 						}
-					}
 				}
 			}
 			catch (Exception ex)
@@ -483,20 +465,17 @@ namespace BTool
 			bool flag = false;
 			try
 			{
-				if (lvAttributes != null)
+				if (lvAttributes != null && lvAttributes.Items.Count > 0)
 				{
-					if (lvAttributes.Items.Count > 0)
+					int count = lvAttributes.Items.Count;
+					for (int index = 0; index < count; ++index)
 					{
-						int count = lvAttributes.Items.Count;
-						for (int index = 0; index < count; ++index)
+						string text = lvAttributes.Items[index].Text;
+						if (key == text)
 						{
-							string text = lvAttributes.Items[index].Text;
-							if (key == text)
-							{
-								nodeIndex = index;
-								flag = true;
-								break;
-							}
+							nodeIndex = index;
+							flag = true;
+							break;
 						}
 					}
 				}
@@ -565,9 +544,7 @@ namespace BTool
 				{
 					Invoke((Delegate)new AttributesForm.SendCmdResultDelegate(SendCmdResult), result, cmdName);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 			{
@@ -762,14 +739,9 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new AttErrorRsp.AttErrorRspDelegate(AttErrorRsp), new object[1]
-          {
-            (object) rspInfo
-          });
+					Invoke((Delegate)new AttErrorRsp.AttErrorRspDelegate(AttErrorRsp), rspInfo);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 			{
@@ -790,14 +762,9 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new AttReadBlobRsp.AttReadBlobRspDelegate(AttReadBlobRsp), new object[1]
-          {
-            (object) rspInfo
-          });
+					Invoke((Delegate)new AttReadBlobRsp.AttReadBlobRspDelegate(AttReadBlobRsp), rspInfo);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 			{
@@ -830,9 +797,7 @@ namespace BTool
 				{
 					Invoke((Delegate)new AttributesForm.RestoreFormInputDelegate(RestoreFormInput), new object[0]);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 				Enabled = true;

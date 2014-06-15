@@ -112,7 +112,7 @@ namespace TI.Toolbox
 		{
 			try
 			{
-				data.Insert(index++, (object)bits);
+				data.Insert(index++, bits);
 			}
 			catch (Exception ex)
 			{
@@ -138,13 +138,13 @@ namespace TI.Toolbox
 				}
 				else if (dataSwap)
 				{
-					byte num = (byte)1;
+					byte num = 1;
 					for (int index1 = 0; index1 < 2; ++index1)
 						data[index++] = GetByte16(bits, num--);
 				}
 				else
 				{
-					byte num = (byte)0;
+					byte num = 0;
 					for (int index1 = 0; index1 < 2; ++index1)
 						data[index++] = GetByte16(bits, num++);
 				}
@@ -153,10 +153,7 @@ namespace TI.Toolbox
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Load 16 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load 16 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -168,25 +165,22 @@ namespace TI.Toolbox
 			{
 				if (dataSwap)
 				{
-					byte num = (byte)1;
+					byte num = 1;
 					for (int index1 = 0; index1 < 2; ++index1)
-						data.Insert(index++, (object)GetByte16(bits, num--));
+						data.Insert(index++, GetByte16(bits, num--));
 				}
 				else
 				{
-					byte num = (byte)0;
+					byte num = 0;
 					for (int index1 = 0; index1 < 2; ++index1)
-						data.Insert(index++, (object)GetByte16(bits, num++));
+						data.Insert(index++, GetByte16(bits, num++));
 				}
 			}
 			catch (Exception ex)
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Load 16 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load 16 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -203,13 +197,13 @@ namespace TI.Toolbox
 				}
 				else if (dataSwap)
 				{
-					byte num = (byte)3;
+					byte num = 3;
 					for (int index1 = 0; index1 < 4; ++index1)
 						data[index++] = GetByte32(bits, num--);
 				}
 				else
 				{
-					byte num = (byte)0;
+					byte num = 0;
 					for (int index1 = 0; index1 < 4; ++index1)
 						data[index++] = GetByte32(bits, num++);
 				}
@@ -218,10 +212,7 @@ namespace TI.Toolbox
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Load 32 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load 32 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -233,25 +224,22 @@ namespace TI.Toolbox
 			{
 				if (dataSwap)
 				{
-					byte num = (byte)3;
+					byte num = 3;
 					for (int index1 = 0; index1 < 4; ++index1)
-						data.Insert(index++, (object)GetByte32(bits, num--));
+						data.Insert(index++, GetByte32(bits, num--));
 				}
 				else
 				{
-					byte num = (byte)0;
+					byte num = 0;
 					for (int index1 = 0; index1 < 4; ++index1)
-						data.Insert(index++, (object)GetByte32(bits, num++));
+						data.Insert(index++, GetByte32(bits, num++));
 				}
 			}
 			catch (Exception ex)
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Load 32 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load 32 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -268,13 +256,13 @@ namespace TI.Toolbox
 				}
 				else if (dataSwap)
 				{
-					byte num = (byte)7;
+					byte num = 7;
 					for (int index1 = 0; index1 < 8; ++index1)
 						data[index++] = GetByte64(bits, num--);
 				}
 				else
 				{
-					byte num = (byte)0;
+					byte num = 0;
 					for (int index1 = 0; index1 < 8; ++index1)
 						data[index++] = GetByte64(bits, num++);
 				}
@@ -283,10 +271,7 @@ namespace TI.Toolbox
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Load 64 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load 64 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -298,25 +283,22 @@ namespace TI.Toolbox
 			{
 				if (dataSwap)
 				{
-					byte num = (byte)7;
+					byte num = 7;
 					for (int index1 = 0; index1 < 8; ++index1)
-						data.Insert(index++, (object)GetByte64(bits, num--));
+						data.Insert(index++, GetByte64(bits, num--));
 				}
 				else
 				{
-					byte num = (byte)0;
+					byte num = 0;
 					for (int index1 = 0; index1 < 8; ++index1)
-						data.Insert(index++, (object)GetByte64(bits, num++));
+						data.Insert(index++, GetByte64(bits, num++));
 				}
 			}
 			catch (Exception ex)
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Load 64 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load 64 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -347,10 +329,7 @@ namespace TI.Toolbox
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Load Data Bytes\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load Data Bytes\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -365,7 +344,7 @@ namespace TI.Toolbox
 				int num = index;
 				for (int index1 = num; index1 < num + sourceData.Length; ++index1)
 				{
-					data.Insert(index1, (object)sourceData[index1 - num]);
+					data.Insert(index1, sourceData[index1 - num]);
 					++index;
 				}
 			}
@@ -373,10 +352,7 @@ namespace TI.Toolbox
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Load Data Bytes\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load Data Bytes\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -398,10 +374,7 @@ namespace TI.Toolbox
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Unload 8 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Unload 8 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -410,7 +383,7 @@ namespace TI.Toolbox
 
 		public byte Unload8Bits(byte[] data, ref int index, ref bool dataErr)
 		{
-			byte bits = (byte)0;
+			byte bits = 0;
 			return Unload8Bits(data, ref index, ref bits, ref dataErr);
 		}
 
@@ -425,16 +398,16 @@ namespace TI.Toolbox
 				}
 				else
 				{
-					bits = (ushort)0;
+					bits = 0;
 					if (dataSwap)
 					{
-						byte num = (byte)1;
+						byte num = 1;
 						for (int index1 = 0; index1 < 2; ++index1)
 							bits += SetByte16(data[index++], num--);
 					}
 					else
 					{
-						byte num = (byte)0;
+						byte num = 0;
 						for (int index1 = 0; index1 < 2; ++index1)
 							bits += SetByte16(data[index++], num++);
 					}
@@ -444,10 +417,7 @@ namespace TI.Toolbox
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Unload 16 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Unload 16 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -456,7 +426,7 @@ namespace TI.Toolbox
 
 		public ushort Unload16Bits(byte[] data, ref int index, ref bool dataErr, bool dataSwap)
 		{
-			ushort bits = (ushort)0;
+			ushort bits = 0;
 			return Unload16Bits(data, ref index, ref bits, ref dataErr, dataSwap);
 		}
 
@@ -474,13 +444,13 @@ namespace TI.Toolbox
 					bits = 0U;
 					if (dataSwap)
 					{
-						byte num = (byte)3;
+						byte num = 3;
 						for (int index1 = 0; index1 < 4; ++index1)
 							bits += SetByte32(data[index++], num--);
 					}
 					else
 					{
-						byte num = (byte)0;
+						byte num = 0;
 						for (int index1 = 0; index1 < 4; ++index1)
 							bits += SetByte32(data[index++], num++);
 					}
@@ -490,10 +460,7 @@ namespace TI.Toolbox
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Unload 32 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Unload 32 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -502,7 +469,7 @@ namespace TI.Toolbox
 
 		public uint Unload32Bits(byte[] data, ref int index, ref bool dataErr, bool dataSwap)
 		{
-			uint bits = 0U;
+			uint bits = 0;
 			return Unload32Bits(data, ref index, ref bits, ref dataErr, dataSwap);
 		}
 
@@ -520,13 +487,13 @@ namespace TI.Toolbox
 					bits = 0UL;
 					if (dataSwap)
 					{
-						byte num = (byte)7;
+						byte num = 7;
 						for (int index1 = 0; index1 < 8; ++index1)
 							bits += SetByte64(data[index++], num--);
 					}
 					else
 					{
-						byte num = (byte)0;
+						byte num = 0;
 						for (int index1 = 0; index1 < 8; ++index1)
 							bits += SetByte64(data[index++], num++);
 					}
@@ -536,10 +503,7 @@ namespace TI.Toolbox
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Unload 64 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Unload 64 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -592,10 +556,7 @@ namespace TI.Toolbox
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Unload Data Bytes\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Unload Data Bytes\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -619,10 +580,7 @@ namespace TI.Toolbox
 			{
 				flag = false;
 				if (handleException)
-				{
-					string msg = "CompareByteArrays\nData Compare Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "CompareByteArrays\nData Compare Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -660,10 +618,7 @@ namespace TI.Toolbox
 			{
 				flag = false;
 				if (handleException)
-				{
-					string msg = "Compare8ByteArrays\nCompare Data Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Compare8ByteArrays\nCompare Data Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
@@ -684,10 +639,8 @@ namespace TI.Toolbox
 		{
 			string str = string.Empty;
 			if (data.Length > 0 && data != null)
-			{
 				for (uint index = 0U; index < data.Length; ++index)
 					str = str + string.Format("{0:X2}", data[index]);
-			}
 			return str;
 		}
 
@@ -695,10 +648,8 @@ namespace TI.Toolbox
 		{
 			string str = string.Empty;
 			if (data.Length > 0 && data != null)
-			{
 				for (int index = data.Length - 1; index >= 0; --index)
 					str = str + string.Format("{0:X2}", data[index]);
-			}
 			return str;
 		}
 
@@ -713,7 +664,7 @@ namespace TI.Toolbox
 					string str2 = string.Empty;
 					for (uint index = 0; index < length; ++index)
 					{
-						str2 = !useLower ? str2 + string.Format("{0:X2}", (object)data[index]) : str2 + string.Format("{0:x2}", (object)data[index]);
+						str2 = !useLower ? str2 + string.Format("{0:X2}", data[index]) : str2 + string.Format("{0:x2}", data[index]);
 						if ((int)((index + 1U) % 2U) == 0 && (long)index != (long)(data.Length - 1))
 							str2 = str2 + ":";
 					}
@@ -756,35 +707,28 @@ namespace TI.Toolbox
 		{
 			bool flag = true;
 			if (data != null && data.Length != 0)
-			{
 				for (uint index = 0U; (long)index < (long)data.Length; ++index)
-				{
 					if ((int)data[index] != 0)
 					{
 						flag = false;
 						break;
 					}
-				}
-			}
 			return flag;
 		}
 
 		public string GetIPAddrStr(byte[] ipAddr)
 		{
-			string str = string.Empty;
+			string s_ip = string.Empty;
 			try
 			{
-				if (ipAddr != null)
-				{
-					if (ipAddr.Length != 0)
-						str = new IPAddress(ipAddr).ToString();
-				}
+				if (ipAddr != null && ipAddr.Length != 0)
+					s_ip = new IPAddress(ipAddr).ToString();
 			}
 			catch
 			{
-				str = string.Empty;
+				s_ip = string.Empty;
 			}
-			return str;
+			return s_ip;
 		}
 
 		public string Get8BitsStr(byte data)
@@ -793,7 +737,7 @@ namespace TI.Toolbox
 			try
 			{
 				for (int index = 0; index < 8; ++index)
-					str = ((int)(byte)((uint)data << index) & 128) != 128 ? str + "0" : str + "1";
+					str += ((data << index) & 0x80) != 0x80 ? "0" : "1";
 			}
 			catch
 			{
@@ -814,7 +758,7 @@ namespace TI.Toolbox
 			}
 			catch
 			{
-				numArray = (byte[])null;
+				numArray = null;
 			}
 			return numArray;
 		}
@@ -842,7 +786,7 @@ namespace TI.Toolbox
 						stringBuilder.Insert(0, seperator + num2.ToString("X02"));
 					++num1;
 				}
-				str2 = ((object)stringBuilder).ToString();
+				str2 = (stringBuilder).ToString();
 				str2.Trim();
 			}
 			catch
@@ -866,25 +810,22 @@ namespace TI.Toolbox
 
 		public byte[] GetBytesFromAsciiString(string str)
 		{
-			byte[] numArray1 = (byte[])null;
+			byte[] numArray1 = null;
 			try
 			{
 				if (str != null)
-				{
-					byte[] numArray2 = new byte[str.Length];
 					numArray1 = new ASCIIEncoding().GetBytes(str);
-				}
 			}
 			catch
 			{
-				numArray1 = (byte[])null;
+				numArray1 = null;
 			}
 			return numArray1;
 		}
 
 		public string GetAsciiStringFromBytes(byte[] bytes)
 		{
-			string str = (string)null;
+			string str = null;
 			try
 			{
 				if (bytes != null)
@@ -892,7 +833,7 @@ namespace TI.Toolbox
 			}
 			catch
 			{
-				str = (string)null;
+				str = null;
 			}
 			return str;
 		}
@@ -902,7 +843,7 @@ namespace TI.Toolbox
 			bool flag;
 			try
 			{
-				flag = Encoding.UTF8.GetByteCount(str) == str.Length;
+				flag = (Encoding.UTF8.GetByteCount(str) == str.Length);
 			}
 			catch
 			{
@@ -913,46 +854,45 @@ namespace TI.Toolbox
 
 		public byte[] GetBytes(string str)
 		{
-			byte[] numArray1 = null;
+			byte[] bytes = null;
 			try
 			{
 				if (str != null)
 				{
-					byte[] numArray2 = new byte[str.Length * 2];
-					System.Buffer.BlockCopy(str.ToCharArray(), 0, numArray2, 0, numArray2.Length);
-					numArray1 = numArray2;
+					bytes = new byte[str.Length * 2];
+					System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
 				}
 			}
 			catch
 			{
-				numArray1 = (byte[])null;
+				bytes = null;
 			}
-			return numArray1;
+			return bytes;
 		}
 
 		public byte[] GetHexBytes(string str, string[] delimiterStrs)
 		{
-			byte[] numArray = (byte[])null;
+			byte[] bytes = null;
 			try
 			{
 				if (str != null)
 				{
 					string[] strArray = str.Split(delimiterStrs, StringSplitOptions.RemoveEmptyEntries);
-					numArray = new byte[strArray.Length];
+					bytes = new byte[strArray.Length];
 					for (int index = 0; index < strArray.Length; ++index)
-						numArray[index] = Convert.ToByte(strArray[index], 16);
+						bytes[index] = Convert.ToByte(strArray[index], 16);
 				}
 			}
 			catch
 			{
-				numArray = (byte[])null;
+				bytes = null;
 			}
-			return numArray;
+			return bytes;
 		}
 
 		public string GetString(byte[] bytes)
 		{
-			string str = (string)null;
+			string str = null;
 			try
 			{
 				if (bytes != null)
@@ -964,21 +904,21 @@ namespace TI.Toolbox
 			}
 			catch
 			{
-				str = (string)null;
+				str = null;
 			}
 			return str;
 		}
 
 		public static T DeepCopy<T>(T obj)
 		{
-			object obj1 = (object)null;
-			using (MemoryStream memoryStream = new MemoryStream())
+			object obj1 = null;
+			using (MemoryStream ms = new MemoryStream())
 			{
-				BinaryFormatter binaryFormatter = new BinaryFormatter();
-				binaryFormatter.Serialize((Stream)memoryStream, (object)obj);
-				memoryStream.Position = 0L;
-				obj1 = (object)(T)binaryFormatter.Deserialize((Stream)memoryStream);
-				memoryStream.Close();
+				BinaryFormatter bf = new BinaryFormatter();
+				bf.Serialize(ms, obj);
+				ms.Position = 0L;
+				obj1 = (T)bf.Deserialize(ms);
+				ms.Close();
 			}
 			return (T)obj1;
 		}
@@ -1042,7 +982,7 @@ namespace TI.Toolbox
 			}
 			catch
 			{
-				return (byte[])null;
+				return null;
 			}
 		}
 
@@ -1058,7 +998,7 @@ namespace TI.Toolbox
 			}
 			catch
 			{
-				dataStruct = (object)null;
+				dataStruct = null;
 			}
 		}
 
@@ -1086,8 +1026,7 @@ namespace TI.Toolbox
 			}
 			catch (Exception ex)
 			{
-				string msg = "Get Index 32 Data Error\n" + ex.Message + "\nDataUtils\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Get Index 32 Data Error\n" + ex.Message + "\nDataUtils\n");
 				flag = false;
 				value = 0;
 			}
@@ -1110,8 +1049,7 @@ namespace TI.Toolbox
 			}
 			catch (Exception ex)
 			{
-				string msg = "Get String Error\n" + ex.Message + "\nDataUtils\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Get String Error\n" + ex.Message + "\nDataUtils\n");
 				flag = false;
 				strOut = string.Empty;
 			}
@@ -1128,8 +1066,7 @@ namespace TI.Toolbox
 			}
 			catch (Exception ex)
 			{
-				string msg = "Output Buffer Error\n" + ex.Message + "\nDataUtils\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Output Buffer Error\n" + ex.Message + "\nDataUtils\n");
 				flag = false;
 			}
 			return flag;

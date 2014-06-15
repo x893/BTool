@@ -6,6 +6,8 @@ namespace TI.Toolbox
 {
 	public class SharedObjects
 	{
+		public delegate void DisplayMsgDelegate(MsgBox.MsgTypes msgType, string msg);
+
 		public static string programName = string.Empty;
 		public static Form mainWin = (Form)null;
 		public static bool programExit = false;
@@ -40,7 +42,5 @@ namespace TI.Toolbox
 			else
 				Process.GetCurrentProcess().Kill();
 		}
-
-		public delegate void DisplayMsgDelegate(MsgBox.MsgTypes msgType, string msg);
 	}
 }

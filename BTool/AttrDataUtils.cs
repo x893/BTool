@@ -50,8 +50,7 @@ namespace BTool
 				}
 				else if (devForm.attrData.attrDict.Count >= 1500)
 				{
-					string msg = string.Format("Attribute Dictionary At Maximum {0} Elements\nData Lost\nAttrDataUtils\n", (object)1500);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, string.Format("Attribute Dictionary At Maximum {0} Elements\nData Lost\nAttrDataUtils\n", 1500));
 					flag = false;
 				}
 				else
@@ -64,8 +63,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = "Attribute Dictionary Access Error\nUpdateTmpAttrDict()\n" + ex.Message + "\nAttrDataUtils\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Attribute Dictionary Access Error\nUpdateTmpAttrDict()\n" + ex.Message + "\nAttrDataUtils\n");
 				flag = false;
 			}
 			return flag;
@@ -91,8 +89,7 @@ namespace BTool
 			}
 			else
 			{
-				string msg = string.Format("Attribute Dictionary Update Error\nItem Does Not Exist In Dictionary\nAttrDataUtils\n", new object[0]);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Attribute Dictionary Update Error\nItem Does Not Exist In Dictionary\nAttrDataUtils\n"));
 				flag = false;
 			}
 			devForm.attrData.attrDictAccess.ReleaseMutex();

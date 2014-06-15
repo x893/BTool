@@ -14,7 +14,7 @@ namespace TI.Toolbox
 				Focus();
 			if (scrollEventHandler == null)
 				return;
-			scrollEventHandler((object)this, e);
+			scrollEventHandler(this, e);
 		}
 
 		protected override void WndProc(ref Message message)
@@ -22,7 +22,7 @@ namespace TI.Toolbox
 			base.WndProc(ref message);
 			if (message.Msg != 277 && message.Msg != 276)
 				return;
-			OnScroll(new ScrollEventArgs((ScrollEventType)(message.WParam.ToInt32() & (int)ushort.MaxValue), 0));
+			OnScroll(new ScrollEventArgs((ScrollEventType)(message.WParam.ToInt32() & 0xFFFF), 0));
 		}
 	}
 }

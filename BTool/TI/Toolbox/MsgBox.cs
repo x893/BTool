@@ -5,6 +5,38 @@ namespace TI.Toolbox
 {
 	public class MsgBox
 	{
+		public enum MsgTypes
+		{
+			Fatal,
+			Error,
+			Warning,
+			Info,
+		}
+
+		public enum MsgButtons
+		{
+			Ok,
+			OkCancel,
+			AbortRetryIgnore,
+			YesNoCancel,
+			YesNo,
+			RetryCancel,
+		}
+
+		public enum MsgResult
+		{
+			None,
+			OK,
+			Cancel,
+			Abort,
+			Retry,
+			Ignore,
+			Yes,
+			No,
+		}
+
+		private delegate MsgBox.MsgResult UserMsgBoxDelegate(Form owner, MsgBox.MsgTypes msgType, MsgBox.MsgButtons msgButtons, MsgBox.MsgResult defaultMsgResult, string msg);
+
 		private static bool useConsoleMode = false;
 		private static bool useLoggingMode = true;
 		private static bool msgBoxDisplayed = false;
@@ -22,9 +54,8 @@ namespace TI.Toolbox
 
 		public static bool SetConsoleMode(bool newConsoleMode)
 		{
-			bool flag = true;
 			MsgBox.useConsoleMode = newConsoleMode;
-			return flag;
+			return true;
 		}
 
 		public static bool GetLoggingMode()
@@ -76,11 +107,9 @@ namespace TI.Toolbox
 				{
 					try
 					{
-						msgResult = (MsgBox.MsgResult)SharedObjects.mainWin.Invoke((Delegate)new MsgBox.UserMsgBoxDelegate(UserMsgBox), (object)owner, (object)msgType, (object)msgButtons, (object)defaultMsgResult, (object)msg);
+						msgResult = (MsgBox.MsgResult)SharedObjects.mainWin.Invoke((Delegate)new MsgBox.UserMsgBoxDelegate(UserMsgBox), owner, msgType, msgButtons, defaultMsgResult, msg);
 					}
-					catch
-					{
-					}
+					catch { }
 				}
 				else
 				{
@@ -142,7 +171,10 @@ namespace TI.Toolbox
 						if (MsgBox.useLoggingMode)
 							WriteLogMsg(msgType, msg);
 						MsgBox.msgBoxDisplayed = true;
-						msgResult = owner != null ? (MsgBox.MsgResult)MessageBox.Show((IWin32Window)owner, text, msgBoxTitle, buttons, icon) : (MsgBox.MsgResult)MessageBox.Show(text, msgBoxTitle, buttons, icon);
+						msgResult = 
+							owner != null
+							? (MsgBox.MsgResult)MessageBox.Show((IWin32Window)owner, text, msgBoxTitle, buttons, icon)
+							: (MsgBox.MsgResult)MessageBox.Show(text, msgBoxTitle, buttons, icon);
 						MsgBox.msgBoxDisplayed = false;
 					}
 					if (msgType == MsgBox.MsgTypes.Fatal)
@@ -157,108 +189,74 @@ namespace TI.Toolbox
 
 		private string GetMsgTypeStr(MsgBox.MsgTypes msgType)
 		{
-			string str1 = string.Empty;
-			string str2;
+			string s_type;
 			switch (msgType)
 			{
 				case MsgBox.MsgTypes.Fatal:
-					str2 = "Fatal";
+					s_type = "Fatal";
 					break;
 				case MsgBox.MsgTypes.Error:
-					str2 = "Error";
+					s_type = "Error";
 					break;
 				case MsgBox.MsgTypes.Warning:
-					str2 = "Warning ";
+					s_type = "Warning ";
 					break;
 				case MsgBox.MsgTypes.Info:
-					str2 = "Info";
+					s_type = "Info";
 					break;
 				default:
-					str2 = "Unknown";
+					s_type = "Unknown";
 					break;
 			}
-			return str2;
+			return s_type;
 		}
 
 		private string GetMsgBoxTitle(MsgBox.MsgTypes msgType)
 		{
-			string str1 = string.Empty;
-			string str2;
+			string s_title;
 			switch (msgType)
 			{
 				case MsgBox.MsgTypes.Fatal:
-					str2 = SharedObjects.programName + " - Fatal Error";
+					s_title = SharedObjects.programName + " - Fatal Error";
 					break;
 				case MsgBox.MsgTypes.Error:
-					str2 = SharedObjects.programName + " - Error";
+					s_title = SharedObjects.programName + " - Error";
 					break;
 				case MsgBox.MsgTypes.Warning:
-					str2 = SharedObjects.programName + " - Warning";
+					s_title = SharedObjects.programName + " - Warning";
 					break;
 				case MsgBox.MsgTypes.Info:
-					str2 = SharedObjects.programName + " - Info";
+					s_title = SharedObjects.programName + " - Info";
 					break;
 				default:
-					str2 = "Unknown";
+					s_title = "Unknown";
 					break;
 			}
-			return str2;
+			return s_title;
 		}
 
 		private bool WriteLogMsg(MsgBox.MsgTypes msgType, string msg)
 		{
-			Logging.MsgType msgType1;
+			Logging.MsgType logMsgType;
 			switch (msgType)
 			{
 				case MsgBox.MsgTypes.Fatal:
-					msgType1 = Logging.MsgType.Fatal;
+					logMsgType = Logging.MsgType.Fatal;
 					break;
 				case MsgBox.MsgTypes.Error:
-					msgType1 = Logging.MsgType.Error;
+					logMsgType = Logging.MsgType.Error;
 					break;
 				case MsgBox.MsgTypes.Warning:
-					msgType1 = Logging.MsgType.Warning;
+					logMsgType = Logging.MsgType.Warning;
 					break;
 				case MsgBox.MsgTypes.Info:
-					msgType1 = Logging.MsgType.Info;
+					logMsgType = Logging.MsgType.Info;
 					break;
 				default:
-					msgType1 = Logging.MsgType.Info;
+					logMsgType = Logging.MsgType.Info;
 					break;
 			}
-			return SharedObjects.log.Write(msgType1, string.Empty, msg);
+			return SharedObjects.log.Write(logMsgType, string.Empty, msg);
 		}
-
-		public enum MsgTypes
-		{
-			Fatal,
-			Error,
-			Warning,
-			Info,
-		}
-
-		public enum MsgButtons
-		{
-			Ok,
-			OkCancel,
-			AbortRetryIgnore,
-			YesNoCancel,
-			YesNo,
-			RetryCancel,
-		}
-
-		public enum MsgResult
-		{
-			None,
-			OK,
-			Cancel,
-			Abort,
-			Retry,
-			Ignore,
-			Yes,
-			No,
-		}
-
-		private delegate MsgBox.MsgResult UserMsgBoxDelegate(Form owner, MsgBox.MsgTypes msgType, MsgBox.MsgButtons msgButtons, MsgBox.MsgResult defaultMsgResult, string msg);
 	}
 }

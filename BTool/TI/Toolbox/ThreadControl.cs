@@ -4,6 +4,20 @@ namespace TI.Toolbox
 {
 	public class ThreadControl
 	{
+		public enum ThreadCtrl
+		{
+			Pause,
+			Resume,
+			Stop,
+			Exit,
+		}
+
+		public enum CheckIdleModes
+		{
+			Paused,
+			PausedWithoutData,
+		}
+
 		public ManualResetEvent eventPause = new ManualResetEvent(false);
 		public ManualResetEvent eventExit = new ManualResetEvent(false);
 		private const string moduleName = "ThreadControl";
@@ -34,28 +48,20 @@ namespace TI.Toolbox
 
 		public bool CheckForThreadIdle(ThreadControl.CheckIdleModes idleMode)
 		{
-			bool flag;
 			if (idleMode == ThreadControl.CheckIdleModes.PausedWithoutData)
 			{
 				if (!idleThread)
-				{
-					flag = false;
-					goto label_6;
-				}
+					return false;
 			}
 			else if (!pauseThread || !idleThread)
 			{
-				flag = false;
-				goto label_6;
+				return false;
 			}
-			flag = true;
-		label_6:
-			return flag;
+			return true;
 		}
 
 		public bool ControlThread(ThreadControl.ThreadCtrl threadCtrlMode)
 		{
-			bool flag = false;
 			switch (threadCtrlMode)
 			{
 				case ThreadControl.ThreadCtrl.Pause:
@@ -79,21 +85,7 @@ namespace TI.Toolbox
 						Thread.Sleep(100);
 					break;
 			}
-			return flag;
-		}
-
-		public enum ThreadCtrl
-		{
-			Pause,
-			Resume,
-			Stop,
-			Exit,
-		}
-
-		public enum CheckIdleModes
-		{
-			Paused,
-			PausedWithoutData,
+			return false;
 		}
 	}
 }

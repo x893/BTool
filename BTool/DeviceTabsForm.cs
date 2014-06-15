@@ -245,8 +245,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message));
 				tbPairingConnHandle.Focus();
 				PairBondUserInputControl();
 				return;
@@ -286,8 +285,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message));
 				tbPasskeyConnHandle.Focus();
 				PairBondUserInputControl();
 				return;
@@ -303,8 +301,7 @@ namespace BTool
 				ShowProgress(false);
 				PairBondUserInputControl();
 			}
-			string msg1 = string.Format("Invalid Passkey Length\nLength must be {0:D}", (object)6);
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg1);
+			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Passkey Length\nLength must be {0:D}", 6));
 		}
 
 		private void btnLoadLongTermKey_Click(object sender, EventArgs e)
@@ -334,8 +331,7 @@ namespace BTool
 			csvData1.addr = devForm.numConnections <= 1 ? connectInfo.bDA : str;
 			if (csvData1.addr == null || csvData1.addr.Length == 0)
 			{
-				string msg = string.Format("Connection Address Is Invalid\nA Device Must Be Connected To Read Data\n", new object[0]);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Connection Address Is Invalid\nA Device Must Be Connected To Read Data\n"));
 			}
 			else
 			{
@@ -344,8 +340,7 @@ namespace BTool
 					return;
 				if (csvIndex == -1)
 				{
-					string msg = string.Format("Cannot Find The Device Address In The Specified File\nSearch Address = {0:S}\nNo Data Was Loaded.\n", (object)csvData1.addr);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Find The Device Address In The Specified File\nSearch Address = {0:S}\nNo Data Was Loaded.\n", csvData1.addr));
 				}
 				else
 				{
@@ -378,16 +373,14 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Invalid Long Term Key Entry.\n '{0}'\nNo Data Was Loaded.\nFormat Is 00:00....\n\n{1}", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Long Term Key Entry.\n '{0}'\nNo Data Was Loaded.\nFormat Is 00:00....\n\n{1}", ex.Message));
 				tbLongTermKey.Focus();
 				PairBondUserInputControl();
 				return;
 			}
 			if (str2.Length != 47)
 			{
-				string msg = string.Format("Invalid Long Term Key Length = {0:D} \nLength must be {1:D}", (object)str2.Length, (object)16);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Long Term Key Length = {0:D} \nLength must be {1:D}", str2.Length, 16));
 				tbLongTermKey.Focus();
 				PairBondUserInputControl();
 			}
@@ -400,8 +393,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid LTK Diversifier Entry.\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid LTK Diversifier Entry.\nFormat: 0x0000\n\n{0}\n", ex.Message));
 					tbLTKDiversifier.Focus();
 					PairBondUserInputControl();
 					return;
@@ -414,16 +406,14 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid LTK Random Entry.\n'{0}'\nFormat Is 00:00....\n\n{1}\n", (object)ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid LTK Random Entry.\n'{0}'\nFormat Is 00:00....\n\n{1}\n", ex.Message));
 					tbLTKRandom.Focus();
 					PairBondUserInputControl();
 					return;
 				}
 				if (str4.Length != 23)
 				{
-					string msg = string.Format("Invalid LTK Random Length = {0:D} \nLength must be {1:D}\n", (object)str4.Length, (object)8);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid LTK Random Length = {0:D} \nLength must be {1:D}\n", str4.Length, 8));
 					tbLTKRandom.Focus();
 					PairBondUserInputControl();
 				}
@@ -437,8 +427,7 @@ namespace BTool
 					}
 					catch (Exception ex)
 					{
-						string msg = string.Format("Invalid Connection Handle\n\n{0}\n", (object)ex.Message);
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Connection Handle\n\n{0}\n", ex.Message));
 						tbBondConnHandle.Focus();
 						PairBondUserInputControl();
 						return;
@@ -474,8 +463,7 @@ namespace BTool
 			newCsvData.rand = lastGAP_AuthenticationComplete.devSecInfo_RAND;
 			if (newCsvData.addr == null || newCsvData.addr.Length == 0)
 			{
-				string msg = string.Format("Connection Address Is Invalid\nDevice Must Be Connected To Save Data\n", new object[0]);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Connection Address Is Invalid\nDevice Must Be Connected To Save Data\n"));
 			}
 			else
 			{
@@ -518,7 +506,7 @@ namespace BTool
 
 		private void CheckHexKeyPress(object sender, KeyPressEventArgs e)
 		{
-			if (Regex.IsMatch(e.KeyChar.ToString(), "\\b[0-9a-fA-F]+\\b") || (int)e.KeyChar == 8 || ((int)e.KeyChar == 32 || (int)e.KeyChar == 58))
+			if (Regex.IsMatch(e.KeyChar.ToString(), "\\b[0-9a-fA-F]+\\b") || e.KeyChar == 8 || e.KeyChar == 32 || e.KeyChar == 58)
 				return;
 			e.Handled = true;
 		}
@@ -714,20 +702,20 @@ namespace BTool
 			string str2 = !GetAuthenticationEnabled() ? "FALSE" : "TRUE";
 			lastAuthStr = str2;
 			string str3 = string.Empty;
-			tbLongTermKeyData.Text = string.Format("Authenticated Bond: {0:S}\r\n", (object)str2);
-			string str4 = string.Format("Long-Term Key:\r\n{0:S}\r\n", (object)obj.devSecInfo_LTK);
+			tbLongTermKeyData.Text = string.Format("Authenticated Bond: {0:S}\r\n", str2);
+			string str4 = string.Format("Long-Term Key:\r\n{0:S}\r\n", obj.devSecInfo_LTK);
 			TextBox textBox1 = tbLongTermKeyData;
 			string str5 = textBox1.Text + str4;
 			textBox1.Text = str5;
-			string str6 = string.Format("LTK Diversifier: 0x{0:X}\r\n", (object)obj.devSecInfo_DIV);
+			string str6 = string.Format("LTK Diversifier: 0x{0:X}\r\n", obj.devSecInfo_DIV);
 			TextBox textBox2 = tbLongTermKeyData;
 			string str7 = textBox2.Text + str6;
 			textBox2.Text = str7;
-			string str8 = string.Format("LTK Random: {0:S}\r\n", (object)obj.devSecInfo_RAND);
+			string str8 = string.Format("LTK Random: {0:S}\r\n", obj.devSecInfo_RAND);
 			TextBox textBox3 = tbLongTermKeyData;
 			string str9 = textBox3.Text + str8;
 			textBox3.Text = str9;
-			string str10 = string.Format("Identity Info BD Address: {0:S}", (object)obj.idInfo_BdAddr);
+			string str10 = string.Format("Identity Info BD Address: {0:S}", obj.idInfo_BdAddr);
 			TextBox textBox4 = tbLongTermKeyData;
 			string str11 = textBox4.Text + str10;
 			textBox4.Text = str11;
@@ -741,7 +729,7 @@ namespace BTool
 			try
 			{
 				if (pathFileNameStr == null)
-					throw new ArgumentException(string.Format("There Is No Filename And/Or Path For Reading Csv Data.\n", new object[0]));
+					throw new ArgumentException(string.Format("There Is No Filename And/Or Path For Reading Csv Data.\n"));
 				using (StreamReader streamReader = new StreamReader(pathFileNameStr))
 				{
 					string str1 = string.Empty;
@@ -750,12 +738,9 @@ namespace BTool
 					while ((str2 = streamReader.ReadLine()) != null)
 					{
 						++num;
-						string[] strArray = str2.Split(new char[1]
-            {
-              ','
-            });
+						string[] strArray = str2.Split(new char[1] { ',' });
 						if (strArray.Length != CsvNumberOfLineElements)
-							throw new ArgumentException(string.Format("Not Enough Data Items On Line {0:D}\nExpected {1:D} Data Items On Each Line.\n", (object)num, (object)CsvNumberOfLineElements));
+							throw new ArgumentException(string.Format("Not Enough Data Items On Line {0:D}\nExpected {1:D} Data Items On Each Line.\n", num, CsvNumberOfLineElements));
 						for (int index = 0; index < CsvNumberOfLineElements; ++index)
 						{
 							strArray[index] = strArray[index].Trim();
@@ -775,8 +760,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Cannot Load Or Parse The CSV File.\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Load Or Parse The CSV File.\n\n{0}\n", ex.Message));
 				fileError = true;
 			}
 			return list;
@@ -788,7 +772,7 @@ namespace BTool
 			try
 			{
 				if (csvData == null || csvData.Count <= 0)
-					throw new ArgumentException(string.Format("There Is No Data To Save\n", new object[0]));
+					throw new ArgumentException(string.Format("There Is No Data To Save\n"));
 				using (StreamWriter streamWriter = new StreamWriter(pathFileNameStr))
 				{
 					int count = csvData.Count;
@@ -797,15 +781,13 @@ namespace BTool
 					for (int index = 0; index < count; ++index)
 					{
 						DeviceTabsForm.CsvData csvData2 = csvData[index];
-						string str2 = string.Format("{0:S},{1:S},{2:S},{3:S},{4:S}", (object)csvData2.addr, (object)csvData2.auth, (object)csvData2.ltk, (object)csvData2.div, (object)csvData2.rand);
-						streamWriter.WriteLine(str2);
+						streamWriter.WriteLine(string.Format("{0:S},{1:S},{2:S},{3:S},{4:S}", csvData2.addr, csvData2.auth, csvData2.ltk, csvData2.div, csvData2.rand));
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Cannot Write The CSV File\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Write The CSV File\n\n{0}\n", ex.Message));
 				flag = true;
 			}
 			return flag;
@@ -817,7 +799,7 @@ namespace BTool
 			try
 			{
 				if (newCsvData == null)
-					throw new ArgumentException(string.Format("There Is No Data To Add.\n", new object[0]));
+					throw new ArgumentException(string.Format("There Is No Data To Add.\n"));
 				DeviceTabsForm.CsvData csvData1 = new DeviceTabsForm.CsvData();
 				csvData.Add(new DeviceTabsForm.CsvData()
 				{
@@ -830,8 +812,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Cannot Add Data To End Of The CSV List.\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Add Data To End Of The CSV List.\n\n{0}\n", ex.Message));
 				flag = true;
 			}
 			return flag;
@@ -864,8 +845,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Cannot Access The Data To Find The Addr In The CSV List\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Access The Data To Find The Addr In The CSV List\n\n{0}\n", ex.Message));
 				flag = true;
 			}
 			return flag;
@@ -877,11 +857,11 @@ namespace BTool
 			try
 			{
 				if (csvData == null || csvData.Count <= 0)
-					throw new ArgumentException(string.Format("There Is No Csv Data To Replace\n", new object[0]));
+					throw new ArgumentException(string.Format("There Is No Csv Data To Replace\n"));
 				DeviceTabsForm.CsvData csvData1 = new DeviceTabsForm.CsvData();
 				DeviceTabsForm.CsvData csvData2 = csvData[csvIndex];
 				if (csvData2.addr != newCsvData.addr)
-					throw new ArgumentException(string.Format("The Addresses Do Not Match\nCSV Replace Is Cancelled\nExpected {0:S}\nFound {1:S}\n", (object)csvData2.addr, (object)newCsvData.addr));
+					throw new ArgumentException(string.Format("The Addresses Do Not Match\nCSV Replace Is Cancelled\nExpected {0:S}\nFound {1:S}\n", csvData2.addr, newCsvData.addr));
 				csvData2.addr = newCsvData.addr;
 				csvData2.auth = newCsvData.auth;
 				csvData2.ltk = newCsvData.ltk;
@@ -891,8 +871,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Cannot Access The Data To Replace The Addr In The CSV List\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Access The Data To Replace The Addr In The CSV List\n\n{0}\n", ex.Message));
 				flag = true;
 			}
 			return flag;
@@ -2631,26 +2610,26 @@ namespace BTool
 		{
 			ToolTip toolTip = new ToolTip();
 			toolTip.ShowAlways = true;
-			toolTip.SetToolTip((Control)tpDiscoverConnect, "Discover And Connect To Devices");
-			toolTip.SetToolTip((Control)ckBoxActiveScan, "Use Active Scan");
-			toolTip.SetToolTip((Control)ckBoxWhiteList, "Use White List");
-			toolTip.SetToolTip((Control)cbScanMode, "Device Scan Mode");
-			toolTip.SetToolTip((Control)btnScan, "Scan For Devices");
-			toolTip.SetToolTip((Control)btnScanCancel, "Cancel Device Scan");
-			toolTip.SetToolTip((Control)nudMinConnInt, "Minimum Connection Interval");
-			toolTip.SetToolTip((Control)nudMaxConnInt, "Maximum Connection Interval");
-			toolTip.SetToolTip((Control)nudSlaveLatency, "Slave Latency");
-			toolTip.SetToolTip((Control)nudSprVisionTimeout, "Supervision Timeout");
-			toolTip.SetToolTip((Control)btnGetConnectionParams, "Get Connection Parameteres");
-			toolTip.SetToolTip((Control)btnSetConnectionParams, "Set Connection Parameters");
-			toolTip.SetToolTip((Control)cbConnAddrType, "List Of Address Types");
-			toolTip.SetToolTip((Control)cbConnSlaveDeviceBDAddress, "List Of Slave BDA Addresses");
-			toolTip.SetToolTip((Control)ckBoxConnWhiteList, "Use Connection White List");
-			toolTip.SetToolTip((Control)btnEstablish, "Establish Link");
-			toolTip.SetToolTip((Control)btnEstablishCancel, "Cancel Link Establish In Progress");
-			toolTip.SetToolTip((Control)tbTermConnHandle, "Link Handle To Terminate");
-			toolTip.SetToolTip((Control)btnTerminate, "Terminate Link");
-			toolTip.SetToolTip((Control)pbSharedDevice, "Device Operation Progress Bar");
+			toolTip.SetToolTip(tpDiscoverConnect, "Discover And Connect To Devices");
+			toolTip.SetToolTip(ckBoxActiveScan, "Use Active Scan");
+			toolTip.SetToolTip(ckBoxWhiteList, "Use White List");
+			toolTip.SetToolTip(cbScanMode, "Device Scan Mode");
+			toolTip.SetToolTip(btnScan, "Scan For Devices");
+			toolTip.SetToolTip(btnScanCancel, "Cancel Device Scan");
+			toolTip.SetToolTip(nudMinConnInt, "Minimum Connection Interval");
+			toolTip.SetToolTip(nudMaxConnInt, "Maximum Connection Interval");
+			toolTip.SetToolTip(nudSlaveLatency, "Slave Latency");
+			toolTip.SetToolTip(nudSprVisionTimeout, "Supervision Timeout");
+			toolTip.SetToolTip(btnGetConnectionParams, "Get Connection Parameteres");
+			toolTip.SetToolTip(btnSetConnectionParams, "Set Connection Parameters");
+			toolTip.SetToolTip(cbConnAddrType, "List Of Address Types");
+			toolTip.SetToolTip(cbConnSlaveDeviceBDAddress, "List Of Slave BDA Addresses");
+			toolTip.SetToolTip(ckBoxConnWhiteList, "Use Connection White List");
+			toolTip.SetToolTip(btnEstablish, "Establish Link");
+			toolTip.SetToolTip(btnEstablishCancel, "Cancel Link Establish In Progress");
+			toolTip.SetToolTip(tbTermConnHandle, "Link Handle To Terminate");
+			toolTip.SetToolTip(btnTerminate, "Terminate Link");
+			toolTip.SetToolTip(pbSharedDevice, "Device Operation Progress Bar");
 		}
 
 		public void SetNudMinConnIntValue(int value)
@@ -2736,17 +2715,14 @@ namespace BTool
 		{
 			if (InvokeRequired)
 			{
-				Invoke((Delegate)new DeviceTabsForm.SetMinConnectionIntervalDelegate(SetMinConnectionInterval), new object[1]
-        {
-          (object) interval
-        });
+				Invoke((Delegate)new DeviceTabsForm.SetMinConnectionIntervalDelegate(SetMinConnectionInterval), interval);
 			}
 			else
 			{
 				if (interval < 6U || interval > 3200U)
 					return;
 				nudMinConnInt.Value = (Decimal)interval;
-				lblMinConnInt.Text = string.Format("({0:f}ms)", (object)((double)interval * 1.25));
+				lblMinConnInt.Text = string.Format("({0:f}ms)", (double)interval * 1.25);
 			}
 		}
 
@@ -2754,17 +2730,14 @@ namespace BTool
 		{
 			if (InvokeRequired)
 			{
-				Invoke((Delegate)new DeviceTabsForm.SetMaxConnectionIntervalDelegate(SetMaxConnectionInterval), new object[1]
-        {
-          (object) interval
-        });
+				Invoke((Delegate)new DeviceTabsForm.SetMaxConnectionIntervalDelegate(SetMaxConnectionInterval), interval);
 			}
 			else
 			{
 				if (interval < 6U || interval > 3200U)
 					return;
 				nudMaxConnInt.Value = (Decimal)interval;
-				lblMaxConnInt.Text = string.Format("({0:f}ms)", (object)((double)interval * 1.25));
+				lblMaxConnInt.Text = string.Format("({0:f}ms)", ((double)interval * 1.25));
 			}
 		}
 
@@ -2772,10 +2745,7 @@ namespace BTool
 		{
 			if (InvokeRequired)
 			{
-				Invoke((Delegate)new DeviceTabsForm.SetSlaveLatencyDelegate(SetSlaveLatency), new object[1]
-        {
-          (object) latency
-        });
+				Invoke((Delegate)new DeviceTabsForm.SetSlaveLatencyDelegate(SetSlaveLatency), latency);
 			}
 			else
 			{
@@ -2789,17 +2759,14 @@ namespace BTool
 		{
 			if (InvokeRequired)
 			{
-				Invoke((Delegate)new DeviceTabsForm.SetSupervisionTimeoutDelegate(SetSupervisionTimeout), new object[1]
-        {
-          (object) timeout
-        });
+				Invoke((Delegate)new DeviceTabsForm.SetSupervisionTimeoutDelegate(SetSupervisionTimeout), timeout);
 			}
 			else
 			{
 				if (timeout < 10U || timeout > 3200U)
 					return;
 				nudSprVisionTimeout.Value = (Decimal)timeout;
-				lblSupervisionTimeout.Text = string.Format("({0:D}ms)", (object)(uint)((int)timeout * 10));
+				lblSupervisionTimeout.Text = string.Format("({0:D}ms)", timeout * 10);
 			}
 		}
 
@@ -2817,7 +2784,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Invalid Connection Handle\n\n{0}\n", (object)ex.Message);
+				string msg = string.Format("Invalid Connection Handle\n\n{0}\n", ex.Message);
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 				tbTermConnHandle.Focus();
 				flag = false;
@@ -2868,7 +2835,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Failed To Send Terminate Link Message.\n\n{0}\n", (object)ex.Message);
+				string msg = string.Format("Failed To Send Terminate Link Message.\n\n{0}\n", ex.Message);
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 			}
 		}
@@ -2884,7 +2851,7 @@ namespace BTool
 		{
 			SlaveDeviceFound = (ushort)0;
 			cbConnSlaveDeviceBDAddress.Items.Clear();
-			cbConnSlaveDeviceBDAddress.Items.Add((object)"None");
+			cbConnSlaveDeviceBDAddress.Items.Add("None");
 			cbConnSlaveDeviceBDAddress.SelectedIndex = 0;
 			cbConnSlaveDeviceBDAddress.Update();
 			linkSlaves.Clear();
@@ -2905,7 +2872,7 @@ namespace BTool
 			if (cbConnSlaveDeviceBDAddress.FindString(s) == -1)
 			{
 				++SlaveDeviceFound;
-				cbConnSlaveDeviceBDAddress.Items.Add((object)s);
+				cbConnSlaveDeviceBDAddress.Items.Add(s);
 				SetAddrType((byte)linkSlave.addrType);
 				linkSlaves.Add(linkSlave);
 			}
@@ -3046,7 +3013,7 @@ namespace BTool
 			TabReadWriteToolTips();
 			TabPairBondToolTips();
 			TabAdvCommandsToolTips();
-			ushort num = (ushort)65534;
+			ushort num = 65534;
 			tbTermConnHandle.Text = "0x" + num.ToString("X4");
 			tbReadConnHandle.Text = "0x" + num.ToString("X4");
 			tbWriteConnHandle.Text = "0x" + num.ToString("X4");
@@ -3138,10 +3105,10 @@ namespace BTool
 		{
 			ToolTip toolTip = new ToolTip();
 			toolTip.ShowAlways = true;
-			toolTip.SetToolTip((Control)tvAdvCmdList, "Select A Command To Send");
-			toolTip.SetToolTip((Control)pgAdvCmds, "Modify/View Command Data Before Sending");
-			toolTip.SetToolTip((Control)btnSendShared, "Send The Command");
-			toolTip.SetToolTip((Control)pbSharedDevice, "Device Operation Progress Bar");
+			toolTip.SetToolTip(tvAdvCmdList, "Select A Command To Send");
+			toolTip.SetToolTip(pgAdvCmds, "Modify/View Command Data Before Sending");
+			toolTip.SetToolTip(btnSendShared, "Send The Command");
+			toolTip.SetToolTip(pbSharedDevice, "Device Operation Progress Bar");
 		}
 
 		private void LoadHCICmds()
@@ -3151,205 +3118,205 @@ namespace BTool
 			tvAdvCmdList.Nodes.Add(node1);
 			TreeNode node2 = new TreeNode();
 			node2.Name = node2.Text = devForm.HCIExt_SetRxGain.cmdName;
-			node2.Tag = (object)devForm.HCIExt_SetRxGain;
+			node2.Tag = devForm.HCIExt_SetRxGain;
 			node1.Nodes.Add(node2);
 			TreeNode node3 = new TreeNode();
 			node3.Name = node3.Text = devForm.HCIExt_SetTxPower.cmdName;
-			node3.Tag = (object)devForm.HCIExt_SetTxPower;
+			node3.Tag = devForm.HCIExt_SetTxPower;
 			node1.Nodes.Add(node3);
 			TreeNode node4 = new TreeNode();
 			node4.Name = node4.Text = devForm.HCIExt_OnePktPerEvt.cmdName;
-			node4.Tag = (object)devForm.HCIExt_OnePktPerEvt;
+			node4.Tag = devForm.HCIExt_OnePktPerEvt;
 			node1.Nodes.Add(node4);
 			TreeNode node5 = new TreeNode();
 			node5.Name = node5.Text = devForm.HCIExt_ClkDivideOnHalt.cmdName;
-			node5.Tag = (object)devForm.HCIExt_ClkDivideOnHalt;
+			node5.Tag = devForm.HCIExt_ClkDivideOnHalt;
 			node1.Nodes.Add(node5);
 			TreeNode node6 = new TreeNode();
 			node6.Name = node6.Text = devForm.HCIExt_DeclareNvUsage.cmdName;
-			node6.Tag = (object)devForm.HCIExt_DeclareNvUsage;
+			node6.Tag = devForm.HCIExt_DeclareNvUsage;
 			node1.Nodes.Add(node6);
 			TreeNode node7 = new TreeNode();
 			node7.Name = node7.Text = devForm.HCIExt_Decrypt.cmdName;
-			node7.Tag = (object)devForm.HCIExt_Decrypt;
+			node7.Tag = devForm.HCIExt_Decrypt;
 			node1.Nodes.Add(node7);
 			TreeNode node8 = new TreeNode();
 			node8.Name = node8.Text = devForm.HCIExt_SetLocalSupportedFeatures.cmdName;
-			node8.Tag = (object)devForm.HCIExt_SetLocalSupportedFeatures;
+			node8.Tag = devForm.HCIExt_SetLocalSupportedFeatures;
 			node1.Nodes.Add(node8);
 			TreeNode node9 = new TreeNode();
 			node9.Name = node9.Text = devForm.HCIExt_SetFastTxRespTime.cmdName;
-			node9.Tag = (object)devForm.HCIExt_SetFastTxRespTime;
+			node9.Tag = devForm.HCIExt_SetFastTxRespTime;
 			node1.Nodes.Add(node9);
 			TreeNode node10 = new TreeNode();
 			node10.Name = node10.Text = devForm.HCIExt_ModemTestTx.cmdName;
-			node10.Tag = (object)devForm.HCIExt_ModemTestTx;
+			node10.Tag = devForm.HCIExt_ModemTestTx;
 			node1.Nodes.Add(node10);
 			TreeNode node11 = new TreeNode();
 			node11.Name = node11.Text = devForm.HCIExt_ModemHopTestTx.cmdName;
-			node11.Tag = (object)devForm.HCIExt_ModemHopTestTx;
+			node11.Tag = devForm.HCIExt_ModemHopTestTx;
 			node1.Nodes.Add(node11);
 			TreeNode node12 = new TreeNode();
 			node12.Name = node12.Text = devForm.HCIExt_ModemTestRx.cmdName;
-			node12.Tag = (object)devForm.HCIExt_ModemTestRx;
+			node12.Tag = devForm.HCIExt_ModemTestRx;
 			node1.Nodes.Add(node12);
 			TreeNode node13 = new TreeNode();
 			node13.Name = node13.Text = devForm.HCIExt_EndModemTest.cmdName;
-			node13.Tag = (object)devForm.HCIExt_EndModemTest;
+			node13.Tag = devForm.HCIExt_EndModemTest;
 			node1.Nodes.Add(node13);
 			TreeNode node14 = new TreeNode();
 			node14.Name = node14.Text = devForm.HCIExt_SetBDADDR.cmdName;
-			node14.Tag = (object)devForm.HCIExt_SetBDADDR;
+			node14.Tag = devForm.HCIExt_SetBDADDR;
 			node1.Nodes.Add(node14);
 			TreeNode node15 = new TreeNode();
 			node15.Name = node15.Text = devForm.HCIExt_SetSCA.cmdName;
-			node15.Tag = (object)devForm.HCIExt_SetSCA;
+			node15.Tag = devForm.HCIExt_SetSCA;
 			node1.Nodes.Add(node15);
 			TreeNode node16 = new TreeNode();
 			node16.Name = node16.Text = devForm.HCIExt_EnablePTM.cmdName;
-			node16.Tag = (object)devForm.HCIExt_EnablePTM;
+			node16.Tag = devForm.HCIExt_EnablePTM;
 			node1.Nodes.Add(node16);
 			TreeNode node17 = new TreeNode();
 			node17.Name = node17.Text = devForm.HCIExt_SetFreqTune.cmdName;
-			node17.Tag = (object)devForm.HCIExt_SetFreqTune;
+			node17.Tag = devForm.HCIExt_SetFreqTune;
 			node1.Nodes.Add(node17);
 			TreeNode node18 = new TreeNode();
 			node18.Name = node18.Text = devForm.HCIExt_SaveFreqTune.cmdName;
-			node18.Tag = (object)devForm.HCIExt_SaveFreqTune;
+			node18.Tag = devForm.HCIExt_SaveFreqTune;
 			node1.Nodes.Add(node18);
 			TreeNode node19 = new TreeNode();
 			node19.Name = node19.Text = devForm.HCIExt_SetMaxDtmTxPower.cmdName;
-			node19.Tag = (object)devForm.HCIExt_SetMaxDtmTxPower;
+			node19.Tag = devForm.HCIExt_SetMaxDtmTxPower;
 			node1.Nodes.Add(node19);
 			TreeNode node20 = new TreeNode();
 			node20.Name = node20.Text = devForm.HCIExt_MapPmIoPort.cmdName;
-			node20.Tag = (object)devForm.HCIExt_MapPmIoPort;
+			node20.Tag = devForm.HCIExt_MapPmIoPort;
 			node1.Nodes.Add(node20);
 			TreeNode node21 = new TreeNode();
 			node21.Name = node21.Text = devForm.HCIExt_DisconnectImmed.cmdName;
-			node21.Tag = (object)devForm.HCIExt_DisconnectImmed;
+			node21.Tag = devForm.HCIExt_DisconnectImmed;
 			node1.Nodes.Add(node21);
 			TreeNode node22 = new TreeNode();
 			node22.Name = node22.Text = devForm.HCIExt_PER.cmdName;
-			node22.Tag = (object)devForm.HCIExt_PER;
+			node22.Tag = devForm.HCIExt_PER;
 			node1.Nodes.Add(node22);
 			TreeNode node23 = new TreeNode();
 			node23.Text = node23.Name = "L2CAP";
 			tvAdvCmdList.Nodes.Add(node23);
 			TreeNode node24 = new TreeNode();
 			node24.Name = node24.Text = devForm.L2CAP_InfoReq.cmdName;
-			node24.Tag = (object)devForm.L2CAP_InfoReq;
+			node24.Tag = devForm.L2CAP_InfoReq;
 			node23.Nodes.Add(node24);
 			TreeNode node25 = new TreeNode();
 			node25.Name = node25.Text = devForm.L2CAP_ConnParamUpdateReq.cmdName;
-			node25.Tag = (object)devForm.L2CAP_ConnParamUpdateReq;
+			node25.Tag = devForm.L2CAP_ConnParamUpdateReq;
 			node23.Nodes.Add(node25);
 			TreeNode node26 = new TreeNode();
 			node26.Text = node26.Name = "ATT";
 			tvAdvCmdList.Nodes.Add(node26);
 			TreeNode node27 = new TreeNode();
 			node27.Name = node27.Text = devForm.ATT_ErrorRsp.cmdName;
-			node27.Tag = (object)devForm.ATT_ErrorRsp;
+			node27.Tag = devForm.ATT_ErrorRsp;
 			node26.Nodes.Add(node27);
 			TreeNode node28 = new TreeNode();
 			node28.Name = node28.Text = devForm.ATT_ExchangeMTUReq.cmdName;
-			node28.Tag = (object)devForm.ATT_ExchangeMTUReq;
+			node28.Tag = devForm.ATT_ExchangeMTUReq;
 			node26.Nodes.Add(node28);
 			TreeNode node29 = new TreeNode();
 			node29.Name = node29.Text = devForm.ATT_ExchangeMTURsp.cmdName;
-			node29.Tag = (object)devForm.ATT_ExchangeMTURsp;
+			node29.Tag = devForm.ATT_ExchangeMTURsp;
 			node26.Nodes.Add(node29);
 			TreeNode node30 = new TreeNode();
 			node30.Name = node30.Text = devForm.ATT_FindInfoReq.cmdName;
-			node30.Tag = (object)devForm.ATT_FindInfoReq;
+			node30.Tag = devForm.ATT_FindInfoReq;
 			node26.Nodes.Add(node30);
 			TreeNode node31 = new TreeNode();
 			node31.Name = node31.Text = devForm.ATT_FindInfoRsp.cmdName;
-			node31.Tag = (object)devForm.ATT_FindInfoRsp;
+			node31.Tag = devForm.ATT_FindInfoRsp;
 			node26.Nodes.Add(node31);
 			TreeNode node32 = new TreeNode();
 			node32.Name = node32.Text = devForm.ATT_FindByTypeValueReq.cmdName;
-			node32.Tag = (object)devForm.ATT_FindByTypeValueReq;
+			node32.Tag = devForm.ATT_FindByTypeValueReq;
 			node26.Nodes.Add(node32);
 			TreeNode node33 = new TreeNode();
 			node33.Name = node33.Text = devForm.ATT_FindByTypeValueRsp.cmdName;
-			node33.Tag = (object)devForm.ATT_FindByTypeValueRsp;
+			node33.Tag = devForm.ATT_FindByTypeValueRsp;
 			node26.Nodes.Add(node33);
 			TreeNode node34 = new TreeNode();
 			node34.Name = node34.Text = devForm.ATT_ReadByTypeReq.cmdName;
-			node34.Tag = (object)devForm.ATT_ReadByTypeReq;
+			node34.Tag = devForm.ATT_ReadByTypeReq;
 			node26.Nodes.Add(node34);
 			TreeNode node35 = new TreeNode();
 			node35.Name = node35.Text = devForm.ATT_ReadByTypeRsp.cmdName;
-			node35.Tag = (object)devForm.ATT_ReadByTypeRsp;
+			node35.Tag = devForm.ATT_ReadByTypeRsp;
 			node26.Nodes.Add(node35);
 			TreeNode node36 = new TreeNode();
 			node36.Name = node36.Text = devForm.ATT_ReadReq.cmdName;
-			node36.Tag = (object)devForm.ATT_ReadReq;
+			node36.Tag = devForm.ATT_ReadReq;
 			node26.Nodes.Add(node36);
 			TreeNode node37 = new TreeNode();
 			node37.Name = node37.Text = devForm.ATT_ReadRsp.cmdName;
-			node37.Tag = (object)devForm.ATT_ReadRsp;
+			node37.Tag = devForm.ATT_ReadRsp;
 			node26.Nodes.Add(node37);
 			TreeNode node38 = new TreeNode();
 			node38.Name = node38.Text = devForm.ATT_ReadBlobReq.cmdName;
-			node38.Tag = (object)devForm.ATT_ReadBlobReq;
+			node38.Tag = devForm.ATT_ReadBlobReq;
 			node26.Nodes.Add(node38);
 			TreeNode node39 = new TreeNode();
 			node39.Name = node39.Text = devForm.ATT_ReadBlobRsp.cmdName;
-			node39.Tag = (object)devForm.ATT_ReadBlobRsp;
+			node39.Tag = devForm.ATT_ReadBlobRsp;
 			node26.Nodes.Add(node39);
 			TreeNode node40 = new TreeNode();
 			node40.Name = node40.Text = devForm.ATT_ReadMultiReq.cmdName;
-			node40.Tag = (object)devForm.ATT_ReadMultiReq;
+			node40.Tag = devForm.ATT_ReadMultiReq;
 			node26.Nodes.Add(node40);
 			TreeNode node41 = new TreeNode();
 			node41.Name = node41.Text = devForm.ATT_ReadMultiRsp.cmdName;
-			node41.Tag = (object)devForm.ATT_ReadMultiRsp;
+			node41.Tag = devForm.ATT_ReadMultiRsp;
 			node26.Nodes.Add(node41);
 			TreeNode node42 = new TreeNode();
 			node42.Name = node42.Text = devForm.ATT_ReadByGrpTypeReq.cmdName;
-			node42.Tag = (object)devForm.ATT_ReadByGrpTypeReq;
+			node42.Tag = devForm.ATT_ReadByGrpTypeReq;
 			node26.Nodes.Add(node42);
 			TreeNode node43 = new TreeNode();
 			node43.Name = node43.Text = devForm.ATT_ReadByGrpTypeRsp.cmdName;
-			node43.Tag = (object)devForm.ATT_ReadByGrpTypeRsp;
+			node43.Tag = devForm.ATT_ReadByGrpTypeRsp;
 			node26.Nodes.Add(node43);
 			TreeNode node44 = new TreeNode();
 			node44.Name = node44.Text = devForm.ATT_WriteReq.cmdName;
-			node44.Tag = (object)devForm.ATT_WriteReq;
+			node44.Tag = devForm.ATT_WriteReq;
 			node26.Nodes.Add(node44);
 			TreeNode node45 = new TreeNode();
 			node45.Name = node45.Text = devForm.ATT_WriteRsp.cmdName;
-			node45.Tag = (object)devForm.ATT_WriteRsp;
+			node45.Tag = devForm.ATT_WriteRsp;
 			node26.Nodes.Add(node45);
 			TreeNode node46 = new TreeNode();
 			node46.Name = node46.Text = devForm.ATT_PrepareWriteReq.cmdName;
-			node46.Tag = (object)devForm.ATT_PrepareWriteReq;
+			node46.Tag = devForm.ATT_PrepareWriteReq;
 			node26.Nodes.Add(node46);
 			TreeNode node47 = new TreeNode();
 			node47.Name = node47.Text = devForm.ATT_PrepareWriteRsp.cmdName;
-			node47.Tag = (object)devForm.ATT_PrepareWriteRsp;
+			node47.Tag = devForm.ATT_PrepareWriteRsp;
 			node26.Nodes.Add(node47);
 			TreeNode node48 = new TreeNode();
 			node48.Name = node48.Text = devForm.ATT_ExecuteWriteReq.cmdName;
-			node48.Tag = (object)devForm.ATT_ExecuteWriteReq;
+			node48.Tag = devForm.ATT_ExecuteWriteReq;
 			node26.Nodes.Add(node48);
 			TreeNode node49 = new TreeNode();
 			node49.Name = node49.Text = devForm.ATT_ExecuteWriteRsp.cmdName;
-			node49.Tag = (object)devForm.ATT_ExecuteWriteRsp;
+			node49.Tag = devForm.ATT_ExecuteWriteRsp;
 			node26.Nodes.Add(node49);
 			TreeNode node50 = new TreeNode();
 			node50.Name = node50.Text = devForm.ATT_HandleValueNotification.cmdName;
-			node50.Tag = (object)devForm.ATT_HandleValueNotification;
+			node50.Tag = devForm.ATT_HandleValueNotification;
 			node26.Nodes.Add(node50);
 			TreeNode node51 = new TreeNode();
 			node51.Name = node51.Text = devForm.ATT_HandleValueIndication.cmdName;
-			node51.Tag = (object)devForm.ATT_HandleValueIndication;
+			node51.Tag = devForm.ATT_HandleValueIndication;
 			node26.Nodes.Add(node51);
 			TreeNode node52 = new TreeNode();
 			node52.Name = node52.Text = devForm.ATT_HandleValueConfirmation.cmdName;
-			node52.Tag = (object)devForm.ATT_HandleValueConfirmation;
+			node52.Tag = devForm.ATT_HandleValueConfirmation;
 			node26.Nodes.Add(node52);
 			TreeNode node53 = new TreeNode();
 			node53.Text = "GATT";
@@ -3357,244 +3324,244 @@ namespace BTool
 			tvAdvCmdList.Nodes.Add(node53);
 			TreeNode node54 = new TreeNode();
 			node54.Name = node54.Text = devForm.GATT_ExchangeMTU.cmdName;
-			node54.Tag = (object)devForm.GATT_ExchangeMTU;
+			node54.Tag = devForm.GATT_ExchangeMTU;
 			node53.Nodes.Add(node54);
 			TreeNode node55 = new TreeNode();
 			node55.Name = node55.Text = devForm.GATT_DiscAllPrimaryServices.cmdName;
-			node55.Tag = (object)devForm.GATT_DiscAllPrimaryServices;
+			node55.Tag = devForm.GATT_DiscAllPrimaryServices;
 			node53.Nodes.Add(node55);
 			TreeNode node56 = new TreeNode();
 			node56.Name = node56.Text = devForm.GATT_DiscPrimaryServiceByUUID.cmdName;
-			node56.Tag = (object)devForm.GATT_DiscPrimaryServiceByUUID;
+			node56.Tag = devForm.GATT_DiscPrimaryServiceByUUID;
 			node53.Nodes.Add(node56);
 			TreeNode node57 = new TreeNode();
 			node57.Name = node57.Text = devForm.GATT_FindIncludedServices.cmdName;
-			node57.Tag = (object)devForm.GATT_FindIncludedServices;
+			node57.Tag = devForm.GATT_FindIncludedServices;
 			node53.Nodes.Add(node57);
 			TreeNode node58 = new TreeNode();
 			node58.Name = node58.Text = devForm.GATT_DiscAllChars.cmdName;
-			node58.Tag = (object)devForm.GATT_DiscAllChars;
+			node58.Tag = devForm.GATT_DiscAllChars;
 			node53.Nodes.Add(node58);
 			TreeNode node59 = new TreeNode();
 			node59.Name = node59.Text = devForm.GATT_DiscCharsByUUID.cmdName;
-			node59.Tag = (object)devForm.GATT_DiscCharsByUUID;
+			node59.Tag = devForm.GATT_DiscCharsByUUID;
 			node53.Nodes.Add(node59);
 			TreeNode node60 = new TreeNode();
 			node60.Name = node60.Text = devForm.GATT_DiscAllCharDescs.cmdName;
-			node60.Tag = (object)devForm.GATT_DiscAllCharDescs;
+			node60.Tag = devForm.GATT_DiscAllCharDescs;
 			node53.Nodes.Add(node60);
 			TreeNode node61 = new TreeNode();
 			node61.Name = node61.Text = devForm.GATT_ReadCharValue.cmdName;
-			node61.Tag = (object)devForm.GATT_ReadCharValue;
+			node61.Tag = devForm.GATT_ReadCharValue;
 			node53.Nodes.Add(node61);
 			TreeNode node62 = new TreeNode();
 			node62.Name = node62.Text = devForm.GATT_ReadUsingCharUUID.cmdName;
-			node62.Tag = (object)devForm.GATT_ReadUsingCharUUID;
+			node62.Tag = devForm.GATT_ReadUsingCharUUID;
 			node53.Nodes.Add(node62);
 			TreeNode node63 = new TreeNode();
 			node63.Name = node63.Text = devForm.GATT_ReadLongCharValue.cmdName;
-			node63.Tag = (object)devForm.GATT_ReadLongCharValue;
+			node63.Tag = devForm.GATT_ReadLongCharValue;
 			node53.Nodes.Add(node63);
 			TreeNode node64 = new TreeNode();
 			node64.Name = node64.Text = devForm.GATT_ReadMultiCharValues.cmdName;
-			node64.Tag = (object)devForm.GATT_ReadMultiCharValues;
+			node64.Tag = devForm.GATT_ReadMultiCharValues;
 			node53.Nodes.Add(node64);
 			TreeNode node65 = new TreeNode();
 			node65.Name = node65.Text = devForm.GATT_WriteNoRsp.cmdName;
-			node65.Tag = (object)devForm.GATT_WriteNoRsp;
+			node65.Tag = devForm.GATT_WriteNoRsp;
 			node53.Nodes.Add(node65);
 			TreeNode node66 = new TreeNode();
 			node66.Name = node66.Text = devForm.GATT_SignedWriteNoRsp.cmdName;
-			node66.Tag = (object)devForm.GATT_SignedWriteNoRsp;
+			node66.Tag = devForm.GATT_SignedWriteNoRsp;
 			node53.Nodes.Add(node66);
 			TreeNode node67 = new TreeNode();
 			node67.Name = node67.Text = devForm.GATT_WriteCharValue.cmdName;
-			node67.Tag = (object)devForm.GATT_WriteCharValue;
+			node67.Tag = devForm.GATT_WriteCharValue;
 			node53.Nodes.Add(node67);
 			TreeNode node68 = new TreeNode();
 			node68.Name = node68.Text = devForm.GATT_WriteLongCharValue.cmdName;
-			node68.Tag = (object)devForm.GATT_WriteLongCharValue;
+			node68.Tag = devForm.GATT_WriteLongCharValue;
 			node53.Nodes.Add(node68);
 			TreeNode node69 = new TreeNode();
 			node69.Name = node69.Text = devForm.GATT_ReliableWrites.cmdName;
-			node69.Tag = (object)devForm.GATT_ReliableWrites;
+			node69.Tag = devForm.GATT_ReliableWrites;
 			node53.Nodes.Add(node69);
 			TreeNode node70 = new TreeNode();
 			node70.Name = node70.Text = devForm.GATT_ReadCharDesc.cmdName;
-			node70.Tag = (object)devForm.GATT_ReadCharDesc;
+			node70.Tag = devForm.GATT_ReadCharDesc;
 			node53.Nodes.Add(node70);
 			TreeNode node71 = new TreeNode();
 			node71.Name = node71.Text = devForm.GATT_ReadLongCharDesc.cmdName;
-			node71.Tag = (object)devForm.GATT_ReadLongCharDesc;
+			node71.Tag = devForm.GATT_ReadLongCharDesc;
 			node53.Nodes.Add(node71);
 			TreeNode node72 = new TreeNode();
 			node72.Name = node72.Text = devForm.GATT_WriteCharDesc.cmdName;
-			node72.Tag = (object)devForm.GATT_WriteCharDesc;
+			node72.Tag = devForm.GATT_WriteCharDesc;
 			node53.Nodes.Add(node72);
 			TreeNode node73 = new TreeNode();
 			node73.Name = node73.Text = devForm.GATT_WriteLongCharDesc.cmdName;
-			node73.Tag = (object)devForm.GATT_WriteLongCharDesc;
+			node73.Tag = devForm.GATT_WriteLongCharDesc;
 			node53.Nodes.Add(node73);
 			TreeNode node74 = new TreeNode();
 			node74.Name = node74.Text = devForm.GATT_Notification.cmdName;
-			node74.Tag = (object)devForm.GATT_Notification;
+			node74.Tag = devForm.GATT_Notification;
 			node53.Nodes.Add(node74);
 			TreeNode node75 = new TreeNode();
 			node75.Name = node75.Text = devForm.GATT_Indication.cmdName;
-			node75.Tag = (object)devForm.GATT_Indication;
+			node75.Tag = devForm.GATT_Indication;
 			node53.Nodes.Add(node75);
 			TreeNode node76 = new TreeNode();
 			node76.Name = node76.Text = devForm.GATT_AddService.cmdName;
-			node76.Tag = (object)devForm.GATT_AddService;
+			node76.Tag = devForm.GATT_AddService;
 			node53.Nodes.Add(node76);
 			TreeNode node77 = new TreeNode();
 			node77.Name = node77.Text = devForm.GATT_DelService.cmdName;
-			node77.Tag = (object)devForm.GATT_DelService;
+			node77.Tag = devForm.GATT_DelService;
 			node53.Nodes.Add(node77);
 			TreeNode node78 = new TreeNode();
 			node78.Name = node78.Text = devForm.GATT_AddAttribute.cmdName;
-			node78.Tag = (object)devForm.GATT_AddAttribute;
+			node78.Tag = devForm.GATT_AddAttribute;
 			node53.Nodes.Add(node78);
 			TreeNode node79 = new TreeNode();
 			node79.Text = node79.Name = "GAP";
 			tvAdvCmdList.Nodes.Add(node79);
 			TreeNode node80 = new TreeNode();
 			node80.Name = node80.Text = devForm.GAP_DeviceInit.cmdName;
-			node80.Tag = (object)devForm.GAP_DeviceInit;
+			node80.Tag = devForm.GAP_DeviceInit;
 			node79.Nodes.Add(node80);
 			TreeNode node81 = new TreeNode();
 			node81.Name = node81.Text = devForm.GAP_ConfigDeviceAddr.cmdName;
-			node81.Tag = (object)devForm.GAP_ConfigDeviceAddr;
+			node81.Tag = devForm.GAP_ConfigDeviceAddr;
 			node79.Nodes.Add(node81);
 			TreeNode node82 = new TreeNode();
 			node82.Name = node82.Text = devForm.GAP_DeviceDiscoveryRequest.cmdName;
-			node82.Tag = (object)devForm.GAP_DeviceDiscoveryRequest;
+			node82.Tag = devForm.GAP_DeviceDiscoveryRequest;
 			node79.Nodes.Add(node82);
 			TreeNode node83 = new TreeNode();
 			node83.Name = node83.Text = devForm.GAP_DeviceDiscoveryCancel.cmdName;
-			node83.Tag = (object)devForm.GAP_DeviceDiscoveryCancel;
+			node83.Tag = devForm.GAP_DeviceDiscoveryCancel;
 			node79.Nodes.Add(node83);
 			TreeNode node84 = new TreeNode();
 			node84.Name = node84.Text = devForm.GAP_MakeDiscoverable.cmdName;
-			node84.Tag = (object)devForm.GAP_MakeDiscoverable;
+			node84.Tag = devForm.GAP_MakeDiscoverable;
 			node79.Nodes.Add(node84);
 			TreeNode node85 = new TreeNode();
 			node85.Name = node85.Text = devForm.GAP_UpdateAdvertisingData.cmdName;
-			node85.Tag = (object)devForm.GAP_UpdateAdvertisingData;
+			node85.Tag = devForm.GAP_UpdateAdvertisingData;
 			node79.Nodes.Add(node85);
 			TreeNode node86 = new TreeNode();
 			node86.Name = node86.Text = devForm.GAP_EndDiscoverable.cmdName;
-			node86.Tag = (object)devForm.GAP_EndDiscoverable;
+			node86.Tag = devForm.GAP_EndDiscoverable;
 			node79.Nodes.Add(node86);
 			TreeNode node87 = new TreeNode();
 			node87.Name = node87.Text = devForm.GAP_EstablishLinkRequest.cmdName;
-			node87.Tag = (object)devForm.GAP_EstablishLinkRequest;
+			node87.Tag = devForm.GAP_EstablishLinkRequest;
 			node79.Nodes.Add(node87);
 			TreeNode node88 = new TreeNode();
 			node88.Name = node88.Text = devForm.GAP_TerminateLinkRequest.cmdName;
-			node88.Tag = (object)devForm.GAP_TerminateLinkRequest;
+			node88.Tag = devForm.GAP_TerminateLinkRequest;
 			node79.Nodes.Add(node88);
 			TreeNode node89 = new TreeNode();
 			node89.Name = node89.Text = devForm.GAP_Authenticate.cmdName;
-			node89.Tag = (object)devForm.GAP_Authenticate;
+			node89.Tag = devForm.GAP_Authenticate;
 			node79.Nodes.Add(node89);
 			TreeNode node90 = new TreeNode();
 			node90.Name = node90.Text = devForm.GAP_PasskeyUpdate.cmdName;
-			node90.Tag = (object)devForm.GAP_PasskeyUpdate;
+			node90.Tag = devForm.GAP_PasskeyUpdate;
 			node79.Nodes.Add(node90);
 			TreeNode node91 = new TreeNode();
 			node91.Name = node91.Text = devForm.GAP_SlaveSecurityRequest.cmdName;
-			node91.Tag = (object)devForm.GAP_SlaveSecurityRequest;
+			node91.Tag = devForm.GAP_SlaveSecurityRequest;
 			node79.Nodes.Add(node91);
 			TreeNode node92 = new TreeNode();
 			node92.Name = node92.Text = devForm.GAP_Signable.cmdName;
-			node92.Tag = (object)devForm.GAP_Signable;
+			node92.Tag = devForm.GAP_Signable;
 			node79.Nodes.Add(node92);
 			TreeNode node93 = new TreeNode();
 			node93.Name = node93.Text = devForm.GAP_Bond.cmdName;
-			node93.Tag = (object)devForm.GAP_Bond;
+			node93.Tag = devForm.GAP_Bond;
 			node79.Nodes.Add(node93);
 			TreeNode node94 = new TreeNode();
 			node94.Name = node94.Text = devForm.GAP_TerminateAuth.cmdName;
-			node94.Tag = (object)devForm.GAP_TerminateAuth;
+			node94.Tag = devForm.GAP_TerminateAuth;
 			node79.Nodes.Add(node94);
 			TreeNode node95 = new TreeNode();
 			node95.Name = node95.Text = devForm.GAP_UpdateLinkParamReq.cmdName;
-			node95.Tag = (object)devForm.GAP_UpdateLinkParamReq;
+			node95.Tag = devForm.GAP_UpdateLinkParamReq;
 			node79.Nodes.Add(node95);
 			TreeNode node96 = new TreeNode();
 			node96.Name = node96.Text = devForm.GAP_SetParam.cmdName;
-			node96.Tag = (object)devForm.GAP_SetParam;
+			node96.Tag = devForm.GAP_SetParam;
 			node79.Nodes.Add(node96);
 			TreeNode node97 = new TreeNode();
 			node97.Name = node97.Text = devForm.GAP_GetParam.cmdName;
-			node97.Tag = (object)devForm.GAP_GetParam;
+			node97.Tag = devForm.GAP_GetParam;
 			node79.Nodes.Add(node97);
 			TreeNode node98 = new TreeNode();
 			node98.Name = node98.Text = devForm.GAP_ResolvePrivateAddr.cmdName;
-			node98.Tag = (object)devForm.GAP_ResolvePrivateAddr;
+			node98.Tag = devForm.GAP_ResolvePrivateAddr;
 			node79.Nodes.Add(node98);
 			TreeNode node99 = new TreeNode();
 			node99.Name = node99.Text = devForm.GAP_SetAdvToken.cmdName;
-			node99.Tag = (object)devForm.GAP_SetAdvToken;
+			node99.Tag = devForm.GAP_SetAdvToken;
 			node79.Nodes.Add(node99);
 			TreeNode node100 = new TreeNode();
 			node100.Name = node100.Text = devForm.GAP_RemoveAdvToken.cmdName;
-			node100.Tag = (object)devForm.GAP_RemoveAdvToken;
+			node100.Tag = devForm.GAP_RemoveAdvToken;
 			node79.Nodes.Add(node100);
 			TreeNode node101 = new TreeNode();
 			node101.Name = node101.Text = devForm.GAP_UpdateAdvTokens.cmdName;
-			node101.Tag = (object)devForm.GAP_UpdateAdvTokens;
+			node101.Tag = devForm.GAP_UpdateAdvTokens;
 			node79.Nodes.Add(node101);
 			TreeNode node102 = new TreeNode();
 			node102.Name = node102.Text = devForm.GAP_BondSetParam.cmdName;
-			node102.Tag = (object)devForm.GAP_BondSetParam;
+			node102.Tag = devForm.GAP_BondSetParam;
 			node79.Nodes.Add(node102);
 			TreeNode node103 = new TreeNode();
 			node103.Name = node103.Text = devForm.GAP_BondGetParam.cmdName;
-			node103.Tag = (object)devForm.GAP_BondGetParam;
+			node103.Tag = devForm.GAP_BondGetParam;
 			node79.Nodes.Add(node103);
 			TreeNode node104 = new TreeNode();
 			node104.Text = node104.Name = "Util";
 			tvAdvCmdList.Nodes.Add(node104);
 			TreeNode node105 = new TreeNode();
 			node105.Name = node105.Text = devForm.UTIL_Reset.cmdName;
-			node105.Tag = (object)devForm.UTIL_Reset;
+			node105.Tag = devForm.UTIL_Reset;
 			node104.Nodes.Add(node105);
 			TreeNode node106 = new TreeNode();
 			node106.Name = node106.Text = devForm.UTIL_NVRead.cmdName;
-			node106.Tag = (object)devForm.UTIL_NVRead;
+			node106.Tag = devForm.UTIL_NVRead;
 			node104.Nodes.Add(node106);
 			TreeNode node107 = new TreeNode();
 			node107.Name = node107.Text = devForm.UTIL_NVWrite.cmdName;
-			node107.Tag = (object)devForm.UTIL_NVWrite;
+			node107.Tag = devForm.UTIL_NVWrite;
 			node104.Nodes.Add(node107);
 			TreeNode node108 = new TreeNode();
 			node108.Name = node108.Text = devForm.UTIL_ForceBoot.cmdName;
-			node108.Tag = (object)devForm.UTIL_ForceBoot;
+			node108.Tag = devForm.UTIL_ForceBoot;
 			node104.Nodes.Add(node108);
 			TreeNode node109 = new TreeNode();
 			node109.Text = node109.Name = "HCI";
 			tvAdvCmdList.Nodes.Add(node109);
 			TreeNode node110 = new TreeNode();
 			node110.Name = node110.Text = devForm.HCIOther_ReadRSSI.cmdName;
-			node109.Tag = (object)devForm.HCIOther_ReadRSSI;
+			node109.Tag = devForm.HCIOther_ReadRSSI;
 			node109.Nodes.Add(node110);
 			TreeNode node111 = new TreeNode();
 			node111.Name = node111.Text = devForm.HCIOther_LEClearWhiteList.cmdName;
-			node109.Tag = (object)devForm.HCIOther_LEClearWhiteList;
+			node109.Tag = devForm.HCIOther_LEClearWhiteList;
 			node109.Nodes.Add(node111);
 			TreeNode node112 = new TreeNode();
 			node112.Name = node112.Text = devForm.HCIOther_LEAddDeviceToWhiteList.cmdName;
-			node109.Tag = (object)devForm.HCIOther_LEAddDeviceToWhiteList;
+			node109.Tag = devForm.HCIOther_LEAddDeviceToWhiteList;
 			node109.Nodes.Add(node112);
 			TreeNode node113 = new TreeNode();
 			node113.Name = node113.Text = devForm.HCIOther_LERemoveDeviceFromWhiteList.cmdName;
-			node109.Tag = (object)devForm.HCIOther_LERemoveDeviceFromWhiteList;
+			node109.Tag = devForm.HCIOther_LERemoveDeviceFromWhiteList;
 			node109.Nodes.Add(node113);
 			TreeNode node114 = new TreeNode();
 			node114.Name = node114.Text = devForm.HCIOther_LEConnectionUpdate.cmdName;
-			node109.Tag = (object)devForm.HCIOther_LEConnectionUpdate;
+			node109.Tag = devForm.HCIOther_LEConnectionUpdate;
 			node109.Nodes.Add(node114);
 			TreeNode node115 = new TreeNode();
 			node115.Text = "Misc";
@@ -3602,11 +3569,11 @@ namespace BTool
 			tvAdvCmdList.Nodes.Add(node115);
 			TreeNode node116 = new TreeNode();
 			node116.Name = node116.Text = devForm.MISC_GenericCommand.cmdName;
-			node116.Tag = (object)devForm.MISC_GenericCommand;
+			node116.Tag = devForm.MISC_GenericCommand;
 			node115.Nodes.Add(node116);
 			TreeNode node117 = new TreeNode();
 			node117.Name = node117.Text = devForm.MISC_RawTxMessage.cmdName;
-			node117.Tag = (object)devForm.MISC_RawTxMessage;
+			node117.Tag = devForm.MISC_RawTxMessage;
 			node115.Nodes.Add(node117);
 		}
 
@@ -3615,341 +3582,341 @@ namespace BTool
 			switch (tvAdvCmdList.SelectedNode.Text)
 			{
 				case "HCIExt_SetRxGain":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_SetRxGain;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_SetRxGain;
 					break;
 				case "HCIExt_SetTxPower":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_SetTxPower;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_SetTxPower;
 					break;
 				case "HCIExt_OnePktPerEvt":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_OnePktPerEvt;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_OnePktPerEvt;
 					break;
 				case "HCIExt_ClkDivideOnHalt":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_ClkDivideOnHalt;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_ClkDivideOnHalt;
 					break;
 				case "HCIExt_DeclareNvUsage":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_DeclareNvUsage;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_DeclareNvUsage;
 					break;
 				case "HCIExt_Decrypt":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_Decrypt;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_Decrypt;
 					break;
 				case "HCIExt_SetLocalSupportedFeatures":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_SetLocalSupportedFeatures;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_SetLocalSupportedFeatures;
 					break;
 				case "HCIExt_SetFastTxRespTime":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_SetFastTxRespTime;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_SetFastTxRespTime;
 					break;
 				case "HCIExt_ModemTestTx":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_ModemTestTx;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_ModemTestTx;
 					break;
 				case "HCIExt_ModemHopTestTx":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_ModemHopTestTx;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_ModemHopTestTx;
 					break;
 				case "HCIExt_ModemTestRx":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_ModemTestRx;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_ModemTestRx;
 					break;
 				case "HCIExt_EndModemTest":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_EndModemTest;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_EndModemTest;
 					break;
 				case "HCIExt_SetBDADDR":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_SetBDADDR;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_SetBDADDR;
 					break;
 				case "HCIExt_SetSCA":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_SetSCA;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_SetSCA;
 					break;
 				case "HCIExt_EnablePTM":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_EnablePTM;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_EnablePTM;
 					break;
 				case "HCIExt_SetFreqTune":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_SetFreqTune;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_SetFreqTune;
 					break;
 				case "HCIExt_SaveFreqTune":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_SaveFreqTune;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_SaveFreqTune;
 					break;
 				case "HCIExt_SetMaxDtmTxPower":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_SetMaxDtmTxPower;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_SetMaxDtmTxPower;
 					break;
 				case "HCIExt_MapPmIoPort":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_MapPmIoPort;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_MapPmIoPort;
 					break;
 				case "HCIExt_DisconnectImmed":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_DisconnectImmed;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_DisconnectImmed;
 					break;
 				case "HCIExt_PER":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIExt_PER;
+					pgAdvCmds.SelectedObject = devForm.HCIExt_PER;
 					break;
 				case "L2CAP_InfoReq":
-					pgAdvCmds.SelectedObject = (object)devForm.L2CAP_InfoReq;
+					pgAdvCmds.SelectedObject = devForm.L2CAP_InfoReq;
 					break;
 				case "L2CAP_ConnParamUpdateReq":
-					pgAdvCmds.SelectedObject = (object)devForm.L2CAP_ConnParamUpdateReq;
+					pgAdvCmds.SelectedObject = devForm.L2CAP_ConnParamUpdateReq;
 					break;
 				case "ATT_ErrorRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ErrorRsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_ErrorRsp;
 					break;
 				case "ATT_ExchangeMTUReq":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ExchangeMTUReq;
+					pgAdvCmds.SelectedObject = devForm.ATT_ExchangeMTUReq;
 					break;
 				case "ATT_ExchangeMTURsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ExchangeMTURsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_ExchangeMTURsp;
 					break;
 				case "ATT_FindInfoReq":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_FindInfoReq;
+					pgAdvCmds.SelectedObject = devForm.ATT_FindInfoReq;
 					break;
 				case "ATT_FindInfoRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_FindInfoRsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_FindInfoRsp;
 					break;
 				case "ATT_FindByTypeValueReq":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_FindByTypeValueReq;
+					pgAdvCmds.SelectedObject = devForm.ATT_FindByTypeValueReq;
 					break;
 				case "ATT_FindByTypeValueRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_FindByTypeValueRsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_FindByTypeValueRsp;
 					break;
 				case "ATT_ReadByTypeReq":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ReadByTypeReq;
+					pgAdvCmds.SelectedObject = devForm.ATT_ReadByTypeReq;
 					break;
 				case "ATT_ReadByTypeRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ReadByTypeRsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_ReadByTypeRsp;
 					break;
 				case "ATT_ReadReq":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ReadReq;
+					pgAdvCmds.SelectedObject = devForm.ATT_ReadReq;
 					break;
 				case "ATT_ReadRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ReadRsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_ReadRsp;
 					break;
 				case "ATT_ReadBlobReq":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ReadBlobReq;
+					pgAdvCmds.SelectedObject = devForm.ATT_ReadBlobReq;
 					break;
 				case "ATT_ReadBlobRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ReadBlobRsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_ReadBlobRsp;
 					break;
 				case "ATT_ReadMultiReq":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ReadMultiReq;
+					pgAdvCmds.SelectedObject = devForm.ATT_ReadMultiReq;
 					break;
 				case "ATT_ReadMultiRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ReadMultiRsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_ReadMultiRsp;
 					break;
 				case "ATT_ReadByGrpTypeReq":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ReadByGrpTypeReq;
+					pgAdvCmds.SelectedObject = devForm.ATT_ReadByGrpTypeReq;
 					break;
 				case "ATT_ReadByGrpTypeRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ReadByGrpTypeRsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_ReadByGrpTypeRsp;
 					break;
 				case "ATT_WriteReq":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_WriteReq;
+					pgAdvCmds.SelectedObject = devForm.ATT_WriteReq;
 					break;
 				case "ATT_WriteRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_WriteRsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_WriteRsp;
 					break;
 				case "ATT_PrepareWriteReq":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_PrepareWriteReq;
+					pgAdvCmds.SelectedObject = devForm.ATT_PrepareWriteReq;
 					break;
 				case "ATT_PrepareWriteRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_PrepareWriteRsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_PrepareWriteRsp;
 					break;
 				case "ATT_ExecuteWriteReq":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ExecuteWriteReq;
+					pgAdvCmds.SelectedObject = devForm.ATT_ExecuteWriteReq;
 					break;
 				case "ATT_ExecuteWriteRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_ExecuteWriteRsp;
+					pgAdvCmds.SelectedObject = devForm.ATT_ExecuteWriteRsp;
 					break;
 				case "ATT_HandleValueNotification":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_HandleValueNotification;
+					pgAdvCmds.SelectedObject = devForm.ATT_HandleValueNotification;
 					break;
 				case "ATT_HandleValueIndication":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_HandleValueIndication;
+					pgAdvCmds.SelectedObject = devForm.ATT_HandleValueIndication;
 					break;
 				case "ATT_HandleValueConfirmation":
-					pgAdvCmds.SelectedObject = (object)devForm.ATT_HandleValueConfirmation;
+					pgAdvCmds.SelectedObject = devForm.ATT_HandleValueConfirmation;
 					break;
 				case "GATT_ExchangeMTU":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_ExchangeMTU;
+					pgAdvCmds.SelectedObject = devForm.GATT_ExchangeMTU;
 					break;
 				case "GATT_DiscAllPrimaryServices":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_DiscAllPrimaryServices;
+					pgAdvCmds.SelectedObject = devForm.GATT_DiscAllPrimaryServices;
 					break;
 				case "GATT_DiscPrimaryServiceByUUID":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_DiscPrimaryServiceByUUID;
+					pgAdvCmds.SelectedObject = devForm.GATT_DiscPrimaryServiceByUUID;
 					break;
 				case "GATT_FindIncludedServices":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_FindIncludedServices;
+					pgAdvCmds.SelectedObject = devForm.GATT_FindIncludedServices;
 					break;
 				case "GATT_DiscAllChars":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_DiscAllChars;
+					pgAdvCmds.SelectedObject = devForm.GATT_DiscAllChars;
 					break;
 				case "GATT_DiscCharsByUUID":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_DiscCharsByUUID;
+					pgAdvCmds.SelectedObject = devForm.GATT_DiscCharsByUUID;
 					break;
 				case "GATT_DiscAllCharDescs":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_DiscAllCharDescs;
+					pgAdvCmds.SelectedObject = devForm.GATT_DiscAllCharDescs;
 					break;
 				case "GATT_ReadCharValue":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_ReadCharValue;
+					pgAdvCmds.SelectedObject = devForm.GATT_ReadCharValue;
 					break;
 				case "GATT_ReadUsingCharUUID":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_ReadUsingCharUUID;
+					pgAdvCmds.SelectedObject = devForm.GATT_ReadUsingCharUUID;
 					break;
 				case "GATT_ReadLongCharValue":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_ReadLongCharValue;
+					pgAdvCmds.SelectedObject = devForm.GATT_ReadLongCharValue;
 					break;
 				case "GATT_ReadMultiCharValues":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_ReadMultiCharValues;
+					pgAdvCmds.SelectedObject = devForm.GATT_ReadMultiCharValues;
 					break;
 				case "GATT_WriteNoRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_WriteNoRsp;
+					pgAdvCmds.SelectedObject = devForm.GATT_WriteNoRsp;
 					break;
 				case "GATT_SignedWriteNoRsp":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_SignedWriteNoRsp;
+					pgAdvCmds.SelectedObject = devForm.GATT_SignedWriteNoRsp;
 					break;
 				case "GATT_WriteCharValue":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_WriteCharValue;
+					pgAdvCmds.SelectedObject = devForm.GATT_WriteCharValue;
 					break;
 				case "GATT_WriteLongCharValue":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_WriteLongCharValue;
+					pgAdvCmds.SelectedObject = devForm.GATT_WriteLongCharValue;
 					break;
 				case "GATT_ReliableWrites":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_ReliableWrites;
+					pgAdvCmds.SelectedObject = devForm.GATT_ReliableWrites;
 					break;
 				case "GATT_ReadCharDesc":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_ReadCharDesc;
+					pgAdvCmds.SelectedObject = devForm.GATT_ReadCharDesc;
 					break;
 				case "GATT_ReadLongCharDesc":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_ReadLongCharDesc;
+					pgAdvCmds.SelectedObject = devForm.GATT_ReadLongCharDesc;
 					break;
 				case "GATT_WriteCharDesc":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_WriteCharDesc;
+					pgAdvCmds.SelectedObject = devForm.GATT_WriteCharDesc;
 					break;
 				case "GATT_WriteLongCharDesc":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_WriteLongCharDesc;
+					pgAdvCmds.SelectedObject = devForm.GATT_WriteLongCharDesc;
 					break;
 				case "GATT_Notification":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_Notification;
+					pgAdvCmds.SelectedObject = devForm.GATT_Notification;
 					break;
 				case "GATT_Indication":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_Indication;
+					pgAdvCmds.SelectedObject = devForm.GATT_Indication;
 					break;
 				case "GATT_AddService":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_AddService;
+					pgAdvCmds.SelectedObject = devForm.GATT_AddService;
 					break;
 				case "GATT_DelService":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_DelService;
+					pgAdvCmds.SelectedObject = devForm.GATT_DelService;
 					break;
 				case "GATT_AddAttribute":
-					pgAdvCmds.SelectedObject = (object)devForm.GATT_AddAttribute;
+					pgAdvCmds.SelectedObject = devForm.GATT_AddAttribute;
 					break;
 				case "GAP_DeviceInit":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_DeviceInit;
+					pgAdvCmds.SelectedObject = devForm.GAP_DeviceInit;
 					break;
 				case "GAP_ConfigDeviceAddr":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_ConfigDeviceAddr;
+					pgAdvCmds.SelectedObject = devForm.GAP_ConfigDeviceAddr;
 					break;
 				case "GAP_DeviceDiscoveryRequest":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_DeviceDiscoveryRequest;
+					pgAdvCmds.SelectedObject = devForm.GAP_DeviceDiscoveryRequest;
 					break;
 				case "GAP_DeviceDiscoveryCancel":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_DeviceDiscoveryCancel;
+					pgAdvCmds.SelectedObject = devForm.GAP_DeviceDiscoveryCancel;
 					break;
 				case "GAP_MakeDiscoverable":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_MakeDiscoverable;
+					pgAdvCmds.SelectedObject = devForm.GAP_MakeDiscoverable;
 					break;
 				case "GAP_UpdateAdvertisingData":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_UpdateAdvertisingData;
+					pgAdvCmds.SelectedObject = devForm.GAP_UpdateAdvertisingData;
 					break;
 				case "GAP_EndDiscoverable":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_EndDiscoverable;
+					pgAdvCmds.SelectedObject = devForm.GAP_EndDiscoverable;
 					break;
 				case "GAP_EstablishLinkRequest":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_EstablishLinkRequest;
+					pgAdvCmds.SelectedObject = devForm.GAP_EstablishLinkRequest;
 					break;
 				case "GAP_TerminateLinkRequest":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_TerminateLinkRequest;
+					pgAdvCmds.SelectedObject = devForm.GAP_TerminateLinkRequest;
 					break;
 				case "GAP_Authenticate":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_Authenticate;
+					pgAdvCmds.SelectedObject = devForm.GAP_Authenticate;
 					break;
 				case "GAP_PasskeyUpdate":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_PasskeyUpdate;
+					pgAdvCmds.SelectedObject = devForm.GAP_PasskeyUpdate;
 					break;
 				case "GAP_SlaveSecurityRequest":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_SlaveSecurityRequest;
+					pgAdvCmds.SelectedObject = devForm.GAP_SlaveSecurityRequest;
 					break;
 				case "GAP_Signable":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_Signable;
+					pgAdvCmds.SelectedObject = devForm.GAP_Signable;
 					break;
 				case "GAP_Bond":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_Bond;
+					pgAdvCmds.SelectedObject = devForm.GAP_Bond;
 					break;
 				case "GAP_TerminateAuth":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_TerminateAuth;
+					pgAdvCmds.SelectedObject = devForm.GAP_TerminateAuth;
 					break;
 				case "GAP_UpdateLinkParamReq":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_UpdateLinkParamReq;
+					pgAdvCmds.SelectedObject = devForm.GAP_UpdateLinkParamReq;
 					break;
 				case "GAP_SetParam":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_SetParam;
+					pgAdvCmds.SelectedObject = devForm.GAP_SetParam;
 					break;
 				case "GAP_GetParam":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_GetParam;
+					pgAdvCmds.SelectedObject = devForm.GAP_GetParam;
 					break;
 				case "GAP_ResolvePrivateAddr":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_ResolvePrivateAddr;
+					pgAdvCmds.SelectedObject = devForm.GAP_ResolvePrivateAddr;
 					break;
 				case "GAP_SetAdvToken":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_SetAdvToken;
+					pgAdvCmds.SelectedObject = devForm.GAP_SetAdvToken;
 					break;
 				case "GAP_RemoveAdvToken":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_RemoveAdvToken;
+					pgAdvCmds.SelectedObject = devForm.GAP_RemoveAdvToken;
 					break;
 				case "GAP_UpdateAdvTokens":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_UpdateAdvTokens;
+					pgAdvCmds.SelectedObject = devForm.GAP_UpdateAdvTokens;
 					break;
 				case "GAP_BondSetParam":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_BondSetParam;
+					pgAdvCmds.SelectedObject = devForm.GAP_BondSetParam;
 					break;
 				case "GAP_BondGetParam":
-					pgAdvCmds.SelectedObject = (object)devForm.GAP_BondGetParam;
+					pgAdvCmds.SelectedObject = devForm.GAP_BondGetParam;
 					break;
 				case "UTIL_Reset":
-					pgAdvCmds.SelectedObject = (object)devForm.UTIL_Reset;
+					pgAdvCmds.SelectedObject = devForm.UTIL_Reset;
 					break;
 				case "UTIL_NVRead":
-					pgAdvCmds.SelectedObject = (object)devForm.UTIL_NVRead;
+					pgAdvCmds.SelectedObject = devForm.UTIL_NVRead;
 					break;
 				case "UTIL_NVWrite":
-					pgAdvCmds.SelectedObject = (object)devForm.UTIL_NVWrite;
+					pgAdvCmds.SelectedObject = devForm.UTIL_NVWrite;
 					break;
 				case "UTIL_ForceBoot":
-					pgAdvCmds.SelectedObject = (object)devForm.UTIL_ForceBoot;
+					pgAdvCmds.SelectedObject = devForm.UTIL_ForceBoot;
 					break;
 				case "HCI_ReadRSSI":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIOther_ReadRSSI;
+					pgAdvCmds.SelectedObject = devForm.HCIOther_ReadRSSI;
 					break;
 				case "HCI_LEClearWhiteList":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIOther_LEClearWhiteList;
+					pgAdvCmds.SelectedObject = devForm.HCIOther_LEClearWhiteList;
 					break;
 				case "HCI_LEAddDeviceToWhiteList":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIOther_LEAddDeviceToWhiteList;
+					pgAdvCmds.SelectedObject = devForm.HCIOther_LEAddDeviceToWhiteList;
 					break;
 				case "HCI_LERemoveDeviceFromWhiteList":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIOther_LERemoveDeviceFromWhiteList;
+					pgAdvCmds.SelectedObject = devForm.HCIOther_LERemoveDeviceFromWhiteList;
 					break;
 				case "HCI_LEConnectionUpdate":
-					pgAdvCmds.SelectedObject = (object)devForm.HCIOther_LEConnectionUpdate;
+					pgAdvCmds.SelectedObject = devForm.HCIOther_LEConnectionUpdate;
 					break;
 				case "MISC_GenericCommand":
-					pgAdvCmds.SelectedObject = (object)devForm.MISC_GenericCommand;
+					pgAdvCmds.SelectedObject = devForm.MISC_GenericCommand;
 					break;
 				case "MISC_RawTxMessage":
-					pgAdvCmds.SelectedObject = (object)devForm.MISC_RawTxMessage;
+					pgAdvCmds.SelectedObject = devForm.MISC_RawTxMessage;
 					break;
 				case "Send All Msgs":
 				case "Send All Events":
 				case "Send All Forever":
 				case "Send Attr Data Cmds":
 				case "Test Case":
-					pgAdvCmds.SelectedObject = (object)tvAdvCmdList.SelectedNode.Text;
+					pgAdvCmds.SelectedObject = tvAdvCmdList.SelectedNode.Text;
 					break;
 				default:
-					pgAdvCmds.SelectedObject = (object)null;
+					pgAdvCmds.SelectedObject = null;
 					break;
 			}
 			if (pgAdvCmds.SelectedObject == null)
@@ -4578,7 +4545,7 @@ namespace BTool
 			if (cbReadType.SelectedIndex == 0)
 			{
 				HCICmds.GATTCmds.GATT_ReadCharValue gattReadCharValue = new HCICmds.GATTCmds.GATT_ReadCharValue();
-				tbReadValue.Tag = (object)string.Empty;
+				tbReadValue.Tag = string.Empty;
 				tbReadValue.Text = "";
 				tbReadStatus.Text = "Reading...";
 				try
@@ -4587,7 +4554,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadConnHandle.Focus();
 					flag = true;
@@ -4598,7 +4565,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid Characteristic Value Handle(s)\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid Characteristic Value Handle(s)\nFormat: 0x0000\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadAttrHandle.Focus();
 					flag = true;
@@ -4611,7 +4578,7 @@ namespace BTool
 			else if (cbReadType.SelectedIndex == 1)
 			{
 				HCICmds.GATTCmds.GATT_ReadUsingCharUUID readUsingCharUuid = new HCICmds.GATTCmds.GATT_ReadUsingCharUUID();
-				tbReadValue.Tag = (object)string.Empty;
+				tbReadValue.Tag = string.Empty;
 				tbReadValue.Text = "";
 				tbReadStatus.Text = "Reading...";
 				try
@@ -4620,7 +4587,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadConnHandle.Focus();
 					flag = true;
@@ -4631,7 +4598,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid Start Handle\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid Start Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadStartHandle.Focus();
 					flag = true;
@@ -4642,7 +4609,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid End Handle\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid End Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadEndHandle.Focus();
 					flag = true;
@@ -4661,7 +4628,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid UUID Entry.\nFormat Is Either 00:00 or 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid UUID Entry.\nFormat Is Either 00:00 or 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadUUID.Focus();
 					flag = true;
@@ -4674,7 +4641,7 @@ namespace BTool
 			else if (cbReadType.SelectedIndex == 2)
 			{
 				HCICmds.GATTCmds.GATT_ReadMultiCharValues readMultiCharValues = new HCICmds.GATTCmds.GATT_ReadMultiCharValues();
-				tbReadValue.Tag = (object)string.Empty;
+				tbReadValue.Tag = string.Empty;
 				tbReadValue.Text = "";
 				tbReadStatus.Text = "Reading...";
 				try
@@ -4683,7 +4650,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadConnHandle.Focus();
 					flag = true;
@@ -4694,7 +4661,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid Characteristic Value Handle(s)\nFormat: 0x0001;0x0002\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid Characteristic Value Handle(s)\nFormat: 0x0001;0x0002\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadAttrHandle.Focus();
 					flag = true;
@@ -4709,7 +4676,7 @@ namespace BTool
 				if (cbReadType.SelectedIndex != 3)
 					return;
 				HCICmds.GATTCmds.GATT_DiscCharsByUUID gattDiscCharsByUuid = new HCICmds.GATTCmds.GATT_DiscCharsByUUID();
-				tbReadValue.Tag = (object)string.Empty;
+				tbReadValue.Tag = string.Empty;
 				tbReadValue.Text = "";
 				tbReadStatus.Text = "Reading...";
 				try
@@ -4718,7 +4685,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadConnHandle.Focus();
 					flag = true;
@@ -4729,7 +4696,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid Start Handle\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid Start Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadStartHandle.Focus();
 					flag = true;
@@ -4740,7 +4707,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid End Handle\nFormat: 0x0000\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid End Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadEndHandle.Focus();
 					flag = true;
@@ -4759,7 +4726,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid UUID Entry.\nFormat Is Either 00:00 or 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00\n\n{0}\n", (object)ex.Message);
+					string msg = string.Format("Invalid UUID Entry.\nFormat Is Either 00:00 or 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00\n\n{0}\n", ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadUUID.Focus();
 					flag = true;
@@ -4782,7 +4749,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Invalid Connection Handle\n\n{0}\n", (object)ex.Message);
+				string msg = string.Format("Invalid Connection Handle\n\n{0}\n", ex.Message);
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 				tbWriteConnHandle.Focus();
 				flag = true;
@@ -4793,7 +4760,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Invalid Characteristic Value Handle(s)\n\n{0}\n", (object)ex.Message);
+				string msg = string.Format("Invalid Characteristic Value Handle(s)\n\n{0}\n", ex.Message);
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 				tbWriteAttrHandle.Focus();
 				flag = true;
@@ -4827,12 +4794,12 @@ namespace BTool
 			{
 				if (devUtils.String2Bytes_LSBMSB(valStr, (byte)16) != null)
 				{
-					tbWriteValue.Tag = (object)valStr;
+					tbWriteValue.Tag = valStr;
 					return true;
 				}
 				else
 				{
-					string msg = string.Format("Invalid Hex Value '{0}'\nFormat#1: 11:22:33:44:55:66\nFormat#2: 11 22 33 44 55 66\n", (object)valStr);
+					string msg = string.Format("Invalid Hex Value '{0}'\nFormat#1: 11:22:33:44:55:66\nFormat#2: 11 22 33 44 55 66\n", valStr);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					return false;
 				}
@@ -4862,21 +4829,21 @@ namespace BTool
 								else
 									continue;
 							}
-							str = str + string.Format("{0:X2} ", (object)bytes[(int)index2]);
+							str = str + string.Format("{0:X2} ", bytes[(int)index2]);
 						}
-						tbWriteValue.Tag = (object)str.Trim();
+						tbWriteValue.Tag = str.Trim();
 						return true;
 					}
 					else
 					{
-						string msg = string.Format("Invalid Dec Value '{0}'\nValid Range 0 to 4294967295\n", (object)valStr);
+						string msg = string.Format("Invalid Dec Value '{0}'\nValid Range 0 to 4294967295\n", valStr);
 						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 						return false;
 					}
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Invalid Dec Value '{0}'\nValid Range 0 to 4294967295\n\n{1}", (object)valStr, (object)ex.Message);
+					string msg = string.Format("Invalid Dec Value '{0}'\nValid Range 0 to 4294967295\n\n{1}", valStr, ex.Message);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					return false;
 				}
@@ -4889,13 +4856,13 @@ namespace BTool
 				if (numArray != null)
 				{
 					for (byte index = (byte)0; (int)index < numArray.Length; ++index)
-						str = str + string.Format("{0:X2} ", (object)numArray[(int)index]);
-					tbWriteValue.Tag = (object)str.Trim();
+						str = str + string.Format("{0:X2} ", numArray[(int)index]);
+					tbWriteValue.Tag = str.Trim();
 					return true;
 				}
 				else
 				{
-					string msg = string.Format("Invalid ASCII Value '{0}'\nFormat: Sample\n", (object)valStr);
+					string msg = string.Format("Invalid ASCII Value '{0}'\nFormat: Sample\n", valStr);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					return false;
 				}

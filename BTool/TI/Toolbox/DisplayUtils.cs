@@ -49,14 +49,14 @@ namespace TI.Toolbox
 
 		public void CheckHexKeyDown(object sender, KeyEventArgs e)
 		{
-			if (Regex.IsMatch(((object)e.KeyCode).ToString(), "\\b[0-9a-fA-F]+\\b") || CheckKeyExceptions(e))
+			if (Regex.IsMatch(e.KeyCode.ToString(), "\\b[0-9a-fA-F]+\\b") || CheckKeyExceptions(e))
 				return;
 			e.Handled = true;
 		}
 
 		public void CheckNumericKeyDown(object sender, KeyEventArgs e)
 		{
-			if (Regex.IsMatch(((object)e.KeyCode).ToString(), "\\b[0-9]+\\b") || CheckKeyExceptions(e))
+			if (Regex.IsMatch(e.KeyCode.ToString(), "\\b[0-9]+\\b") || CheckKeyExceptions(e))
 				return;
 			e.Handled = true;
 		}
@@ -88,9 +88,7 @@ namespace TI.Toolbox
 					return;
 				DisplayUtils.HideCaret(((Control)sender).Handle);
 			}
-			catch
-			{
-			}
+			catch { }
 		}
 
 		public void ComboBoxHideCursor(object sender, EventArgs e)
@@ -101,9 +99,7 @@ namespace TI.Toolbox
 					return;
 				DisplayUtils.HideCaret(((Control)sender).Handle);
 			}
-			catch
-			{
-			}
+			catch { }
 		}
 
 		public void SetTbColor(object tbox, Color fore, Color back)

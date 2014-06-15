@@ -266,7 +266,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Invalid COM Port Name Found During Sort.\nSort Terminated.\n\n{0}\n", (object)ex.Message);
+				string msg = string.Format("Invalid COM Port Name Found During Sort.\nSort Terminated.\n\n{0}\n", ex.Message);
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 			}
 			return 0;
@@ -304,21 +304,20 @@ namespace BTool
 				{
 					foreach (string str in portNames)
 					{
-						cbPorts.Items.Add((object)str);
+						cbPorts.Items.Add(str);
 						if (str == Settings.Default.ComPortName)
 							num2 = num1;
 						++num1;
 					}
 				}
 				else
-					cbPorts.Items.Add((object)"No Ports Found");
+					cbPorts.Items.Add("No Ports Found");
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Invalid COM Port Name Found During Form Load.\nPort Name Load Stopped Before Completion.\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid COM Port Name Found During Form Load.\nPort Name Load Stopped Before Completion.\n\n{0}\n", ex.Message));
 				if (num1 == 0)
-					cbPorts.Items.Add((object)"No Ports Found");
+					cbPorts.Items.Add("No Ports Found");
 			}
 			cbPorts.SelectedIndex = num2;
 			int index1 = 0;

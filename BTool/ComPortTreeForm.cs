@@ -8,6 +8,25 @@ namespace BTool
 {
 	public class ComPortTreeForm : Form
 	{
+		private enum NodeNames
+		{
+			PortName,
+			PortInfo,
+			Port,
+			Baudrate,
+			FlowControl,
+			DataBits,
+			Parity,
+			StopBits,
+			DeviceInfo,
+			HostHandle,
+			HostBda,
+			ConnectionInfo,
+			SlaveHandle,
+			SlaveAddrType,
+			SlaveBda,
+		}
+
 		public static string moduleName = "ComPortTreeForm";
 		private MsgBox msgBox = new MsgBox();
 		private TreeViewUtils treeViewUtils = new TreeViewUtils();
@@ -221,22 +240,22 @@ namespace BTool
 					if (deviceInfo.comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
 					{
 						TreeNode node1 = new TreeNode();
-						node1.Name = ((object)ComPortTreeForm.NodeNames.DeviceInfo).ToString();
-						node1.Text = string.Format("Device Info:", new object[0]);
+						node1.Name = ComPortTreeForm.NodeNames.DeviceInfo.ToString();
+						node1.Text = string.Format("Device Info:");
 						node1.NodeFont = underlineFont;
 						node1.Tag = treeNode.Tag;
-						node1.ToolTipText = string.Format("Information About The Direct Connect Device.", new object[0]);
+						node1.ToolTipText = string.Format("Information About The Direct Connect Device.");
 						TreeNode node2 = new TreeNode();
-						node2.Name = ((object)ComPortTreeForm.NodeNames.HostHandle).ToString();
-						node2.Text = string.Format("Handle: 0x{0:X4}", (object)65534);
-						deviceInfo.handle = (ushort)65534;
+						node2.Name = ComPortTreeForm.NodeNames.HostHandle.ToString();
+						node2.Text = string.Format("Handle: 0x{0:X4}", 65534);
+						deviceInfo.handle = 65534;
 						node2.Tag = treeNode.Tag;
-						node2.ToolTipText = string.Format("Device Handle\nSelect Handle Then Right Click To See Options.", new object[0]);
+						node2.ToolTipText = string.Format("Device Handle\nSelect Handle Then Right Click To See Options.");
 						TreeNode node3 = new TreeNode();
-						node3.Name = ((object)ComPortTreeForm.NodeNames.HostBda).ToString();
-						node3.Text = string.Format("BDAddr: {0:S}", (object)str);
+						node3.Name = ComPortTreeForm.NodeNames.HostBda.ToString();
+						node3.Text = string.Format("BDAddr: {0:S}", str);
 						node3.Tag = treeNode.Tag;
-						node3.ToolTipText = string.Format("Bluetooth Device Address\nSelect Address Then Right Click To See Options.", new object[0]);
+						node3.ToolTipText = string.Format("Bluetooth Device Address\nSelect Address Then Right Click To See Options.");
 						if (treeNode.FirstNode.NextNode == null)
 						{
 							treeNode.Nodes.Add(node1);
@@ -264,27 +283,27 @@ namespace BTool
 					if (deviceInfo.comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
 					{
 						TreeNode node1 = new TreeNode();
-						node1.Name = ((object)ComPortTreeForm.NodeNames.ConnectionInfo).ToString();
-						node1.Text = string.Format("Connection Info:", new object[0]);
+						node1.Name = ComPortTreeForm.NodeNames.ConnectionInfo.ToString();
+						node1.Text = string.Format("Connection Info:");
 						node1.NodeFont = underlineFont;
 						node1.Tag = treeNode.Tag;
-						node1.ToolTipText = string.Format("Device Connection Information (Over the Air Connection)", new object[0]);
+						node1.ToolTipText = string.Format("Device Connection Information (Over the Air Connection)");
 						TreeNode node2 = new TreeNode();
-						node2.Name = ((object)ComPortTreeForm.NodeNames.SlaveHandle).ToString();
-						node2.Text = string.Format("Handle: 0x{0:X4}", (object)connectInfo.handle);
+						node2.Name = ComPortTreeForm.NodeNames.SlaveHandle.ToString();
+						node2.Text = string.Format("Handle: 0x{0:X4}", connectInfo.handle);
 						deviceInfo.connectInfo.handle = connectInfo.handle;
 						node2.Tag = treeNode.Tag;
-						node2.ToolTipText = string.Format("Connection Handle\nSelect Handle Then Right Click To See Options.", new object[0]);
+						node2.ToolTipText = string.Format("Connection Handle\nSelect Handle Then Right Click To See Options.");
 						TreeNode node3 = new TreeNode();
-						node3.Name = ((object)ComPortTreeForm.NodeNames.SlaveAddrType).ToString();
-						node3.Text = string.Format("Addr Type: 0x{0:X2} ({1:S})", (object)connectInfo.addrType, (object)devUtils.GetGapAddrTypeStr(connectInfo.addrType));
+						node3.Name = ComPortTreeForm.NodeNames.SlaveAddrType.ToString();
+						node3.Text = string.Format("Addr Type: 0x{0:X2} ({1:S})", connectInfo.addrType, devUtils.GetGapAddrTypeStr(connectInfo.addrType));
 						node3.Tag = treeNode.Tag;
-						node3.ToolTipText = string.Format("Address Type", new object[0]);
+						node3.ToolTipText = string.Format("Address Type");
 						TreeNode node4 = new TreeNode();
-						node4.Name = ((object)ComPortTreeForm.NodeNames.SlaveBda).ToString();
-						node4.Text = string.Format("Slave BDA: {0:S}", (object)connectInfo.bDA);
+						node4.Name = ComPortTreeForm.NodeNames.SlaveBda.ToString();
+						node4.Text = string.Format("Slave BDA: {0:S}", connectInfo.bDA);
 						node4.Tag = treeNode.Tag;
-						node4.ToolTipText = string.Format("Slave Bluetooth Device Address\nSelect Address Then Right Click To See Options.", new object[0]);
+						node4.ToolTipText = string.Format("Slave Bluetooth Device Address\nSelect Address Then Right Click To See Options.");
 						treeNode.Nodes.Add(node1);
 						node1.Nodes.Add(node2);
 						node1.Nodes.Add(node3);
@@ -308,7 +327,7 @@ namespace BTool
 				{
 					if (((DeviceInfo)treeNode.Tag).comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
 					{
-						string target = string.Format("Handle: 0x{0:X4}", (object)connectInfo.handle);
+						string target = string.Format("Handle: 0x{0:X4}", connectInfo.handle);
 						SharedObjects.log.Write(Logging.MsgType.Debug, ComPortTreeForm.moduleName, "Disconnecting Device " + target);
 						if (flag = treeViewUtils.TreeNodeTextSearchAndDestroy(treeNode, target))
 							break;
@@ -336,50 +355,50 @@ namespace BTool
 			node2.Name = ((object)ComPortTreeForm.NodeNames.PortInfo).ToString();
 			node2.Text = "Port Info";
 			node2.Tag = (object)devInfo;
-			node2.ToolTipText = string.Format("Information About The Device Port", new object[0]);
+			node2.ToolTipText = string.Format("Information About The Device Port");
 			node1.Nodes.Add(node2);
 			node2.NodeFont = underlineFont;
 			node2.Nodes.Add(new TreeNode()
 			{
-				Name = ((object)ComPortTreeForm.NodeNames.Port).ToString(),
-				Text = string.Format("Port: {0:S}", (object)devInfo.comPortInfo.comPort),
-				Tag = (object)devInfo,
-				ToolTipText = string.Format("Port Name", new object[0])
+				Name = ComPortTreeForm.NodeNames.Port.ToString(),
+				Text = string.Format("Port: {0:S}", devInfo.comPortInfo.comPort),
+				Tag = devInfo,
+				ToolTipText = string.Format("Port Name")
 			});
 			node2.Nodes.Add(new TreeNode()
 			{
-				Name = ((object)ComPortTreeForm.NodeNames.Baudrate).ToString(),
-				Text = string.Format("Baudrate: {0:S}", (object)devInfo.comPortInfo.baudRate),
-				Tag = (object)devInfo,
-				ToolTipText = string.Format("Port Baudrate", new object[0])
+				Name = ComPortTreeForm.NodeNames.Baudrate.ToString(),
+				Text = string.Format("Baudrate: {0:S}", devInfo.comPortInfo.baudRate),
+				Tag = devInfo,
+				ToolTipText = string.Format("Port Baudrate")
 			});
 			node2.Nodes.Add(new TreeNode()
 			{
-				Name = ((object)ComPortTreeForm.NodeNames.FlowControl).ToString(),
-				Text = string.Format("Flow Control: {0:S}", (object)devInfo.comPortInfo.flow),
-				Tag = (object)devInfo,
-				ToolTipText = string.Format("Port Flow Of Control Method", new object[0])
+				Name = ComPortTreeForm.NodeNames.FlowControl.ToString(),
+				Text = string.Format("Flow Control: {0:S}", devInfo.comPortInfo.flow),
+				Tag = devInfo,
+				ToolTipText = string.Format("Port Flow Of Control Method")
 			});
 			node2.Nodes.Add(new TreeNode()
 			{
-				Name = ((object)ComPortTreeForm.NodeNames.DataBits).ToString(),
-				Text = string.Format("Data Bits: {0:S}", (object)devInfo.comPortInfo.dataBits),
-				Tag = (object)devInfo,
-				ToolTipText = string.Format("Port Data Bits", new object[0])
+				Name = ComPortTreeForm.NodeNames.DataBits.ToString(),
+				Text = string.Format("Data Bits: {0:S}", devInfo.comPortInfo.dataBits),
+				Tag = devInfo,
+				ToolTipText = string.Format("Port Data Bits")
 			});
 			node2.Nodes.Add(new TreeNode()
 			{
-				Name = ((object)ComPortTreeForm.NodeNames.Parity).ToString(),
-				Text = string.Format("Parity: {0:S}", (object)devInfo.comPortInfo.parity),
-				ToolTipText = string.Format("Port Parity Bits", new object[0]),
-				Tag = (object)devInfo
+				Name = ComPortTreeForm.NodeNames.Parity.ToString(),
+				Text = string.Format("Parity: {0:S}", devInfo.comPortInfo.parity),
+				ToolTipText = string.Format("Port Parity Bits"),
+				Tag = devInfo
 			});
 			node2.Nodes.Add(new TreeNode()
 			{
-				Name = ((object)ComPortTreeForm.NodeNames.StopBits).ToString(),
-				Text = string.Format("Stop Bits: {0:S}", (object)devInfo.comPortInfo.stopBits),
-				Tag = (object)devInfo,
-				ToolTipText = string.Format("Port Stop Bits", new object[0])
+				Name = ComPortTreeForm.NodeNames.StopBits.ToString(),
+				Text = string.Format("Stop Bits: {0:S}", devInfo.comPortInfo.stopBits),
+				Tag = devInfo,
+				ToolTipText = string.Format("Port Stop Bits")
 			});
 			node1.Expand();
 			return flag;
@@ -612,8 +631,7 @@ namespace BTool
 			this.tsmiDiscoverAllUuids.Name = "tsmiDiscoverAllUuids";
 			this.tsmiDiscoverAllUuids.Size = new System.Drawing.Size(380, 22);
 			this.tsmiDiscoverAllUuids.Text = "Discover &UUIDs (All Devices Connected To This Port)";
-			this.tsmiDiscoverAllUuids.ToolTipText = "Start A Message Sequence To Discover UUID\'s \r\nOn All Connected Devices To This Po" +
-    "rt";
+			this.tsmiDiscoverAllUuids.ToolTipText = "Start A Message Sequence To Discover UUID\'s \r\nOn All Connected Devices To This Port";
 			this.tsmiDiscoverAllUuids.Click += new System.EventHandler(this.tsmiDiscoverAllUuids_Click);
 			// 
 			// tsmiReadAllValues
@@ -621,8 +639,7 @@ namespace BTool
 			this.tsmiReadAllValues.Name = "tsmiReadAllValues";
 			this.tsmiReadAllValues.Size = new System.Drawing.Size(380, 22);
 			this.tsmiReadAllValues.Text = "Read &Values (All Devices Connected To This Port)";
-			this.tsmiReadAllValues.ToolTipText = "Start A Message Sequence To Discover UUID\'s And Read Values \r\nOn All Connected De" +
-    "vices To This Port\r\n";
+			this.tsmiReadAllValues.ToolTipText = "Start A Message Sequence To Discover UUID\'s And Read Values \r\nOn All Connected Devices To This Port\r\n";
 			this.tsmiReadAllValues.Click += new System.EventHandler(this.tsmiReadAllValues_Click);
 			// 
 			// toolStripSeparator3
@@ -651,25 +668,6 @@ namespace BTool
 			this.cmsTreeComPort.ResumeLayout(false);
 			this.ResumeLayout(false);
 
-		}
-
-		private enum NodeNames
-		{
-			PortName,
-			PortInfo,
-			Port,
-			Baudrate,
-			FlowControl,
-			DataBits,
-			Parity,
-			StopBits,
-			DeviceInfo,
-			HostHandle,
-			HostBda,
-			ConnectionInfo,
-			SlaveHandle,
-			SlaveAddrType,
-			SlaveBda,
 		}
 	}
 }

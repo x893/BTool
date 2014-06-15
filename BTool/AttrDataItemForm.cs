@@ -1098,14 +1098,9 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new AttExecuteWriteRsp.AttExecuteWriteRspDelegate(AttExecuteWriteRsp), new object[1]
-          {
-            (object) rspInfo
-          });
+					Invoke((Delegate)new AttExecuteWriteRsp.AttExecuteWriteRspDelegate(AttExecuteWriteRsp), rspInfo);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 			{
@@ -1151,9 +1146,7 @@ namespace BTool
 				{
 					Invoke((Delegate)new AttrDataItemForm.SendCmdResultDelegate(SendCmdResult), result, cmdName);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 			{
@@ -1173,7 +1166,7 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new AttrDataItemForm.RestoreFormInputDelegate(RestoreFormInput), new object[0]);
+					Invoke((Delegate)new AttrDataItemForm.RestoreFormInputDelegate(RestoreFormInput));
 				}
 				catch { }
 			}
@@ -1183,11 +1176,11 @@ namespace BTool
 
 		private void ClearRspDelegates()
 		{
-			devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = (ExtCmdStatus.ExtCmdStatusDelegate)null;
-			devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = (AttErrorRsp.AttErrorRspDelegate)null;
-			devForm.threadMgr.rspDataIn.attReadBlobRsp.AttReadBlobRspCallback = (AttReadBlobRsp.AttReadBlobRspDelegate)null;
-			devForm.threadMgr.rspDataIn.attExecuteWriteRsp.AttExecuteWriteRspCallback = (AttExecuteWriteRsp.AttExecuteWriteRspDelegate)null;
-			devForm.threadMgr.rspDataIn.attPrepareWriteRsp.AttPrepareWriteRspCallback = (AttPrepareWriteRsp.AttPrepareWriteRspDelegate)null;
+			devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = null;
+			devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = null;
+			devForm.threadMgr.rspDataIn.attReadBlobRsp.AttReadBlobRspCallback = null;
+			devForm.threadMgr.rspDataIn.attExecuteWriteRsp.AttExecuteWriteRspCallback = null;
+			devForm.threadMgr.rspDataIn.attPrepareWriteRsp.AttPrepareWriteRspCallback = null;
 		}
 	}
 }

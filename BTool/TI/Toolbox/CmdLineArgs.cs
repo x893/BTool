@@ -36,8 +36,7 @@ namespace TI.Toolbox
 			}
 			catch (Exception ex)
 			{
-				string msg = "Set Problem\n" + ex.Message + "\nCmdLineArgs\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Set Problem\n" + ex.Message + "\nCmdLineArgs\n");
 				flag = false;
 			}
 			return flag;
@@ -46,21 +45,17 @@ namespace TI.Toolbox
 		public bool Get(out string[] cmdArgs)
 		{
 			bool flag = true;
-			cmdArgs = (string[])null;
+			cmdArgs = null;
 			try
 			{
 				if (cmdLineArgs != null && cmdLineArgs.Length > 0)
-				{
-					cmdArgs = new string[cmdLineArgs.Length];
 					cmdArgs = cmdLineArgs;
-				}
 				else
 					flag = false;
 			}
 			catch (Exception ex)
 			{
-				string msg = "Get Problem\n" + ex.Message + "\nCmdLineArgs\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Get Problem\n" + ex.Message + "\nCmdLineArgs\n");
 			}
 			return flag;
 		}
@@ -71,23 +66,18 @@ namespace TI.Toolbox
 			try
 			{
 				if (cmdLineArgs != null && cmdLineArgs.Length > 0)
-				{
 					foreach (string cmdLineArg in cmdLineArgs)
-					{
 						if (Compare(cmdLineArg, cmdArg))
 						{
 							flag = true;
 							break;
 						}
-					}
-				}
-				else
-					flag = false;
+						else
+							flag = false;
 			}
 			catch (Exception ex)
 			{
-				string msg = "FindArg Problem\n" + ex.Message + "\nCmdLineArgs\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "FindArg Problem\n" + ex.Message + "\nCmdLineArgs\n");
 			}
 			return flag;
 		}
@@ -132,8 +122,7 @@ namespace TI.Toolbox
 			}
 			catch (Exception ex)
 			{
-				string msg = "FindArgParam Problem\n" + ex.Message + "\nCmdLineArgs\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "FindArgParam Problem\n" + ex.Message + "\nCmdLineArgs\n");
 			}
 			return flag1;
 		}
@@ -158,8 +147,7 @@ namespace TI.Toolbox
 			}
 			catch (Exception ex)
 			{
-				string msg = "Compare Problem\n" + ex.Message + "\nCmdLineArgs\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Compare Problem\n" + ex.Message + "\nCmdLineArgs\n");
 			}
 			return flag;
 		}

@@ -25,7 +25,7 @@ namespace BTool
 			try
 			{
 				HCIReplies hciReplies = new HCIReplies();
-				hciReplies.objTag = (object)null;
+				hciReplies.objTag = null;
 				hciReplies.cmdType = TxDataOut.CmdType.General;
 				if (stopWaitEvent != null)
 				{
@@ -119,7 +119,7 @@ namespace BTool
 									hciReplies.hciLeExtEvent.attErrorRsp.errorCode = dataUtils.Unload8Bits(rxDataIn.data, ref index1, ref dataErr);
 									if (dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1282:
 									return;
@@ -143,7 +143,7 @@ namespace BTool
 									devUtils.UnloadHandleValueData(rxDataIn.data, ref index1, totalLength1, dataLength1, ref dataErr, "Uuid", ref hciReplies.hciLeExtEvent.attFindInfoRsp.handleData);
 									if (dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1286:
 									return;
@@ -165,7 +165,7 @@ namespace BTool
 									}
 									if (dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1288:
 									return;
@@ -187,7 +187,7 @@ namespace BTool
 									devUtils.UnloadHandleValueData(rxDataIn.data, ref index1, totalLength2, dataLength2, ref handleStr, ref valueStr, ref dataErr, "Data", ref hciReplies.hciLeExtEvent.attReadByTypeRsp.handleData);
 									if (dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1290:
 									return;
@@ -201,7 +201,7 @@ namespace BTool
 										hciReplies.hciLeExtEvent.attReadRsp.data[index2] = dataUtils.Unload8Bits(rxDataIn.data, ref index1, ref dataErr);
 									if (dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1292:
 									return;
@@ -218,7 +218,7 @@ namespace BTool
 									}
 									if (dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1294:
 									return;
@@ -242,7 +242,7 @@ namespace BTool
 									devUtils.UnloadHandleHandleValueData(rxDataIn.data, ref index1, totalLength3, dataLength3, ref dataErr, ref hciReplies.hciLeExtEvent.attReadByGrpTypeRsp.handleHandleData);
 									if (dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1298:
 									return;
@@ -250,7 +250,7 @@ namespace BTool
 									hciReplies.hciLeExtEvent.attWriteRsp = new HCIReplies.HCI_LE_ExtEvent.ATT_WriteRsp();
 									if ((num1 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attWriteRsp.attMsgHdr)) == 0 || dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1300:
 									return;
@@ -272,7 +272,7 @@ namespace BTool
 									hciReplies.hciLeExtEvent.attPrepareWriteRsp.value = devUtils.UnloadColonData(rxDataIn.data, ref index1, rxDataIn.data.Length - index1, ref dataErr);
 									if (dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1304:
 									return;
@@ -281,7 +281,7 @@ namespace BTool
 									num1 = (int)UnloadAttMsgHeader(ref rxDataIn.data, ref index1, ref dataErr, ref hciReplies.hciLeExtEvent.attExecuteWriteRsp.attMsgHdr);
 									if (dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1306:
 									return;
@@ -296,7 +296,7 @@ namespace BTool
 									hciReplies.hciLeExtEvent.attHandleValueNotification.value = devUtils.UnloadColonData(rxDataIn.data, ref index1, rxDataIn.data.Length - index1, ref dataErr);
 									if (dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1308:
 									return;
@@ -311,7 +311,7 @@ namespace BTool
 									hciReplies.hciLeExtEvent.attHandleValueIndication.value = devUtils.UnloadColonData(rxDataIn.data, ref index1, rxDataIn.data.Length - index1, ref dataErr);
 									if (dataErr)
 										return;
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								case (ushort)1310:
 									return;
@@ -401,7 +401,7 @@ namespace BTool
 												case (ushort)64779:
 												case (ushort)64780:
 												case (ushort)64781:
-													devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+													devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 													return;
 												case (ushort)64782:
 													return;
@@ -417,7 +417,7 @@ namespace BTool
 												case (ushort)64791:
 												case (ushort)64792:
 												case (ushort)64793:
-													devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+													devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 													return;
 												case (ushort)64788:
 													return;
@@ -445,7 +445,7 @@ namespace BTool
 													return;
 												case (ushort)64902:
 												case (ushort)64912:
-													devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+													devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 													return;
 												case (ushort)64903:
 													return;
@@ -454,7 +454,7 @@ namespace BTool
 												case (ushort)64907:
 													return;
 												case (ushort)64908:
-													devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+													devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 													return;
 												case (ushort)64909:
 													return;
@@ -466,7 +466,7 @@ namespace BTool
 													return;
 												case (ushort)64914:
 												case (ushort)64918:
-													devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+													devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 													return;
 												default:
 													return;
@@ -601,7 +601,7 @@ namespace BTool
 												return;
 										}
 									}
-									devForm.threadMgr.rspDataIn.dataQ.AddQTail((object)hciReplies);
+									devForm.threadMgr.rspDataIn.dataQ.AddQTail(hciReplies);
 									return;
 								default:
 									return;
@@ -611,8 +611,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = "Get Response Data Problem.\n" + ex.Message + "\nRxDataInRspData\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Get Response Data Problem.\n" + ex.Message + "\nRxDataInRspData\n");
 			}
 		}
 
@@ -627,8 +626,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("UnloadAttMsgHeader Failed\nMessage Data Transfer Issue.\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("UnloadAttMsgHeader Failed\nMessage Data Transfer Issue.\n\n{0}\n", ex.Message));
 				dataErr = true;
 			}
 			return attMsgHdr.pduLength;

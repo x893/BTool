@@ -88,7 +88,7 @@ namespace BTool
 
 		public void AddValue(byte[] data, ref int index, ref bool dataErr, ref string msg, int length, int headerSize)
 		{
-			msg += string.Format(" Value\t\t: {0:S}\n", (object)devUtils.UnloadColonData(data, ref index, length + headerSize - index, ref dataErr));
+			msg += string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data, ref index, length + headerSize - index, ref dataErr));
 		}
 	}
 }

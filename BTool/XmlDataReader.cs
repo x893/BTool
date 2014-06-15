@@ -23,7 +23,7 @@ namespace BTool
 				flag = xmlDataReaderUtils.VerifyVersion(xmlDocument, xmlFileName, "version", "Version Numbers", "00.00.04", "XmlDataReader");
 				if (flag)
 				{
-					flag = xmlDataReaderUtils.GetByte(xmlDocument, xmlFileName, "unknown_indl", "Unknown Indent Level", ref AttrData.unknownIndentLevel, (byte)0, byte.MaxValue, (byte)4, "XmlDataReader");
+					flag = xmlDataReaderUtils.GetByte(xmlDocument, xmlFileName, "unknown_indl", "Unknown Indent Level", ref AttrData.unknownIndentLevel, 0, byte.MaxValue, (byte)4, "XmlDataReader");
 					if (flag)
 					{
 						flag = xmlDataReaderUtils.GetInt32(xmlDocument, xmlFileName, "key_width", "Key Width", ref AttrData.columns.keyWidth, 0, (int)byte.MaxValue, 70, "XmlDataReader");
@@ -101,7 +101,7 @@ namespace BTool
 																					uuidData.valueDsp = ValueDisplay.Ascii;
 																					break;
 																				default:
-																					flag = xmlDataReaderUtils.InvalidTagValueFound(tagName, xmlFileName, xmlNodeList4[index].InnerText.Trim(), ((object)ValueDisplay.Hex).ToString(), (string)null, "XmlDataReader");
+																					flag = xmlDataReaderUtils.InvalidTagValueFound(tagName, xmlFileName, xmlNodeList4[index].InnerText.Trim(), ValueDisplay.Hex.ToString(), null, "XmlDataReader");
 																					uuidData.valueDsp = ValueDisplay.Hex;
 																					break;
 																			}
@@ -115,7 +115,7 @@ namespace BTool
 																					uuidData.valueEdit = ValueEdit.ReadOnly;
 																					break;
 																				default:
-																					flag = xmlDataReaderUtils.InvalidTagValueFound(tagName, xmlFileName, xmlNodeList5[index].InnerText.Trim(), ((object)ValueEdit.Editable).ToString(), (string)null, "XmlDataReader");
+																					flag = xmlDataReaderUtils.InvalidTagValueFound(tagName, xmlFileName, xmlNodeList5[index].InnerText.Trim(), ValueEdit.Editable.ToString(), null, "XmlDataReader");
 																					uuidData.valueEdit = ValueEdit.Editable;
 																					break;
 																			}
@@ -128,7 +128,7 @@ namespace BTool
 																			Color color = Color.FromName(xmlNodeList8[index].InnerText.Trim());
 																			if (color.ToKnownColor() == (KnownColor)0)
 																			{
-																				flag = xmlDataReaderUtils.InvalidTagValueFound(tagName, xmlFileName, xmlNodeList8[index].InnerText.Trim(), AttrData.defaultForeground.ToString(), (string)null, "XmlDataReader");
+																				flag = xmlDataReaderUtils.InvalidTagValueFound(tagName, xmlFileName, xmlNodeList8[index].InnerText.Trim(), AttrData.defaultForeground.ToString(), null, "XmlDataReader");
 																				uuidData.foreColor = AttrData.defaultForeground;
 																			}
 																			else
@@ -137,7 +137,7 @@ namespace BTool
 																			color = Color.FromName(xmlNodeList9[index].InnerText.Trim());
 																			if (color.ToKnownColor() == (KnownColor)0)
 																			{
-																				flag = xmlDataReaderUtils.InvalidTagValueFound(tagName, xmlFileName, xmlNodeList9[index].InnerText.Trim(), AttrData.defaultBackground.ToString(), (string)null, "XmlDataReader");
+																				flag = xmlDataReaderUtils.InvalidTagValueFound(tagName, xmlFileName, xmlNodeList9[index].InnerText.Trim(), AttrData.defaultBackground.ToString(), null, "XmlDataReader");
 																				uuidData.backColor = AttrData.defaultBackground;
 																			}
 																			else
@@ -158,8 +158,7 @@ namespace BTool
 																			}
 																			catch (Exception ex)
 																			{
-																				string msg = "XML File Data Error\n" + ex.Message + "\nUUID = 0x" + key + "\nData Set Name = " + uuidData.dataSetName + "\nTag Field = " + tagName + "\n" + xmlFileName + "\nXmlDataReader\n";
-																				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+																				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "XML File Data Error\n" + ex.Message + "\nUUID = 0x" + key + "\nData Set Name = " + uuidData.dataSetName + "\nTag Field = " + tagName + "\n" + xmlFileName + "\nXmlDataReader\n");
 																				flag = false;
 																			}
 																			AttrUuid.uuidDictAccess.ReleaseMutex();
@@ -169,8 +168,7 @@ namespace BTool
 																	}
 																	catch (Exception ex)
 																	{
-																		string msg = "Error Reading XML File\n" + ex.Message + "\nTag Field = " + tagName + "\n" + xmlFileName + "\nXmlDataReader\n";
-																		msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+																		msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Error Reading XML File\n" + ex.Message + "\nTag Field = " + tagName + "\n" + xmlFileName + "\nXmlDataReader\n");
 																		flag = false;
 																	}
 																	if (!flag)

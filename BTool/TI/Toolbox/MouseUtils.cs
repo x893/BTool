@@ -5,6 +5,9 @@ namespace TI.Toolbox
 {
 	internal class MouseUtils
 	{
+		public delegate void MouseSingleClickDelegate();
+		public delegate void MouseDoubleClickDelegate();
+
 		private Timer mouseClickTimer = new Timer();
 		private const string moduleName = "MouseUtils";
 		private int mouseClicks;
@@ -46,9 +49,5 @@ namespace TI.Toolbox
 				MouseSingleClickCallback();
 			mouseClicks = 0;
 		}
-
-		public delegate void MouseSingleClickDelegate();
-
-		public delegate void MouseDoubleClickDelegate();
 	}
 }

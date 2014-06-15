@@ -10,33 +10,33 @@ namespace TI.Toolbox
 
 		public bool NoTagValueFound(string tagName, string xmlFileName, string moduleName)
 		{
-			bool flag = false;
 			string msg = "XML File Read Error\nNo " + tagName + " Found\n" + xmlFileName + "\n";
 			if (moduleName != null)
-				msg = msg + moduleName + "\n";
+				msg += (moduleName + "\n");
 			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-			return flag;
+			return false;
 		}
 
 		public bool InvalidTagValueFound(string tagName, string xmlFileName, string invalidValue, string defaultValue, string eMsg, string moduleName)
 		{
-			bool flag = true;
 			string str = "Invalid " + tagName + " Value In XML File\n(Invalid Value = " + invalidValue + ")\n(Value Changed To Default = " + defaultValue + ")\n";
 			if (eMsg != null)
-				str = str + eMsg + "\n";
+				str += (eMsg + "\n");
 			string msg = str + "XML Filename = " + xmlFileName + "\n";
 			if (moduleName != null)
-				msg = msg + moduleName + "\n";
+				msg += (moduleName + "\n");
 			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
-			return flag;
+			return true;
 		}
 
 		public bool FileVersionError(string xmlFormatVersion, string fileVersion, string xmlFileName, string moduleName)
 		{
-			bool flag = false;
-			string msg = "XML File Version Error\nWas Expecting Version " + xmlFormatVersion + " But Read " + fileVersion + "\n" + xmlFileName + "\n" + moduleName + "\n";
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-			return flag;
+			msgBox.UserMsgBox(
+				SharedObjects.mainWin,
+				MsgBox.MsgTypes.Error,
+				"XML File Version Error\nWas Expecting Version " + xmlFormatVersion + " But Read " + fileVersion + "\n" + xmlFileName + "\n" + moduleName + "\n"
+				);
+			return false;
 		}
 
 		public bool VerifyVersion(XmlDocument xmlDocument, string xmlFileName, string xmlTag, string tagName, string xmlFormatVersion, string moduleName)
@@ -146,7 +146,7 @@ namespace TI.Toolbox
 					short num = Convert.ToInt16(elementsByTagName[0].InnerText.Trim());
 					if ((int)num < (int)minValue || (int)num > (int)maxValue)
 					{
-						InvalidTagValueFound(tagName, xmlFileName, elementsByTagName[0].InnerText.Trim(), defaultValue.ToString(), (string)null, moduleName);
+						InvalidTagValueFound(tagName, xmlFileName, elementsByTagName[0].InnerText.Trim(), defaultValue.ToString(), null, moduleName);
 						value = defaultValue;
 					}
 					else

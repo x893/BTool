@@ -61,19 +61,15 @@ namespace TI.Toolbox
 		public void RemoveNameFromTree(TreeView treeView, string name)
 		{
 			foreach (TreeNode treeNode in treeView.Nodes)
-			{
 				if (treeNode.Name == name)
 					treeNode.Remove();
-			}
 		}
 
 		public void RemoveTextFromTree(TreeView treeView, string text)
 		{
 			foreach (TreeNode treeNode in treeView.Nodes)
-			{
 				if (treeNode != null && treeNode.Text == text)
 					treeNode.Remove();
-			}
 		}
 
 		public void ClearSelectedNode(TreeView treeView)

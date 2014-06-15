@@ -19,20 +19,34 @@ namespace BTool
 					throw new ArgumentException(string.Format("There Is No Data To Save\n", new object[0]));
 				using (StreamWriter streamWriter = new StreamWriter(pathFileNameStr))
 				{
-					string str1 = string.Empty;
-					string str2 = string.Format("=\"{0:S}\",=\"{1:S}\",=\"{2:S}\",=\"{3:S}\",=\"{4:S}\",=\"{5:S}\",=\"{6:S}\"", (object)((object)AttributesForm.ListSubItem.ConnectionHandle).ToString(), (object)((object)AttributesForm.ListSubItem.Handle).ToString(), (object)((object)AttributesForm.ListSubItem.Uuid).ToString(), (object)((object)AttributesForm.ListSubItem.UuidDesc).ToString(), (object)((object)AttributesForm.ListSubItem.Value).ToString(), (object)((object)AttributesForm.ListSubItem.ValueDesc).ToString(), (object)((object)AttributesForm.ListSubItem.Properties).ToString());
-					streamWriter.WriteLine(str2);
+					streamWriter.WriteLine(
+						string.Format("=\"{0:S}\",=\"{1:S}\",=\"{2:S}\",=\"{3:S}\",=\"{4:S}\",=\"{5:S}\",=\"{6:S}\"",
+						AttributesForm.ListSubItem.ConnectionHandle,
+						AttributesForm.ListSubItem.Handle,
+						AttributesForm.ListSubItem.Uuid,
+						AttributesForm.ListSubItem.UuidDesc,
+						AttributesForm.ListSubItem.Value,
+						AttributesForm.ListSubItem.ValueDesc,
+						AttributesForm.ListSubItem.Properties
+						));
 					foreach (AttributeFormUtils.CsvData csvData1 in csvData)
 					{
-						string str3 = string.Format("=\"{0:S}\",=\"{1:S}\",=\"{2:S}\",=\"{3:S}\",=\"{4:S}\",=\"{5:S}\",=\"{6:S}\"", (object)csvData1.connectionHandle, (object)csvData1.handle, (object)csvData1.uuid, (object)csvData1.uuidDesc, (object)csvData1.value, (object)csvData1.valueDesc, (object)csvData1.properties);
-						streamWriter.WriteLine(str3);
+						streamWriter.WriteLine(
+							string.Format("=\"{0:S}\",=\"{1:S}\",=\"{2:S}\",=\"{3:S}\",=\"{4:S}\",=\"{5:S}\",=\"{6:S}\"",
+							csvData1.connectionHandle,
+							csvData1.handle,
+							csvData1.uuid,
+							csvData1.uuidDesc,
+							csvData1.value,
+							csvData1.valueDesc,
+							csvData1.properties
+							));
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Cannot Write The CSV File\n\n{0}\n", (object)ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Write The CSV File\n\n{0}\n", (object)ex.Message));
 				flag = false;
 			}
 			return flag;

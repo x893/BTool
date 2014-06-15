@@ -14,7 +14,7 @@ namespace TI.Toolbox
 				Focus();
 			if (scrollEventHandler == null)
 				return;
-			scrollEventHandler((object)this, e);
+			scrollEventHandler(this, e);
 		}
 
 		protected override void WndProc(ref Message message)

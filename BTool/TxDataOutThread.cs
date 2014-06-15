@@ -27,7 +27,7 @@ namespace BTool
 		{
 			taskThread = new Thread(new ParameterizedThreadStart(TaskThread));
 			taskThread.Name = "TxDataOutThread";
-			taskThread.Start((object)threadData);
+			taskThread.Start(threadData);
 			Thread.Sleep(0);
 			while (!taskThread.IsAlive)
 			{ }
@@ -154,7 +154,7 @@ namespace BTool
 
 		private bool QueueDataReady()
 		{
-			object data = (object)new TxDataOut();
+			object data = new TxDataOut();
 			bool flag = dataQ.RemoveQHead(ref data);
 			if (flag)
 			{
@@ -240,7 +240,7 @@ namespace BTool
 			if (DisplayMsgCallback != null)
 				DisplayMsgCallback(SharedAppObjs.MsgType.Warning, msg1);
 			MsgBox.MsgResult msgResult = msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, MsgBox.MsgButtons.YesNo, MsgBox.MsgResult.Yes, msg1);
-			string msg2 = "UserResponse = " + ((object)msgResult).ToString() + "\n";
+			string msg2 = "UserResponse = " + msgResult.ToString() + "\n";
 			if (DisplayMsgCallback != null)
 				DisplayMsgCallback(SharedAppObjs.MsgType.Info, msg2);
 			if (msgResult != MsgBox.MsgResult.Yes)
