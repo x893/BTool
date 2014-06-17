@@ -4,1032 +4,288 @@ namespace BTool
 {
 	public class HCICmds
 	{
-		public string[,] OpCodeLookupTable = new string[249, 2]
-    {
-      {
-        "0x0001",
-        "HCI_InquiryCompleteEvent"
-      },
-      {
-        "0x0002",
-        "HCI_InquiryResultEvent"
-      },
-      {
-        "0x0003",
-        "HCI_ConnectionCompleteEvent"
-      },
-      {
-        "0x0004",
-        "HCI_ConnectionRequestEvent"
-      },
-      {
-        "0x0005",
-        "HCI_DisconnectionCompleteEvent"
-      },
-      {
-        "0x0006",
-        "HCI_AuthenticationCompleteEvent"
-      },
-      {
-        "0x0007",
-        "HCI_RemoteNameRequestCompleteEvent"
-      },
-      {
-        "0x0008",
-        "HCI_EncryptionChangeEvent"
-      },
-      {
-        "0x0009",
-        "HCI_ChangeConnectionLinkKeyCompleteEvent"
-      },
-      {
-        "0x000A",
-        "HCI_MasterLinkKeyCompleteEvent"
-      },
-      {
-        "0x000B",
-        "HCI_ReadRemoteSupportedFeaturesCompleteEvent"
-      },
-      {
-        "0x000C",
-        "HCI_ReadRemoteVersionInformationCompleteEvent"
-      },
-      {
-        "0x000D",
-        "HCI_QoSSetupCompleteEvent"
-      },
-      {
-        "0x000E",
-        "HCI_CommandCompleteEvent"
-      },
-      {
-        "0x000F",
-        "HCI_CommandStatusEvent"
-      },
-      {
-        "0x0010",
-        "HCI_HardwareErrorEvent"
-      },
-      {
-        "0x0011",
-        "HCI_FlushOccurredEvent"
-      },
-      {
-        "0x0012",
-        "HCI_RoleChangeEvent"
-      },
-      {
-        "0x0013",
-        "HCI_NumberOfCompletedPacketsEvent"
-      },
-      {
-        "0x0014",
-        "HCI_ModeChangeEvent"
-      },
-      {
-        "0x0015",
-        "HCI_ReturnLinkKeysEvent"
-      },
-      {
-        "0x0016",
-        "HCI_PINCodeRequestEvent"
-      },
-      {
-        "0x0017",
-        "HCI_LinkKeyRequestEvent"
-      },
-      {
-        "0x0018",
-        "HCI_LinkKeyNotificationEvent"
-      },
-      {
-        "0x0019",
-        "HCI_LoopbackCommandEvent"
-      },
-      {
-        "0x001A",
-        "HCI_DataBufferOverflowEvent"
-      },
-      {
-        "0x001B",
-        "HCI_MaxSlotsChangeEvent"
-      },
-      {
-        "0x001C",
-        "HCI_ReadClockOffsetCompleteEvent"
-      },
-      {
-        "0x001D",
-        "HCI_ConnectionPacketTypeChangedEvent"
-      },
-      {
-        "0x001E",
-        "HCI_QoSViolationEvent"
-      },
-      {
-        "0x001F",
-        "HCI_PageScanModeChangeEvent"
-      },
-      {
-        "0x0020",
-        "HCI_PageScanRepetitionModeChangeEvent"
-      },
-      {
-        "0x0021",
-        "HCI_FlowSpecificationCompleteEvent"
-      },
-      {
-        "0x0022",
-        "HCI_InquiryResultWithRSSIEvent"
-      },
-      {
-        "0x0023",
-        "HCI_ReadRemoteExtendedFeaturesCompleteEvent"
-      },
-      {
-        "0x002C",
-        "HCI_SynchronousConnectionCompleteEvent"
-      },
-      {
-        "0x002D",
-        "HCI_SynchronousConnectionChangedEvent"
-      },
-      {
-        "0x002E",
-        "HCI_SniffSubratingEvent"
-      },
-      {
-        "0x002F",
-        "HCI_ExtendedInquiryResultEvent"
-      },
-      {
-        "0x0030",
-        "HCI_EncryptionKeyRefreshCompleteEvent"
-      },
-      {
-        "0x0031",
-        "HCI_IOCapabilityRequestEvent"
-      },
-      {
-        "0x0032",
-        "HCI_IOCapabilityResponseEvent"
-      },
-      {
-        "0x0033",
-        "HCI_UserConfirmationRequestEvent"
-      },
-      {
-        "0x0034",
-        "HCI_UserPasskeyRequestEvent"
-      },
-      {
-        "0x0035",
-        "HCI_RemoteOOBDataRequestEvent"
-      },
-      {
-        "0x0036",
-        "HCI_SimplePairingCompleteEvent"
-      },
-      {
-        "0x0037",
-        "HCI_RemoteOobResponseEvent"
-      },
-      {
-        "0x0038",
-        "HCI_LinkSupervisionTimeoutChangedEvent"
-      },
-      {
-        "0x0039",
-        "HCI_EnhancedFlushCompleteEvent"
-      },
-      {
-        "0x003A",
-        "HCI_SniffRequestEvent"
-      },
-      {
-        "0x003B",
-        "HCI_UserPasskeyNotificationEvent"
-      },
-      {
-        "0x003C",
-        "HCI_KeypressNotificationEvent"
-      },
-      {
-        "0x003D",
-        "HCI_RemoteHostSupportedFeaturesNotificationEvent"
-      },
-      {
-        "0x0040",
-        "HCI_PhysicalLinkCompleteEvent"
-      },
-      {
-        "0x0041",
-        "HCI_ChannelSelectedEvent"
-      },
-      {
-        "0x0042",
-        "HCI_DisconnectionPhysicalLinkCompleteEvent"
-      },
-      {
-        "0x0043",
-        "HCI_PhysicalLinkLossEarlyWarningEvent"
-      },
-      {
-        "0x0044",
-        "HCI_PhysicalLinkRecoveryEvent"
-      },
-      {
-        "0x0045",
-        "HCI_LogicalLinkCompleteEvent"
-      },
-      {
-        "0x0046",
-        "HCI_DisconnectionLogicalLinkCompleteEvent"
-      },
-      {
-        "0x0047",
-        "HCI_FlowSpecModifyCompleteEvent"
-      },
-      {
-        "0x0048",
-        "HCI_NumberOfCompletedDataBlocksEvent"
-      },
-      {
-        "0x004C",
-        "HCI_ShortRangeModeChangeCompleteEvent"
-      },
-      {
-        "0x004D",
-        "HCI_AMP_StatusChangeEvent"
-      },
-      {
-        "0x0049",
-        "HCI_AMP_StartTestEvent"
-      },
-      {
-        "0x004A",
-        "HCI_AMP_TestEndEvent"
-      },
-      {
-        "0x004B",
-        "HCI_AMP_ReceiverReportEvent"
-      },
-      {
-        "0x003E",
-        "HCI_LE_ConnectionCompleteEvent"
-      },
-      {
-        "0x003E",
-        "HCI_LE_AdvertisingReportEvent"
-      },
-      {
-        "0x003E",
-        "HCI_LE_ConnectionUpdateCompleteEvent"
-      },
-      {
-        "0x003E",
-        "HCI_LE_ReadRemoteUsedFeaturesCompleteEvent"
-      },
-      {
-        "0x003E",
-        "HCI_LE_LongTermKeyRequestEvent"
-      },
-      {
-        "0x00FF",
-        "HCI_LE_ExtEvent"
-      },
-      {
-        "0x0400",
-        "HCIExt_SetRxGainDone"
-      },
-      {
-        "0x0401",
-        "HCIExt_SetTxPowerDone"
-      },
-      {
-        "0x0402",
-        "HCIExt_OnePktPerEvtDone"
-      },
-      {
-        "0x0403",
-        "HCIExt_ClkDivideOnHaltDone"
-      },
-      {
-        "0x0404",
-        "HCIExt_DeclareNvUsageDone"
-      },
-      {
-        "0x0405",
-        "HCIExt_DecryptDone"
-      },
-      {
-        "0x0406",
-        "HCIExt_SetLocalSupportedFeaturesDone"
-      },
-      {
-        "0x0407",
-        "HCIExt_SetFastTxRespTimeDone"
-      },
-      {
-        "0x0408",
-        "HCIExt_ModemTestTxDone"
-      },
-      {
-        "0x0409",
-        "HCIExt_ModemHopTestTxDone"
-      },
-      {
-        "0x040A",
-        "HCIExt_ModemTestRxDone"
-      },
-      {
-        "0x040B",
-        "HCIExt_EndModemTestDone"
-      },
-      {
-        "0x040C",
-        "HCIExt_SetBDADDRDone"
-      },
-      {
-        "0x040D",
-        "HCIExt_SetSCADone"
-      },
-      {
-        "0x040E",
-        "HCIExt_EnablePTMDone"
-      },
-      {
-        "0x040F",
-        "HCIExt_SetFreqTuneDone"
-      },
-      {
-        "0x0410",
-        "HCIExt_SaveFreqTuneDone"
-      },
-      {
-        "0x0411",
-        "HCIExt_SetMaxDtmTxPowerDone"
-      },
-      {
-        "0x0412",
-        "HCIExt_MapPmIoPortDone"
-      },
-      {
-        "0x0413",
-        "HCIExt_DisconnectImmed"
-      },
-      {
-        "0x0414",
-        "HCIExt_PER"
-      },
-      {
-        "0x0481",
-        "L2CAP_CmdReject"
-      },
-      {
-        "0x048B",
-        "L2CAP_InfoRsp"
-      },
-      {
-        "0x0493",
-        "L2CAP_ConnParamUpdateRsp"
-      },
-      {
-        "0x0501",
-        "ATT_ErrorRsp"
-      },
-      {
-        "0x0502",
-        "ATT_ExchangeMTUReq"
-      },
-      {
-        "0x0503",
-        "ATT_ExchangeMTURsp"
-      },
-      {
-        "0x0504",
-        "ATT_FindInfoReq"
-      },
-      {
-        "0x0505",
-        "ATT_FindInfoRsp"
-      },
-      {
-        "0x0506",
-        "ATT_FindByTypeValueReq"
-      },
-      {
-        "0x0507",
-        "ATT_FindByTypeValueRsp"
-      },
-      {
-        "0x0508",
-        "ATT_ReadByTypeReq"
-      },
-      {
-        "0x0509",
-        "ATT_ReadByTypeRsp"
-      },
-      {
-        "0x050A",
-        "ATT_ReadReq"
-      },
-      {
-        "0x050B",
-        "ATT_ReadRsp"
-      },
-      {
-        "0x050C",
-        "ATT_ReadBlobReq"
-      },
-      {
-        "0x050D",
-        "ATT_ReadBlobRsp"
-      },
-      {
-        "0x050E",
-        "ATT_ReadMultiReq"
-      },
-      {
-        "0x050F",
-        "ATT_ReadMultiRsp"
-      },
-      {
-        "0x0510",
-        "ATT_ReadByGrpTypeReq"
-      },
-      {
-        "0x0511",
-        "ATT_ReadByGrpTypeRsp"
-      },
-      {
-        "0x0512",
-        "ATT_WriteReq"
-      },
-      {
-        "0x0513",
-        "ATT_WriteRsp"
-      },
-      {
-        "0x0516",
-        "ATT_PrepareWriteReq"
-      },
-      {
-        "0x0517",
-        "ATT_PrepareWriteRsp"
-      },
-      {
-        "0x0518",
-        "ATT_ExecuteWriteReq"
-      },
-      {
-        "0x0519",
-        "ATT_ExecuteWriteRsp"
-      },
-      {
-        "0x051B",
-        "ATT_HandleValueNotification"
-      },
-      {
-        "0x051D",
-        "ATT_HandleValueIndication"
-      },
-      {
-        "0x051E",
-        "ATT_HandleValueConfirmation"
-      },
-      {
-        "0xFD88",
-        "GATT_DiscCharsByUUID"
-      },
-      {
-        "0x0580",
-        "GATT_ClientCharCfgUpdated"
-      },
-      {
-        "0x0600",
-        "GAP_DeviceInitDone"
-      },
-      {
-        "0x0601",
-        "GAP_DeviceDiscoveryDone"
-      },
-      {
-        "0x0602",
-        "GAP_AdvertDataUpdate"
-      },
-      {
-        "0x0603",
-        "GAP_MakeDiscoverable"
-      },
-      {
-        "0x0604",
-        "GAP_EndDiscoverable"
-      },
-      {
-        "0x0605",
-        "GAP_EstablishLink"
-      },
-      {
-        "0x0606",
-        "GAP_TerminateLink"
-      },
-      {
-        "0x0607",
-        "GAP_LinkParamUpdate"
-      },
-      {
-        "0x0608",
-        "GAP_RandomAddressChange"
-      },
-      {
-        "0x0609",
-        "GAP_SignatureUpdate"
-      },
-      {
-        "0x060A",
-        "GAP_AuthenticationComplete"
-      },
-      {
-        "0x060B",
-        "GAP_PasskeyNeeded"
-      },
-      {
-        "0x060C",
-        "GAP_SlaveRequestedSecurity"
-      },
-      {
-        "0x060D",
-        "GAP_DeviceInformation"
-      },
-      {
-        "0x060E",
-        "GAP_BondComplete"
-      },
-      {
-        "0x060F",
-        "GAP_PairingRequested"
-      },
-      {
-        "0x067F",
-        "GAP_HCI_ExtentionCommandStatus"
-      },
-      {
-        "0xFC00",
-        "HCIExt_SetRxGain"
-      },
-      {
-        "0xFC01",
-        "HCIExt_SetTxPower"
-      },
-      {
-        "0xFC02",
-        "HCIExt_OnePktPerEvt"
-      },
-      {
-        "0xFC03",
-        "HCIExt_ClkDivideOnHalt"
-      },
-      {
-        "0xFC04",
-        "HCIExt_DeclareNvUsage"
-      },
-      {
-        "0xFC05",
-        "HCIExt_Decrypt"
-      },
-      {
-        "0xFC06",
-        "HCIExt_SetLocalSupportedFeatures"
-      },
-      {
-        "0xFC07",
-        "HCIExt_SetFastTxRespTime"
-      },
-      {
-        "0xFC08",
-        "HCIExt_ModemTestTx"
-      },
-      {
-        "0xFC09",
-        "HCIExt_ModemHopTestTx"
-      },
-      {
-        "0xFC0A",
-        "HCIExt_ModemTestRx"
-      },
-      {
-        "0xFC0B",
-        "HCIExt_EndModemTest"
-      },
-      {
-        "0xFC0C",
-        "HCIExt_SetBDADDR"
-      },
-      {
-        "0xFC0D",
-        "HCIExt_SetSCA"
-      },
-      {
-        "0xFC0E",
-        "HCIExt_EnablePTM"
-      },
-      {
-        "0xFC0F",
-        "HCIExt_SetFreqTune"
-      },
-      {
-        "0xFC10",
-        "HCIExt_SaveFreqTune"
-      },
-      {
-        "0xFC11",
-        "HCIExt_SetMaxDtmTxPower"
-      },
-      {
-        "0xFC12",
-        "HCIExt_MapPmIoPort"
-      },
-      {
-        "0xFC13",
-        "HCIExt_DisconnectImmed"
-      },
-      {
-        "0xFC14",
-        "HCIExt_PER"
-      },
-      {
-        "0xFC8A",
-        "L2CAP_InfoReq"
-      },
-      {
-        "0xFC92",
-        "L2CAP_ConnParamUpdateReq"
-      },
-      {
-        "0xFD01",
-        "ATT_ErrorRsp"
-      },
-      {
-        "0xFD02",
-        "ATT_ExchangeMTUReq"
-      },
-      {
-        "0xFD03",
-        "ATT_ExchangeMTURsp"
-      },
-      {
-        "0xFD04",
-        "ATT_FindInfoReq"
-      },
-      {
-        "0xFD05",
-        "ATT_FindInfoRsp"
-      },
-      {
-        "0xFD06",
-        "ATT_FindByTypeValueReq"
-      },
-      {
-        "0xFD07",
-        "ATT_FindByTypeValueRsp"
-      },
-      {
-        "0xFD08",
-        "ATT_ReadByTypeReq"
-      },
-      {
-        "0xFD09",
-        "ATT_ReadByTypeRsp"
-      },
-      {
-        "0xFD0A",
-        "ATT_ReadReq"
-      },
-      {
-        "0xFD0B",
-        "ATT_ReadRsp"
-      },
-      {
-        "0xFD0C",
-        "ATT_ReadBlobReq"
-      },
-      {
-        "0xFD0D",
-        "ATT_ReadBlobRsp"
-      },
-      {
-        "0xFD0E",
-        "ATT_ReadMultiReq"
-      },
-      {
-        "0xFD0F",
-        "ATT_ReadMultiRsp"
-      },
-      {
-        "0xFD10",
-        "ATT_ReadByGrpTypeReq"
-      },
-      {
-        "0xFD11",
-        "ATT_ReadByGrpTypeRsp"
-      },
-      {
-        "0xFD12",
-        "ATT_WriteReq"
-      },
-      {
-        "0xFD13",
-        "ATT_WriteRsp"
-      },
-      {
-        "0xFD16",
-        "ATT_PrepareWriteReq"
-      },
-      {
-        "0xFD17",
-        "ATT_PrepareWriteRsp"
-      },
-      {
-        "0xFD18",
-        "ATT_ExecuteWriteReq"
-      },
-      {
-        "0xFD19",
-        "ATT_ExecuteWriteRsp"
-      },
-      {
-        "0xFD1B",
-        "ATT_HandleValueNotification"
-      },
-      {
-        "0xFD1D",
-        "ATT_HandleValueIndication"
-      },
-      {
-        "0xFD1E",
-        "ATT_HandleValueConfirmation"
-      },
-      {
-        "0xFD82",
-        "GATT_ExchangeMTU"
-      },
-      {
-        "0xFD90",
-        "GATT_DiscAllPrimaryServices"
-      },
-      {
-        "0xFD86",
-        "GATT_DiscPrimaryServiceByUUID"
-      },
-      {
-        "0xFDB0",
-        "GATT_FindIncludedServices"
-      },
-      {
-        "0xFDB2",
-        "GATT_DiscAllChars"
-      },
-      {
-        "0xFD88",
-        "GATT_DiscCharsByUUID"
-      },
-      {
-        "0xFD84",
-        "GATT_DiscAllCharDescs"
-      },
-      {
-        "0xFD8A",
-        "GATT_ReadCharValue"
-      },
-      {
-        "0xFDB4",
-        "GATT_ReadUsingCharUUID"
-      },
-      {
-        "0xFD8C",
-        "GATT_ReadLongCharValue"
-      },
-      {
-        "0xFD8E",
-        "GATT_ReadMultiCharValues"
-      },
-      {
-        "0xFDB6",
-        "GATT_WriteNoRsp"
-      },
-      {
-        "0xFDB8",
-        "GATT_SignedWriteNoRsp"
-      },
-      {
-        "0xFD92",
-        "GATT_WriteCharValue"
-      },
-      {
-        "0xFD96",
-        "GATT_WriteLongCharValue"
-      },
-      {
-        "0xFDBA",
-        "GATT_ReliableWrites"
-      },
-      {
-        "0xFDBC",
-        "GATT_ReadCharDesc"
-      },
-      {
-        "0xFDBE",
-        "GATT_ReadLongCharDesc"
-      },
-      {
-        "0xFDC0",
-        "GATT_WriteCharDesc"
-      },
-      {
-        "0xFDC2",
-        "GATT_WriteLongCharDesc"
-      },
-      {
-        "0xFD9B",
-        "GATT_Notification"
-      },
-      {
-        "0xFD9D",
-        "GATT_Indication"
-      },
-      {
-        "0xFDFC",
-        "GATT_AddService"
-      },
-      {
-        "0xFDFD",
-        "GATT_DelService"
-      },
-      {
-        "0xFDFE",
-        "GATT_AddAttribute"
-      },
-      {
-        "0xFE00",
-        "GAP_DeviceInit"
-      },
-      {
-        "0xFE03",
-        "GAP_ConfigDeviceAddr"
-      },
-      {
-        "0xFE04",
-        "GAP_DeviceDiscoveryRequest"
-      },
-      {
-        "0xFE05",
-        "GAP_DeviceDiscoveryCancel"
-      },
-      {
-        "0xFE06",
-        "GAP_MakeDiscoverable"
-      },
-      {
-        "0xFE07",
-        "GAP_UpdateAdvertisingData"
-      },
-      {
-        "0xFE08",
-        "GAP_EndDiscoverable"
-      },
-      {
-        "0xFE09",
-        "GAP_EstablishLinkRequest"
-      },
-      {
-        "0xFE0A",
-        "GAP_TerminateLinkRequest"
-      },
-      {
-        "0xFE0B",
-        "GAP_Authenticate"
-      },
-      {
-        "0xFE0C",
-        "GAP_PasskeyUpdate"
-      },
-      {
-        "0xFE0D",
-        "GAP_SlaveSecurityRequest"
-      },
-      {
-        "0xFE0E",
-        "GAP_Signable"
-      },
-      {
-        "0xFE0F",
-        "GAP_Bond"
-      },
-      {
-        "0xFE10",
-        "GAP_TerminateAuth"
-      },
-      {
-        "0xFE11",
-        "GAP_UpdateLinkParamReq"
-      },
-      {
-        "0xFE30",
-        "GAP_SetParam"
-      },
-      {
-        "0xFE31",
-        "GAP_GetParam"
-      },
-      {
-        "0xFE32",
-        "GAP_ResolvePrivateAddr"
-      },
-      {
-        "0xFE33",
-        "GAP_SetAdvToken"
-      },
-      {
-        "0xFE34",
-        "GAP_RemoveAdvToken"
-      },
-      {
-        "0xFE35",
-        "GAP_UpdateAdvTokens"
-      },
-      {
-        "0xFE36",
-        "GAP_BondSetParam"
-      },
-      {
-        "0xFE37",
-        "GAP_BondGetParam"
-      },
-      {
-        "0xFE80",
-        "UTIL_Reset"
-      },
-      {
-        "0xFE81",
-        "UTIL_NVRead"
-      },
-      {
-        "0xFE82",
-        "UTIL_NVWrite"
-      },
-      {
-        "0xFE83",
-        "UTIL_ForceBoot"
-      },
-      {
-        "0x1405",
-        "HCI_ReadRSSI"
-      },
-      {
-        "0x2010",
-        "HCI_LEClearWhiteList"
-      },
-      {
-        "0x2011",
-        "HCI_LEAddDeviceToWhiteList"
-      },
-      {
-        "0x2012",
-        "HCI_LERemoveDeviceFromWhiteList"
-      },
-      {
-        "0x2013",
-        "HCI_LEConnectionUpdate"
-      }
-    };
+		#region OpCodeLookupTable
+		public static string[,] OpCodeLookupTable = new string[249, 2]
+		{
+			{"0x0001","HCI_InquiryCompleteEvent"},
+			{"0x0002","HCI_InquiryResultEvent"},
+			{"0x0003","HCI_ConnectionCompleteEvent"},
+			{"0x0004","HCI_ConnectionRequestEvent"},
+			{"0x0005","HCI_DisconnectionCompleteEvent"},
+			{"0x0006","HCI_AuthenticationCompleteEvent"},
+			{"0x0007","HCI_RemoteNameRequestCompleteEvent"},
+			{"0x0008","HCI_EncryptionChangeEvent"},
+			{"0x0009","HCI_ChangeConnectionLinkKeyCompleteEvent"},
+			{"0x000A","HCI_MasterLinkKeyCompleteEvent"},
+			{"0x000B","HCI_ReadRemoteSupportedFeaturesCompleteEvent"},
+			{"0x000C","HCI_ReadRemoteVersionInformationCompleteEvent"},
+			{"0x000D","HCI_QoSSetupCompleteEvent"},
+			{"0x000E","HCI_CommandCompleteEvent"},
+			{"0x000F","HCI_CommandStatusEvent"},
+			{"0x0010","HCI_HardwareErrorEvent"},
+			{"0x0011","HCI_FlushOccurredEvent"},
+			{"0x0012","HCI_RoleChangeEvent"},
+			{"0x0013","HCI_NumberOfCompletedPacketsEvent"},
+			{"0x0014","HCI_ModeChangeEvent"},
+			{"0x0015","HCI_ReturnLinkKeysEvent"},
+			{"0x0016","HCI_PINCodeRequestEvent"},
+			{"0x0017","HCI_LinkKeyRequestEvent"},
+			{"0x0018","HCI_LinkKeyNotificationEvent"},
+			{"0x0019","HCI_LoopbackCommandEvent"},
+			{"0x001A","HCI_DataBufferOverflowEvent"},
+			{"0x001B","HCI_MaxSlotsChangeEvent"},
+			{"0x001C","HCI_ReadClockOffsetCompleteEvent"},
+			{"0x001D","HCI_ConnectionPacketTypeChangedEvent"},
+			{"0x001E","HCI_QoSViolationEvent"},
+			{"0x001F","HCI_PageScanModeChangeEvent"},
+			{"0x0020","HCI_PageScanRepetitionModeChangeEvent"},
+			{"0x0021","HCI_FlowSpecificationCompleteEvent"},
+			{"0x0022","HCI_InquiryResultWithRSSIEvent"},
+			{"0x0023","HCI_ReadRemoteExtendedFeaturesCompleteEvent"},
+			{"0x002C","HCI_SynchronousConnectionCompleteEvent"},
+			{"0x002D","HCI_SynchronousConnectionChangedEvent"},
+			{"0x002E","HCI_SniffSubratingEvent"},
+			{"0x002F","HCI_ExtendedInquiryResultEvent"},
+			{"0x0030","HCI_EncryptionKeyRefreshCompleteEvent"},
+			{"0x0031","HCI_IOCapabilityRequestEvent"},
+			{"0x0032","HCI_IOCapabilityResponseEvent"},
+			{"0x0033","HCI_UserConfirmationRequestEvent"},
+			{"0x0034","HCI_UserPasskeyRequestEvent"},
+			{"0x0035","HCI_RemoteOOBDataRequestEvent"},
+			{"0x0036","HCI_SimplePairingCompleteEvent"},
+			{"0x0037","HCI_RemoteOobResponseEvent"},
+			{"0x0038","HCI_LinkSupervisionTimeoutChangedEvent"},
+			{"0x0039","HCI_EnhancedFlushCompleteEvent"},
+			{"0x003A","HCI_SniffRequestEvent"},
+			{"0x003B","HCI_UserPasskeyNotificationEvent"},
+			{"0x003C","HCI_KeypressNotificationEvent"},
+			{"0x003D","HCI_RemoteHostSupportedFeaturesNotificationEvent"},
+			{"0x0040","HCI_PhysicalLinkCompleteEvent"},
+			{"0x0041","HCI_ChannelSelectedEvent"},
+			{"0x0042","HCI_DisconnectionPhysicalLinkCompleteEvent"},
+			{"0x0043","HCI_PhysicalLinkLossEarlyWarningEvent"},
+			{"0x0044","HCI_PhysicalLinkRecoveryEvent"},
+			{"0x0045","HCI_LogicalLinkCompleteEvent"},
+			{"0x0046","HCI_DisconnectionLogicalLinkCompleteEvent"},
+			{"0x0047","HCI_FlowSpecModifyCompleteEvent"},
+			{"0x0048","HCI_NumberOfCompletedDataBlocksEvent"},
+			{"0x004C","HCI_ShortRangeModeChangeCompleteEvent"},
+			{"0x004D","HCI_AMP_StatusChangeEvent"},
+			{"0x0049","HCI_AMP_StartTestEvent"},
+			{"0x004A","HCI_AMP_TestEndEvent"},
+			{"0x004B","HCI_AMP_ReceiverReportEvent"},
+			{"0x003E","HCI_LE_ConnectionCompleteEvent"},
+			{"0x003E","HCI_LE_AdvertisingReportEvent"},
+			{"0x003E","HCI_LE_ConnectionUpdateCompleteEvent"},
+			{"0x003E","HCI_LE_ReadRemoteUsedFeaturesCompleteEvent"},
+			{"0x003E","HCI_LE_LongTermKeyRequestEvent"},
+			{"0x00FF","HCI_LE_ExtEvent"},
+			{"0x0400","HCIExt_SetRxGainDone"},
+			{"0x0401","HCIExt_SetTxPowerDone"},
+			{"0x0402","HCIExt_OnePktPerEvtDone"},
+			{"0x0403","HCIExt_ClkDivideOnHaltDone"},
+			{"0x0404","HCIExt_DeclareNvUsageDone"},
+			{"0x0405","HCIExt_DecryptDone"},
+			{"0x0406","HCIExt_SetLocalSupportedFeaturesDone"},
+			{"0x0407","HCIExt_SetFastTxRespTimeDone"},
+			{"0x0408","HCIExt_ModemTestTxDone"},
+			{"0x0409","HCIExt_ModemHopTestTxDone"},
+			{"0x040A","HCIExt_ModemTestRxDone"},
+			{"0x040B","HCIExt_EndModemTestDone"},
+			{"0x040C","HCIExt_SetBDADDRDone"},
+			{"0x040D","HCIExt_SetSCADone"},
+			{"0x040E","HCIExt_EnablePTMDone"},
+			{"0x040F","HCIExt_SetFreqTuneDone"},
+			{"0x0410","HCIExt_SaveFreqTuneDone"},
+			{"0x0411","HCIExt_SetMaxDtmTxPowerDone"},
+			{"0x0412","HCIExt_MapPmIoPortDone"},
+			{"0x0413","HCIExt_DisconnectImmed"},
+			{"0x0414","HCIExt_PER"},
+			{"0x0481","L2CAP_CmdReject"},
+			{"0x048B","L2CAP_InfoRsp"},
+			{"0x0493","L2CAP_ConnParamUpdateRsp"},
+			{"0x0501","ATT_ErrorRsp"},
+			{"0x0502","ATT_ExchangeMTUReq"},
+			{"0x0503","ATT_ExchangeMTURsp"},
+			{"0x0504","ATT_FindInfoReq"},
+			{"0x0505","ATT_FindInfoRsp"},
+			{"0x0506","ATT_FindByTypeValueReq"},
+			{"0x0507","ATT_FindByTypeValueRsp"},
+			{"0x0508","ATT_ReadByTypeReq"},
+			{"0x0509","ATT_ReadByTypeRsp"},
+			{"0x050A","ATT_ReadReq"},
+			{"0x050B","ATT_ReadRsp"},
+			{"0x050C","ATT_ReadBlobReq"},
+			{"0x050D","ATT_ReadBlobRsp"},
+			{"0x050E","ATT_ReadMultiReq"},
+			{"0x050F","ATT_ReadMultiRsp"},
+			{"0x0510","ATT_ReadByGrpTypeReq"},
+			{"0x0511","ATT_ReadByGrpTypeRsp"},
+			{"0x0512","ATT_WriteReq"},
+			{"0x0513","ATT_WriteRsp"},
+			{"0x0516","ATT_PrepareWriteReq"},
+			{"0x0517","ATT_PrepareWriteRsp"},
+			{"0x0518","ATT_ExecuteWriteReq"},
+			{"0x0519","ATT_ExecuteWriteRsp"},
+			{"0x051B","ATT_HandleValueNotification"},
+			{"0x051D","ATT_HandleValueIndication"},
+			{"0x051E","ATT_HandleValueConfirmation"},
+			{"0xFD88","GATT_DiscCharsByUUID"},
+			{"0x0580","GATT_ClientCharCfgUpdated"},
+			{"0x0600","GAP_DeviceInitDone"},
+			{"0x0601","GAP_DeviceDiscoveryDone"},
+			{"0x0602","GAP_AdvertDataUpdate"},
+			{"0x0603","GAP_MakeDiscoverable"},
+			{"0x0604","GAP_EndDiscoverable"},
+			{"0x0605","GAP_EstablishLink"},
+			{"0x0606","GAP_TerminateLink"},
+			{"0x0607","GAP_LinkParamUpdate"},
+			{"0x0608","GAP_RandomAddressChange"},
+			{"0x0609","GAP_SignatureUpdate"},
+			{"0x060A","GAP_AuthenticationComplete"},
+			{"0x060B","GAP_PasskeyNeeded"},
+			{"0x060C","GAP_SlaveRequestedSecurity"},
+			{"0x060D","GAP_DeviceInformation"},
+			{"0x060E","GAP_BondComplete"},
+			{"0x060F","GAP_PairingRequested"},
+			{"0x067F","GAP_HCI_ExtentionCommandStatus"},
+			{"0xFC00","HCIExt_SetRxGain"},
+			{"0xFC01","HCIExt_SetTxPower"},
+			{"0xFC02","HCIExt_OnePktPerEvt"},
+			{"0xFC03","HCIExt_ClkDivideOnHalt"},
+			{"0xFC04","HCIExt_DeclareNvUsage"},
+			{"0xFC05","HCIExt_Decrypt"},
+			{"0xFC06","HCIExt_SetLocalSupportedFeatures"},
+			{"0xFC07","HCIExt_SetFastTxRespTime"},
+			{"0xFC08","HCIExt_ModemTestTx"},
+			{"0xFC09","HCIExt_ModemHopTestTx"},
+			{"0xFC0A","HCIExt_ModemTestRx"},
+			{"0xFC0B","HCIExt_EndModemTest"},
+			{"0xFC0C","HCIExt_SetBDADDR"},
+			{"0xFC0D","HCIExt_SetSCA"},
+			{"0xFC0E","HCIExt_EnablePTM"},
+			{"0xFC0F","HCIExt_SetFreqTune"},
+			{"0xFC10","HCIExt_SaveFreqTune"},
+			{"0xFC11","HCIExt_SetMaxDtmTxPower"},
+			{"0xFC12","HCIExt_MapPmIoPort"},
+			{"0xFC13","HCIExt_DisconnectImmed"},
+			{"0xFC14","HCIExt_PER"},
+			{"0xFC8A","L2CAP_InfoReq"},
+			{"0xFC92","L2CAP_ConnParamUpdateReq"},
+			{"0xFD01","ATT_ErrorRsp"},
+			{"0xFD02","ATT_ExchangeMTUReq"},
+			{"0xFD03","ATT_ExchangeMTURsp"},
+			{"0xFD04","ATT_FindInfoReq"},
+			{"0xFD05","ATT_FindInfoRsp"},
+			{"0xFD06","ATT_FindByTypeValueReq"},
+			{"0xFD07","ATT_FindByTypeValueRsp"},
+			{"0xFD08","ATT_ReadByTypeReq"},
+			{"0xFD09","ATT_ReadByTypeRsp"},
+			{"0xFD0A","ATT_ReadReq"},
+			{"0xFD0B","ATT_ReadRsp"},
+			{"0xFD0C","ATT_ReadBlobReq"},
+			{"0xFD0D","ATT_ReadBlobRsp"},
+			{"0xFD0E","ATT_ReadMultiReq"},
+			{"0xFD0F","ATT_ReadMultiRsp"},
+			{"0xFD10","ATT_ReadByGrpTypeReq"},
+			{"0xFD11","ATT_ReadByGrpTypeRsp"},
+			{"0xFD12","ATT_WriteReq"},
+			{"0xFD13","ATT_WriteRsp"},
+			{"0xFD16","ATT_PrepareWriteReq"},
+			{"0xFD17","ATT_PrepareWriteRsp"},
+			{"0xFD18","ATT_ExecuteWriteReq"},
+			{"0xFD19","ATT_ExecuteWriteRsp"},
+			{"0xFD1B","ATT_HandleValueNotification"},
+			{"0xFD1D","ATT_HandleValueIndication"},
+			{"0xFD1E","ATT_HandleValueConfirmation"},
+			{"0xFD82","GATT_ExchangeMTU"},
+			{"0xFD90","GATT_DiscAllPrimaryServices"},
+			{"0xFD86","GATT_DiscPrimaryServiceByUUID"},
+			{"0xFDB0","GATT_FindIncludedServices"},
+			{"0xFDB2","GATT_DiscAllChars"},
+			{"0xFD88","GATT_DiscCharsByUUID"},
+			{"0xFD84","GATT_DiscAllCharDescs"},
+			{"0xFD8A","GATT_ReadCharValue"},
+			{"0xFDB4","GATT_ReadUsingCharUUID"},
+			{"0xFD8C","GATT_ReadLongCharValue"},
+			{"0xFD8E","GATT_ReadMultiCharValues"},
+			{"0xFDB6","GATT_WriteNoRsp"},
+			{"0xFDB8","GATT_SignedWriteNoRsp"},
+			{"0xFD92","GATT_WriteCharValue"},
+			{"0xFD96","GATT_WriteLongCharValue"},
+			{"0xFDBA","GATT_ReliableWrites"},
+			{"0xFDBC","GATT_ReadCharDesc"},
+			{"0xFDBE","GATT_ReadLongCharDesc"},
+			{"0xFDC0","GATT_WriteCharDesc"},
+			{"0xFDC2","GATT_WriteLongCharDesc"},
+			{"0xFD9B","GATT_Notification"},
+			{"0xFD9D","GATT_Indication"},
+			{"0xFDFC","GATT_AddService"},
+			{"0xFDFD","GATT_DelService"},
+			{"0xFDFE","GATT_AddAttribute"},
+			{"0xFE00","GAP_DeviceInit"},
+			{"0xFE03","GAP_ConfigDeviceAddr"},
+			{"0xFE04","GAP_DeviceDiscoveryRequest"},
+			{"0xFE05","GAP_DeviceDiscoveryCancel"},
+			{"0xFE06","GAP_MakeDiscoverable"},
+			{"0xFE07","GAP_UpdateAdvertisingData"},
+			{"0xFE08","GAP_EndDiscoverable"},
+			{"0xFE09","GAP_EstablishLinkRequest"},
+			{"0xFE0A","GAP_TerminateLinkRequest"},
+			{"0xFE0B","GAP_Authenticate"},
+			{"0xFE0C","GAP_PasskeyUpdate"},
+			{"0xFE0D","GAP_SlaveSecurityRequest"},
+			{"0xFE0E","GAP_Signable"},
+			{"0xFE0F","GAP_Bond"},
+			{"0xFE10","GAP_TerminateAuth"},
+			{"0xFE11","GAP_UpdateLinkParamReq"},
+			{"0xFE30","GAP_SetParam"},
+			{"0xFE31","GAP_GetParam"},
+			{"0xFE32","GAP_ResolvePrivateAddr"},
+			{"0xFE33","GAP_SetAdvToken"},
+			{"0xFE34","GAP_RemoveAdvToken"},
+			{"0xFE35","GAP_UpdateAdvTokens"},
+			{"0xFE36","GAP_BondSetParam"},
+			{"0xFE37","GAP_BondGetParam"},
+			{"0xFE80","UTIL_Reset"},
+			{"0xFE81","UTIL_NVRead"},
+			{"0xFE82","UTIL_NVWrite"},
+			{"0xFE83","UTIL_ForceBoot"},
+			{"0x1405","HCI_ReadRSSI"},
+			{"0x2010","HCI_LEClearWhiteList"},
+			{"0x2011","HCI_LEAddDeviceToWhiteList"},
+			{"0x2012","HCI_LERemoveDeviceFromWhiteList"},
+			{"0x2013","HCI_LEConnectionUpdate"}
+		};
+		#endregion
 		private const string strDone = "Done";
 		private const string strCrLf = "\n";
 		private const string strAutoCalc = "This field is auto calculated when the command is sent.";
 		public const string ConnHandleDefault = "0xFFFE";
 		public const string ConnHandleInit = "0xFFFE";
 		public const string ConnHandleAll = "0xFFFF";
-		public const byte CmdHdrSize = (byte)4;
-		public const ushort CmdRspReqOCodeMask = (ushort)255;
+		public const byte CmdHdrSize = 4;
+		public const ushort CmdRspReqOCodeMask = 255;
 		public const string ZeroXStr = "0x";
-		public const byte EvtHdrSize = (byte)3;
+		public const byte EvtHdrSize = 3;
 		public const string EmptyBDAStr = "00:00:00:00:00:00";
 		public const string Empty16BytesStr = "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00";
 		public const string Empty8BytesStr = "00:00:00:00:00:00:00:00";
 		public const string Empty6BytesStr = "00:00:00:00:00:00";
 		public const string Empty2BytesStr = "00:00";
 		public const ushort MaxUInt16 = (ushort)65535;
-		public const ushort HandleDefault = (ushort)1;
-		public const ushort HandleInvalid = (ushort)0;
+		public const ushort HandleDefault = 1;
+		public const ushort HandleInvalid = 0;
 		public const string HandleDefaultStr = "0x0001";
 		public const string HandleInvalidStr = "0x0000";
-		public const ushort StartHandleDefault = (ushort)1;
+		public const ushort StartHandleDefault = 1;
 		public const ushort EndHandleDefault = (ushort)65535;
 		public const string StartHandleDefaultStr = "0x0001";
 		public const string EndHandleDefaultStr = "0xFFFF";
-		public const ushort OffsetDefault = (ushort)0;
+		public const ushort OffsetDefault = 0;
 		public const string OffsetDefaultStr = "0x0000";
 
+		#region Enums
 		public enum GAP_Profile
 		{
 			Broadcaster = 1,
@@ -1832,9 +1088,12 @@ namespace BTool
 			Init = 65534,
 			All = 65535,
 		}
+		#endregion
 
+		#region HCIExtCmds
 		public class HCIExtCmds
 		{
+			#region HCIExt_SetRxGain
 			public class HCIExt_SetRxGain
 			{
 				public string cmdName = "HCIExt_SetRxGain";
@@ -1846,27 +1105,19 @@ namespace BTool
 				[Description("HCIExt_SetRxGain")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Rx Gain (1 Byte) - Set the RF receiver gain")]
 				[DefaultValue(HCICmds.HCIExt_RxGain.GAIN_STD)]
 				public HCICmds.HCIExt_RxGain rxGain
 				{
-					get
-					{
-						return _rxGain;
-					}
-					set
-					{
-						_rxGain = value;
-					}
+					get { return _rxGain; }
+					set { _rxGain = value; }
 				}
 			}
-
+			#endregion
+			#region HCIExt_SetTxPower
 			public class HCIExt_SetTxPower
 			{
 				public string cmdName = "HCIExt_SetTxPower";
@@ -1878,27 +1129,19 @@ namespace BTool
 				[Description("HCIExt_SetTxPower")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Tx Power dBm (1 Byte) - Set the RF transmitter output power")]
 				[DefaultValue(HCICmds.HCIExt_TxPower.POWER_0_DBM)]
 				public HCICmds.HCIExt_TxPower txPower
 				{
-					get
-					{
-						return _txPower;
-					}
-					set
-					{
-						_txPower = value;
-					}
+					get { return _txPower; }
+					set { _txPower = value; }
 				}
 			}
-
+			#endregion
+			#region HCIExt_OnePktPerEvt
 			public class HCIExt_OnePktPerEvt
 			{
 				public string cmdName = "HCIExt_OnePktPerEvt";
@@ -1910,27 +1153,19 @@ namespace BTool
 				[Description("HCIExt_OnePktPerEvt")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(HCICmds.HCIExt_OnePktPerEvtCtrl.DISABLE_ONE_PKT_PER_EVT)]
 				[Description("Control (1 Byte) - Enable or disable allowing only one packet per event.")]
 				public HCICmds.HCIExt_OnePktPerEvtCtrl control
 				{
-					get
-					{
-						return _control;
-					}
-					set
-					{
-						_control = value;
-					}
+					get { return _control; }
+					set { _control = value; }
 				}
 			}
-
+			#endregion
+			#region HCIExt_ClkDivideOnHalt
 			public class HCIExt_ClkDivideOnHalt
 			{
 				public string cmdName = "HCIExt_ClkDivideOnHalt";
@@ -1942,27 +1177,19 @@ namespace BTool
 				[Description("HCIExt_ClkDivideOnHalt")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Control (1 Byte) - Enable or disable clock division on halt.")]
 				[DefaultValue(HCICmds.HCIExt_ClkDivideOnHaltCtrl.DISABLE_CLK_DIVIDE_ON_HALT)]
 				public HCICmds.HCIExt_ClkDivideOnHaltCtrl control
 				{
-					get
-					{
-						return _control;
-					}
-					set
-					{
-						_control = value;
-					}
+					get { return _control; }
+					set { _control = value; }
 				}
 			}
-
+			#endregion
+			#region HCIExt_DeclareNvUsage
 			public class HCIExt_DeclareNvUsage
 			{
 				public string cmdName = "HCIExt_DeclareNvUsage";
@@ -1974,78 +1201,55 @@ namespace BTool
 				[Description("HCIExt_DeclareNvUsage")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Mode (1 Byte) - Enable or disable NV In Use.")]
 				[DefaultValue(HCICmds.HCIExt_DeclareNvUsageMode.NV_NOT_IN_USE)]
 				public HCICmds.HCIExt_DeclareNvUsageMode mode
 				{
-					get
-					{
-						return _mode;
-					}
-					set
-					{
-						_mode = value;
-					}
+					get { return _mode; }
+					set { _mode = value; }
 				}
 			}
-
+			#endregion
+			#region HCIExt_Decrypt
 			public class HCIExt_Decrypt
 			{
 				public string cmdName = "HCIExt_Decrypt";
-				public ushort opCodeValue = (ushort)64517;
+				public ushort opCodeValue = (ushort)(HCICmdOpcode.HCIExt_Decrypt);
 				private string _key = "BF:01:FB:9D:4E:F3:BC:36:D8:74:F5:39:41:38:68:4C";
 				private string _data = "66:C6:C2:27:8E:3B:8E:05:3E:7E:A3:26:52:1B:AD:99";
 				public const string constCmdName = "HCIExt_Decrypt";
-				public const byte keySize = (byte)16;
+				public const byte keySize = 16;
 				private const string _key_default = "BF:01:FB:9D:4E:F3:BC:36:D8:74:F5:39:41:38:68:4C";
-				public const byte dataSize = (byte)16;
+				public const byte dataSize = 16;
 				private const string _data_default = "66:C6:C2:27:8E:3B:8E:05:3E:7E:A3:26:52:1B:AD:99";
 				public byte dataLength;
 
 				[Description("HCIExt_Decrypt")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Key (16 Bytes) - 128 bit key for the decryption of the data")]
 				[DefaultValue("BF:01:FB:9D:4E:F3:BC:36:D8:74:F5:39:41:38:68:4C")]
 				public string key
 				{
-					get
-					{
-						return _key;
-					}
-					set
-					{
-						_key = value;
-					}
+					get { return _key; }
+					set { _key = value; }
 				}
 
 				[DefaultValue("66:C6:C2:27:8E:3B:8E:05:3E:7E:A3:26:52:1B:AD:99")]
 				[Description("Data (16 Bytes) - 128 bit encrypted data to be decrypted")]
 				public string data
 				{
-					get
-					{
-						return _data;
-					}
-					set
-					{
-						_data = value;
-					}
+					get { return _data; }
+					set { _data = value; }
 				}
 			}
-
+			#endregion
 			public class HCIExt_SetLocalSupportedFeatures
 			{
 				public string cmdName = "HCIExt_SetLocalSupportedFeatures";
@@ -2519,7 +1723,8 @@ namespace BTool
 				}
 			}
 		}
-
+		#endregion
+		#region L2CAPCmds
 		public class L2CAPCmds
 		{
 			public class L2CAP_InfoReq
@@ -2667,7 +1872,8 @@ namespace BTool
 				}
 			}
 		}
-
+		#endregion
+		#region ATTCmds
 		public class ATTCmds
 		{
 			public class ATT_ErrorRsp
@@ -4279,7 +3485,8 @@ namespace BTool
 				}
 			}
 		}
-
+		#endregion
+		#region GATTCmds
 		public class GATTCmds
 		{
 			public class GATT_ExchangeMTU
@@ -5060,14 +4267,14 @@ namespace BTool
 					}
 				}
 			}
-
+			#region GATT_WriteCharValue
 			public class GATT_WriteCharValue
 			{
 				public string cmdName = "GATT_WriteCharValue";
-				public byte dataLength = (byte)4;
+				public byte dataLength = 4;
 				public ushort opCodeValue = (ushort)64914;
 				private ushort _connHandle = (ushort)65534;
-				private ushort _handle = (ushort)1;
+				private ushort _handle = 1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_WriteCharValue";
 				private const string _connHandle_default = "0xFFFE";
@@ -5077,62 +4284,42 @@ namespace BTool
 				[Description("GATT_WriteCharValue")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Connection Handle (2 Bytes) - The handle of the connection")]
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[Description("Handle (2 Bytes) - The handle of the attribute to be set")]
 				[DefaultValue(typeof(ushort), "0x0001")]
 				public ushort handle
 				{
-					get
-					{
-						return _handle;
-					}
-					set
-					{
-						_handle = value;
-					}
+					get { return _handle; }
+					set { _handle = value; }
 				}
 
 				[Description("Value (x Bytes)- The value to be written to the attribute")]
 				[DefaultValue("00")]
 				public string value
 				{
-					get
-					{
-						return _value;
-					}
-					set
-					{
-						_value = value;
-					}
+					get { return _value; }
+					set { _value = value; }
 				}
 			}
-
+			#endregion
+			#region GATT_WriteLongCharValue
 			public class GATT_WriteLongCharValue
 			{
 				public string cmdName = "GATT_WriteLongCharValue";
-				public byte dataLength = (byte)6;
+				public byte dataLength = 6;
 				public ushort opCodeValue = (ushort)64918;
 				private ushort _connHandle = (ushort)65534;
-				private ushort _handle = (ushort)1;
+				private ushort _handle = 1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_WriteLongCharValue";
 				private const string _connHandle_default = "0xFFFE";
@@ -5144,69 +4331,43 @@ namespace BTool
 				[Description("GATT_WriteLongCharValue")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Connection Handle (2 Bytes) - The handle of the connection")]
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[Description("Handle (2 Bytes) - The handle of the attribute to be set")]
 				[DefaultValue(typeof(ushort), "0x0001")]
 				public ushort handle
 				{
-					get
-					{
-						return _handle;
-					}
-					set
-					{
-						_handle = value;
-					}
+					get { return _handle; }
+					set { _handle = value; }
 				}
 
 				[Description("Offset (2 Bytes) - The offset of the first octet to be written")]
 				[DefaultValue(typeof(ushort), "0x0000")]
 				public ushort offset
 				{
-					get
-					{
-						return _offset;
-					}
-					set
-					{
-						_offset = value;
-					}
+					get { return _offset; }
+					set { _offset = value; }
 				}
 
 				[Description("Value (x Bytes)- The value to be written to the attribute")]
 				[DefaultValue("00")]
 				public string value
 				{
-					get
-					{
-						return _value;
-					}
-					set
-					{
-						_value = value;
-					}
+					get { return _value; }
+					set { _value = value; }
 				}
 			}
-
+			#endregion
+			#region GATT_ReliableWrites
 			public class GATT_ReliableWrites
 			{
 				public string cmdName = "GATT_ReliableWrites";
@@ -5214,49 +4375,49 @@ namespace BTool
 				public ushort opCodeValue = (ushort)64954;
 				private ushort _connHandle = (ushort)65534;
 				public HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement[] writeElement = new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement[5]
-        {
-          new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement()
-          {
-            valueLen = (byte) 0,
-            handle = (ushort) 1,
-            offset = (ushort) 0,
-            value = ""
-          },
-          new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement()
-          {
-            valueLen = (byte) 0,
-            handle = (ushort) 1,
-            offset = (ushort) 0,
-            value = ""
-          },
-          new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement()
-          {
-            valueLen = (byte) 0,
-            handle = (ushort) 1,
-            offset = (ushort) 0,
-            value = ""
-          },
-          new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement()
-          {
-            valueLen = (byte) 0,
-            handle = (ushort) 1,
-            offset = (ushort) 0,
-            value = ""
-          },
-          new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement()
-          {
-            valueLen = (byte) 0,
-            handle = (ushort) 1,
-            offset = (ushort) 0,
-            value = ""
-          }
-        };
+				{
+					new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement()
+					{
+						valueLen = (byte) 0,
+						handle = (ushort) 1,
+						offset = (ushort) 0,
+						value = ""
+					},
+					new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement()
+					{
+						valueLen = (byte) 0,
+						handle = (ushort) 1,
+						offset = (ushort) 0,
+						value = ""
+					},
+					new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement()
+					{
+						valueLen = (byte) 0,
+						handle = (ushort) 1,
+						offset = (ushort) 0,
+						value = ""
+					},
+					new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement()
+					{
+						valueLen = (byte) 0,
+						handle = (ushort) 1,
+						offset = (ushort) 0,
+						value = ""
+					},
+					new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement()
+					{
+						valueLen = (byte) 0,
+						handle = (ushort) 1,
+						offset = (ushort) 0,
+						value = ""
+					}
+				};
 				public const string constCmdName = "GATT_ReliableWrites";
 				private const string _connHandle_default = "0xFFFE";
 				private const string _numRequests_default = "0";
-				private const byte _valueLen_default = (byte)0;
-				private const ushort _handle_default = (ushort)1;
-				private const ushort _offset_default = (ushort)0;
+				private const byte _valueLen_default = 0;
+				private const ushort _handle_default = 1;
+				private const ushort _offset_default = 0;
 				private const string _value_default = "";
 				public const int maxElements = 5;
 				private const string _valueLen_default_str = "0";
@@ -5280,38 +4441,23 @@ namespace BTool
 				[Description("GATT_ReliableWrites")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				[Description("Connection Handle (2 Bytes) - The handle of the connection")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[Description("Num Requests (1 Bytes) - Number of Prepare Write Requests")]
 				[DefaultValue(typeof(byte), "0")]
 				public byte numRequests
 				{
-					get
-					{
-						return _numRequests;
-					}
-					set
-					{
-						_numRequests = value;
-					}
+					get { return _numRequests; }
+					set { _numRequests = value; }
 				}
 
 				[ReadOnly(true)]
@@ -5319,56 +4465,32 @@ namespace BTool
 				[DefaultValue(typeof(byte), "0")]
 				public byte valueLen1
 				{
-					get
-					{
-						return writeElement[0].valueLen;
-					}
-					set
-					{
-						writeElement[0].valueLen = value;
-					}
+					get { return writeElement[0].valueLen; }
+					set { writeElement[0].valueLen = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0001")]
 				[Description("Handle1 (2 Bytes) - The handle of the attribute to be written")]
 				public ushort handle1
 				{
-					get
-					{
-						return writeElement[0].handle;
-					}
-					set
-					{
-						writeElement[0].handle = value;
-					}
+					get { return writeElement[0].handle; }
+					set { writeElement[0].handle = value; }
 				}
 
 				[Description("Offset1 (2 Bytes) - The offset of the first octet to be written")]
 				[DefaultValue(typeof(ushort), "0x0000")]
 				public ushort offset1
 				{
-					get
-					{
-						return writeElement[0].offset;
-					}
-					set
-					{
-						writeElement[0].offset = value;
-					}
+					get { return writeElement[0].offset; }
+					set { writeElement[0].offset = value; }
 				}
 
 				[Description("Value1 (x Bytes)- The value to be written to the attribute")]
 				[DefaultValue("")]
 				public string value1
 				{
-					get
-					{
-						return writeElement[0].value;
-					}
-					set
-					{
-						writeElement[0].value = value;
-					}
+					get { return writeElement[0].value; }
+					set { writeElement[0].value = value; }
 				}
 
 				[DefaultValue(typeof(byte), "0")]
@@ -5376,56 +4498,32 @@ namespace BTool
 				[ReadOnly(true)]
 				public byte valueLen2
 				{
-					get
-					{
-						return writeElement[1].valueLen;
-					}
-					set
-					{
-						writeElement[1].valueLen = value;
-					}
+					get { return writeElement[1].valueLen; }
+					set { writeElement[1].valueLen = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0001")]
 				[Description("Handle2 (2 Bytes) - The handle of the attribute to be written")]
 				public ushort handle2
 				{
-					get
-					{
-						return writeElement[1].handle;
-					}
-					set
-					{
-						writeElement[1].handle = value;
-					}
+					get { return writeElement[1].handle; }
+					set { writeElement[1].handle = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0000")]
 				[Description("Offset2 (2 Bytes) - The offset of the first octet to be written")]
 				public ushort offset2
 				{
-					get
-					{
-						return writeElement[1].offset;
-					}
-					set
-					{
-						writeElement[1].offset = value;
-					}
+					get { return writeElement[1].offset; }
+					set { writeElement[1].offset = value; }
 				}
 
 				[DefaultValue("")]
 				[Description("Value2 (x Bytes)- The value to be written to the attribute")]
 				public string value2
 				{
-					get
-					{
-						return writeElement[1].value;
-					}
-					set
-					{
-						writeElement[1].value = value;
-					}
+					get { return writeElement[1].value; }
+					set { writeElement[1].value = value; }
 				}
 
 				[DefaultValue(typeof(byte), "0")]
@@ -5433,56 +4531,32 @@ namespace BTool
 				[Description("Value Len3 (1 Bytes) - The length of the attribute value. This field is auto calculated when the command is sent.")]
 				public byte valueLen3
 				{
-					get
-					{
-						return writeElement[2].valueLen;
-					}
-					set
-					{
-						writeElement[2].valueLen = value;
-					}
+					get { return writeElement[2].valueLen; }
+					set { writeElement[2].valueLen = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0001")]
 				[Description("Handle3 (2 Bytes) - The handle of the attribute to be written")]
 				public ushort handle3
 				{
-					get
-					{
-						return writeElement[2].handle;
-					}
-					set
-					{
-						writeElement[2].handle = value;
-					}
+					get { return writeElement[2].handle; }
+					set { writeElement[2].handle = value; }
 				}
 
 				[Description("Offset3 (2 Bytes) - The offset of the first octet to be written")]
 				[DefaultValue(typeof(ushort), "0x0000")]
 				public ushort offset3
 				{
-					get
-					{
-						return writeElement[2].offset;
-					}
-					set
-					{
-						writeElement[2].offset = value;
-					}
+					get { return writeElement[2].offset; }
+					set { writeElement[2].offset = value; }
 				}
 
 				[DefaultValue("")]
 				[Description("Value3 (x Bytes)- The value to be written to the attribute")]
 				public string value3
 				{
-					get
-					{
-						return writeElement[2].value;
-					}
-					set
-					{
-						writeElement[2].value = value;
-					}
+					get { return writeElement[2].value; }
+					set { writeElement[2].value = value; }
 				}
 
 				[DefaultValue(typeof(byte), "0")]
@@ -5490,56 +4564,32 @@ namespace BTool
 				[Description("Value Len4 (1 Bytes) - The length of the attribute value. This field is auto calculated when the command is sent.")]
 				public byte valueLen4
 				{
-					get
-					{
-						return writeElement[3].valueLen;
-					}
-					set
-					{
-						writeElement[3].valueLen = value;
-					}
+					get { return writeElement[3].valueLen; }
+					set { writeElement[3].valueLen = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0001")]
 				[Description("Handle4 (2 Bytes) - The handle of the attribute to be written")]
 				public ushort handle4
 				{
-					get
-					{
-						return writeElement[3].handle;
-					}
-					set
-					{
-						writeElement[3].handle = value;
-					}
+					get { return writeElement[3].handle; }
+					set { writeElement[3].handle = value; }
 				}
 
 				[Description("Offset4 (2 Bytes) - The offset of the first octet to be written")]
 				[DefaultValue(typeof(ushort), "0x0000")]
 				public ushort offset4
 				{
-					get
-					{
-						return writeElement[3].offset;
-					}
-					set
-					{
-						writeElement[3].offset = value;
-					}
+					get { return writeElement[3].offset; }
+					set { writeElement[3].offset = value; }
 				}
 
 				[DefaultValue("")]
 				[Description("Value4 (x Bytes)- The value to be written to the attribute")]
 				public string value4
 				{
-					get
-					{
-						return writeElement[3].value;
-					}
-					set
-					{
-						writeElement[3].value = value;
-					}
+					get { return writeElement[3].value; }
+					set { writeElement[3].value = value; }
 				}
 
 				[Description("Value Len5 (1 Bytes) - The length of the attribute value. This field is auto calculated when the command is sent.")]
@@ -5547,56 +4597,32 @@ namespace BTool
 				[DefaultValue(typeof(byte), "0")]
 				public byte valueLen5
 				{
-					get
-					{
-						return writeElement[4].valueLen;
-					}
-					set
-					{
-						writeElement[4].valueLen = value;
-					}
+					get { return writeElement[4].valueLen; }
+					set { writeElement[4].valueLen = value; }
 				}
 
 				[Description("Handle5 (2 Bytes) - The handle of the attribute to be written")]
 				[DefaultValue(typeof(ushort), "0x0001")]
 				public ushort handle5
 				{
-					get
-					{
-						return writeElement[4].handle;
-					}
-					set
-					{
-						writeElement[4].handle = value;
-					}
+					get { return writeElement[4].handle; }
+					set { writeElement[4].handle = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0000")]
 				[Description("Offset5 (2 Bytes) - The offset of the first octet to be written")]
 				public ushort offset5
 				{
-					get
-					{
-						return writeElement[4].offset;
-					}
-					set
-					{
-						writeElement[4].offset = value;
-					}
+					get { return writeElement[4].offset; }
+					set { writeElement[4].offset = value; }
 				}
 
 				[DefaultValue("")]
 				[Description("Value5 (x Bytes)- The value to be written to the attribute")]
 				public string value5
 				{
-					get
-					{
-						return writeElement[4].value;
-					}
-					set
-					{
-						writeElement[4].value = value;
-					}
+					get { return writeElement[4].value; }
+					set { writeElement[4].value = value; }
 				}
 
 				public struct WriteElement
@@ -5607,14 +4633,15 @@ namespace BTool
 					public string value;
 				}
 			}
-
+			#endregion
+			#region GATT_ReadCharDesc
 			public class GATT_ReadCharDesc
 			{
 				public string cmdName = "GATT_ReadCharDesc";
-				public byte dataLength = (byte)4;
+				public byte dataLength = 4;
 				public ushort opCodeValue = (ushort)64956;
 				private ushort _connHandle = (ushort)65534;
-				private ushort _handle = (ushort)1;
+				private ushort _handle = 1;
 				public const string constCmdName = "GATT_ReadCharDesc";
 				private const string _connHandle_default = "0xFFFE";
 				private const string _handle_default = "0x0001";
@@ -5622,48 +4649,34 @@ namespace BTool
 				[Description("GATT_ReadCharDesc")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Connection Handle (2 Bytes) - The handle of the connection")]
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[Description("Handle (2 Bytes) - The handle of the attribute to be read")]
 				[DefaultValue(typeof(ushort), "0x0001")]
 				public ushort handle
 				{
-					get
-					{
-						return _handle;
-					}
-					set
-					{
-						_handle = value;
-					}
+					get { return _handle; }
+					set { _handle = value; }
 				}
 			}
-
+			#endregion
+			#region GATT_ReadLongCharDesc
 			public class GATT_ReadLongCharDesc
 			{
 				public string cmdName = "GATT_ReadLongCharDesc";
-				public byte dataLength = (byte)6;
+				public byte dataLength = 6;
 				public ushort opCodeValue = (ushort)64958;
 				private ushort _connHandle = (ushort)65534;
-				private ushort _handle = (ushort)1;
+				private ushort _handle = 1;
 				public const string constCmdName = "GATT_ReadLongCharDesc";
 				private const string _connHandle_default = "0xFFFE";
 				private const string _handle_default = "0x0001";
@@ -5673,59 +4686,39 @@ namespace BTool
 				[Description("GATT_ReadLongCharDesc")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Connection Handle (2 Bytes) - The handle of the connection")]
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0001")]
 				[Description("Handle (2 Bytes) - The handle of the attribute to be read")]
 				public ushort handle
 				{
-					get
-					{
-						return _handle;
-					}
-					set
-					{
-						_handle = value;
-					}
+					get { return _handle; }
+					set { _handle = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0000")]
 				[Description("Offset (2 Bytes) - The offset of the first octet to be read")]
 				public ushort offset
 				{
-					get
-					{
-						return _offset;
-					}
-					set
-					{
-						_offset = value;
-					}
+					get { return _offset; }
+					set { _offset = value; }
 				}
 			}
-
+			#endregion
+			#region GATT_WriteCharDesc
 			public class GATT_WriteCharDesc
 			{
 				public string cmdName = "GATT_WriteCharDesc";
-				public byte dataLength = (byte)4;
+				public byte dataLength = 4;
 				public ushort opCodeValue = (ushort)64960;
 				private ushort _connHandle = (ushort)65534;
 				private string _value = "00";
@@ -5738,62 +4731,42 @@ namespace BTool
 				[Description("GATT_WriteCharDesc")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Connection Handle (2 Bytes) - The handle of the connection")]
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0000")]
 				[Description("Offset (2 Bytes) - The offset of the first octet to be read")]
 				public ushort offset
 				{
-					get
-					{
-						return _offset;
-					}
-					set
-					{
-						_offset = value;
-					}
+					get { return _offset; }
+					set { _offset = value; }
 				}
 
 				[Description("Value (x Bytes) - The value of the attribute to be written")]
 				[DefaultValue("00")]
 				public string value
 				{
-					get
-					{
-						return _value;
-					}
-					set
-					{
-						_value = value;
-					}
+					get { return _value; }
+					set { _value = value; }
 				}
 			}
-
+			#endregion
+			#region GATT_WriteLongCharDesc
 			public class GATT_WriteLongCharDesc
 			{
 				public string cmdName = "GATT_WriteLongCharDesc";
-				public byte dataLength = (byte)6;
+				public byte dataLength = 6;
 				public ushort opCodeValue = (ushort)64962;
 				private ushort _connHandle = (ushort)65534;
-				private ushort _handle = (ushort)1;
+				private ushort _handle = 1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_WriteLongCharDesc";
 				private const string _connHandle_default = "0xFFFE";
@@ -5805,76 +4778,50 @@ namespace BTool
 				[Description("GATT_WriteLongCharDesc")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				[Description("Connection Handle (2 Bytes) - The handle of the connection")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[Description("Handle (2 Bytes) - The handle of the attribute to be read")]
 				[DefaultValue(typeof(ushort), "0x0001")]
 				public ushort handle
 				{
-					get
-					{
-						return _handle;
-					}
-					set
-					{
-						_handle = value;
-					}
+					get { return _handle; }
+					set { _handle = value; }
 				}
 
 				[Description("Offset (2 Bytes) - The offset of the first octet to be read")]
 				[DefaultValue(typeof(ushort), "0x0000")]
 				public ushort offset
 				{
-					get
-					{
-						return _offset;
-					}
-					set
-					{
-						_offset = value;
-					}
+					get { return _offset; }
+					set { _offset = value; }
 				}
 
 				[Description("Value (x Bytes) - The current value of the attribute")]
 				[DefaultValue("00")]
 				public string value
 				{
-					get
-					{
-						return _value;
-					}
-					set
-					{
-						_value = value;
-					}
+					get { return _value; }
+					set { _value = value; }
 				}
 			}
-
+			#endregion
+			#region GATT_Notification
 			public class GATT_Notification
 			{
 				public string cmdName = "GATT_Notification";
-				public byte dataLength = (byte)5;
+				public byte dataLength = 5;
 				public ushort opCodeValue = (ushort)64923;
 				private ushort _connHandle = (ushort)65534;
-				private ushort _handle = (ushort)1;
+				private ushort _handle = 1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_Notification";
 				private const string _connHandle_default = "0xFFFE";
@@ -5885,76 +4832,50 @@ namespace BTool
 				[Description("GATT_Notification")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Connection Handle (2 Bytes) - The handle of the connection")]
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_YesNo.No)]
 				[Description("Authenticated (1 Byte) - Whether or not an authenticated link is required")]
 				public HCICmds.GAP_YesNo authenticated
 				{
-					get
-					{
-						return _authenticated;
-					}
-					set
-					{
-						_authenticated = value;
-					}
+					get { return _authenticated; }
+					set { _authenticated = value; }
 				}
 
 				[Description("Handle (2 Bytes) - The handle of the attribute")]
 				[DefaultValue(typeof(ushort), "0x0001")]
 				public ushort handle
 				{
-					get
-					{
-						return _handle;
-					}
-					set
-					{
-						_handle = value;
-					}
+					get { return _handle; }
+					set { _handle = value; }
 				}
 
 				[Description("Value (x Bytes) - The current value of the attribute")]
 				[DefaultValue("00")]
 				public string value
 				{
-					get
-					{
-						return _value;
-					}
-					set
-					{
-						_value = value;
-					}
+					get { return _value; }
+					set { _value = value; }
 				}
 			}
-
+			#endregion
+			#region GATT_Indication
 			public class GATT_Indication
 			{
 				public string cmdName = "GATT_Indication";
-				public byte dataLength = (byte)5;
+				public byte dataLength = 5;
 				public ushort opCodeValue = (ushort)64925;
 				private ushort _connHandle = (ushort)65534;
-				private ushort _handle = (ushort)1;
+				private ushort _handle = 1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_Indication";
 				private const string _connHandle_default = "0xFFFE";
@@ -5965,69 +4886,43 @@ namespace BTool
 				[Description("GATT_Indication")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				[Description("Connection Handle (2 Bytes) - The handle of the connection")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_YesNo.No)]
 				[Description("Authenticated (1 Byte) - Whether or not an authenticated link is required")]
 				public HCICmds.GAP_YesNo authenticated
 				{
-					get
-					{
-						return _authenticated;
-					}
-					set
-					{
-						_authenticated = value;
-					}
+					get { return _authenticated; }
+					set { _authenticated = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0001")]
 				[Description("Handle (2 Bytes) - The handle of the attribute")]
 				public ushort handle
 				{
-					get
-					{
-						return _handle;
-					}
-					set
-					{
-						_handle = value;
-					}
+					get { return _handle; }
+					set { _handle = value; }
 				}
 
 				[Description("Value (x Bytes) - The current value of the attribute")]
 				[DefaultValue("00")]
 				public string value
 				{
-					get
-					{
-						return _value;
-					}
-					set
-					{
-						_value = value;
-					}
+					get { return _value; }
+					set { _value = value; }
 				}
 			}
-
+			#endregion
+			#region GATT_AddService
 			public class GATT_AddService
 			{
 				public string cmdName = "GATT_AddService";
@@ -6041,41 +4936,27 @@ namespace BTool
 				[Description("GATT_AddService")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("UUID (2 Bytes)")]
 				[DefaultValue(HCICmds.GATT_ServiceUUID.PrimaryService)]
 				public HCICmds.GATT_ServiceUUID uuid
 				{
-					get
-					{
-						return _uuid;
-					}
-					set
-					{
-						_uuid = value;
-					}
+					get { return _uuid; }
+					set { _uuid = value; }
 				}
 
 				[Description("Num Attrs (2 Bytes) - The number attributes in the service (including the service attribute)")]
 				[DefaultValue(typeof(ushort), "2")]
 				public ushort numAttrs
 				{
-					get
-					{
-						return _numAttrs;
-					}
-					set
-					{
-						_numAttrs = value;
-					}
+					get { return _numAttrs; }
+					set { _numAttrs = value; }
 				}
 			}
-
+			#endregion
+			#region GATT_DelService
 			public class GATT_DelService
 			{
 				public string cmdName = "GATT_DelService";
@@ -6108,7 +4989,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region GATT_AddAttribute
 			public class GATT_AddAttribute
 			{
 				public string cmdName = "GATT_AddAttribute";
@@ -6122,48 +5004,36 @@ namespace BTool
 				[Description("GATT_AddAttribute")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue("00:00")]
 				[Description("UUID (x Bytes) - The type of the attribute to be added")]
 				public string uuid
 				{
-					get
-					{
-						return _uuid;
-					}
-					set
-					{
-						_uuid = value;
-					}
+					get { return _uuid; }
+					set { _uuid = value; }
 				}
 
 				[Description("Permissions (1 Byte) - Bit mask - Attribute permissions")]
 				[DefaultValue((byte)1)]
 				public byte permissions
 				{
-					get
-					{
-						return _permissions;
-					}
-					set
-					{
-						_permissions = value;
-					}
+					get { return _permissions; }
+					set { _permissions = value; }
 				}
 			}
+			#endregion
 		}
-
+		#endregion
+		#region GAPCmds
 		public class GAPCmds
 		{
+			#region GAP_DeviceInit
 			public class GAP_DeviceInit
 			{
 				public string cmdName = "GAP_DeviceInit";
-				public byte dataLength = (byte)6;
+				public byte dataLength = 6;
 				public ushort opCodeValue = (ushort)65024;
 				private HCICmds.GAP_EnableDisable _centralProfileRole = HCICmds.GAP_EnableDisable.Enable;
 				private byte _maxScanResponses = (byte)5;
@@ -6171,9 +5041,9 @@ namespace BTool
 				private string _csrk = "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00";
 				private uint _signCounter = 1U;
 				public const string constCmdName = "GAP_DeviceInit";
-				private const byte _maxScanResponses_default = (byte)5;
-				public const byte irkSize = (byte)16;
-				public const byte csrkSize = (byte)16;
+				private const byte _maxScanResponses_default = 5;
+				public const byte irkSize = 16;
+				public const byte csrkSize = 16;
 				private const string _signCounter_default = "1";
 				private HCICmds.GAP_EnableDisable _broadcasterProfileRole;
 				private HCICmds.GAP_EnableDisable _observerProfileRole;
@@ -6182,10 +5052,7 @@ namespace BTool
 				[Description("GAP_DeviceInit")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Category("BroadcasterProfileRole")]
@@ -6193,14 +5060,8 @@ namespace BTool
 				[DefaultValue(HCICmds.GAP_EnableDisable.Disable)]
 				public HCICmds.GAP_EnableDisable broadcasterProfileRole
 				{
-					get
-					{
-						return _broadcasterProfileRole;
-					}
-					set
-					{
-						_broadcasterProfileRole = value;
-					}
+					get { return _broadcasterProfileRole; }
+					set { _broadcasterProfileRole = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_EnableDisable.Disable)]
@@ -6208,14 +5069,8 @@ namespace BTool
 				[Category("ObserverProfileRole")]
 				public HCICmds.GAP_EnableDisable observerProfileRole
 				{
-					get
-					{
-						return _observerProfileRole;
-					}
-					set
-					{
-						_observerProfileRole = value;
-					}
+					get { return _observerProfileRole; }
+					set { _observerProfileRole = value; }
 				}
 
 				[Category("PeripheralProfileRole")]
@@ -6223,14 +5078,8 @@ namespace BTool
 				[Description("Peripheral Profile Role (1 Bit) - Bit Mask - GAP profile role")]
 				public HCICmds.GAP_EnableDisable peripheralProfileRole
 				{
-					get
-					{
-						return _peripheralProfileRole;
-					}
-					set
-					{
-						_peripheralProfileRole = value;
-					}
+					get { return _peripheralProfileRole; }
+					set { _peripheralProfileRole = value; }
 				}
 
 				[Description("Central Profile Role (1 Bit) - Bit Mask - GAP profile role")]
@@ -6238,77 +5087,48 @@ namespace BTool
 				[Category("CentralProfileRole")]
 				public HCICmds.GAP_EnableDisable centralProfileRole
 				{
-					get
-					{
-						return _centralProfileRole;
-					}
-					set
-					{
-						_centralProfileRole = value;
-					}
+					get { return _centralProfileRole; }
+					set { _centralProfileRole = value; }
 				}
 
 				[DefaultValue((byte)5)]
 				[Description("Max Scan Responses (1 Byte) - The maximun can responses we can receive during a device discovery.")]
 				public byte maxScanResponses
 				{
-					get
-					{
-						return _maxScanResponses;
-					}
-					set
-					{
-						_maxScanResponses = value;
-					}
+					get { return _maxScanResponses; }
+					set { _maxScanResponses = value; }
 				}
 
 				[Description("IRK (16 Bytes) - Identify Resolving Key - 0 if generate the key ")]
 				[DefaultValue("00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00")]
 				public string irk
 				{
-					get
-					{
-						return _irk;
-					}
-					set
-					{
-						_irk = value;
-					}
+					get { return _irk; }
+					set { _irk = value; }
 				}
 
 				[DefaultValue("00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00")]
 				[Description("CSRK (16 Bytes) - Connection Signature Resolving Key - 0 if generate the key ")]
 				public string csrk
 				{
-					get
-					{
-						return _csrk;
-					}
-					set
-					{
-						_csrk = value;
-					}
+					get { return _csrk; }
+					set { _csrk = value; }
 				}
 
 				[Description("Signature Counter (4 Bytes) - 32 bit Signature Counter")]
 				[DefaultValue(typeof(uint), "1")]
 				public uint signCounter
 				{
-					get
-					{
-						return _signCounter;
-					}
-					set
-					{
-						_signCounter = value;
-					}
+					get { return _signCounter; }
+					set { _signCounter = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_ConfigDeviceAddr
 			public class GAP_ConfigDeviceAddr
 			{
 				public string cmdName = "GAP_ConfigDeviceAddr";
-				public byte dataLength = (byte)7;
+				public byte dataLength = 7;
 				public ushort opCodeValue = (ushort)65027;
 				private string _addr = "00:00:00:00:00:00";
 				public const string constCmdName = "GAP_ConfigDeviceAddr";
@@ -6317,41 +5137,27 @@ namespace BTool
 				[Description("GAP_ConfigDeviceAddr")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Addr Type (1 Byte) - Address type")]
 				[DefaultValue(HCICmds.GAP_AddrType.Public)]
 				public HCICmds.GAP_AddrType addrType
 				{
-					get
-					{
-						return _addrType;
-					}
-					set
-					{
-						_addrType = value;
-					}
+					get { return _addrType; }
+					set { _addrType = value; }
 				}
 
 				[DefaultValue("00:00:00:00:00:00")]
 				[Description("Addr (6 Bytes) - BDA of the intended address")]
 				public string addr
 				{
-					get
-					{
-						return _addr;
-					}
-					set
-					{
-						_addr = value;
-					}
+					get { return _addr; }
+					set { _addr = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_DeviceDiscoveryRequest
 			public class GAP_DeviceDiscoveryRequest
 			{
 				public string cmdName = "GAP_DeviceDiscoveryRequest";
@@ -6365,10 +5171,7 @@ namespace BTool
 				[Description("GAP_DeviceDiscoveryRequest")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Category("Mode")]
@@ -6376,14 +5179,8 @@ namespace BTool
 				[DefaultValue(HCICmds.GAP_DiscoveryMode.All)]
 				public HCICmds.GAP_DiscoveryMode mode
 				{
-					get
-					{
-						return _mode;
-					}
-					set
-					{
-						_mode = value;
-					}
+					get { return _mode; }
+					set { _mode = value; }
 				}
 
 				[Category("ActiveScan")]
@@ -6391,14 +5188,8 @@ namespace BTool
 				[DefaultValue(HCICmds.GAP_EnableDisable.Enable)]
 				public HCICmds.GAP_EnableDisable activeScan
 				{
-					get
-					{
-						return _activeScan;
-					}
-					set
-					{
-						_activeScan = value;
-					}
+					get { return _activeScan; }
+					set { _activeScan = value; }
 				}
 
 				[Description("White List (1 byte) - White List Enable/Disable - Enabled to only allow advertisements from devices in the white list.")]
@@ -6406,17 +5197,12 @@ namespace BTool
 				[DefaultValue(HCICmds.GAP_EnableDisable.Disable)]
 				public HCICmds.GAP_EnableDisable whiteList
 				{
-					get
-					{
-						return _whiteList;
-					}
-					set
-					{
-						_whiteList = value;
-					}
+					get { return _whiteList; }
+					set { _whiteList = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_DeviceDiscoveryCancel
 			public class GAP_DeviceDiscoveryCancel
 			{
 				public string cmdName = "GAP_DeviceDiscoveryCancel";
@@ -6427,23 +5213,21 @@ namespace BTool
 				[Description("GAP_DeviceDiscoveryCancel\nCancel the current device discovery")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 			}
-
+			#endregion
+			#region GAP_MakeDiscoverable
 			public class GAP_MakeDiscoverable
 			{
 				public string cmdName = "GAP_MakeDiscoverable";
-				public byte dataLength = (byte)4;
+				public byte dataLength = 4;
 				public ushort opCodeValue = (ushort)65030;
 				private string _initiatorAddr = "00:00:00:00:00:00";
-				private byte _channelMap = (byte)7;
+				private byte _channelMap = 7;
 				public const string constCmdName = "GAP_MakeDiscoverable";
-				public const byte initiatorAddrSize = (byte)6;
-				private const byte _channelMap_default = (byte)7;
+				public const byte initiatorAddrSize = 6;
+				private const byte _channelMap_default = 7;
 				private HCICmds.GAP_EventType _eventType;
 				private HCICmds.GAP_AddrType _initiatorAddrType;
 				private HCICmds.GAP_FilterPolicy _filterPolicy;
@@ -6451,116 +5235,75 @@ namespace BTool
 				[Description("GAP_MakeDiscoverable")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(HCICmds.GAP_EventType.CONN_UNDIRECT_AD)]
 				[Description("Event Type (1 Byte) - Advertising event type")]
 				public HCICmds.GAP_EventType eventType
 				{
-					get
-					{
-						return _eventType;
-					}
-					set
-					{
-						_eventType = value;
-					}
+					get { return _eventType; }
+					set { _eventType = value; }
 				}
 
 				[Description("Initiator Address Type (1 Byte) - Address type")]
 				[DefaultValue(HCICmds.GAP_AddrType.Public)]
 				public HCICmds.GAP_AddrType initiatorAddrType
 				{
-					get
-					{
-						return _initiatorAddrType;
-					}
-					set
-					{
-						_initiatorAddrType = value;
-					}
+					get { return _initiatorAddrType; }
+					set { _initiatorAddrType = value; }
 				}
 
 				[Description("Initiator's Address (6 Bytes) - BDA of the Initiator")]
 				[DefaultValue("00:00:00:00:00:00")]
 				public string initiatorAddr
 				{
-					get
-					{
-						return _initiatorAddr;
-					}
-					set
-					{
-						_initiatorAddr = value;
-					}
+					get { return _initiatorAddr; }
+					set { _initiatorAddr = value; }
 				}
 
 				[Description("Channel Map (1 Byte) - Bit mask - 0x07 all channels")]
 				[DefaultValue((byte)7)]
 				public byte channelMap
 				{
-					get
-					{
-						return _channelMap;
-					}
-					set
-					{
-						_channelMap = value;
-					}
+					get { return _channelMap; }
+					set { _channelMap = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_FilterPolicy.All)]
 				[Description("Filter Policy (1 Byte) - Filer Policy. Ignored when directed advertising is used.")]
 				public HCICmds.GAP_FilterPolicy filterPolicy
 				{
-					get
-					{
-						return _filterPolicy;
-					}
-					set
-					{
-						_filterPolicy = value;
-					}
+					get { return _filterPolicy; }
+					set { _filterPolicy = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_UpdateAdvertisingData
 			public class GAP_UpdateAdvertisingData
 			{
 				public string cmdName = "GAP_UpdateAdvertisingData";
-				public byte dataLength = (byte)2;
+				public byte dataLength = 2;
 				public ushort opCodeValue = (ushort)65031;
 				private HCICmds.GAP_AvertAdType _adType = HCICmds.GAP_AvertAdType.ADVERTISEMENT_DATA;
 				private string _advertData = "02:01:06";
 				public const string constCmdName = "GAP_UpdateAdvertisingData";
-				private const byte _dataLen_default = (byte)0;
+				private const byte _dataLen_default = 0;
 				private const string _advertData_default = "02:01:06";
 				private byte _dataLen;
 
 				[Description("GAP_UpdateAdvertisingData")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Ad Type (1 Byte)")]
 				[DefaultValue(HCICmds.GAP_AvertAdType.ADVERTISEMENT_DATA)]
 				public HCICmds.GAP_AvertAdType adType
 				{
-					get
-					{
-						return _adType;
-					}
-					set
-					{
-						_adType = value;
-					}
+					get { return _adType; }
+					set { _adType = value; }
 				}
 
 				[Description("DataLen (1 Byte) - The length of the data (0 - 31) This field is auto calculated when the command is sent.")]
@@ -6568,31 +5311,20 @@ namespace BTool
 				[DefaultValue((byte)0)]
 				public byte dataLen
 				{
-					get
-					{
-						return _dataLen;
-					}
-					set
-					{
-						_dataLen = value;
-					}
+					get { return _dataLen; }
+					set { _dataLen = value; }
 				}
 
 				[DefaultValue("02:01:06")]
 				[Description("Advert Data (x Bytes) - Raw Advertising Data")]
 				public string advertData
 				{
-					get
-					{
-						return _advertData;
-					}
-					set
-					{
-						_advertData = value;
-					}
+					get { return _advertData; }
+					set { _advertData = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_EndDiscoverable
 			public class GAP_EndDiscoverable
 			{
 				public string cmdName = "GAP_EndDiscoverable";
@@ -6603,17 +5335,15 @@ namespace BTool
 				[Description("GAP_EndDiscoverable")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 			}
-
+			#endregion
+			#region GAP_EstablishLinkRequest
 			public class GAP_EstablishLinkRequest
 			{
 				public string cmdName = "GAP_EstablishLinkRequest";
-				public byte dataLength = (byte)9;
+				public byte dataLength = 9;
 				public ushort opCodeValue = (ushort)65033;
 				private string _peerAddr = "00:00:00:00:00:00";
 				public const string constCmdName = "GAP_EstablishLinkRequest";
@@ -6624,69 +5354,43 @@ namespace BTool
 				[Description("GAP_EstablishLinkRequest")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("High Duty Cycle (1 Byte) - A Central Device may use high duty cycle scan parameters in order to achieve low latency connection time with a Peripheral device using Directed Link Establishment.")]
 				[DefaultValue(HCICmds.GAP_EnableDisable.Disable)]
 				public HCICmds.GAP_EnableDisable highDutyCycle
 				{
-					get
-					{
-						return _highDutyCycle;
-					}
-					set
-					{
-						_highDutyCycle = value;
-					}
+					get { return _highDutyCycle; }
+					set { _highDutyCycle = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_EnableDisable.Disable)]
 				[Description("White List (1 Byte)")]
 				public HCICmds.GAP_EnableDisable whiteList
 				{
-					get
-					{
-						return _whiteList;
-					}
-					set
-					{
-						_whiteList = value;
-					}
+					get { return _whiteList; }
+					set { _whiteList = value; }
 				}
 
 				[Description("Addr Type (1 Byte) - Address type")]
 				[DefaultValue(HCICmds.GAP_AddrType.Public)]
 				public HCICmds.GAP_AddrType addrTypePeer
 				{
-					get
-					{
-						return _addrTypePeer;
-					}
-					set
-					{
-						_addrTypePeer = value;
-					}
+					get { return _addrTypePeer; }
+					set { _addrTypePeer = value; }
 				}
 
 				[DefaultValue("00:00:00:00:00:00")]
 				[Description("Peer's Address (6 Bytes) - BDA of the peer")]
 				public string peerAddr
 				{
-					get
-					{
-						return _peerAddr;
-					}
-					set
-					{
-						_peerAddr = value;
-					}
+					get { return _peerAddr; }
+					set { _peerAddr = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_Authenticate
 			public class GAP_TerminateLinkRequest
 			{
 				public string cmdName = "GAP_TerminateLinkRequest";
@@ -6700,65 +5404,51 @@ namespace BTool
 				[Description("GAP_TerminateLinkRequest")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				[Description("Connection Handle (2 Bytes) - Handle of the connection")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_DisconnectReason.Remote_User_Terminated)]
 				[Description("Disconnect Reason (1 Byte) - Reason To Disconnect")]
 				public HCICmds.GAP_DisconnectReason discReason
 				{
-					get
-					{
-						return _discReason;
-					}
-					set
-					{
-						_discReason = value;
-					}
+					get { return _discReason; }
+					set { _discReason = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_Authenticate
 			public class GAP_Authenticate
 			{
 				public string cmdName = "GAP_Authenticate";
-				public byte dataLength = (byte)29;
+				public byte dataLength = 29;
 				public ushort opCodeValue = (ushort)65035;
 				private ushort _connHandle = (ushort)65534;
 				private HCICmds.GAP_IOCaps _secReq_ioCaps = HCICmds.GAP_IOCaps.NoInputNoOutput;
 				private string _secReq_oob = "4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00";
-				private byte _secReq_authReq = (byte)1;
-				private byte _secReq_maxEncKeySize = (byte)16;
-				private byte _secReq_keyDist = (byte)63;
+				private byte _secReq_authReq = 1;
+				private byte _secReq_maxEncKeySize = 16;
+				private byte _secReq_keyDist = 63;
 				private HCICmds.GAP_IOCaps _pairReq_ioCaps = HCICmds.GAP_IOCaps.NoInputNoOutput;
-				private byte _pairReq_authReq = (byte)1;
-				private byte _pairReq_maxEncKeySize = (byte)16;
-				private byte _pairReq_keyDist = (byte)63;
+				private byte _pairReq_authReq = 1;
+				private byte _pairReq_maxEncKeySize = 16;
+				private byte _pairReq_keyDist = 63;
 				public const string constCmdName = "GAP_Authenticate";
 				private const string _connHandle_default = "0xFFFE";
-				public const byte secReq_oobSize = (byte)16;
+				public const byte secReq_oobSize = 16;
 				private const string _secReq_oob_default = "4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00";
-				private const byte _secReq_maxEncKeySize_default = (byte)16;
-				private const byte _secReq_keyDist_default = (byte)63;
-				private const byte _pairReq_authReq_default = (byte)1;
-				private const byte _pairReq_maxEncKeySize_default = (byte)16;
-				private const byte _pairReq_keyDist_default = (byte)63;
+				private const byte _secReq_maxEncKeySize_default = 16;
+				private const byte _secReq_keyDist_default = 63;
+				private const byte _pairReq_authReq_default = 1;
+				private const byte _pairReq_maxEncKeySize_default = 16;
+				private const byte _pairReq_keyDist_default = 63;
 				private HCICmds.GAP_TrueFalse _secReq_oobAvailable;
 				private HCICmds.GAP_EnableDisable _pairReq_Enable;
 				private HCICmds.GAP_EnableDisable _pairReq_oobDataFlag;
@@ -6766,195 +5456,115 @@ namespace BTool
 				[Description("GAP_Authenticate")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Connection Handle (2 Bytes) - Handle of the connection")]
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_IOCaps.NoInputNoOutput)]
 				[Description("IOCaps (1 Byte) - Defines the values which are used when exchanging IO capabilities")]
 				public HCICmds.GAP_IOCaps secReq_ioCaps
 				{
-					get
-					{
-						return _secReq_ioCaps;
-					}
-					set
-					{
-						_secReq_ioCaps = value;
-					}
+					get { return _secReq_ioCaps; }
+					set { _secReq_ioCaps = value; }
 				}
 
 				[Description("OOB Available (1 Byte) - Enable if Out-of-band key available")]
 				[DefaultValue(HCICmds.GAP_TrueFalse.False)]
 				public HCICmds.GAP_TrueFalse secReq_oobAvailable
 				{
-					get
-					{
-						return _secReq_oobAvailable;
-					}
-					set
-					{
-						_secReq_oobAvailable = value;
-					}
+					get { return _secReq_oobAvailable; }
+					set { _secReq_oobAvailable = value; }
 				}
 
 				[Description("OOB Key (16 Bytes) The OOB key value")]
 				[DefaultValue("4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00")]
 				public string secReq_oob
 				{
-					get
-					{
-						return _secReq_oob;
-					}
-					set
-					{
-						_secReq_oob = value;
-					}
+					get { return _secReq_oob; }
+					set { _secReq_oob = value; }
 				}
 
 				[DefaultValue((byte)1)]
 				[Description("Auth Req (1 Byte) - A bit field that indicates the requested security properties for STK and GAP bonding information.")]
 				public byte secReq_authReq
 				{
-					get
-					{
-						return _secReq_authReq;
-					}
-					set
-					{
-						_secReq_authReq = value;
-					}
+					get { return _secReq_authReq; }
+					set { _secReq_authReq = value; }
 				}
 
 				[DefaultValue((byte)16)]
 				[Description("Max Enc Key Size (16 Bytes) - This value defines the maximum encryption key size in octets\nthat the device can support.  Range: 7 to 16.")]
 				public byte secReq_maxEncKeySize
 				{
-					get
-					{
-						return _secReq_maxEncKeySize;
-					}
-					set
-					{
-						_secReq_maxEncKeySize = value;
-					}
+					get { return _secReq_maxEncKeySize; }
+					set { _secReq_maxEncKeySize = value; }
 				}
 
 				[DefaultValue((byte)63)]
 				[Description("Key Distribution (1 Byte) - The Key Distribution field indicates which keys will be distributed.")]
 				public byte secReq_keyDist
 				{
-					get
-					{
-						return _secReq_keyDist;
-					}
-					set
-					{
-						_secReq_keyDist = value;
-					}
+					get { return _secReq_keyDist; }
+					set { _secReq_keyDist = value; }
 				}
 
 				[Description("Pairing Request (1 Byte) - Enable - if Pairing Request has already been received\nand to respond with a Pairing Response.\n This should only be used in a Peripheral device.")]
 				[DefaultValue(HCICmds.GAP_EnableDisable.Disable)]
 				public HCICmds.GAP_EnableDisable pairReq_Enable
 				{
-					get
-					{
-						return _pairReq_Enable;
-					}
-					set
-					{
-						_pairReq_Enable = value;
-					}
+					get { return _pairReq_Enable; }
+					set { _pairReq_Enable = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_IOCaps.NoInputNoOutput)]
 				[Description("IO Capabilities (1 Byte) - Defines the values which are used when exchanging IO capabilities")]
 				public HCICmds.GAP_IOCaps pairReq_ioCaps
 				{
-					get
-					{
-						return _pairReq_ioCaps;
-					}
-					set
-					{
-						_pairReq_ioCaps = value;
-					}
+					get { return _pairReq_ioCaps; }
+					set { _pairReq_ioCaps = value; }
 				}
 
 				[Description("OOB data Flag (1 Byte) - Enable if Out-of-band key available")]
 				[DefaultValue(HCICmds.GAP_EnableDisable.Disable)]
 				public HCICmds.GAP_EnableDisable pairReq_oobDataFlag
 				{
-					get
-					{
-						return _pairReq_oobDataFlag;
-					}
-					set
-					{
-						_pairReq_oobDataFlag = value;
-					}
+					get { return _pairReq_oobDataFlag; }
+					set { _pairReq_oobDataFlag = value; }
 				}
 
 				[DefaultValue((byte)1)]
 				[Description("Auth Req (1 Byte) - Bit field that indicates the requested security properties\nfor STK and GAP bonding information.")]
 				public byte pairReq_authReq
 				{
-					get
-					{
-						return _pairReq_authReq;
-					}
-					set
-					{
-						_pairReq_authReq = value;
-					}
+					get { return _pairReq_authReq; }
+					set { _pairReq_authReq = value; }
 				}
 
 				[Description("Max Enc Key Size (1 Byte) - This value defines the maximun encryption key size in octects\nthat the device can support.")]
 				[DefaultValue((byte)16)]
 				public byte pairReq_maxEncKeySize
 				{
-					get
-					{
-						return _pairReq_maxEncKeySize;
-					}
-					set
-					{
-						_pairReq_maxEncKeySize = value;
-					}
+					get { return _pairReq_maxEncKeySize; }
+					set { _pairReq_maxEncKeySize = value; }
 				}
 
 				[Description("Key Dist (1 Byte) - The Key Distribution field indicates which keys will be distributed.")]
 				[DefaultValue((byte)63)]
 				public byte pairReq_keyDist
 				{
-					get
-					{
-						return _pairReq_keyDist;
-					}
-					set
-					{
-						_pairReq_keyDist = value;
-					}
+					get { return _pairReq_keyDist; }
+					set { _pairReq_keyDist = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_PasskeyUpdate
 			public class GAP_PasskeyUpdate
 			{
 				public string cmdName = "GAP_PasskeyUpdate";
@@ -6970,41 +5580,27 @@ namespace BTool
 				[Description("GAP_PasskeyUpdate")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Connection Handle (2 Bytes) - Handle of the connection")]
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[DefaultValue("000000")]
 				[Description("Pairing Passkey (6 Bytes) - string of numbers 0-9. '019655' is a value of 0x4CC7\n")]
 				public string passKey
 				{
-					get
-					{
-						return _passKey;
-					}
-					set
-					{
-						_passKey = value;
-					}
+					get { return _passKey; }
+					set { _passKey = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_SlaveSecurityRequest
 			public class GAP_SlaveSecurityRequest
 			{
 				public string cmdName = "GAP_SlaveSecurityRequest";
@@ -7018,51 +5614,37 @@ namespace BTool
 				[Description("GAP_SlaveSecurityRequest")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				[Description("Connection Handle (2 Bytes) - Handle of the connection")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[Description("AuthReq (1 Byte) - A bit field that indicates the requested security properties bonding information.")]
 				[DefaultValue((byte)1)]
 				public byte authReq
 				{
-					get
-					{
-						return _authReq;
-					}
-					set
-					{
-						_authReq = value;
-					}
+					get { return _authReq; }
+					set { _authReq = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_Signable
 			public class GAP_Signable
 			{
 				public string cmdName = "GAP_Signable";
-				public byte dataLength = (byte)7;
+				public byte dataLength = 7;
 				public ushort opCodeValue = (ushort)65038;
 				private ushort _connHandle = (ushort)65534;
 				private string _csrk = "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00";
 				public const string constCmdName = "GAP_Signable";
 				private const string _connHandle_default = "0xFFFE";
-				public const byte csrkSize = (byte)16;
+				public const byte csrkSize = 16;
 				private const string _signCounter_default = "0";
 				private HCICmds.GAP_AuthenticatedCsrk _authenticated;
 				private uint _signCounter;
@@ -7070,183 +5652,119 @@ namespace BTool
 				[Description("GAP_Signable")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				[Description("Connection Handle (2 Bytes) - Handle of the connection")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_AuthenticatedCsrk.NOT_AUTHENTICATED)]
 				[Description("Authenticated (1 Byte) - Is the signing information authenticated.")]
 				public HCICmds.GAP_AuthenticatedCsrk authenticated
 				{
-					get
-					{
-						return _authenticated;
-					}
-					set
-					{
-						_authenticated = value;
-					}
+					get { return _authenticated; }
+					set { _authenticated = value; }
 				}
 
 				[Description("CSRK (16 Bytes) - Connection Signature Resolving Key for the connected device")]
 				[DefaultValue("00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00")]
 				public string csrk
 				{
-					get
-					{
-						return _csrk;
-					}
-					set
-					{
-						_csrk = value;
-					}
+					get { return _csrk; }
+					set { _csrk = value; }
 				}
 
 				[DefaultValue(typeof(uint), "0")]
 				[Description("Signature Counter (4 Bytes) - Sign Counter for the connected device")]
 				public uint signCounter
 				{
-					get
-					{
-						return _signCounter;
-					}
-					set
-					{
-						_signCounter = value;
-					}
+					get { return _signCounter; }
+					set { _signCounter = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_Bond
 			public class GAP_Bond
 			{
 				public string cmdName = "GAP_Bond";
-				public byte dataLength = (byte)6;
+				public byte dataLength = 6;
 				public ushort opCodeValue = (ushort)65039;
 				private ushort _connHandle = (ushort)65534;
 				private string _secInfo_LTK = "4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00";
 				private ushort _secInfo_DIV = (ushort)4369;
 				private string _secInfo_RAND = "11:22:33:44:55:66:77:88";
-				private byte _secInfo_LTKSize = (byte)16;
+				private byte _secInfo_LTKSize = 16;
 				public const string constCmdName = "GAP_Bond";
 				private const string _connHandle_default = "0xFFFE";
-				public const byte secInfo_LTKLength = (byte)16;
+				public const byte secInfo_LTKLength = 16;
 				private const string _secInfo_LTK_default = "4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00";
 				private const string _secInfo_DIV_default = "0x1111";
-				public const byte secInfo_RANDSize = (byte)8;
+				public const byte secInfo_RANDSize = 8;
 				private const string _secInfo_RAND_default = "11:22:33:44:55:66:77:88";
-				private const byte _secInfo_LTKSize_default = (byte)16;
+				private const byte _secInfo_LTKSize_default = 16;
 				private HCICmds.GAP_YesNo _authenticated;
 
 				[Description("GAP_Bond")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				[Description("Connection Handle (2 Bytes) - Handle of the connection")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[Description("Authenticated (1 Byte) - Yes if the bond was authenticated")]
 				[DefaultValue(HCICmds.GAP_YesNo.No)]
 				public HCICmds.GAP_YesNo authenticated
 				{
-					get
-					{
-						return _authenticated;
-					}
-					set
-					{
-						_authenticated = value;
-					}
+					get { return _authenticated; }
+					set { _authenticated = value; }
 				}
 
 				[Description("secInfo_LTK (16 Bytes) - Long Term Key")]
 				[DefaultValue("4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00")]
 				public string secInfo_LTK
 				{
-					get
-					{
-						return _secInfo_LTK;
-					}
-					set
-					{
-						_secInfo_LTK = value;
-					}
+					get { return _secInfo_LTK; }
+					set { _secInfo_LTK = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x1111")]
 				[Description("secInfo_DIV (2 Bytes) - Diversifier")]
 				public ushort secInfo_DIV
 				{
-					get
-					{
-						return _secInfo_DIV;
-					}
-					set
-					{
-						_secInfo_DIV = value;
-					}
+					get { return _secInfo_DIV; }
+					set { _secInfo_DIV = value; }
 				}
 
 				[Description("secInfo_RAND (8 Bytes) - LTK Random pairing")]
 				[DefaultValue("11:22:33:44:55:66:77:88")]
 				public string secInfo_RAND
 				{
-					get
-					{
-						return _secInfo_RAND;
-					}
-					set
-					{
-						_secInfo_RAND = value;
-					}
+					get { return _secInfo_RAND; }
+					set { _secInfo_RAND = value; }
 				}
 
 				[DefaultValue((byte)16)]
 				[Description("secInfo_LTKSize (1 Byte) - LTK Key Size in bytes")]
 				public byte secInfo_LTKSize
 				{
-					get
-					{
-						return _secInfo_LTKSize;
-					}
-					set
-					{
-						_secInfo_LTKSize = value;
-					}
+					get { return _secInfo_LTKSize; }
+					set { _secInfo_LTKSize = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_TerminateAuth
 			public class GAP_TerminateAuth
 			{
 				public string cmdName = "GAP_TerminateAuth";
@@ -7260,41 +5778,27 @@ namespace BTool
 				[Description("GAP_TerminateAuth")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Connection Handle (2 Bytes) - Handle of the connection")]
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_SMPFailureTypes.AUTH_REQ)]
 				[Description("Reason (1 Byte) - Pairing Failed Message reason field.")]
 				public HCICmds.GAP_SMPFailureTypes reason
 				{
-					get
-					{
-						return _reason;
-					}
-					set
-					{
-						_reason = value;
-					}
+					get { return _reason; }
+					set { _reason = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_UpdateLinkParamReq
 			public class GAP_UpdateLinkParamReq
 			{
 				public string cmdName = "GAP_UpdateLinkParamReq";
@@ -7315,83 +5819,51 @@ namespace BTool
 				[Description("GAP_UpdateLinkParamReq")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				[Description("Connection Handle (2 Bytes) - Handle of the connection")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[Description("IntervalMin (2 Bytes) - The minimum allowed connection interval")]
 				[DefaultValue(typeof(ushort), "80")]
 				public ushort intervalMin
 				{
-					get
-					{
-						return _intervalMin;
-					}
-					set
-					{
-						_intervalMin = value;
-					}
+					get { return _intervalMin; }
+					set { _intervalMin = value; }
 				}
 
 				[Description("IntervalMax (2 Bytes) - The maximum allowed connection interval")]
 				[DefaultValue(typeof(ushort), "160")]
 				public ushort intervalMax
 				{
-					get
-					{
-						return _intervalMax;
-					}
-					set
-					{
-						_intervalMax = value;
-					}
+					get { return _intervalMax; }
+					set { _intervalMax = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0")]
 				[Description("ConnLatency (2 Bytes) - The maximum allowed connection latency")]
 				public ushort connLatency
 				{
-					get
-					{
-						return _connLatency;
-					}
-					set
-					{
-						_connLatency = value;
-					}
+					get { return _connLatency; }
+					set { _connLatency = value; }
 				}
 
 				[Description("ConnTimeout (2 Bytes) - The link supervision timeout")]
 				[DefaultValue(typeof(ushort), "1000")]
 				public ushort connTimeout
 				{
-					get
-					{
-						return _connTimeout;
-					}
-					set
-					{
-						_connTimeout = value;
-					}
+					get { return _connTimeout; }
+					set { _connTimeout = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_SetParam
 			public class GAP_SetParam
 			{
 				public string cmdName = "GAP_SetParam";
@@ -7405,41 +5877,27 @@ namespace BTool
 				[Description("GAP_SetParam")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(HCICmds.GAP_ParamId.TGAP_GEN_DISC_ADV_MIN)]
 				[Description("Param Id (1 Byte) - GAP parameter ID")]
 				public HCICmds.GAP_ParamId paramId
 				{
-					get
-					{
-						return _paramId;
-					}
-					set
-					{
-						_paramId = value;
-					}
+					get { return _paramId; }
+					set { _paramId = value; }
 				}
 
 				[Description("New Value (2 Bytes)")]
 				[DefaultValue(typeof(ushort), "0x0000")]
 				public ushort value
 				{
-					get
-					{
-						return _value;
-					}
-					set
-					{
-						_value = value;
-					}
+					get { return _value; }
+					set { _value = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_GetParam
 			public class GAP_GetParam
 			{
 				public string cmdName = "GAP_GetParam";
@@ -7451,10 +5909,7 @@ namespace BTool
 				[Description("GAP_GetParam")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Param ID (1 Byte) - GAP parameter ID")]
@@ -7462,17 +5917,12 @@ namespace BTool
 				[Category("ParamID")]
 				public HCICmds.GAP_ParamId paramId
 				{
-					get
-					{
-						return _paramId;
-					}
-					set
-					{
-						_paramId = value;
-					}
+					get { return _paramId; }
+					set { _paramId = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_ResolvePrivateAddr
 			public class GAP_ResolvePrivateAddr
 			{
 				public string cmdName = "GAP_ResolvePrivateAddr";
@@ -7487,41 +5937,27 @@ namespace BTool
 				[Description("GAP_ResolvePrivateAddr")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("IRK (16 Bytes) - Identity Resolving Key of the device your looking for")]
 				[DefaultValue("00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00")]
 				public string irk
 				{
-					get
-					{
-						return _irk;
-					}
-					set
-					{
-						_irk = value;
-					}
+					get { return _irk; }
+					set { _irk = value; }
 				}
 
 				[DefaultValue("00:00:00:00:00:00")]
 				[Description("Address (6 Bytes) - Random Private address to resolve")]
 				public string addr
 				{
-					get
-					{
-						return _addr;
-					}
-					set
-					{
-						_addr = value;
-					}
+					get { return _addr; }
+					set { _addr = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_SetAdvToken
 			public class GAP_SetAdvToken
 			{
 				public string cmdName = "GAP_SetAdvToken";
@@ -7536,24 +5972,15 @@ namespace BTool
 				[Description("GAP_SetAdvToken")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(HCICmds.GAP_AdTypes.FLAGS)]
 				[Description("Ad Type (1 Byte) - Advertisement Data Type")]
 				public HCICmds.GAP_AdTypes adType
 				{
-					get
-					{
-						return _adType;
-					}
-					set
-					{
-						_adType = value;
-					}
+					get { return _adType; }
+					set { _adType = value; }
 				}
 
 				[ReadOnly(true)]
@@ -7561,31 +5988,20 @@ namespace BTool
 				[DefaultValue((byte)0)]
 				public byte advDataLen
 				{
-					get
-					{
-						return _advDataLen;
-					}
-					set
-					{
-						_advDataLen = value;
-					}
+					get { return _advDataLen; }
+					set { _advDataLen = value; }
 				}
 
 				[DefaultValue("00:00")]
 				[Description("Adv Data (x Bytes) - Advertisement token data (over-the-air format).")]
 				public string advData
 				{
-					get
-					{
-						return _advData;
-					}
-					set
-					{
-						_advData = value;
-					}
+					get { return _advData; }
+					set { _advData = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_RemoveAdvToken
 			public class GAP_RemoveAdvToken
 			{
 				public string cmdName = "GAP_RemoveAdvToken";
@@ -7597,27 +6013,19 @@ namespace BTool
 				[Description("GAP_RemoveAdvToken")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Ad Type (1 Byte) - Advertisement Data Type")]
 				[DefaultValue(HCICmds.GAP_AdTypes.FLAGS)]
 				public HCICmds.GAP_AdTypes adType
 				{
-					get
-					{
-						return _adType;
-					}
-					set
-					{
-						_adType = value;
-					}
+					get { return _adType; }
+					set { _adType = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_UpdateAdvTokens
 			public class GAP_UpdateAdvTokens
 			{
 				public string cmdName = "GAP_UpdateAdvTokens";
@@ -7628,13 +6036,11 @@ namespace BTool
 				[Description("GAP_UpdateAdvTokens")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 			}
-
+			#endregion
+			#region GAP_BondSetParam
 			public class GAP_BondSetParam
 			{
 				public string cmdName = "GAP_BondSetParam";
@@ -7650,24 +6056,15 @@ namespace BTool
 				[Description("GAP_BondSetParam")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Param ID (1 Byte) - GAP Bond Parameter ID")]
 				[DefaultValue(HCICmds.GAP_BondParamId.PAIRING_MODE)]
 				public HCICmds.GAP_BondParamId paramId
 				{
-					get
-					{
-						return _paramId;
-					}
-					set
-					{
-						_paramId = value;
-					}
+					get { return _paramId; }
+					set { _paramId = value; }
 				}
 
 				[Description("Param Length (1 Byte) - Length of the parameter. This field is auto calculated when the command is sent.")]
@@ -7675,31 +6072,20 @@ namespace BTool
 				[DefaultValue((byte)0)]
 				public byte length
 				{
-					get
-					{
-						return _length;
-					}
-					set
-					{
-						_length = value;
-					}
+					get { return _length; }
+					set { _length = value; }
 				}
 
 				[Description("ParamData (x Bytes) - Param Data Field.  Ex. '02:FF' for 2 bytes")]
 				[DefaultValue("00")]
 				public string value
 				{
-					get
-					{
-						return _value;
-					}
-					set
-					{
-						_value = value;
-					}
+					get { return _value; }
+					set { _value = value; }
 				}
 			}
-
+			#endregion
+			#region GAP_BondGetParam
 			public class GAP_BondGetParam
 			{
 				public string cmdName = "GAP_BondGetParam";
@@ -7711,28 +6097,21 @@ namespace BTool
 				[Description("GAP_BondGetParam")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(HCICmds.GAP_BondParamId.PAIRING_MODE)]
 				[Description("Param Id (1 Byte) GAP Bond Parameter ID")]
 				public HCICmds.GAP_BondParamId paramId
 				{
-					get
-					{
-						return _paramId;
-					}
-					set
-					{
-						_paramId = value;
-					}
+					get { return _paramId; }
+					set { _paramId = value; }
 				}
 			}
+			#endregion
 		}
-
+		#endregion
+		#region UTILCmds
 		public class UTILCmds
 		{
 			public class UTIL_Reset
@@ -7746,24 +6125,15 @@ namespace BTool
 				[Description("UTIL_Reset")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(HCICmds.UTIL_ResetType.Hard_Reset)]
 				[Description("Reset Type (1 Byte) - 0 = Hard and 1 = Soft ")]
 				public HCICmds.UTIL_ResetType resetType
 				{
-					get
-					{
-						return _resetType;
-					}
-					set
-					{
-						_resetType = value;
-					}
+					get { return _resetType; }
+					set { _resetType = value; }
 				}
 			}
 
@@ -7781,38 +6151,23 @@ namespace BTool
 				[Description("UTIL_NVRead")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("NV ID (1 Byte) - NV ID Number")]
 				[DefaultValue((byte)0)]
 				public byte nvId
 				{
-					get
-					{
-						return _nvId;
-					}
-					set
-					{
-						_nvId = value;
-					}
+					get { return _nvId; }
+					set { _nvId = value; }
 				}
 
 				[DefaultValue((byte)0)]
 				[Description("NV Data Len (1 Byte) - NV Data Length")]
 				public byte nvDataLen
 				{
-					get
-					{
-						return _nvDataLen;
-					}
-					set
-					{
-						_nvDataLen = value;
-					}
+					get { return _nvDataLen; }
+					set { _nvDataLen = value; }
 				}
 			}
 
@@ -7832,24 +6187,15 @@ namespace BTool
 				[Description("UTIL_NVWrite")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue((byte)0)]
 				[Description("NV ID (1 Byte) - NV ID Number")]
 				public byte nvId
 				{
-					get
-					{
-						return _nvId;
-					}
-					set
-					{
-						_nvId = value;
-					}
+					get { return _nvId; }
+					set { _nvId = value; }
 				}
 
 				[ReadOnly(true)]
@@ -7857,28 +6203,16 @@ namespace BTool
 				[DefaultValue((byte)0)]
 				public byte nvDataLen
 				{
-					get
-					{
-						return _nvDataLen;
-					}
-					set
-					{
-						_nvDataLen = value;
-					}
+					get { return _nvDataLen; }
+					set { _nvDataLen = value; }
 				}
 
 				[Description("NV Data (x Bytes) - NV Data depends on the NV ID")]
 				[DefaultValue("00")]
 				public string nvData
 				{
-					get
-					{
-						return _nvData;
-					}
-					set
-					{
-						_nvData = value;
-					}
+					get { return _nvData; }
+					set { _nvData = value; }
 				}
 			}
 
@@ -7892,20 +6226,18 @@ namespace BTool
 				[Description("UTIL_ForceBoot")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 			}
 		}
-
+		#endregion
+		#region HCIOtherCmds
 		public class HCIOtherCmds
 		{
 			public class HCIOther_ReadRSSI
 			{
 				public string cmdName = "HCI_ReadRSSI";
-				public byte dataLength = (byte)2;
+				public byte dataLength = 2;
 				public ushort opCodeValue = (ushort)5125;
 				private ushort _connHandle = (ushort)65534;
 				public const string constCmdName = "HCI_ReadRSSI";
@@ -7914,24 +6246,15 @@ namespace BTool
 				[Description("HCI_ReadRSSI")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				[Description("Connection Handle (2 Bytes) - The handle of the connection")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 			}
 
@@ -7945,10 +6268,7 @@ namespace BTool
 				[Description("HCI_LEClearWhiteList")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 			}
 
@@ -7965,38 +6285,23 @@ namespace BTool
 				[Description("HCI_LEAddDeviceToWhiteList")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(HCICmds.HCI_LEAddressType.Public_Device)]
 				[Description("Device Address Type (1 Byte) - Indicates Device Address Type Of The Address Added To The List. 0x00 = Public Address, 0x01 = Random Address, 0x02-0xFF = Reserved")]
 				public HCICmds.HCI_LEAddressType addrType
 				{
-					get
-					{
-						return _addrType;
-					}
-					set
-					{
-						_addrType = value;
-					}
+					get { return _addrType; }
+					set { _addrType = value; }
 				}
 
 				[Description("Device Address (6 Bytes) - Device Address That Is To Be Added To The White List.")]
 				[DefaultValue("00:00:00:00:00:00")]
 				public string devAddr
 				{
-					get
-					{
-						return _devAddr;
-					}
-					set
-					{
-						_devAddr = value;
-					}
+					get { return _devAddr; }
+					set { _devAddr = value; }
 				}
 			}
 
@@ -8013,50 +6318,35 @@ namespace BTool
 				[Description("HCI_LERemoveDeviceFromWhiteList")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(HCICmds.HCI_LEAddressType.Public_Device)]
 				[Description("Device Address Type (1 Byte) - Indicates Device Address Type Of The Address Added To The List. 0x00 = Public Address, 0x01 = Random Address, 0x02-0xFF = Reserved")]
 				public HCICmds.HCI_LEAddressType addrType
 				{
-					get
-					{
-						return _addrType;
-					}
-					set
-					{
-						_addrType = value;
-					}
+					get { return _addrType; }
+					set { _addrType = value; }
 				}
 
 				[DefaultValue("00:00:00:00:00:00")]
 				[Description("Device Address (6 Bytes) - Device Address That Is To Be Added To The White List.")]
 				public string devAddr
 				{
-					get
-					{
-						return _devAddr;
-					}
-					set
-					{
-						_devAddr = value;
-					}
+					get { return _devAddr; }
+					set { _devAddr = value; }
 				}
 			}
 
 			public class HCIOther_LEConnectionUpdate
 			{
 				public string cmdName = "HCI_LEConnectionUpdate";
-				public byte dataLength = (byte)14;
+				public byte dataLength = 14;
 				public ushort opCodeValue = (ushort)8211;
-				private ushort _handle = (ushort)1;
-				private ushort _connInterval = (ushort)6;
-				private ushort _connIntervalMax = (ushort)6;
-				private ushort _connTimeout = (ushort)10;
+				private ushort _handle = 1;
+				private ushort _connInterval = 6;
+				private ushort _connIntervalMax = 6;
+				private ushort _connTimeout = 10;
 				public const string constCmdName = "HCI_LEConnectionUpdate";
 				private const string _handle_default = "0x0001";
 				private const string _connInterval_default = "0x0006";
@@ -8072,112 +6362,68 @@ namespace BTool
 				[Description("HCI_LEConnectionUpdate")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[Description("Handle (2 Bytes) - Local identifier of the LL connection")]
 				[DefaultValue(typeof(ushort), "0x0001")]
 				public ushort handle
 				{
-					get
-					{
-						return _handle;
-					}
-					set
-					{
-						_handle = value;
-					}
+					get { return _handle; }
+					set { _handle = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0006")]
 				[Description("ConnInterval (2 Bytes) - ConnInterval * 1.25 ms, ConnInterval range: 0x0006 to 0x0C80")]
 				public ushort connInterval
 				{
-					get
-					{
-						return _connInterval;
-					}
-					set
-					{
-						_connInterval = value;
-					}
+					get { return _connInterval; }
+					set { _connInterval = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0006")]
 				[Description("ConnIntervalMax (2 Bytes) - ConnInterval * 1.25 ms, ConnIntervalMax range: 0x0006 to 0x0C80, Shall be equal to or greater than the ConnIntervalMin.")]
 				public ushort connIntervalMax
 				{
-					get
-					{
-						return _connIntervalMax;
-					}
-					set
-					{
-						_connIntervalMax = value;
-					}
+					get { return _connIntervalMax; }
+					set { _connIntervalMax = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0000")]
 				[Description("ConnLatency (2 Bytes) - ConnLatency (as number of LL connection events). ConnLatency range: 0x0000 to 0x03E8.")]
 				public ushort connLatency
 				{
-					get
-					{
-						return _connLatency;
-					}
-					set
-					{
-						_connLatency = value;
-					}
+					get { return _connLatency; }
+					set { _connLatency = value; }
 				}
 
 				[Description("ConnTimeout (2 Bytes) - ConnTimeout * 10 ms, ConnTimeout range: 0x000A to 0x0C80.")]
 				[DefaultValue(typeof(ushort), "0x000A")]
 				public ushort connTimeout
 				{
-					get
-					{
-						return _connTimeout;
-					}
-					set
-					{
-						_connTimeout = value;
-					}
+					get { return _connTimeout; }
+					set { _connTimeout = value; }
 				}
 
 				[Description("MinimumLength (2 Bytes) - MinimumLength * 0.625 ms, MinimumLength range: 0x01 to 2*ConnInterval.")]
 				[DefaultValue(typeof(ushort), "0x0000")]
 				public ushort minimumLength
 				{
-					get
-					{
-						return _minimumLength;
-					}
-					set
-					{
-						_minimumLength = value;
-					}
+					get { return _minimumLength; }
+					set { _minimumLength = value; }
 				}
 
 				[DefaultValue(typeof(ushort), "0x0000")]
 				[Description("MaximumLength (2 Bytes) - MaximumLength * 0.625 ms, MaximumLength range: 0x01 to 2*ConnInterval.")]
 				public ushort maximumLength
 				{
-					get
-					{
-						return _maximumLength;
-					}
-					set
-					{
-						_maximumLength = value;
-					}
+					get { return _maximumLength; }
+					set { _maximumLength = value; }
 				}
 			}
 		}
-
+		#endregion
+		#region MISCCmds
 		public class MISCCmds
 		{
 			public class MISC_GenericCommand
@@ -8187,31 +6433,22 @@ namespace BTool
 				private string _data = "00";
 				public const string constCmdName = "MISC_GenericCommand";
 				private const string _opCode_default = "0x0000";
-				private const byte _dataLength_default = (byte)0;
+				private const byte _dataLength_default = 0;
 				private const string _data_default = "00";
 				private byte _dataLength;
 
 				[Description("PacketType (1 Byte) -\n0x00 Command | 0x01 - Async | 0x02 - Sync | 0x03 - Event")]
 				public HCICmds.PacketType packetType
 				{
-					get
-					{
-						return HCICmds.PacketType.Command;
-					}
+					get { return HCICmds.PacketType.Command; }
 				}
 
 				[DefaultValue("0x0000")]
 				[Description("Opcode (2 Bytes) - The opcode of the command\nFormat: 0x0000")]
 				public string opCode
 				{
-					get
-					{
-						return _opCode;
-					}
-					set
-					{
-						_opCode = value;
-					}
+					get { return _opCode; }
+					set { _opCode = value; }
 				}
 
 				[Description("DataLength (1 Byte) - The length of the data. This field is auto calculated when the command is sent.")]
@@ -8219,28 +6456,16 @@ namespace BTool
 				[DefaultValue((byte)0)]
 				public byte dataLength
 				{
-					get
-					{
-						return _dataLength;
-					}
-					set
-					{
-						_dataLength = value;
-					}
+					get { return _dataLength; }
+					set { _dataLength = value; }
 				}
 
 				[DefaultValue("00")]
 				[Description("Data (x Bytes) - The data")]
 				public string data
 				{
-					get
-					{
-						return _data;
-					}
-					set
-					{
-						_data = value;
-					}
+					get { return _data; }
+					set { _data = value; }
 				}
 			}
 
@@ -8249,7 +6474,7 @@ namespace BTool
 				public string cmdName = "MISC_RawTxMessage";
 				private string _message = "00 00 00 00";
 				public const string constCmdName = "MISC_RawTxMessage";
-				public const byte minMsgSize = (byte)4;
+				public const byte minMsgSize = 4;
 				private const string _message_default = "00 00 00 00";
 				public byte dataLength;
 
@@ -8257,18 +6482,13 @@ namespace BTool
 				[Description("Raw Tx Message (> 4 Bytes) - The Raw Tx Message")]
 				public string message
 				{
-					get
-					{
-						return _message;
-					}
-					set
-					{
-						_message = value;
-					}
+					get { return _message; }
+					set { _message = value; }
 				}
 			}
 		}
-
+		#endregion
+		#region GAPEvts
 		public class GAPEvts
 		{
 			public class GAP_AuthenticationComplete
@@ -8313,264 +6533,155 @@ namespace BTool
 				[Description("GAP_AuthenticationComplete")]
 				public string opCode
 				{
-					get
-					{
-						return "0x" + opCodeValue.ToString("X4");
-					}
+					get { return "0x" + opCodeValue.ToString("X4"); }
 				}
 
 				[DefaultValue(typeof(ushort), "0xFFFE")]
 				[Description("Connection Handle (2 Bytes) - The handle of the connection")]
 				public ushort connHandle
 				{
-					get
-					{
-						return _connHandle;
-					}
-					set
-					{
-						_connHandle = value;
-					}
+					get { return _connHandle; }
+					set { _connHandle = value; }
 				}
 
 				[DefaultValue((byte)0)]
 				[Description("Auth State (1 Byte)")]
 				public byte authState
 				{
-					get
-					{
-						return _authState;
-					}
-					set
-					{
-						_authState = value;
-					}
+					get { return _authState; }
+					set { _authState = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_EnableDisable.Disable)]
 				[Description("Security Info Enable (1 Byte)")]
 				public HCICmds.GAP_EnableDisable secInfo_enable
 				{
-					get
-					{
-						return _secInfo_enable;
-					}
-					set
-					{
-						_secInfo_enable = value;
-					}
+					get { return _secInfo_enable; }
+					set { _secInfo_enable = value; }
 				}
 
 				[Description("Security Info LTK Size (1 Byte)")]
 				[DefaultValue((byte)0)]
 				public byte secInfo_LTKsize
 				{
-					get
-					{
-						return _secInfo_LTKsize;
-					}
-					set
-					{
-						_secInfo_LTKsize = value;
-					}
+					get { return _secInfo_LTKsize; }
+					set { _secInfo_LTKsize = value; }
 				}
 
 				[DefaultValue("00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00")]
 				[Description("Security Info LTK (16 Byte)")]
 				public string secInfo_LTK
 				{
-					get
-					{
-						return _secInfo_LTK;
-					}
-					set
-					{
-						_secInfo_LTK = value;
-					}
+					get { return _secInfo_LTK; }
+					set { _secInfo_LTK = value; }
 				}
 
 				[Description("Security Info DIV (2 Bytes)")]
 				[DefaultValue(typeof(ushort), "0x0000")]
 				public ushort secInfo_DIV
 				{
-					get
-					{
-						return _secInfo_DIV;
-					}
-					set
-					{
-						_secInfo_DIV = value;
-					}
+					get { return _secInfo_DIV; }
+					set { _secInfo_DIV = value; }
 				}
 
 				[Description("Security Info RAND (8 Bytes)")]
 				[DefaultValue("00:00:00:00:00:00:00:00")]
 				public string secInfo_RAND
 				{
-					get
-					{
-						return _secInfo_RAND;
-					}
-					set
-					{
-						_secInfo_RAND = value;
-					}
+					get { return _secInfo_RAND; }
+					set { _secInfo_RAND = value; }
 				}
 
 				[Description("Dev Security Info (1 Byte)")]
 				[DefaultValue(HCICmds.GAP_EnableDisable.Disable)]
 				public HCICmds.GAP_EnableDisable devSecInfo_enable
 				{
-					get
-					{
-						return _devSecInfo_enable;
-					}
-					set
-					{
-						_devSecInfo_enable = value;
-					}
+					get { return _devSecInfo_enable; }
+					set { _devSecInfo_enable = value; }
 				}
 
 				[Description("Dev Security Info LTK Size (1 Byte)")]
 				[DefaultValue((byte)0)]
 				public byte devSecInfo_LTKsize
 				{
-					get
-					{
-						return _devSecInfo_LTKsize;
-					}
-					set
-					{
-						_devSecInfo_LTKsize = value;
-					}
+					get { return _devSecInfo_LTKsize; }
+					set { _devSecInfo_LTKsize = value; }
 				}
 
 				[DefaultValue("00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00")]
 				[Description("Dev Security Info LTK (16 Byte)")]
 				public string devSecInfo_LTK
 				{
-					get
-					{
-						return _devSecInfo_LTK;
-					}
-					set
-					{
-						_devSecInfo_LTK = value;
-					}
+					get { return _devSecInfo_LTK; }
+					set { _devSecInfo_LTK = value; }
 				}
 
 				[Description("Dev Security Info DIV (2 Bytes)")]
 				[DefaultValue(typeof(ushort), "0x0000")]
 				public ushort devSecInfo_DIV
 				{
-					get
-					{
-						return _devSecInfo_DIV;
-					}
-					set
-					{
-						_devSecInfo_DIV = value;
-					}
+					get { return _devSecInfo_DIV; }
+					set { _devSecInfo_DIV = value; }
 				}
 
 				[Description("Dev Security Info RAND (8 Byte)")]
 				[DefaultValue("00:00:00:00:00:00:00:00")]
 				public string devSecInfo_RAND
 				{
-					get
-					{
-						return _devSecInfo_RAND;
-					}
-					set
-					{
-						_devSecInfo_RAND = value;
-					}
+					get { return _devSecInfo_RAND; }
+					set { _devSecInfo_RAND = value; }
 				}
 
 				[DefaultValue(HCICmds.GAP_EnableDisable.Disable)]
 				[Description("Identity Info Enable (1 Byte)")]
 				public HCICmds.GAP_EnableDisable idInfo_enable
 				{
-					get
-					{
-						return _idInfo_enable;
-					}
-					set
-					{
-						_idInfo_enable = value;
-					}
+					get { return _idInfo_enable; }
+					set { _idInfo_enable = value; }
 				}
 
 				[DefaultValue("00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00")]
 				[Description("Identity Info IRK (16 Bytes)")]
 				public string idInfo_IRK
 				{
-					get
-					{
-						return _idInfo_IRK;
-					}
-					set
-					{
-						_idInfo_IRK = value;
-					}
+					get { return _idInfo_IRK; }
+					set { _idInfo_IRK = value; }
 				}
 
 				[Description("Identity Info BD Address (6 Bytes)")]
 				[DefaultValue("00:00:00:00:00:00")]
 				public string idInfo_BdAddr
 				{
-					get
-					{
-						return _idInfo_BdAddr;
-					}
-					set
-					{
-						_idInfo_BdAddr = value;
-					}
+					get { return _idInfo_BdAddr; }
+					set { _idInfo_BdAddr = value; }
 				}
 
 				[Description("Signing Info Enable (1 Byte)")]
 				[DefaultValue(HCICmds.GAP_EnableDisable.Disable)]
 				public HCICmds.GAP_EnableDisable signInfo_enable
 				{
-					get
-					{
-						return _signInfo_enable;
-					}
-					set
-					{
-						_signInfo_enable = value;
-					}
+					get { return _signInfo_enable; }
+					set { _signInfo_enable = value; }
 				}
 
 				[DefaultValue("00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00")]
 				[Description("Signing Info CSRK (16 Bytes)")]
 				public string signInfo_CSRK
 				{
-					get
-					{
-						return _signInfo_CSRK;
-					}
-					set
-					{
-						_signInfo_CSRK = value;
-					}
+					get { return _signInfo_CSRK; }
+					set { _signInfo_CSRK = value; }
 				}
 
 				[Description("Sign Counter (4 Bytes)")]
 				[DefaultValue(typeof(uint), "0x00000000")]
 				public uint signCounter
 				{
-					get
-					{
-						return _signCounter;
-					}
-					set
-					{
-						_signCounter = value;
-					}
+					get { return _signCounter; }
+					set { _signCounter = value; }
 				}
 			}
 		}
+		#endregion
 	}
 }
+

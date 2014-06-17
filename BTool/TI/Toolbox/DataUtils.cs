@@ -106,7 +106,7 @@ namespace TI.Toolbox
 			return dataErr;
 		}
 
-		public void Load8Bits(ref ArrayList data, ref int index, byte bits, ref bool dataErr)
+		public bool Load8Bits(ref ArrayList data, ref int index, byte bits, ref bool dataErr)
 		{
 			try
 			{
@@ -122,6 +122,7 @@ namespace TI.Toolbox
 				else
 					throw;
 			}
+			return dataErr;
 		}
 
 		public bool Load16Bits(ref byte[] data, ref int index, ushort bits, ref bool dataErr, bool dataSwap)

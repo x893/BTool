@@ -671,8 +671,8 @@ namespace BTool
 			// 
 			this.scTopLeftRight.Panel2.Controls.Add(this.plUserTabs);
 			this.scTopLeftRight.Panel2.SizeChanged += new System.EventHandler(this.scTopLeftRightPanel2_SizeChanged);
-			this.scTopLeftRight.Size = new System.Drawing.Size(784, 511);
-			this.scTopLeftRight.SplitterDistance = 378;
+			this.scTopLeftRight.Size = new System.Drawing.Size(780, 530);
+			this.scTopLeftRight.SplitterDistance = 376;
 			this.scTopLeftRight.TabIndex = 11;
 			// 
 			// plLog
@@ -681,7 +681,7 @@ namespace BTool
 			this.plLog.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.plLog.Location = new System.Drawing.Point(0, 0);
 			this.plLog.Name = "plLog";
-			this.plLog.Size = new System.Drawing.Size(378, 511);
+			this.plLog.Size = new System.Drawing.Size(376, 530);
 			this.plLog.TabIndex = 0;
 			// 
 			// plUserTabs
@@ -691,7 +691,7 @@ namespace BTool
 			this.plUserTabs.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.plUserTabs.Location = new System.Drawing.Point(0, 0);
 			this.plUserTabs.Name = "plUserTabs";
-			this.plUserTabs.Size = new System.Drawing.Size(402, 511);
+			this.plUserTabs.Size = new System.Drawing.Size(400, 530);
 			this.plUserTabs.TabIndex = 0;
 			// 
 			// scTopBottom
@@ -709,8 +709,8 @@ namespace BTool
 			// scTopBottom.Panel2
 			// 
 			this.scTopBottom.Panel2.Controls.Add(this.plAttributes);
-			this.scTopBottom.Size = new System.Drawing.Size(784, 663);
-			this.scTopBottom.SplitterDistance = 511;
+			this.scTopBottom.Size = new System.Drawing.Size(780, 659);
+			this.scTopBottom.SplitterDistance = 530;
 			this.scTopBottom.TabIndex = 1;
 			// 
 			// plAttributes
@@ -719,14 +719,14 @@ namespace BTool
 			this.plAttributes.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.plAttributes.Location = new System.Drawing.Point(0, 0);
 			this.plAttributes.Name = "plAttributes";
-			this.plAttributes.Size = new System.Drawing.Size(784, 148);
+			this.plAttributes.Size = new System.Drawing.Size(780, 125);
 			this.plAttributes.TabIndex = 0;
 			// 
 			// DeviceForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(784, 663);
+			this.ClientSize = new System.Drawing.Size(780, 659);
 			this.ControlBox = false;
 			this.Controls.Add(this.scTopBottom);
 			this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));

@@ -182,7 +182,7 @@ namespace BTool
 			// 
 			this.scLeftRight.Panel2.AutoScroll = true;
 			this.scLeftRight.Panel2.Controls.Add(this.plDevice);
-			this.scLeftRight.Size = new System.Drawing.Size(1136, 761);
+			this.scLeftRight.Size = new System.Drawing.Size(1136, 794);
 			this.scLeftRight.SplitterDistance = 219;
 			this.scLeftRight.TabIndex = 7;
 			// 
@@ -192,7 +192,7 @@ namespace BTool
 			this.plComPortTree.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.plComPortTree.Location = new System.Drawing.Point(0, 0);
 			this.plComPortTree.Name = "plComPortTree";
-			this.plComPortTree.Size = new System.Drawing.Size(219, 761);
+			this.plComPortTree.Size = new System.Drawing.Size(219, 794);
 			this.plComPortTree.TabIndex = 0;
 			// 
 			// plDevice
@@ -201,14 +201,14 @@ namespace BTool
 			this.plDevice.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.plDevice.Location = new System.Drawing.Point(0, 0);
 			this.plDevice.Name = "plDevice";
-			this.plDevice.Size = new System.Drawing.Size(913, 761);
+			this.plDevice.Size = new System.Drawing.Size(913, 794);
 			this.plDevice.TabIndex = 0;
 			// 
 			// FormMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1136, 786);
+			this.ClientSize = new System.Drawing.Size(1136, 819);
 			this.Controls.Add(this.scLeftRight);
 			this.Controls.Add(this.msMainMenu);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
