@@ -2,11 +2,11 @@
 {
 	public struct ComPortInfo
 	{
-		public string comPort;
-		public string baudRate;
-		public string flow;
-		public string dataBits;
-		public string parity;
-		public string stopBits;
+		public string ComPort;
+		public string BaudRate;
+		public string Flow;
+		public string DataBits;
+		public string Parity;
+		public string StopBits;
 	}
 }

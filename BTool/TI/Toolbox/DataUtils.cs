@@ -83,7 +83,7 @@ namespace TI.Toolbox
 			return (ulong)value << 8 * (int)byteNumber;
 		}
 
-		public void Load8Bits(ref byte[] data, ref int index, byte bits, ref bool dataErr)
+		public bool Load8Bits(ref byte[] data, ref int index, byte bits, ref bool dataErr)
 		{
 			try
 			{
@@ -99,13 +99,11 @@ namespace TI.Toolbox
 			{
 				dataErr = true;
 				if (handleException)
-				{
-					string msg = "Load 8 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-				}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load 8 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				else
 					throw;
 			}
+			return dataErr;
 		}
 
 		public void Load8Bits(ref ArrayList data, ref int index, byte bits, ref bool dataErr)
@@ -119,15 +117,14 @@ namespace TI.Toolbox
 				dataErr = true;
 				if (handleException)
 				{
-					string msg = "Load 8 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load 8 Bits Failed\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
 				}
 				else
 					throw;
 			}
 		}
 
-		public void Load16Bits(ref byte[] data, ref int index, ushort bits, ref bool dataErr, bool dataSwap)
+		public bool Load16Bits(ref byte[] data, ref int index, ushort bits, ref bool dataErr, bool dataSwap)
 		{
 			try
 			{
@@ -157,9 +154,10 @@ namespace TI.Toolbox
 				else
 					throw;
 			}
+			return dataErr;
 		}
 
-		public void Load16Bits(ref ArrayList data, ref int index, ushort bits, ref bool dataErr, bool dataSwap)
+		public bool Load16Bits(ref ArrayList data, ref int index, ushort bits, ref bool dataErr, bool dataSwap)
 		{
 			try
 			{
@@ -184,9 +182,10 @@ namespace TI.Toolbox
 				else
 					throw;
 			}
+			return dataErr;
 		}
 
-		public void Load32Bits(ref byte[] data, ref int index, uint bits, ref bool dataErr, bool dataSwap)
+		public bool Load32Bits(ref byte[] data, ref int index, uint bits, ref bool dataErr, bool dataSwap)
 		{
 			try
 			{
@@ -216,9 +215,10 @@ namespace TI.Toolbox
 				else
 					throw;
 			}
+			return dataErr;
 		}
 
-		public void Load32Bits(ref ArrayList data, ref int index, uint bits, ref bool dataErr, bool dataSwap)
+		public bool Load32Bits(ref ArrayList data, ref int index, uint bits, ref bool dataErr, bool dataSwap)
 		{
 			try
 			{
@@ -243,9 +243,10 @@ namespace TI.Toolbox
 				else
 					throw;
 			}
+			return dataErr;
 		}
 
-		public void Load64Bits(ref byte[] data, ref int index, ulong bits, ref bool dataErr, bool dataSwap)
+		public bool Load64Bits(ref byte[] data, ref int index, ulong bits, ref bool dataErr, bool dataSwap)
 		{
 			try
 			{
@@ -275,9 +276,10 @@ namespace TI.Toolbox
 				else
 					throw;
 			}
+			return dataErr;
 		}
 
-		public void Load64Bits(ref ArrayList data, ref int index, ulong bits, ref bool dataErr, bool dataSwap)
+		public bool Load64Bits(ref ArrayList data, ref int index, ulong bits, ref bool dataErr, bool dataSwap)
 		{
 			try
 			{
@@ -302,9 +304,10 @@ namespace TI.Toolbox
 				else
 					throw;
 			}
+			return dataErr;
 		}
 
-		public void LoadDataBytes(ref byte[] data, ref int index, byte[] sourceData, ref bool dataErr)
+		public bool LoadDataBytes(ref byte[] data, ref int index, byte[] sourceData, ref bool dataErr)
 		{
 			try
 			{
@@ -315,12 +318,38 @@ namespace TI.Toolbox
 				}
 				else
 				{
-					if (sourceData == null)
-						return;
-					int num = index;
-					for (int index1 = num; index1 < num + sourceData.Length && data.Length > index1; ++index1)
+					if (sourceData != null)
 					{
-						data[index1] = sourceData[index1 - num];
+						int num = index;
+						for (int index1 = num; index1 < num + sourceData.Length && data.Length > index1; ++index1)
+						{
+							data[index1] = sourceData[index1 - num];
+							++index;
+						}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				dataErr = true;
+				if (handleException)
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load Data Bytes\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
+				else
+					throw;
+			}
+			return dataErr;
+		}
+
+		public bool LoadDataBytes(ref ArrayList data, ref int index, byte[] sourceData, ref bool dataErr)
+		{
+			try
+			{
+				if (sourceData != null)
+				{
+					int num = index;
+					for (int index1 = num; index1 < num + sourceData.Length; ++index1)
+					{
+						data.Insert(index1, sourceData[index1 - num]);
 						++index;
 					}
 				}
@@ -333,29 +362,7 @@ namespace TI.Toolbox
 				else
 					throw;
 			}
-		}
-
-		public void LoadDataBytes(ref ArrayList data, ref int index, byte[] sourceData, ref bool dataErr)
-		{
-			try
-			{
-				if (sourceData == null)
-					return;
-				int num = index;
-				for (int index1 = num; index1 < num + sourceData.Length; ++index1)
-				{
-					data.Insert(index1, sourceData[index1 - num]);
-					++index;
-				}
-			}
-			catch (Exception ex)
-			{
-				dataErr = true;
-				if (handleException)
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Load Data Bytes\nData Transfer Issue\n" + ex.Message + "\nDataUtils\n");
-				else
-					throw;
-			}
+			return dataErr;
 		}
 
 		public byte Unload8Bits(byte[] data, ref int index, ref byte bits, ref bool dataErr)

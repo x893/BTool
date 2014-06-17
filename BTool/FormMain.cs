@@ -14,6 +14,16 @@ namespace BTool
 		public static string programTitle = "BTool - Bluetooth Low Energy PC Application";
 		public static string programVersion = " - v1.40.5";
 		public static string cmdArgNoVersion = "NoVersion";
+
+		public delegate DeviceForm GetActiveDeviceFormDelegate();
+
+		private delegate void AddDeviceFormDelegate();
+		private delegate void DeviceBDAddressNotifyDelegate(object sender, EventArgs e);
+		private delegate void DeviceConnectionNotifyDelegate(object sender, EventArgs e);
+		private delegate void DeviceDisconnectionNotifyDelegate(object sender, EventArgs e);
+		private delegate void DeviceChangeActiveRootDelegate(object sender, EventArgs e);
+		private delegate void DeviceCloseActiveDeviceDelegate(object sender, EventArgs e);
+
 		private static Mutex formMainMutex = new Mutex();
 		private SharedObjects sharedObjs = new SharedObjects();
 		private MsgBox msgBox = new MsgBox();
@@ -41,26 +51,29 @@ namespace BTool
 		public FormMain(CmdLineArgs cmdLineArgs)
 		{
 			InitializeComponent();
-			Text = FormMain.programTitle;
-			if (!cmdLineArgs.FindArg(FormMain.cmdArgNoVersion))
+
+			Text = programTitle;
+			if (!cmdLineArgs.FindArg(cmdArgNoVersion))
 			{
 				FormMain formMain = this;
-				string str = formMain.Text + FormMain.programVersion;
+				string str = formMain.Text + programVersion;
 				formMain.Text = str;
 			}
-			SharedObjects.mainWin = (Form)this;
-			SharedObjects.programName = FormMain.programName;
+
+			SharedObjects.mainWin = this;
+			SharedObjects.programName = programName;
+
 			comPortTreeForm = new ComPortTreeForm();
 			comPortTreeForm.TopLevel = false;
-			comPortTreeForm.Parent = (Control)plComPortTree;
+			comPortTreeForm.Parent = plComPortTree;
 			comPortTreeForm.Visible = true;
 			comPortTreeForm.Dock = DockStyle.Fill;
 			comPortTreeForm.ControlBox = false;
 			comPortTreeForm.ShowIcon = false;
 			comPortTreeForm.FormBorderStyle = FormBorderStyle.None;
 			comPortTreeForm.StartPosition = FormStartPosition.Manual;
-			((Control)comPortTreeForm).Show();
-			comPortTreeForm.GetActiveDeviceFormCallback = new FormMain.GetActiveDeviceFormDelegate(GetActiveDeviceForm);
+			comPortTreeForm.Show();
+			comPortTreeForm.GetActiveDeviceFormCallback = new GetActiveDeviceFormDelegate(GetActiveDeviceForm);
 		}
 
 		protected override void Dispose(bool disposing)
@@ -218,34 +231,34 @@ namespace BTool
 
 		private void tsmiNewDevice_Click(object sender, EventArgs e)
 		{
-			FormMain.formMainMutex.WaitOne();
+			formMainMutex.WaitOne();
 			addDeviceThread = new Thread(new ThreadStart(AddDeviceForm));
 			addDeviceThread.Name = "AddDeviceFormThread";
 			addDeviceThread.Start();
 			while (!addDeviceThread.IsAlive)
 				Thread.Sleep(10);
-			FormMain.formMainMutex.ReleaseMutex();
+			formMainMutex.ReleaseMutex();
 		}
 
 		private void tsmiCloseDevice_Click(object sender, EventArgs e)
 		{
-			FormMain.formMainMutex.WaitOne();
+			formMainMutex.WaitOne();
 			DeviceForm activeDeviceForm = GetActiveDeviceForm();
 			if (activeDeviceForm != null)
 			{
 				activeDeviceForm.DeviceFormClose(true);
 				activeDeviceForm.Close();
-				comPortTreeForm.RemovePort(activeDeviceForm.devInfo.comPortInfo.comPort);
+				comPortTreeForm.RemovePort(activeDeviceForm.devInfo.ComPortInfo.ComPort);
 			}
 			comPortTreeForm.FindNodeToOpen();
-			FormMain.formMainMutex.ReleaseMutex();
+			formMainMutex.ReleaseMutex();
 		}
 
 		private void tsmiExit_Click(object sender, EventArgs e)
 		{
-			FormMain.formMainMutex.WaitOne();
+			formMainMutex.WaitOne();
 			Close();
-			FormMain.formMainMutex.ReleaseMutex();
+			formMainMutex.ReleaseMutex();
 		}
 
 		private void AddDeviceForm()
@@ -254,15 +267,13 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.AddDeviceFormDelegate(AddDeviceForm), new object[0]);
+					Invoke((Delegate)new AddDeviceFormDelegate(AddDeviceForm));
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 			{
-				FormMain.formMainMutex.WaitOne();
+				formMainMutex.WaitOne();
 				DeviceForm deviceForm = new DeviceForm();
 				if (deviceForm == null)
 					return;
@@ -274,9 +285,9 @@ namespace BTool
 				if (deviceForm.DeviceFormInit())
 				{
 					deviceForm.TopLevel = false;
-					deviceForm.Parent = (Control)plDevice;
+					deviceForm.Parent = plDevice;
 					deviceForm.Dock = DockStyle.Fill;
-					foreach (Control control in (ArrangedElementCollection)plDevice.Controls)
+					foreach (Control control in plDevice.Controls)
 					{
 						if (control.GetType().BaseType == typeof(Form))
 						{
@@ -288,14 +299,14 @@ namespace BTool
 							}
 						}
 					}
-					((Control)deviceForm).Show();
+					deviceForm.Show();
 					AddToTreeDeviceInfo(deviceForm.devInfo, deviceForm);
 					comPortTreeForm.ClearSelectedNode();
 					deviceForm.SendGAPDeviceInit();
 				}
 				else
 					deviceForm.DeviceFormClose(false);
-				FormMain.formMainMutex.ReleaseMutex();
+				formMainMutex.ReleaseMutex();
 			}
 		}
 
@@ -305,19 +316,17 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.DeviceBDAddressNotifyDelegate(DeviceBDAddressNotify), sender, e);
+					Invoke((Delegate)new DeviceBDAddressNotifyDelegate(DeviceBDAddressNotify), sender, e);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 			{
-				FormMain.formMainMutex.WaitOne();
-				DeviceForm devForm = (DeviceForm)sender;
+				formMainMutex.WaitOne();
+				DeviceForm devForm = sender as DeviceForm;
 				if (devForm != null)
 					comPortTreeForm.AddDeviceInfo(devForm);
-				FormMain.formMainMutex.ReleaseMutex();
+				formMainMutex.ReleaseMutex();
 			}
 		}
 
@@ -327,19 +336,17 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.DeviceConnectionNotifyDelegate(DeviceConnectionNotify), sender, e);
+					Invoke((Delegate)new DeviceConnectionNotifyDelegate(DeviceConnectionNotify), sender, e);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 			{
-				FormMain.formMainMutex.WaitOne();
-				DeviceForm devForm = (DeviceForm)sender;
+				formMainMutex.WaitOne();
+				DeviceForm devForm = sender as DeviceForm;
 				if (devForm != null)
 					comPortTreeForm.AddConnectionInfo(devForm);
-				FormMain.formMainMutex.ReleaseMutex();
+				formMainMutex.ReleaseMutex();
 			}
 		}
 
@@ -349,28 +356,26 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.DeviceDisconnectionNotifyDelegate(DeviceConnectionNotify), sender, e);
+					Invoke((Delegate)new DeviceDisconnectionNotifyDelegate(DeviceConnectionNotify), sender, e);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 			{
-				FormMain.formMainMutex.WaitOne();
-				DeviceForm devForm = (DeviceForm)sender;
+				formMainMutex.WaitOne();
+				DeviceForm devForm = sender as DeviceForm;
 				if (devForm != null)
 					comPortTreeForm.DisconnectDevice(devForm);
-				FormMain.formMainMutex.ReleaseMutex();
+				formMainMutex.ReleaseMutex();
 			}
 		}
 
 		private void AddToTreeDeviceInfo(DeviceInfo devInfo, object formObj)
 		{
-			FormMain.formMainMutex.WaitOne();
+			formMainMutex.WaitOne();
 			comPortTreeForm.AddPortInfo(devInfo);
-			DeviceChangeActiveRoot(formObj, (EventArgs)null);
-			FormMain.formMainMutex.ReleaseMutex();
+			DeviceChangeActiveRoot(formObj, null);
+			formMainMutex.ReleaseMutex();
 		}
 
 		private void DeviceChangeActiveRoot(object sender, EventArgs e)
@@ -379,19 +384,17 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.DeviceChangeActiveRootDelegate(DeviceChangeActiveRoot), sender, e);
+					Invoke((Delegate)new DeviceChangeActiveRootDelegate(DeviceChangeActiveRoot), sender, e);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 			{
-				FormMain.formMainMutex.WaitOne();
-				DeviceForm devForm = (DeviceForm)sender;
+				formMainMutex.WaitOne();
+				DeviceForm devForm = sender as DeviceForm;
 				if (devForm != null)
 					comPortTreeForm.ChangeActiveRoot(devForm);
-				FormMain.formMainMutex.ReleaseMutex();
+				formMainMutex.ReleaseMutex();
 			}
 		}
 
@@ -401,21 +404,19 @@ namespace BTool
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.DeviceCloseActiveDeviceDelegate(DeviceCloseActiveDevice), sender, e);
+					Invoke((Delegate)new DeviceCloseActiveDeviceDelegate(DeviceCloseActiveDevice), sender, e);
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
-				tsmiCloseDevice_Click(sender, (EventArgs)null);
+				tsmiCloseDevice_Click(sender, null);
 		}
 
 		private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			FormMain.formMainMutex.WaitOne();
+			formMainMutex.WaitOne();
 			comPortTreeForm.RemoveAll();
-			FormMain.formMainMutex.ReleaseMutex();
+			formMainMutex.ReleaseMutex();
 		}
 
 		private void tsmiAbout_Click(object sender, EventArgs e)
@@ -436,49 +437,33 @@ namespace BTool
 
 		private DeviceForm GetActiveDeviceForm()
 		{
-			DeviceForm deviceForm = (DeviceForm)null;
+			DeviceForm deviceForm = null;
 			if (InvokeRequired)
 			{
 				try
 				{
-					Invoke((Delegate)new FormMain.GetActiveDeviceFormDelegate(GetActiveDeviceForm));
+					Invoke((Delegate)new GetActiveDeviceFormDelegate(GetActiveDeviceForm));
 				}
-				catch
-				{
-				}
+				catch { }
 			}
 			else
 			{
-				FormMain.formMainMutex.WaitOne();
-				foreach (Control control in (ArrangedElementCollection)plDevice.Controls)
+				formMainMutex.WaitOne();
+				foreach (Control control in plDevice.Controls)
 				{
 					if (control.GetType().BaseType == typeof(Form))
 					{
-						Form form = (Form)control;
-						if (form.Visible)
+						Form form = control as Form;
+						if (form != null && form.Visible)
 						{
 							deviceForm = (DeviceForm)form;
 							break;
 						}
 					}
 				}
-				FormMain.formMainMutex.ReleaseMutex();
+				formMainMutex.ReleaseMutex();
 			}
 			return deviceForm;
 		}
-
-		public delegate DeviceForm GetActiveDeviceFormDelegate();
-
-		private delegate void AddDeviceFormDelegate();
-
-		private delegate void DeviceBDAddressNotifyDelegate(object sender, EventArgs e);
-
-		private delegate void DeviceConnectionNotifyDelegate(object sender, EventArgs e);
-
-		private delegate void DeviceDisconnectionNotifyDelegate(object sender, EventArgs e);
-
-		private delegate void DeviceChangeActiveRootDelegate(object sender, EventArgs e);
-
-		private delegate void DeviceCloseActiveDeviceDelegate(object sender, EventArgs e);
 	}
 }

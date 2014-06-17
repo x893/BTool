@@ -18,7 +18,7 @@ namespace BTool
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			Program.cmdLineArgs.Set(args);
-			Application.Run((Form)new FormMain(Program.cmdLineArgs));
+			Application.Run(new FormMain(Program.cmdLineArgs));
 		}
 	}
 }

@@ -60,9 +60,9 @@ namespace BTool
 				switch (ParserState)
 				{
 					case CommParser.ParserStateEnum.packet_type_token:
-						if ((byte)_dataBuffer.Peek() == 4)
+						if ((int)_dataBuffer.Peek() == 4)
 						{
-							type = (byte)_dataBuffer.Dequeue();
+							type = (byte)((int)_dataBuffer.Dequeue());
 							ParserState = CommParser.ParserStateEnum.event_code_token;
 							break;
 						}
@@ -72,11 +72,11 @@ namespace BTool
 							break;
 						}
 					case CommParser.ParserStateEnum.event_code_token:
-						opCode = (ushort)_dataBuffer.Dequeue();
+						opCode = (ushort)(int)_dataBuffer.Dequeue();
 						ParserState = CommParser.ParserStateEnum.length_token;
 						break;
 					case CommParser.ParserStateEnum.eop0_token:
-						eventOpCode = (ushort)_dataBuffer.Dequeue();
+						eventOpCode = (ushort)(int)_dataBuffer.Dequeue();
 						ParserState = CommParser.ParserStateEnum.eop1_token;
 						break;
 					case CommParser.ParserStateEnum.eop1_token:
@@ -84,7 +84,7 @@ namespace BTool
 						ParserState = CommParser.ParserStateEnum.data_token;
 						break;
 					case CommParser.ParserStateEnum.length_token:
-						length = (byte)_dataBuffer.Dequeue();
+						length = (byte)(int)_dataBuffer.Dequeue();
 						ParserState = opCode == 19 || opCode == 0xff ? CommParser.ParserStateEnum.eop0_token : CommParser.ParserStateEnum.data_token;
 						break;
 					case CommParser.ParserStateEnum.data_token:
@@ -97,7 +97,7 @@ namespace BTool
 							{
 								data = new byte[length1];
 								for (int index = 0; index < data.Length; ++index)
-									data[index] = (byte)_dataBuffer.Dequeue();
+									data[index] = (byte)(int)_dataBuffer.Dequeue();
 								flag = true;
 								ParserState = CommParser.ParserStateEnum.packet_type_token;
 								break;

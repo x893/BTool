@@ -12,30 +12,58 @@ namespace BTool
 {
 	public class DeviceForm : Form
 	{
+
+		public delegate void DisplayMsgDelegate(SharedAppObjs.MsgType msgType, string msg);
+		public delegate void DisplayMsgTimeDelegate(SharedAppObjs.MsgType msgType, string msg, string time);
+		public delegate void DeviceTxDataDelegate(TxDataOut txDataOut);
+		public delegate void DeviceRxDataDelegate(RxDataIn rxDataIn);
+		public delegate bool HandleRxTxMessageDelegate(RxTxMgrData rxTxMgrData);
+
+		private delegate void RxDataHandlerDelegate(byte[] data, uint length);
+		private delegate void DisplayRxCmdDelegate(RxDataIn rxDataIn, bool displayBytes);
+
+		public enum EventType
+		{
+			Init,
+			Scan,
+			Establish,
+			PairBond,
+		}
+
+		public enum GAPGetConnectionParams
+		{
+			None,
+			MinConnIntSeq,
+			MaxConnIntSeq,
+			SlaveLatencySeq,
+			SupervisionTimeoutSeq,
+			MinConnIntSingle,
+			MaxConnIntSingle,
+			SlaveLatencySingle,
+			SupervisionTimeoutSingle,
+		}
+
 		public static string moduleName = "DeviceForm";
 		private const string s_delimeter = "------------------------------------------------------------------------------------------------------------------------\n";
 
-		private MsgBox msgBox = new MsgBox();
-		private int[] EventTimeout = new int[4]
-	    {
-			10000,
-			75000,
-			30000,
-			50000
-		};
-		private CommParser commParser = new CommParser();
+		public event EventHandler BDAddressNotify;
+		public event EventHandler ConnectionNotify;
+		public event EventHandler DisconnectionNotify;
+		public event EventHandler ChangeActiveRoot;
+		public event EventHandler CloseActiveDevice;
+
 		public DeviceInfo devInfo = new DeviceInfo();
-		private DataUtils dataUtils = new DataUtils();
-		private SharedObjects sharedObjs = new SharedObjects();
-		private DisplayTxCmds dspTxCmds = new DisplayTxCmds();
-		private Mutex dspMsgMutex = new Mutex();
-		private CommManager commMgr = new CommManager();
 		public AttrData attrData = new AttrData();
-		private DeviceFormUtils devUtils = new DeviceFormUtils();
 		public string BDAddressStr = "";
-		private ConnectInfo connectInfo = new ConnectInfo();
 		public ConnectInfo disconnectInfo = new ConnectInfo();
 		public List<ConnectInfo> Connections = new List<ConnectInfo>();
+		public DeviceTabsForm devTabsForm;
+		public ThreadMgr threadMgr;
+		public SendCmds sendCmds;
+		public int numConnections;
+		public DeviceForm.GAPGetConnectionParams ConnParamState;
+
+		#region HCICmds
 		public HCICmds.HCIExtCmds.HCIExt_SetRxGain HCIExt_SetRxGain = new HCICmds.HCIExtCmds.HCIExt_SetRxGain();
 		public HCICmds.HCIExtCmds.HCIExt_SetTxPower HCIExt_SetTxPower = new HCICmds.HCIExtCmds.HCIExt_SetTxPower();
 		public HCICmds.HCIExtCmds.HCIExt_OnePktPerEvt HCIExt_OnePktPerEvt = new HCICmds.HCIExtCmds.HCIExt_OnePktPerEvt();
@@ -145,18 +173,32 @@ namespace BTool
 		public HCICmds.HCIOtherCmds.HCIOther_LEConnectionUpdate HCIOther_LEConnectionUpdate = new HCICmds.HCIOtherCmds.HCIOther_LEConnectionUpdate();
 		public HCICmds.MISCCmds.MISC_GenericCommand MISC_GenericCommand = new HCICmds.MISCCmds.MISC_GenericCommand();
 		public HCICmds.MISCCmds.MISC_RawTxMessage MISC_RawTxMessage = new HCICmds.MISCCmds.MISC_RawTxMessage();
+		#endregion
+
+		private MsgBox msgBox = new MsgBox();
+		private int[] EventTimeout = new int[4]
+	    {
+			10000,
+			75000,
+			30000,
+			50000
+		};
+
 		private DisplayCmdUtils dspCmdUtils = new DisplayCmdUtils();
 		private CommSelectForm commSelectForm;
 		private AttributesForm attributesForm;
 		private MsgLogForm msgLogForm;
-		public DeviceTabsForm devTabsForm;
-		public ThreadMgr threadMgr;
-		public SendCmds sendCmds;
-		private CommManager.FP_ReceiveDataInd ReceiveDataInd;
+		private CommParser commParser = new CommParser();
+		private DataUtils dataUtils = new DataUtils();
+		private SharedObjects sharedObjs = new SharedObjects();
+		private DisplayTxCmds dspTxCmds = new DisplayTxCmds();
+		private Mutex dspMsgMutex = new Mutex();
+		private CommManager commMgr = new CommManager();
+		private DeviceFormUtils devUtils = new DeviceFormUtils();
+		private ConnectInfo connectInfo = new ConnectInfo();
+
 		private Thread processRxProc;
-		public int numConnections;
 		private bool DeviceStarted;
-		public DeviceForm.GAPGetConnectionParams ConnParamState;
 		private bool formClosing;
 		private IContainer components;
 		private SplitContainer scTopLeftRight;
@@ -169,42 +211,36 @@ namespace BTool
 		private Panel plLog;
 		private Panel plAttributes;
 
-		public event EventHandler BDAddressNotify;
-
-		public event EventHandler ConnectionNotify;
-
-		public event EventHandler DisconnectionNotify;
-
-		public event EventHandler ChangeActiveRoot;
-
-		public event EventHandler CloseActiveDevice;
-
 		static DeviceForm()
 		{
 		}
 
 		public DeviceForm()
 		{
-			devInfo.devForm = this;
+			devInfo.DevForm = this;
 			connectInfo.bDA = "00:00:00:00:00:00";
-			connectInfo.handle = (ushort)0;
-			connectInfo.addrType = (byte)0;
+			connectInfo.handle = 0;
+			connectInfo.addrType = 0;
 			disconnectInfo.bDA = "00:00:00:00:00:00";
-			disconnectInfo.handle = (ushort)0;
-			disconnectInfo.addrType = (byte)0;
+			disconnectInfo.handle = 0;
+			disconnectInfo.addrType = 0;
 			Connections.Clear();
 			commMgr.InitCommManager();
 			msgLogForm = new MsgLogForm(this);
 			commSelectForm = new CommSelectForm();
+
 			InitializeComponent();
+
 			Text = FormMain.programTitle + FormMain.programVersion;
 			threadMgr = new ThreadMgr(this);
 			sendCmds = new SendCmds(this);
 			attrData.sendAutoCmds = false;
 			attributesForm = new AttributesForm(this);
 			devTabsForm = new DeviceTabsForm(this);
+
 			LoadUserInitializeValues();
 			LoadUserSettings();
+
 			sendCmds.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
 			threadMgr.txDataOut.DeviceTxDataCallback = new DeviceForm.DeviceTxDataDelegate(DeviceTxData);
 			threadMgr.txDataOut.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
@@ -216,33 +252,36 @@ namespace BTool
 			msgLogForm.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
 			devTabsForm.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
 			threadMgr.Init(this);
+
 			msgLogForm.TopLevel = false;
-			msgLogForm.Parent = (Control)plLog;
+			msgLogForm.Parent = plLog;
 			msgLogForm.Visible = true;
 			msgLogForm.Dock = DockStyle.Fill;
 			msgLogForm.ControlBox = false;
 			msgLogForm.ShowIcon = false;
 			msgLogForm.FormBorderStyle = FormBorderStyle.None;
 			msgLogForm.StartPosition = FormStartPosition.Manual;
-			((Control)msgLogForm).Show();
+			msgLogForm.Show();
+
 			devTabsForm.TopLevel = false;
-			devTabsForm.Parent = (Control)plUserTabs;
+			devTabsForm.Parent = plUserTabs;
 			devTabsForm.Visible = true;
 			devTabsForm.Dock = DockStyle.Fill;
 			devTabsForm.ControlBox = false;
 			devTabsForm.ShowIcon = false;
 			devTabsForm.FormBorderStyle = FormBorderStyle.None;
 			devTabsForm.StartPosition = FormStartPosition.Manual;
-			((Control)devTabsForm).Show();
+			devTabsForm.Show();
+
 			attributesForm.TopLevel = false;
-			attributesForm.Parent = (Control)plAttributes;
+			attributesForm.Parent = plAttributes;
 			attributesForm.Visible = true;
 			attributesForm.Dock = DockStyle.Fill;
 			attributesForm.ControlBox = false;
 			attributesForm.ShowIcon = false;
 			attributesForm.FormBorderStyle = FormBorderStyle.None;
 			attributesForm.StartPosition = FormStartPosition.Manual;
-			((Control)attributesForm).Show();
+			attributesForm.Show();
 		}
 
 		~DeviceForm()
@@ -262,10 +301,8 @@ namespace BTool
 			threadMgr.ClearQueues();
 			commMgr.ClosePort();
 			if (processRxProc != null)
-			{
 				while (processRxProc.IsAlive)
 					;
-			}
 			msgLogForm.ResetMsgNumber();
 			threadMgr.ExitThreads();
 			SaveUserSettings();
@@ -292,7 +329,7 @@ namespace BTool
 			disconnectInfo = tmpDisconnectInfo;
 			for (int index = 0; index < Connections.Count; ++index)
 			{
-				if ((int)Connections[index].handle == (int)disconnectInfo.handle)
+				if (Connections[index].handle == disconnectInfo.handle)
 				{
 					DisplayMsg(SharedAppObjs.MsgType.Info, "Device Disconnected\nHandle = 0x" + disconnectInfo.handle.ToString("X4") + "\nAddr Type = 0x" + Connections[index].addrType.ToString("X2") + " (" + devUtils.GetGapAddrTypeStr(Connections[index].addrType) + ")\nBDAddr = " + Connections[index].bDA + "\n");
 					Connections.RemoveAt(index);
@@ -307,9 +344,8 @@ namespace BTool
 
 		public bool DeviceFormInit()
 		{
-			int num = (int)commSelectForm.ShowDialog();
-			bool flag;
-			if (commSelectForm.DialogResult == DialogResult.OK)
+			bool flag = false;
+			if (commSelectForm.ShowDialog() == DialogResult.OK)
 			{
 				commMgr.PortName = commSelectForm.cbPorts.Text;
 				commMgr.BaudRate = commSelectForm.cbBaud.Text;
@@ -318,20 +354,20 @@ namespace BTool
 				commMgr.StopBits = commSelectForm.cbStopBits.Text;
 				commMgr.HandShake = (Handshake)commSelectForm.cbFlow.SelectedIndex;
 				commMgr.CurrentTransmissionType = CommManager.TransmissionType.Hex;
-				commMgr.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
+				commMgr.DisplayMsgCallback = new DisplayMsgDelegate(DisplayMsg);
+
 				if (commMgr.OpenPort())
 				{
 					Text = commSelectForm.cbPorts.Text;
-					devInfo.devName = commMgr.PortName;
-					devInfo.connectStatus = "None";
-					devInfo.comPortInfo.baudRate = commMgr.BaudRate;
-					devInfo.comPortInfo.comPort = commMgr.PortName;
-					devInfo.comPortInfo.flow = commSelectForm.cbFlow.Text;
-					devInfo.comPortInfo.dataBits = commMgr.DataBits;
-					devInfo.comPortInfo.parity = commMgr.Parity;
-					devInfo.comPortInfo.stopBits = commMgr.StopBits;
-					ReceiveDataInd = new CommManager.FP_ReceiveDataInd(RxDataHandler);
-					commMgr.RxDataInd = ReceiveDataInd;
+					devInfo.DevName = commMgr.PortName;
+					devInfo.ConnectStatus = "None";
+					devInfo.ComPortInfo.BaudRate = commMgr.BaudRate;
+					devInfo.ComPortInfo.ComPort = commMgr.PortName;
+					devInfo.ComPortInfo.Flow = commSelectForm.cbFlow.Text;
+					devInfo.ComPortInfo.DataBits = commMgr.DataBits;
+					devInfo.ComPortInfo.Parity = commMgr.Parity;
+					devInfo.ComPortInfo.StopBits = commMgr.StopBits;
+					commMgr.RxDataInd = new CommManager.FP_ReceiveDataInd(RxDataHandler);
 					processRxProc = new Thread(new ThreadStart(ProcessRxProc));
 					processRxProc.Name = "ProcessRxProcThread";
 					processRxProc.Start();
@@ -344,24 +380,25 @@ namespace BTool
 					string msg = string.Format("Failed Connecting To {0}\n", commSelectForm.cbPorts.SelectedItem);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 					DisplayMsg(SharedAppObjs.MsgType.Error, msg);
-					flag = false;
 				}
 			}
-			else
-				flag = false;
 			return flag;
 		}
 
 		private void LoadUserInitializeValues()
 		{
-			scanTimer.Interval = EventTimeout[1];
-			scanTimer.Tick += new EventHandler(timerScanEvent);
 			initTimer.Interval = EventTimeout[0];
 			initTimer.Tick += new EventHandler(timerInitEvent);
+
+			scanTimer.Interval = EventTimeout[1];
+			scanTimer.Tick += new EventHandler(timerScanEvent);
+
 			establishTimer.Interval = EventTimeout[2];
 			establishTimer.Tick += new EventHandler(timerEstablishEvent);
+
 			pairBondTimer.Interval = EventTimeout[3];
 			pairBondTimer.Tick += new EventHandler(timerPairBondEvent);
+
 			devTabsForm.TabAdvCommandsInitValues();
 			devTabsForm.TabDiscoverConnectInitValues();
 			devTabsForm.TabPairBondInitValues();
@@ -390,11 +427,12 @@ namespace BTool
 			{
 				if (formClosing)
 					return;
-				threadMgr.rxTxMgr.dataQ.AddQTail(new RxTxMgrData()
-				{
-					rxDataIn = null,
-					txDataOut = txDataOut
-				});
+				threadMgr.rxTxMgr.dataQ.AddQTail(
+					new RxTxMgrData()
+					{
+						rxDataIn = null,
+						txDataOut = txDataOut
+					});
 			}
 		}
 
@@ -430,41 +468,37 @@ namespace BTool
 
 		private void ProcessRxProc()
 		{
-			byte type = (byte)0;
-			ushort opCode = ushort.MaxValue;
-			ushort eventOpCode = ushort.MaxValue;
-			byte length = (byte)0;
-			byte[] data = (byte[])null;
+			byte type = 0;
+			ushort opCode = 0xFFFF;
+			ushort eventOpCode = 0xFFFF;
+			byte length = 0;
+			byte[] data = null;
 			SharedObjects.log.Write(Logging.MsgType.Debug, "ProcessRxProc", "Starting Thread");
 			while (!formClosing)
 			{
-				if (commParser.GetDataSize() != 0)
-				{
-					if (commParser.ParseData(ref type, ref opCode, ref eventOpCode, ref length, ref data))
-					{
-						if (!formClosing)
-						{
-							threadMgr.rxDataIn.dataQ.AddQTail(
-								new RxDataIn()
-								{
-									type = type,
-									cmdOpcode = opCode,
-									eventOpcode = eventOpCode,
-									length = length,
-									data = data
-								});
-							type = 0;
-							opCode = ushort.MaxValue;
-							eventOpCode = ushort.MaxValue;
-							length = 0;
-							data = null;
-						}
-						else
-							break;
-					}
-				}
-				else
+				if (commParser.GetDataSize() == 0)
 					Thread.Sleep(10);
+
+				if (!commParser.ParseData(ref type, ref opCode, ref eventOpCode, ref length, ref data))
+					continue;
+
+				if (formClosing)
+					break;
+
+				threadMgr.rxDataIn.dataQ.AddQTail(
+					new RxDataIn()
+					{
+						type = type,
+						cmdOpcode = opCode,
+						eventOpcode = eventOpCode,
+						length = length,
+						data = data
+					});
+				type = 0;
+				opCode = 0xFFFF;
+				eventOpCode = 0xFFFF;
+				length = 0;
+				data = null;
 			}
 			SharedObjects.log.Write(Logging.MsgType.Debug, "ProcessRxProc", "Exiting Thread");
 		}
@@ -500,8 +534,7 @@ namespace BTool
 					}
 					else
 					{
-						string msg = string.Format("Attempt To Send Empty Message Detected\nRequest Ignored\n", commSelectForm.cbPorts.SelectedItem);
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, string.Format("Attempt To Send Empty Message Detected\nRequest Ignored\n", commSelectForm.cbPorts.SelectedItem));
 						flag = false;
 					}
 				}
@@ -520,7 +553,7 @@ namespace BTool
 				catch { }
 			}
 			else
-				msgLogForm.DisplayLogMsg(msgType, msg, (string)null);
+				msgLogForm.DisplayLogMsg(msgType, msg, null);
 		}
 
 		public void DisplayMsgTime(SharedAppObjs.MsgType msgType, string msg, string time)
@@ -541,7 +574,7 @@ namespace BTool
 
 		private void deviceForm_Activated(object sender, EventArgs e)
 		{
-			ChangeActiveRoot(this, (EventArgs)null);
+			ChangeActiveRoot(this, null);
 		}
 
 		private void DeviceForm_Load(object sender, EventArgs e)
@@ -571,16 +604,15 @@ namespace BTool
 		private void scTopLeftRightPanel2_SizeChanged(object sender, EventArgs e)
 		{
 			int width = scTopLeftRight.Panel2.Width;
-			int num1 = 427;
+			int maxWidth = 427;
 			if (devTabsForm != null)
-				num1 = devTabsForm.GetTcDeviceTabsWidth() + 15;
-			int num2 = Width - num1 - 10;
-			if (width > num1 && num2 > 1)
-				scTopLeftRight.SplitterDistance = num2;
+				maxWidth = devTabsForm.GetTcDeviceTabsWidth() + 15;
+			int split = Width - maxWidth - 10;
+			if (width > maxWidth && split > 1)
+				scTopLeftRight.SplitterDistance = split;
 			scTopLeftRight.Update();
-			if (devTabsForm == null)
-				return;
-			devTabsForm.DeviceTabsUpdate();
+			if (devTabsForm != null)
+				devTabsForm.DeviceTabsUpdate();
 		}
 
 		private void DeviceForm_LocationChanged(object sender, EventArgs e)
@@ -593,6 +625,7 @@ namespace BTool
 			return connectInfo;
 		}
 
+		#region InitializeComponent
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing && components != null)
@@ -602,133 +635,133 @@ namespace BTool
 
 		private void InitializeComponent()
 		{
-			components = new System.ComponentModel.Container();
-			scTopLeftRight = new System.Windows.Forms.SplitContainer();
-			plLog = new System.Windows.Forms.Panel();
-			plUserTabs = new System.Windows.Forms.Panel();
-			scanTimer = new System.Windows.Forms.Timer(components);
-			initTimer = new System.Windows.Forms.Timer(components);
-			establishTimer = new System.Windows.Forms.Timer(components);
-			pairBondTimer = new System.Windows.Forms.Timer(components);
-			scTopBottom = new System.Windows.Forms.SplitContainer();
-			plAttributes = new System.Windows.Forms.Panel();
-			((System.ComponentModel.ISupportInitialize)(scTopLeftRight)).BeginInit();
-			scTopLeftRight.Panel1.SuspendLayout();
-			scTopLeftRight.Panel2.SuspendLayout();
-			scTopLeftRight.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(scTopBottom)).BeginInit();
-			scTopBottom.Panel1.SuspendLayout();
-			scTopBottom.Panel2.SuspendLayout();
-			scTopBottom.SuspendLayout();
-			SuspendLayout();
+			this.components = new System.ComponentModel.Container();
+			this.scTopLeftRight = new System.Windows.Forms.SplitContainer();
+			this.plLog = new System.Windows.Forms.Panel();
+			this.plUserTabs = new System.Windows.Forms.Panel();
+			this.scanTimer = new System.Windows.Forms.Timer(this.components);
+			this.initTimer = new System.Windows.Forms.Timer(this.components);
+			this.establishTimer = new System.Windows.Forms.Timer(this.components);
+			this.pairBondTimer = new System.Windows.Forms.Timer(this.components);
+			this.scTopBottom = new System.Windows.Forms.SplitContainer();
+			this.plAttributes = new System.Windows.Forms.Panel();
+			((System.ComponentModel.ISupportInitialize)(this.scTopLeftRight)).BeginInit();
+			this.scTopLeftRight.Panel1.SuspendLayout();
+			this.scTopLeftRight.Panel2.SuspendLayout();
+			this.scTopLeftRight.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.scTopBottom)).BeginInit();
+			this.scTopBottom.Panel1.SuspendLayout();
+			this.scTopBottom.Panel2.SuspendLayout();
+			this.scTopBottom.SuspendLayout();
+			this.SuspendLayout();
 			// 
 			// scTopLeftRight
 			// 
-			scTopLeftRight.BackColor = System.Drawing.SystemColors.Highlight;
-			scTopLeftRight.Dock = System.Windows.Forms.DockStyle.Fill;
-			scTopLeftRight.Location = new System.Drawing.Point(0, 0);
-			scTopLeftRight.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			scTopLeftRight.Name = "scTopLeftRight";
+			this.scTopLeftRight.BackColor = System.Drawing.SystemColors.Highlight;
+			this.scTopLeftRight.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.scTopLeftRight.Location = new System.Drawing.Point(0, 0);
+			this.scTopLeftRight.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.scTopLeftRight.Name = "scTopLeftRight";
 			// 
 			// scTopLeftRight.Panel1
 			// 
-			scTopLeftRight.Panel1.Controls.Add(plLog);
+			this.scTopLeftRight.Panel1.Controls.Add(this.plLog);
 			// 
 			// scTopLeftRight.Panel2
 			// 
-			scTopLeftRight.Panel2.Controls.Add(plUserTabs);
-			scTopLeftRight.Panel2.SizeChanged += new System.EventHandler(scTopLeftRightPanel2_SizeChanged);
-			scTopLeftRight.Size = new System.Drawing.Size(788, 515);
-			scTopLeftRight.SplitterDistance = 380;
-			scTopLeftRight.TabIndex = 11;
+			this.scTopLeftRight.Panel2.Controls.Add(this.plUserTabs);
+			this.scTopLeftRight.Panel2.SizeChanged += new System.EventHandler(this.scTopLeftRightPanel2_SizeChanged);
+			this.scTopLeftRight.Size = new System.Drawing.Size(784, 511);
+			this.scTopLeftRight.SplitterDistance = 378;
+			this.scTopLeftRight.TabIndex = 11;
 			// 
 			// plLog
 			// 
-			plLog.BackColor = System.Drawing.SystemColors.Control;
-			plLog.Dock = System.Windows.Forms.DockStyle.Fill;
-			plLog.Location = new System.Drawing.Point(0, 0);
-			plLog.Name = "plLog";
-			plLog.Size = new System.Drawing.Size(380, 515);
-			plLog.TabIndex = 0;
+			this.plLog.BackColor = System.Drawing.SystemColors.Control;
+			this.plLog.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.plLog.Location = new System.Drawing.Point(0, 0);
+			this.plLog.Name = "plLog";
+			this.plLog.Size = new System.Drawing.Size(378, 511);
+			this.plLog.TabIndex = 0;
 			// 
 			// plUserTabs
 			// 
-			plUserTabs.AutoScroll = true;
-			plUserTabs.BackColor = System.Drawing.SystemColors.Control;
-			plUserTabs.Dock = System.Windows.Forms.DockStyle.Fill;
-			plUserTabs.Location = new System.Drawing.Point(0, 0);
-			plUserTabs.Name = "plUserTabs";
-			plUserTabs.Size = new System.Drawing.Size(404, 515);
-			plUserTabs.TabIndex = 0;
+			this.plUserTabs.AutoScroll = true;
+			this.plUserTabs.BackColor = System.Drawing.SystemColors.Control;
+			this.plUserTabs.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.plUserTabs.Location = new System.Drawing.Point(0, 0);
+			this.plUserTabs.Name = "plUserTabs";
+			this.plUserTabs.Size = new System.Drawing.Size(402, 511);
+			this.plUserTabs.TabIndex = 0;
 			// 
 			// scTopBottom
 			// 
-			scTopBottom.BackColor = System.Drawing.SystemColors.Highlight;
-			scTopBottom.Dock = System.Windows.Forms.DockStyle.Fill;
-			scTopBottom.Location = new System.Drawing.Point(0, 0);
-			scTopBottom.Name = "scTopBottom";
-			scTopBottom.Orientation = System.Windows.Forms.Orientation.Horizontal;
+			this.scTopBottom.BackColor = System.Drawing.SystemColors.Highlight;
+			this.scTopBottom.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.scTopBottom.Location = new System.Drawing.Point(0, 0);
+			this.scTopBottom.Name = "scTopBottom";
+			this.scTopBottom.Orientation = System.Windows.Forms.Orientation.Horizontal;
 			// 
 			// scTopBottom.Panel1
 			// 
-			scTopBottom.Panel1.Controls.Add(scTopLeftRight);
+			this.scTopBottom.Panel1.Controls.Add(this.scTopLeftRight);
 			// 
 			// scTopBottom.Panel2
 			// 
-			scTopBottom.Panel2.Controls.Add(plAttributes);
-			scTopBottom.Size = new System.Drawing.Size(788, 667);
-			scTopBottom.SplitterDistance = 515;
-			scTopBottom.TabIndex = 1;
+			this.scTopBottom.Panel2.Controls.Add(this.plAttributes);
+			this.scTopBottom.Size = new System.Drawing.Size(784, 663);
+			this.scTopBottom.SplitterDistance = 511;
+			this.scTopBottom.TabIndex = 1;
 			// 
 			// plAttributes
 			// 
-			plAttributes.BackColor = System.Drawing.SystemColors.Control;
-			plAttributes.Dock = System.Windows.Forms.DockStyle.Fill;
-			plAttributes.Location = new System.Drawing.Point(0, 0);
-			plAttributes.Name = "plAttributes";
-			plAttributes.Size = new System.Drawing.Size(788, 148);
-			plAttributes.TabIndex = 0;
+			this.plAttributes.BackColor = System.Drawing.SystemColors.Control;
+			this.plAttributes.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.plAttributes.Location = new System.Drawing.Point(0, 0);
+			this.plAttributes.Name = "plAttributes";
+			this.plAttributes.Size = new System.Drawing.Size(784, 148);
+			this.plAttributes.TabIndex = 0;
 			// 
 			// DeviceForm
 			// 
-			AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-			AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			ClientSize = new System.Drawing.Size(788, 667);
-			ControlBox = false;
-			Controls.Add(scTopBottom);
-			Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-			Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			MaximizeBox = false;
-			MinimizeBox = false;
-			Name = "DeviceForm";
-			ShowIcon = false;
-			ShowInTaskbar = false;
-			StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-			Text = "Device";
-			Activated += new System.EventHandler(deviceForm_Activated);
-			FormClosing += new System.Windows.Forms.FormClosingEventHandler(DeviceForm_FormClosing);
-			Load += new System.EventHandler(DeviceForm_Load);
-			LocationChanged += new System.EventHandler(DeviceForm_LocationChanged);
-			scTopLeftRight.Panel1.ResumeLayout(false);
-			scTopLeftRight.Panel2.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(scTopLeftRight)).EndInit();
-			scTopLeftRight.ResumeLayout(false);
-			scTopBottom.Panel1.ResumeLayout(false);
-			scTopBottom.Panel2.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(scTopBottom)).EndInit();
-			scTopBottom.ResumeLayout(false);
-			ResumeLayout(false);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(784, 663);
+			this.ControlBox = false;
+			this.Controls.Add(this.scTopBottom);
+			this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.MaximizeBox = false;
+			this.MinimizeBox = false;
+			this.Name = "DeviceForm";
+			this.ShowIcon = false;
+			this.ShowInTaskbar = false;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+			this.Text = "Device";
+			this.Activated += new System.EventHandler(this.deviceForm_Activated);
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DeviceForm_FormClosing);
+			this.Load += new System.EventHandler(this.DeviceForm_Load);
+			this.LocationChanged += new System.EventHandler(this.DeviceForm_LocationChanged);
+			this.scTopLeftRight.Panel1.ResumeLayout(false);
+			this.scTopLeftRight.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.scTopLeftRight)).EndInit();
+			this.scTopLeftRight.ResumeLayout(false);
+			this.scTopBottom.Panel1.ResumeLayout(false);
+			this.scTopBottom.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.scTopBottom)).EndInit();
+			this.scTopBottom.ResumeLayout(false);
+			this.ResumeLayout(false);
 
 		}
+		#endregion
 
 		public void SendAllForever()
 		{
-			int num = 0;
-			string str = string.Empty;
+			int count = 0;
 			while (true)
 			{
-				msgLogForm.AppendLog(string.Format("Msg Loop # {0:D}", num++));
+				msgLogForm.AppendLog(string.Format("Msg Loop # {0:D}", count++));
 				SendAllMsgs();
 				SendEventWaves(true);
 				Thread.Sleep(1000);
@@ -846,12 +879,14 @@ namespace BTool
 
 		public void SendEventWaves(bool skipCase)
 		{
-			byte num1 = byte.MaxValue;
-			byte[] data = new byte[(int)num1];
-			for (int index = 0; index < (int)num1; ++index)
+			int num1 = 255;
+			byte[] data = new byte[num1];
+			for (int index = 0; index < num1; ++index)
 				data[index] = (byte)index;
-			byte length1 = (byte)((uint)num1 - 4U);
+
+			byte length1 = (byte)(num1 - 4);
 			SendAllEvents(data, length1);
+
 			msgLogForm.AppendLog(s_delimeter);
 			if (!skipCase)
 			{
@@ -863,20 +898,22 @@ namespace BTool
 					++index;
 					--num2;
 				}
-				length1 -= (byte)4;
+				length1 -= 4;
 				SendAllEvents(data, length1);
 				msgLogForm.AppendLog(s_delimeter);
 			}
+
 			for (int index = 0; index < (int)length1; ++index)
-				data[index] = (byte)0;
-			byte length2 = (byte)((uint)length1 - 4U);
+				data[index] = 0;
+
+			byte length2 = (byte)(length1 - 4);
 			SendAllEvents(data, length2);
 			msgLogForm.AppendLog(s_delimeter);
 			if (skipCase)
 				return;
 			for (int index = 0; index < (int)length2; ++index)
 				data[index] = byte.MaxValue;
-			byte length3 = (byte)((uint)length2 - 4U);
+			byte length3 = (byte)(length2 - 4);
 			SendAllEvents(data, length3);
 			msgLogForm.AppendLog(s_delimeter);
 		}
@@ -885,248 +922,256 @@ namespace BTool
 		{
 			bool dataErr = false;
 			RxDataIn rxDataIn = new RxDataIn();
-			rxDataIn.type = (byte)4;
-			rxDataIn.cmdOpcode = (ushort)byte.MaxValue;
+			rxDataIn.type = 4;
+			rxDataIn.cmdOpcode = byte.MaxValue;
 			rxDataIn.length = length;
 			rxDataIn.data = data;
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1024;
+
+			rxDataIn.eventOpcode = 1024;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1025;
+			rxDataIn.eventOpcode = 1025;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1026;
+			rxDataIn.eventOpcode = 1026;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1027;
+			rxDataIn.eventOpcode = 1027;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1028;
+			rxDataIn.eventOpcode = 1028;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1029;
+			rxDataIn.eventOpcode = 1029;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1030;
+			rxDataIn.eventOpcode = 1030;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1031;
+			rxDataIn.eventOpcode = 1031;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1032;
+			rxDataIn.eventOpcode = 1032;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1033;
+			rxDataIn.eventOpcode = 1033;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1034;
+			rxDataIn.eventOpcode = 1034;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1035;
+			rxDataIn.eventOpcode = 1035;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1036;
+			rxDataIn.eventOpcode = 1036;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1037;
+			rxDataIn.eventOpcode = 1037;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1038;
+			rxDataIn.eventOpcode = 1038;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1039;
+			rxDataIn.eventOpcode = 1039;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1040;
+			rxDataIn.eventOpcode = 1040;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1041;
+			rxDataIn.eventOpcode = 1041;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1042;
+			rxDataIn.eventOpcode = 1042;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1043;
+			rxDataIn.eventOpcode = 1043;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1044;
+			rxDataIn.eventOpcode = 1044;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1153;
+			rxDataIn.eventOpcode = 1153;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1163;
+			rxDataIn.eventOpcode = 1163;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1171;
+			rxDataIn.eventOpcode = 1171;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1281;
+			rxDataIn.eventOpcode = 1281;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1282;
+			rxDataIn.eventOpcode = 1282;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1283;
+			rxDataIn.eventOpcode = 1283;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1284;
+			rxDataIn.eventOpcode = 1284;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1285;
+			rxDataIn.eventOpcode = 1285;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1286;
+			rxDataIn.eventOpcode = 1286;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1287;
+			rxDataIn.eventOpcode = 1287;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1288;
+			rxDataIn.eventOpcode = 1288;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1289;
+			rxDataIn.eventOpcode = 1289;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1290;
+			rxDataIn.eventOpcode = 1290;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1291;
+			rxDataIn.eventOpcode = 1291;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1292;
+			rxDataIn.eventOpcode = 1292;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1293;
+			rxDataIn.eventOpcode = 1293;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1294;
+			rxDataIn.eventOpcode = 1294;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1295;
+			rxDataIn.eventOpcode = 1295;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1295;
+			rxDataIn.eventOpcode = 1295;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1296;
+			rxDataIn.eventOpcode = 1296;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1297;
+			rxDataIn.eventOpcode = 1297;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1298;
+			rxDataIn.eventOpcode = 1298;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1299;
+			rxDataIn.eventOpcode = 1299;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1302;
+			rxDataIn.eventOpcode = 1302;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1303;
+			rxDataIn.eventOpcode = 1303;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1304;
+			rxDataIn.eventOpcode = 1304;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1305;
+			rxDataIn.eventOpcode = 1305;
 			DisplayRxCmd(rxDataIn, true);
+
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1307;
+			rxDataIn.eventOpcode = 1307;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1309;
+			rxDataIn.eventOpcode = 1309;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1310;
+			rxDataIn.eventOpcode = 1310;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1536;
+			rxDataIn.eventOpcode = 1536;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1537;
+			rxDataIn.eventOpcode = 1537;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1538;
+			rxDataIn.eventOpcode = 1538;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1539;
+			rxDataIn.eventOpcode = 1539;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1540;
+			rxDataIn.eventOpcode = 1540;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1541;
+			rxDataIn.eventOpcode = 1541;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1542;
+			rxDataIn.eventOpcode = 1542;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1543;
+			rxDataIn.eventOpcode = 1543;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1544;
+			rxDataIn.eventOpcode = 1544;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1545;
+			rxDataIn.eventOpcode = 1545;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1546;
+			rxDataIn.eventOpcode = 1546;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1547;
+			rxDataIn.eventOpcode = 1547;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1548;
+			rxDataIn.eventOpcode = 1548;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1549;
+			rxDataIn.eventOpcode = 1549;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1550;
+			rxDataIn.eventOpcode = 1550;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1551;
+			rxDataIn.eventOpcode = 1551;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = (ushort)1663;
+			rxDataIn.eventOpcode = 1663;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
+
 			int index1 = 0;
-			rxDataIn.cmdOpcode = (ushort)14;
-			rxDataIn.eventOpcode = (ushort)0;
-			dataUtils.Load8Bits(ref data, ref index1, (byte)1, ref dataErr);
-			dataUtils.Load16Bits(ref data, ref index1, (ushort)5125, ref dataErr, false);
+			rxDataIn.cmdOpcode = 14;
+			rxDataIn.eventOpcode = 0;
+			dataUtils.Load8Bits(ref data, ref index1, 1, ref dataErr);
+			dataUtils.Load16Bits(ref data, ref index1, 5125, ref dataErr, false);
 			rxDataIn.data = data;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
+
 			int index2 = 0;
-			dataUtils.Load8Bits(ref data, ref index2, (byte)1, ref dataErr);
-			dataUtils.Load16Bits(ref data, ref index2, (ushort)8208, ref dataErr, false);
+			dataUtils.Load8Bits(ref data, ref index2, 1, ref dataErr);
+			dataUtils.Load16Bits(ref data, ref index2, 8208, ref dataErr, false);
 			rxDataIn.data = data;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
+
 			int index3 = 0;
-			dataUtils.Load8Bits(ref data, ref index3, (byte)1, ref dataErr);
-			dataUtils.Load16Bits(ref data, ref index3, (ushort)8209, ref dataErr, false);
+			dataUtils.Load8Bits(ref data, ref index3, 1, ref dataErr);
+			dataUtils.Load16Bits(ref data, ref index3, 8209, ref dataErr, false);
 			rxDataIn.data = data;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
+
 			int index4 = 0;
-			dataUtils.Load8Bits(ref data, ref index4, (byte)1, ref dataErr);
-			dataUtils.Load16Bits(ref data, ref index4, (ushort)8210, ref dataErr, false);
+			dataUtils.Load8Bits(ref data, ref index4, 1, ref dataErr);
+			dataUtils.Load16Bits(ref data, ref index4, 8210, ref dataErr, false);
 			rxDataIn.data = data;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
+
 			int index5 = 0;
-			dataUtils.Load8Bits(ref data, ref index5, (byte)1, ref dataErr);
-			dataUtils.Load16Bits(ref data, ref index5, (ushort)8211, ref dataErr, false);
+			dataUtils.Load8Bits(ref data, ref index5, 1, ref dataErr);
+			dataUtils.Load16Bits(ref data, ref index5, 8211, ref dataErr, false);
 			rxDataIn.data = data;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.cmdOpcode = (ushort)19;
+
+			rxDataIn.cmdOpcode = 19;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
 		}
@@ -1143,52 +1188,55 @@ namespace BTool
 
 		public void TestCase()
 		{
-			sendCmds.SendUTIL(new HCICmds.UTILCmds.UTIL_Reset()
-			{
-				resetType = HCICmds.UTIL_ResetType.Hard_Reset
-			});
-			sendCmds.SendHCIExt(new HCICmds.HCIExtCmds.HCIExt_SetBDADDR()
-			{
-				bleDevAddr = "70:55:44:33:22:11"
-			});
+			sendCmds.SendUTIL(
+				new HCICmds.UTILCmds.UTIL_Reset()
+				{
+					resetType = HCICmds.UTIL_ResetType.Hard_Reset
+				});
+			sendCmds.SendHCIExt(
+				new HCICmds.HCIExtCmds.HCIExt_SetBDADDR()
+				{
+					bleDevAddr = "70:55:44:33:22:11"
+				});
 			HCICmds.GAPCmds.GAP_DeviceInit gapDeviceInit = new HCICmds.GAPCmds.GAP_DeviceInit();
 			gapDeviceInit.broadcasterProfileRole = HCICmds.GAP_EnableDisable.Disable;
 			gapDeviceInit.observerProfileRole = HCICmds.GAP_EnableDisable.Disable;
 			gapDeviceInit.peripheralProfileRole = HCICmds.GAP_EnableDisable.Disable;
 			gapDeviceInit.centralProfileRole = HCICmds.GAP_EnableDisable.Enable;
-			gapDeviceInit.maxScanResponses = (byte)3;
-			string str1 = "33:42:CF:14:BC:55:17:31:75:4F:BB:A4:C7:F2:8C:13";
-			gapDeviceInit.irk = str1;
-			string str2 = "45:0A:F4:B0:03:07:B0:40:87:F4:18:23:75:4A:FB:A4";
-			gapDeviceInit.csrk = str2;
-			gapDeviceInit.signCounter = 0U;
+			gapDeviceInit.maxScanResponses = 3;
+			gapDeviceInit.irk = "33:42:CF:14:BC:55:17:31:75:4F:BB:A4:C7:F2:8C:13";
+			gapDeviceInit.csrk = "45:0A:F4:B0:03:07:B0:40:87:F4:18:23:75:4A:FB:A4";
+			gapDeviceInit.signCounter = 0;
 			sendCmds.SendGAP(gapDeviceInit);
-			sendCmds.SendGAP(new HCICmds.GAPCmds.GAP_EstablishLinkRequest()
-			{
-				highDutyCycle = HCICmds.GAP_EnableDisable.Disable,
-				whiteList = HCICmds.GAP_EnableDisable.Disable,
-				addrTypePeer = HCICmds.GAP_AddrType.Public,
-				peerAddr = "60:55:44:33:22:11"
-			});
-			sendCmds.SendGAP(new HCICmds.GAPCmds.GAP_Authenticate()
-			{
-				connHandle = (ushort)0,
-				secReq_ioCaps = HCICmds.GAP_IOCaps.KeyboardDisplay,
-				secReq_oobAvailable = HCICmds.GAP_TrueFalse.False,
-				secReq_oob = "4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00",
-				secReq_authReq = 1,
-				secReq_maxEncKeySize = 16,
-				secReq_keyDist = 0,
-				pairReq_Enable = HCICmds.GAP_EnableDisable.Disable,
-				pairReq_ioCaps = HCICmds.GAP_IOCaps.KeyboardDisplay,
-				pairReq_oobDataFlag = HCICmds.GAP_EnableDisable.Disable,
-				pairReq_authReq = 1,
-			});
-			sendCmds.SendGAP(new HCICmds.GAPCmds.GAP_TerminateLinkRequest()
-			{
-				connHandle = (ushort)0,
-				discReason = HCICmds.GAP_DisconnectReason.Remote_User_Terminated
-			});
+			sendCmds.SendGAP(
+				new HCICmds.GAPCmds.GAP_EstablishLinkRequest()
+				{
+					highDutyCycle = HCICmds.GAP_EnableDisable.Disable,
+					whiteList = HCICmds.GAP_EnableDisable.Disable,
+					addrTypePeer = HCICmds.GAP_AddrType.Public,
+					peerAddr = "60:55:44:33:22:11"
+				});
+			sendCmds.SendGAP(
+				new HCICmds.GAPCmds.GAP_Authenticate()
+				{
+					connHandle = 0,
+					secReq_ioCaps = HCICmds.GAP_IOCaps.KeyboardDisplay,
+					secReq_oobAvailable = HCICmds.GAP_TrueFalse.False,
+					secReq_oob = "4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00",
+					secReq_authReq = 1,
+					secReq_maxEncKeySize = 16,
+					secReq_keyDist = 0,
+					pairReq_Enable = HCICmds.GAP_EnableDisable.Disable,
+					pairReq_ioCaps = HCICmds.GAP_IOCaps.KeyboardDisplay,
+					pairReq_oobDataFlag = HCICmds.GAP_EnableDisable.Disable,
+					pairReq_authReq = 1,
+				});
+			sendCmds.SendGAP(
+				new HCICmds.GAPCmds.GAP_TerminateLinkRequest()
+				{
+					connHandle = (ushort)0,
+					discReason = HCICmds.GAP_DisconnectReason.Remote_User_Terminated
+				});
 		}
 
 		public void StartTimer(DeviceForm.EventType eType)
@@ -1234,8 +1282,10 @@ namespace BTool
 			StopTimer(DeviceForm.EventType.Scan);
 			devTabsForm.ShowProgress(false);
 			Cursor = Cursors.Default;
+
 			devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
 			devTabsForm.DiscoverConnectUserInputControl();
+
 			string msg = "Device Scan Timeout.\n";
 			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
 			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -1246,6 +1296,7 @@ namespace BTool
 			StopTimer(DeviceForm.EventType.Init);
 			devTabsForm.ShowProgress(false);
 			Cursor = Cursors.Default;
+
 			string msg = "GAP Device Initialization Timeout.\nDevice May Not Function Properly.\n";
 			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
 			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -1256,6 +1307,7 @@ namespace BTool
 			StopTimer(DeviceForm.EventType.Establish);
 			devTabsForm.ShowProgress(false);
 			Cursor = Cursors.Default;
+
 			string msg = "GAP Link Establish Request Timeout.\n";
 			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
 			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -1266,9 +1318,11 @@ namespace BTool
 			StopTimer(DeviceForm.EventType.PairBond);
 			devTabsForm.ShowProgress(false);
 			Cursor = Cursors.Default;
+
 			devTabsForm.TabPairBondInitValues();
 			devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
 			devTabsForm.PairBondUserInputControl();
+
 			string msg = "Pairing Bonding Request Timeout.\n";
 			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
 			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -1287,23 +1341,22 @@ namespace BTool
 				ushort opCode2 = rxDataIn.eventOpcode;
 				byte num1 = rxDataIn.length;
 				byte[] data1 = rxDataIn.data;
-				string str1 = string.Empty;
 				string msg1 = string.Empty;
 				byte[] addr = new byte[6];
-				string msg2;
-				if (packetType == 4)
-					msg2 = str1 + string.Format("-Type\t\t: 0x{0:X2} ({1:S})\n-EventCode\t: 0x{2:X2} ({3:S})\n-Data Length\t: 0x{4:X2} ({5:D}) bytes(s)\n", packetType, devUtils.GetPacketTypeStr(packetType), opCode1, devUtils.GetOpCodeName(opCode1), num1, num1);
-				else
-					msg2 = str1 + string.Format("-Type\t\t: 0x{0:X2} ({1:S})\n-OpCode\t\t: 0x{2:X4} ({3:S})\n-Data Length\t: 0x{4:X2} ({5:D}) bytes(s)\n", packetType, devUtils.GetPacketTypeStr(packetType), opCode1, devUtils.GetOpCodeName(opCode1), num1, num1);
+				string msg2 =
+					(packetType == 4)
+					? string.Format("-Type\t\t: 0x{0:X2} ({1:S})\n-EventCode\t: 0x{2:X2} ({3:S})\n-Data Length\t: 0x{4:X2} ({5:D}) bytes(s)\n", packetType, devUtils.GetPacketTypeStr(packetType), opCode1, devUtils.GetOpCodeName(opCode1), num1, num1)
+					: string.Format("-Type\t\t: 0x{0:X2} ({1:S})\n-OpCode\t\t: 0x{2:X4} ({3:S})\n-Data Length\t: 0x{4:X2} ({5:D}) bytes(s)\n", packetType, devUtils.GetPacketTypeStr(packetType), opCode1, devUtils.GetOpCodeName(opCode1), num1, num1)
+					;
 				int index1 = 0;
-				byte bits1 = (byte)0;
-				ushort bits2 = (ushort)0;
+				byte bits1 = 0;
+				ushort bits2 = 0;
 				string str2 = string.Empty;
 				bool dataErr = false;
 				switch (opCode1)
 				{
 					case 14:
-						int num2 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+						dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
 						if (!dataErr)
 						{
 							msg2 += string.Format(" Packets\t\t: 0x{0:X2} ({1:D})\n", bits1, bits1);
@@ -1375,18 +1428,17 @@ namespace BTool
 						devUtils.BuildRawDataStr(data1, ref msg2, data1.Length);
 						break;
 					case 0xff:
-						ushort num8 = (ushort)((opCode2 & 896U) >> 7);
+						ushort num8 = (ushort)((opCode2 & 0x380) >> 7);
 						byte status = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
 						if (!dataErr)
 						{
-							string str3 = string.Empty;
-							string str4 = (int)num8 != 0 ? devUtils.GetStatusStr(status) : devUtils.GetHCIExtStatusStr(status);
+							string str4 = (num8 != 0) ? devUtils.GetStatusStr(status) : devUtils.GetHCIExtStatusStr(status);
 							msg2 = msg2 + string.Format(" Event\t\t: 0x{0:X4} ({1:S})\n Status\t\t: 0x{2:X2} ({3:S})\n", opCode2, devUtils.GetOpCodeName(opCode2), status, str4);
 							ushort num3 = opCode2;
 							byte num4;
-							if ((uint)num3 <= 1171U)
+							if (num3 <= 1171)
 							{
-								if ((uint)num3 <= 1153U)
+								if (num3 <= 1153)
 								{
 									switch (num3)
 									{
@@ -1436,9 +1488,9 @@ namespace BTool
 												goto label_319;
 									}
 								}
-								else if ((int)num3 != 1163)
+								else if (num3 != 1163)
 								{
-									if ((int)num3 == 1171)
+									if (num3 == 1171)
 									{
 										int num7 = (int)dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
 										if (!dataErr)
@@ -1468,13 +1520,13 @@ namespace BTool
 										break;
 								}
 							}
-							else if ((uint)num3 <= 1408U)
+							else if (num3 <= 1408)
 							{
 								switch (num3)
 								{
 									case 1281:
-										num4 = (byte)0;
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										num4 = 0;
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
 											byte data2 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
 											if (!dataErr)
@@ -1490,71 +1542,38 @@ namespace BTool
 														msg2 = msg2 + string.Format("       \t\t: {0:S}\n", devUtils.GetErrorStatusStr(errorStatus));
 														if (devTabsForm.GetSelectedTab() == 1)
 														{
-															if ((int)data2 == 10 || (int)data2 == 8)
+															if (data2 == 10 || data2 == 8)
 																devTabsForm.SetTbReadStatusText(string.Format("{0:S}", devUtils.GetShortErrorStatusStr(errorStatus)));
-															if ((int)data2 == 18)
-															{
+															if (data2 == 18)
 																devTabsForm.SetTbWriteStatusText(string.Format("{0:S}", devUtils.GetShortErrorStatusStr(errorStatus)));
-																goto label_319;
-															}
-															else
-																goto label_319;
 														}
-														else
-															goto label_319;
 													}
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1282:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
 											ushort num7 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
 											if (!dataErr)
-											{
 												msg2 = msg2 + string.Format(" ClientRxMTU\t: 0x{0:X4} ({1:D})\n", num7, num7);
-												goto label_319;
-											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1283:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
 											ushort num7 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
 											if (!dataErr)
-											{
 												msg2 = msg2 + string.Format(" ServerRxMTU\t: 0x{0:X4} ({1:D})\n", num7, num7);
-												goto label_319;
-											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1284:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
-										{
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 											dspCmdUtils.AddStartEndHandle(data1, ref index1, ref dataErr, ref msg2);
-											if (!dataErr)
-												goto label_319;
-											else
-												goto label_319;
-										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1285:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
 											byte num7 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
 											if (!dataErr)
@@ -1566,93 +1585,62 @@ namespace BTool
 													int dataLength = uuidLength + 2;
 													int totalLength = (int)num1 - index1;
 													msg2 = msg2 + devUtils.UnloadHandleValueData(data1, ref index1, totalLength, dataLength, ref dataErr, "Uuid");
-													if (!dataErr)
-														goto label_319;
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1286:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
 											dspCmdUtils.AddStartEndHandle(data1, ref index1, ref dataErr, ref msg2);
 											if (!dataErr)
 											{
 												ushort num7 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
 												if (!dataErr)
-												{
 													msg2 = msg2 + string.Format(" Type\t\t: 0x{0:X4} ({1:D})\n", num7, num7);
-													goto label_319;
-												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1287:
-										byte num10;
-										if ((int)(num10 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										byte num10 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr);
+										if (num10 != 0 && !dataErr)
 										{
-											if ((int)num10 >= 2)
+											if (num10 >= 2)
 											{
-												int num7 = (int)num10 / 2;
+												int num7 = num10 / 2;
 												for (uint index2 = 0U; (long)index2 < (long)num7 && !dataErr; ++index2)
 												{
 													ushort num9 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
 													if (!dataErr)
-														msg2 = msg2 + string.Format(" Handle\t\t: {0:X2}:{1:X2}\n", (byte)((uint)num9 & (uint)byte.MaxValue), (byte)((uint)num9 >> 8));
+														msg2 = msg2 + string.Format(" Handle\t\t: {0:X2}:{1:X2}\n", num9 & 0xFF, num9 >> 8);
 													else
 														break;
 												}
 											}
-											if (!dataErr)
-												goto label_319;
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1288:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
 											dspCmdUtils.AddStartEndHandle(data1, ref index1, ref dataErr, ref msg2);
 											if (!dataErr)
-											{
 												msg2 = msg2 + string.Format(" Type\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
-												if (!dataErr)
-													goto label_319;
-												else
-													goto label_319;
-											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1289:
-										byte num11;
-										if ((int)(num11 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										byte num11 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr);
+										if (num11 != 0 && !dataErr)
 										{
 											int dataLength = (int)dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
 											if (!dataErr)
 											{
 												msg2 = msg2 + string.Format(" Length\t\t: 0x{0:X2} ({1:D})\n", dataLength, dataLength);
-												byte num7 = (byte)((uint)num11 - 1U);
+												int num7 = num11 - 1;
 												if (dataLength != 0)
 												{
 													string handleStr = string.Empty;
 													string valueStr = string.Empty;
-													msg2 = msg2 + devUtils.UnloadHandleValueData(data1, ref index1, (int)num7, dataLength, ref handleStr, ref valueStr, ref dataErr, "Data");
+													msg2 = msg2 + devUtils.UnloadHandleValueData(data1, ref index1, num7, dataLength, ref handleStr, ref valueStr, ref dataErr, "Data");
 													if (!dataErr && devTabsForm.GetSelectedTab() == 1)
 													{
 														devTabsForm.SetTbReadValueTag(valueStr);
@@ -1663,38 +1651,19 @@ namespace BTool
 														else
 															devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(valueStr, SharedAppObjs.StringType.HEX));
 														if (!string.IsNullOrEmpty(handleStr))
-														{
 															devTabsForm.SetTbReadAttrHandleText(handleStr);
-															goto label_319;
-														}
-														else
-															goto label_319;
 													}
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1290:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
-										{
-											int num7 = (int)dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
-											if (!dataErr)
-												goto label_319;
-											else
-												goto label_319;
-										}
-										else
-											goto label_319;
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
+											dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
+										goto label_319;
 									case 1291:
-										byte num12;
-										if ((int)(num12 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										byte num12 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr);
+										if (num12 != 0 && !dataErr)
 										{
 											string msg3 = string.Empty;
 											for (uint index2 = 0U; index2 < (uint)num12 && !dataErr; ++index2)
@@ -1710,73 +1679,41 @@ namespace BTool
 												{
 													devTabsForm.SetTbReadValueTag(msg3);
 													if (devTabsForm.GetRbASCIIReadChecked())
-													{
 														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg3, SharedAppObjs.StringType.ASCII));
-														goto label_319;
-													}
 													else if (devTabsForm.GetRbDecimalReadChecked())
-													{
 														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg3, SharedAppObjs.StringType.DEC));
-														goto label_319;
-													}
 													else
-													{
 														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg3, SharedAppObjs.StringType.HEX));
-														goto label_319;
-													}
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1292:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
-										{
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 											dspCmdUtils.AddHandleOffset(data1, ref index1, ref dataErr, ref msg2);
-											if (!dataErr)
-												goto label_319;
-											else
-												goto label_319;
-										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1293:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
-										{
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 											msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
-											if (!dataErr)
-												goto label_319;
-											else
-												goto label_319;
-										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1294:
-										byte num13;
-										if ((int)(num13 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										byte num13 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr);
+										if (num13 != 0 && !dataErr)
 										{
-											for (uint index2 = 0U; index2 < (uint)num13 && !dataErr; ++index2)
+											for (byte index2 = 0; index2 < num13 && !dataErr; ++index2)
 												msg1 = msg1 + string.Format("{0:X2} ", dataUtils.Unload8Bits(data1, ref index1, ref dataErr));
 											if (!dataErr)
 											{
 												msg1.Trim();
 												msg2 = msg2 + string.Format(" Handles\t\t: {0:S}\n", msg1);
-												goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1295:
-										byte num14;
-										if ((int)(num14 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										byte num14 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr);
+										if (num14 != 0 && !dataErr)
 										{
-											for (uint index2 = 0U; index2 < (uint)num14 && !dataErr; ++index2)
+											for (byte index2 = 0; index2 < num14 && !dataErr; ++index2)
 												msg1 = msg1 + string.Format("{0:X2} ", dataUtils.Unload8Bits(data1, ref index1, ref dataErr));
 											if (!dataErr)
 											{
@@ -1786,73 +1723,41 @@ namespace BTool
 												{
 													devTabsForm.SetTbReadValueTag(msg1);
 													if (devTabsForm.GetRbASCIIReadChecked())
-													{
 														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg1, SharedAppObjs.StringType.ASCII));
-														goto label_319;
-													}
 													else if (devTabsForm.GetRbDecimalReadChecked())
-													{
 														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg1, SharedAppObjs.StringType.DEC));
-														goto label_319;
-													}
 													else
-													{
 														devTabsForm.SetTbReadValueText(devUtils.HexStr2UserDefinedStr(msg1, SharedAppObjs.StringType.HEX));
-														goto label_319;
-													}
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1296:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
 											dspCmdUtils.AddStartEndHandle(data1, ref index1, ref dataErr, ref msg2);
 											if (!dataErr)
-											{
 												msg2 = msg2 + string.Format(" GroupType\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
-												if (!dataErr)
-													goto label_319;
-												else
-													goto label_319;
-											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1297:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
 											byte num7 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
 											if (!dataErr)
 											{
 												msg2 = msg2 + string.Format(" Length\t\t: 0x{0:X2} ({1:D})\n", num7, num7);
-												if ((int)num7 != 0)
+												if (num7 != 0)
 												{
 													int dataLength = (int)num7;
 													int totalLength = (int)num1 - 3 - index1 + 1;
 													msg2 = msg2 + string.Format(" DataList\t:\n{0:S}\n", devUtils.UnloadHandleHandleValueData(data1, ref index1, totalLength, dataLength, ref dataErr));
-													if (!dataErr)
-														goto label_319;
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1298:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
 											byte sigAuth = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
 											if (!dataErr)
@@ -1867,94 +1772,45 @@ namespace BTool
 													{
 														msg1.Trim();
 														msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
-														if (!dataErr)
-															goto label_319;
-														else
-															goto label_319;
 													}
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1299:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) == 0 || !dataErr)
-											goto label_319;
-										else
-											goto label_319;
+										devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr);
+										goto label_319;
 									case 1302:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
 											dspCmdUtils.AddHandleOffset(data1, ref index1, ref dataErr, ref msg2);
 											if (!dataErr)
-											{
 												msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
-												if (!dataErr)
-													goto label_319;
-												else
-													goto label_319;
-											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1303:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
 											dspCmdUtils.AddHandleOffset(data1, ref index1, ref dataErr, ref msg2);
 											if (!dataErr)
-											{
 												msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
-												if (!dataErr)
-													goto label_319;
-												else
-													goto label_319;
-											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1304:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
-										{
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 											msg2 = msg2 + string.Format(" Flages\t\t: 0x{0:X2}\n", dataUtils.Unload8Bits(data1, ref index1, ref dataErr));
-											if (!dataErr)
-												goto label_319;
-											else
-												goto label_319;
-										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1305:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) == 0 || !dataErr)
-											goto label_319;
-										else
-											goto label_319;
+										devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr);
+										goto label_319;
 									case 1307:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) != 0 && !dataErr)
+										if (devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr) != 0 && !dataErr)
 										{
-											int num7 = (int)dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
+											dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
 											if (!dataErr)
-											{
 												msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
-												if (!dataErr)
-													goto label_319;
-												else
-													goto label_319;
-											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1309:
 										try
 										{
@@ -1962,42 +1818,27 @@ namespace BTool
 											{
 												if (!dataErr)
 												{
-													int num7 = (int)dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
+													dspCmdUtils.AddHandle(data1, ref index1, ref dataErr, ref msg2);
 													if (!dataErr)
-													{
 														msg2 = msg2 + string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data1, ref index1, (int)num1 - 3 - index1 + 1, ref dataErr));
-														if (!dataErr)
-															goto label_319;
-														else
-															goto label_319;
-													}
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
 										catch (Exception ex)
 										{
-											string msg3 = string.Format("Message Data Conversion Issue.\n\n{0}\n", ex.Message);
-											msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg3);
+											msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Message Data Conversion Issue.\n\n{0}\n", ex.Message));
 											DisplayMsg(SharedAppObjs.MsgType.Error, "Could Not Convert All The Data In The Following Message\n(Message Is Missing Data Bytes To Process)\n");
 											dataErr = true;
-											goto label_319;
 										}
+										goto label_319;
 									case 1310:
-										if ((int)(num4 = devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr)) == 0 || !dataErr)
-											goto label_319;
-										else
-											goto label_319;
+										devUtils.UnloadAttMsgHeader(ref data1, ref index1, ref msg2, ref dataErr);
+										goto label_319;
 									case 1408:
 										dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
 										if (!dataErr)
 										{
-											int num7 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+											dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
 											if (!dataErr)
 											{
 												msg2 = msg2 + string.Format(" PduLen\t\t: 0x{0:X2} ({1:D})\n", bits1, bits1);
@@ -2007,21 +1848,11 @@ namespace BTool
 													msg2 = msg2 + string.Format(" AttrHandle\t: 0x{0:X4} ({1:D})\n", num9, num9);
 													int num15 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
 													if (!dataErr)
-													{
 														msg2 = msg2 + string.Format(" Value\t\t: 0x{0:X2} ({1:D})\n", bits1, bits1);
-														goto label_319;
-													}
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 								}
 							}
 							else
@@ -2052,37 +1883,25 @@ namespace BTool
 															devTabsForm.UserTabAccess(true);
 															DeviceStarted = true;
 															devTabsForm.GetConnectionParameters();
-															goto label_319;
 														}
-														else
-															goto label_319;
 													}
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1537:
 										StopTimer(DeviceForm.EventType.Scan);
 										devTabsForm.ShowProgress(false);
-										if ((int)status != 0 && (int)status != 48)
-										{
-											string msg3 = string.Format("GAP_DeviceDiscoveryDone Failed.\n{0}\n", str4);
-											msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg3);
-										}
+										if (status != 0 && status != 48)
+											msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_DeviceDiscoveryDone Failed.\n{0}\n", str4));
+
 										byte num16 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
 										if (!dataErr)
 										{
 											msg2 = msg2 + string.Format(" NumDevs\t: 0x{0:X2} ({1:D})\n", num16, num16);
 											if ((int)num16 > 0)
 											{
-												for (uint index2 = 0U; index2 < (uint)num16 && !dataErr; ++index2)
+												for (byte index2 = 0; index2 < num16 && !dataErr; ++index2)
 												{
 													string str5 = msg2 + string.Format(" Device #{0:D}\n", index2);
 													byte eventType = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
@@ -2095,25 +1914,14 @@ namespace BTool
 													linkSlave.addrType = (HCICmds.GAP_AddrType)addrType;
 													devTabsForm.AddSlaveDevice(linkSlave);
 												}
-												if (!dataErr)
-													goto label_319;
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1538:
-										int num17 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+										dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
 										if (!dataErr)
-										{
 											msg2 = msg2 + string.Format(" AdType\t\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetGapAdventAdTypeStr(bits1));
-											goto label_319;
-										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1539:
 									case 1540:
 										goto label_319;
@@ -2155,30 +1963,14 @@ namespace BTool
 																msg2 = msg2 + string.Format(" ConnTimeout\t: 0x{0:X4} ({1:D})\n", num18, num18);
 																byte num19 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
 																if (!dataErr)
-																{
 																	msg2 = msg2 + string.Format(" ClockAccuracy\t: 0x{0:X2} ({1:D})\n", num19, num19);
-																	goto label_319;
-																}
-																else
-																	goto label_319;
 															}
-															else
-																goto label_319;
 														}
-														else
-															goto label_319;
 													}
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1542:
 										ushort num20 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
 										if (!dataErr)
@@ -2194,20 +1986,14 @@ namespace BTool
 													{
 														handle = num20,
 														bDA = "00:00:00:00:00:00",
-														addrType = (byte)0
+														addrType = 0
 													};
 													OnDisconnectionNotify(ref connectInfo);
 													devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotConnected);
-													goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1543:
 										dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
 										if (!dataErr)
@@ -2222,35 +2008,18 @@ namespace BTool
 													msg2 = msg2 + string.Format(" ConnLatency\t: 0x{0:X4} ({1:D})\n", num9, num9);
 													ushort num15 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
 													if (!dataErr)
-													{
 														msg2 = msg2 + string.Format(" ConnTimeout\t: 0x{0:X4} ({1:D})\n", num15, num15);
-														goto label_319;
-													}
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1544:
-										int num21 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+										dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
 										if (!dataErr)
-										{
 											msg2 = msg2 + string.Format(" AddrType\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetGapAddrTypeStr(bits1)) + string.Format(" NewRandAddr\t: {0:S}\n", devUtils.UnloadDeviceAddr(data1, ref addr, ref index1, false, ref dataErr));
-											if (!dataErr)
-												goto label_319;
-											else
-												goto label_319;
-										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1545:
-										int num22 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
+										dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
 										if (!dataErr)
 										{
 											msg2 = msg2 + string.Format(" AddrType\t: 0x{0:X2} ({1:S})\n", bits1, devUtils.GetGapAddrTypeStr(bits1)) + string.Format(" DevAddr\t\t: {0:S}\n", devUtils.UnloadDeviceAddr(data1, ref addr, ref index1, false, ref dataErr));
@@ -2258,18 +2027,10 @@ namespace BTool
 											{
 												uint num7 = dataUtils.Unload32Bits(data1, ref index1, ref dataErr, false);
 												if (!dataErr)
-												{
 													msg2 = msg2 + string.Format(" SignCounter\t: 0x{0:X8} ({1:D})\n", num7, num7);
-													goto label_319;
-												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1546:
 										HCICmds.GAPEvts.GAP_AuthenticationComplete authenticationComplete = new HCICmds.GAPEvts.GAP_AuthenticationComplete();
 										dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
@@ -2365,24 +2126,24 @@ namespace BTool
 																												{
 																													StopTimer(DeviceForm.EventType.PairBond);
 																													devTabsForm.ShowProgress(false);
-																													if ((int)status == 23)
+																													if (status == 23)
 																													{
 																														devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
 																														goto label_319;
 																													}
-																													else if ((int)status == 4)
+																													else if (status == 4)
 																													{
 																														devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.PasskeyIncorrect);
 																														goto label_319;
 																													}
-																													else if ((int)status == 0)
+																													else if (status == 0)
 																													{
-																														byte num27 = (byte)1;
+																														byte num27 = 1;
 																														if (((int)authenticationComplete.authState & (int)num27) == (int)num27)
 																															devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.DevicesPairedBonded);
 																														else
 																															devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.DevicesPaired);
-																														byte num28 = (byte)4;
+																														byte num28 = 4;
 																														if (((int)authenticationComplete.authState & (int)num28) == (int)num28)
 																															devTabsForm.SetAuthenticatedBond(true);
 																														else
@@ -2447,18 +2208,10 @@ namespace BTool
 											{
 												int num7 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
 												if (!dataErr)
-												{
 													msg2 = msg2 + string.Format(" AuthReq\t\t: 0x{0:X2} ({1:D})\n", bits1, bits1);
-													goto label_319;
-												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1549:
 										byte eventType1 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
 										if (!dataErr)
@@ -2488,28 +2241,14 @@ namespace BTool
 																	linkSlave.addrBDA = "";
 																	linkSlave.addrType = (HCICmds.GAP_AddrType)addrType2;
 																	devTabsForm.AddSlaveDevice(linkSlave);
-																	goto label_319;
 																}
-																else
-																	goto label_319;
 															}
-															else
-																goto label_319;
 														}
-														else
-															goto label_319;
 													}
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1550:
 										dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
 										if (!dataErr && devTabsForm.GetSelectedTab() == 2)
@@ -2526,10 +2265,8 @@ namespace BTool
 												msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_BondComplete: Failed.\n{0}\n", str4));
 											}
 											devTabsForm.PairBondUserInputControl();
-											goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1551:
 										dspCmdUtils.AddConnectHandle(data1, ref index1, ref dataErr, ref msg2);
 										if (!dataErr)
@@ -2552,27 +2289,13 @@ namespace BTool
 															msg2 = msg2 + string.Format(" MaxEncKeySiz\t: 0x{0:X4} ({1:D})\n",bits1,bits1);
 															int num18 = (int)dataUtils.Unload8Bits(data1, ref index1, ref bits1, ref dataErr);
 															if (!dataErr)
-															{
 																msg2 = msg2 + string.Format(" KeyDist\t\t: 0x{0:X2} ({1:S})\n",bits1,devUtils.GetGapKeyDiskStr(bits1));
-																goto label_319;
-															}
-															else
-																goto label_319;
 														}
-														else
-															goto label_319;
 													}
-													else
-														goto label_319;
 												}
-												else
-													goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 									case 1663:
 										ushort opCode3 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
 										if (!dataErr)
@@ -2629,36 +2352,20 @@ namespace BTool
 																goto label_319;
 															case 64904:
 																if (devTabsForm.GetTbReadStatusText() == "Reading...")
-																{
 																	devTabsForm.SetTbReadStatusText(string.Format("{0:S}",devUtils.GetStatusStr(status)));
-																	goto label_319;
-																}
-																else
-																	goto label_319;
+																goto label_319;
 															case 64906:
 																if (devTabsForm.GetTbReadStatusText() == "Reading...")
-																{
 																	devTabsForm.SetTbReadStatusText(string.Format("{0:S}",devUtils.GetStatusStr(status)));
-																	goto label_319;
-																}
-																else
-																	goto label_319;
+																goto label_319;
 															case 64910:
 																if (devTabsForm.GetTbReadStatusText() == "Reading...")
-																{
 																	devTabsForm.SetTbReadStatusText(string.Format("{0:S}",devUtils.GetStatusStr(status)));
-																	goto label_319;
-																}
-																else
-																	goto label_319;
+																goto label_319;
 															case 64914:
 																if (devTabsForm.GetTbWriteStatusText() == "Writing...")
-																{
 																	devTabsForm.SetTbWriteStatusText(string.Format("{0:S}",devUtils.GetStatusStr(status)));
-																	goto label_319;
-																}
-																else
-																	goto label_319;
+																goto label_319;
 														}
 													}
 												}
@@ -2680,12 +2387,8 @@ namespace BTool
 															goto label_319;
 														case 64948:
 															if (devTabsForm.GetTbReadStatusText() == "Reading...")
-															{
 																devTabsForm.SetTbReadStatusText(string.Format("{0:S}",devUtils.GetStatusStr(status)));
-																goto label_319;
-															}
-															else
-																goto label_319;
+															goto label_319;
 													}
 												}
 												else
@@ -2721,10 +2424,8 @@ namespace BTool
 																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_DeviceDiscoveryRequest Failed.\n{0}\n", str4));
 																devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
 																devTabsForm.DiscoverConnectUserInputControl();
-																goto label_319;
 															}
-															else
-																goto label_319;
+															goto label_319;
 														case 65029:
 															if (status != 0)
 																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_DeviceDiscoveryCancel Failed.\n{0}\n", str4));
@@ -2757,12 +2458,9 @@ namespace BTool
 																devTabsForm.TabPairBondInitValues();
 																devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
 																devTabsForm.PairBondUserInputControl();
-																string msg3 = string.Format("GAP Authenticate Failed.\n{0}\n",str4);
-																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg3);
-																goto label_319;
+																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP Authenticate Failed.\n{0}\n",str4));
 															}
-															else
-																goto label_319;
+															goto label_319;
 														case 65039:
 															if (devTabsForm.GetSelectedTab() == 2 && (int)status != 0)
 															{
@@ -2770,12 +2468,9 @@ namespace BTool
 																devTabsForm.ShowProgress(false);
 																devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
 																devTabsForm.PairBondUserInputControl();
-																string msg3 = string.Format("GAP_Bond: Failed.\n{0}\n",str4);
-																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg3);
-																goto label_319;
+																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_Bond: Failed.\n{0}\n",str4));
 															}
-															else
-																goto label_319;
+															goto label_319;
 														case 65072:
 															if (status != 0)
 																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_SetParam: Failed.\n{0}\n", str4));
@@ -2789,7 +2484,7 @@ namespace BTool
 
 															devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
 															devTabsForm.DiscoverConnectUserInputControl();
-															if ((int)num7 != 0)
+															if (num7 != 0)
 															{
 																int num15 = (int)dataUtils.Unload16Bits(data1, ref index1, ref bits2, ref dataErr, false);
 																if (!dataErr)
@@ -2800,65 +2495,51 @@ namespace BTool
 																		case DeviceForm.GAPGetConnectionParams.MinConnIntSeq:
 																			devTabsForm.SetMinConnectionInterval((uint)bits2);
 																			ConnParamState = DeviceForm.GAPGetConnectionParams.MaxConnIntSeq;
-																			goto label_319;
+																			break;
 																		case DeviceForm.GAPGetConnectionParams.MaxConnIntSeq:
 																			devTabsForm.SetMaxConnectionInterval((uint)bits2);
 																			ConnParamState = DeviceForm.GAPGetConnectionParams.SlaveLatencySeq;
-																			goto label_319;
+																			break;
 																		case DeviceForm.GAPGetConnectionParams.SlaveLatencySeq:
 																			devTabsForm.SetSlaveLatency((uint)bits2);
 																			ConnParamState = DeviceForm.GAPGetConnectionParams.SupervisionTimeoutSeq;
-																			goto label_319;
+																			break;
 																		case DeviceForm.GAPGetConnectionParams.SupervisionTimeoutSeq:
 																			devTabsForm.SetSupervisionTimeout((uint)bits2);
 																			ConnParamState = DeviceForm.GAPGetConnectionParams.None;
-																			goto label_319;
+																			break;
 																		case DeviceForm.GAPGetConnectionParams.MinConnIntSingle:
 																			devTabsForm.SetNudMinConnIntValue((int)bits2);
 																			ConnParamState = DeviceForm.GAPGetConnectionParams.None;
-																			goto label_319;
+																			break;
 																		case DeviceForm.GAPGetConnectionParams.MaxConnIntSingle:
 																			devTabsForm.SetNudMaxConnIntValue((int)bits2);
 																			ConnParamState = DeviceForm.GAPGetConnectionParams.None;
-																			goto label_319;
+																			break;
 																		case DeviceForm.GAPGetConnectionParams.SlaveLatencySingle:
 																			devTabsForm.SetNudSlaveLatencyValue((int)bits2);
 																			ConnParamState = DeviceForm.GAPGetConnectionParams.None;
-																			goto label_319;
+																			break;
 																		case DeviceForm.GAPGetConnectionParams.SupervisionTimeoutSingle:
 																			devTabsForm.SetNudSprVisionTimeoutValue((int)bits2);
 																			ConnParamState = DeviceForm.GAPGetConnectionParams.None;
-																			goto label_319;
+																			break;
 																		default:
-																			goto label_319;
+																			break;
 																	}
 																}
-																else
-																	goto label_319;
 															}
-															else
-																goto label_319;
+															goto label_319;
 														case 65153:
-															if ((int)num7 != 0)
-															{
+															if (num7 != 0)
 																msg2 = msg2 + string.Format(" nvData\t\t: {0:S}\n",devUtils.UnloadColonData(data1, ref index1, (int)num7, ref dataErr));
-																if (!dataErr)
-																	goto label_319;
-																else
-																	goto label_319;
-															}
-															else
-																goto label_319;
+															goto label_319;
 													}
 												}
 												devUtils.BuildRawDataStr(data1, ref msg2, data1.Length);
-												goto label_319;
 											}
-											else
-												goto label_319;
 										}
-										else
-											goto label_319;
+										goto label_319;
 								}
 							}
 							devUtils.BuildRawDataStr(data1, ref msg2, data1.Length);
@@ -2874,56 +2555,20 @@ namespace BTool
 					DisplayMsg(SharedAppObjs.MsgType.Error, "Could Not Convert All The Data In The Following Message\n(Message Is Missing Data Bytes To Process)\n");
 
 				DisplayMsgTime(SharedAppObjs.MsgType.Incoming, msg2, rxDataIn.time);
-				if (!displayBytes)
-					return;
-
-				string str12 = string.Empty;
-				string msg4 = string.Format("{0:X2} {1:X2} {2:X2} ",packetType,(opCode1 & 0xff),num1);
-				if ((int)opCode1 == 19 || (int)opCode1 == (int)byte.MaxValue)
-					msg4 = string.Format("{0:X2} {1:X2} {2:X2} {3:X2} {4:X2} ",packetType,((int)opCode1 & (int)byte.MaxValue),num1, ((int)opCode2 & (int)byte.MaxValue), ((int)opCode2 >> 8 & (int)byte.MaxValue));
-				byte num29 = (byte)5;
-				foreach (byte num3 in data1)
+				if (displayBytes)
 				{
-					msg4 = msg4 + string.Format("{0:X2} ", num3);
-					devUtils.CheckLineLength(ref msg4, (uint)num29++, false);
+					string msg4 = string.Format("{0:X2} {1:X2} {2:X2} ", packetType, (opCode1 & 0xFF), num1);
+					if (opCode1 == 19 || opCode1 == 0xFF)
+						msg4 = string.Format("{0:X2} {1:X2} {2:X2} {3:X2} {4:X2} ", packetType, (opCode1 & 0xFF), num1, (opCode2 & 0xFF), ((opCode2 >> 8) & 0xFF));
+					byte num29 = 5;
+					foreach (byte num3 in data1)
+					{
+						msg4 = msg4 + string.Format("{0:X2} ", num3);
+						devUtils.CheckLineLength(ref msg4, num29++, false);
+					}
+					DisplayMsg(SharedAppObjs.MsgType.RxDump, msg4);
 				}
-				DisplayMsg(SharedAppObjs.MsgType.RxDump, msg4);
 			}
 		}
-
-		public delegate void DisplayMsgDelegate(SharedAppObjs.MsgType msgType, string msg);
-
-		public delegate void DisplayMsgTimeDelegate(SharedAppObjs.MsgType msgType, string msg, string time);
-
-		public delegate void DeviceTxDataDelegate(TxDataOut txDataOut);
-
-		public delegate void DeviceRxDataDelegate(RxDataIn rxDataIn);
-
-		public delegate bool HandleRxTxMessageDelegate(RxTxMgrData rxTxMgrData);
-
-		public enum EventType
-		{
-			Init,
-			Scan,
-			Establish,
-			PairBond,
-		}
-
-		public enum GAPGetConnectionParams
-		{
-			None,
-			MinConnIntSeq,
-			MaxConnIntSeq,
-			SlaveLatencySeq,
-			SupervisionTimeoutSeq,
-			MinConnIntSingle,
-			MaxConnIntSingle,
-			SlaveLatencySingle,
-			SupervisionTimeoutSingle,
-		}
-
-		private delegate void RxDataHandlerDelegate(byte[] data, uint length);
-
-		private delegate void DisplayRxCmdDelegate(RxDataIn rxDataIn, bool displayBytes);
 	}
 }

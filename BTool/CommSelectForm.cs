@@ -10,16 +10,17 @@ namespace BTool
 {
 	public class CommSelectForm : Form
 	{
-		private MsgBox msgBox = new MsgBox();
-		private SharedObjects sharedObjs = new SharedObjects();
-		private MonoUtils monoUtils = new MonoUtils();
-		private IContainer components;
 		public ComboBox cbPorts;
 		public ComboBox cbBaud;
 		public ComboBox cbParity;
 		public ComboBox cbStopBits;
 		public ComboBox cbDataBits;
 		public ComboBox cbFlow;
+
+		private MsgBox msgBox = new MsgBox();
+		private SharedObjects sharedObjs = new SharedObjects();
+		private MonoUtils monoUtils = new MonoUtils();
+		private IContainer components;
 		private Label lblPort;
 		private Label lblBaud;
 		private Label lblParity;
@@ -35,6 +36,7 @@ namespace BTool
 			InitializeComponent();
 		}
 
+		#region InitializeComponent
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing && components != null)
@@ -257,6 +259,7 @@ namespace BTool
 			this.ResumeLayout(false);
 
 		}
+		#endregion
 
 		private int SortComPorts(string[] rgstrPorts)
 		{
@@ -266,15 +269,13 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Invalid COM Port Name Found During Sort.\nSort Terminated.\n\n{0}\n", ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid COM Port Name Found During Sort.\nSort Terminated.\n\n{0}\n", ex.Message));
 			}
 			return 0;
 		}
 
 		private void commSelect_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			string str = string.Empty;
 			Settings.Default.ComPortName = cbPorts.Items[cbPorts.SelectedIndex].ToString();
 			Settings.Default.Baud = cbBaud.Items[cbBaud.SelectedIndex].ToString();
 			Settings.Default.Flow = cbFlow.Items[cbFlow.SelectedIndex].ToString();
@@ -293,21 +294,20 @@ namespace BTool
 			{
 				string comPortName = Settings.Default.ComPortName;
 			}
-			catch
-			{
-			}
-			int num1 = 0;
-			int num2 = 0;
+			catch { }
+
+			int index = 0;
+			int selected = -1;
 			try
 			{
-				if (portNames.Length > 0 && Settings.Default.ComPortName != null)
+				if (portNames.Length > 0)
 				{
-					foreach (string str in portNames)
+					foreach (string portName in portNames)
 					{
-						cbPorts.Items.Add(str);
-						if (str == Settings.Default.ComPortName)
-							num2 = num1;
-						++num1;
+						cbPorts.Items.Add(portName);
+						if (portName == Settings.Default.ComPortName)
+							selected = index;
+						++index;
 					}
 				}
 				else
@@ -316,96 +316,102 @@ namespace BTool
 			catch (Exception ex)
 			{
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid COM Port Name Found During Form Load.\nPort Name Load Stopped Before Completion.\n\n{0}\n", ex.Message));
-				if (num1 == 0)
+				if (index == 0)
 					cbPorts.Items.Add("No Ports Found");
 			}
-			cbPorts.SelectedIndex = num2;
-			int index1 = 0;
-			int num3 = -1;
+			cbPorts.SelectedIndex = selected;
+
+			index = 0;
+			selected = -1;
 			if (cbBaud.Items.Count > 0 && Settings.Default.Baud != null)
 			{
-				for (; index1 < cbBaud.Items.Count; ++index1)
+				for (; index < cbBaud.Items.Count; ++index)
 				{
-					if (cbBaud.Items[index1].ToString() == Settings.Default.Baud)
+					if (cbBaud.Items[index].ToString() == Settings.Default.Baud)
 					{
-						num3 = index1;
+						selected = index;
 						break;
 					}
 				}
 			}
-			if (num3 != -1)
-				cbBaud.SelectedIndex = num3;
+			if (selected != -1)
+				cbBaud.SelectedIndex = selected;
 			else
 				cbBaud.SelectedIndex = 2;
-			int index2 = 0;
-			int num4 = -1;
+
+			index = 0;
+			selected = -1;
 			if (cbDataBits.Items.Count > 0 && Settings.Default.DataBits != null)
 			{
-				for (; index2 < cbDataBits.Items.Count; ++index2)
+				for (; index < cbDataBits.Items.Count; ++index)
 				{
-					if (cbDataBits.Items[index2].ToString() == Settings.Default.DataBits)
+					if (cbDataBits.Items[index].ToString() == Settings.Default.DataBits)
 					{
-						num4 = index2;
+						selected = index;
 						break;
 					}
 				}
 			}
-			if (num4 != -1)
-				cbDataBits.SelectedIndex = num4;
+			if (selected != -1)
+				cbDataBits.SelectedIndex = selected;
 			else
 				cbDataBits.SelectedIndex = 1;
-			int index3 = 0;
-			int num5 = -1;
+
+			index = 0;
+			selected = -1;
 			if (cbParity.Items.Count > 0 && Settings.Default.Parity != null)
 			{
-				for (; index3 < cbParity.Items.Count; ++index3)
+				for (; index < cbParity.Items.Count; ++index)
 				{
-					if (cbParity.Items[index3].ToString() == Settings.Default.Parity)
+					if (cbParity.Items[index].ToString() == Settings.Default.Parity)
 					{
-						num5 = index3;
+						selected = index;
 						break;
 					}
 				}
 			}
-			if (num5 != -1)
-				cbParity.SelectedIndex = num5;
+			if (selected != -1)
+				cbParity.SelectedIndex = selected;
 			else
 				cbParity.SelectedIndex = 0;
-			int index4 = 0;
-			int num6 = -1;
+
+			index = 0;
+			selected = -1;
 			if (cbStopBits.Items.Count > 0 && Settings.Default.StopBits != null)
 			{
-				for (; index4 < cbStopBits.Items.Count; ++index4)
+				for (; index < cbStopBits.Items.Count; ++index)
 				{
-					if (cbStopBits.Items[index4].ToString() == Settings.Default.StopBits)
+					if (cbStopBits.Items[index].ToString() == Settings.Default.StopBits)
 					{
-						num6 = index4;
+						selected = index;
 						break;
 					}
 				}
 			}
-			if (num6 != -1)
-				cbStopBits.SelectedIndex = num6;
+			if (selected != -1)
+				cbStopBits.SelectedIndex = selected;
 			else
 				cbStopBits.SelectedIndex = 1;
-			int index5 = 0;
-			int num7 = -1;
+
+			index = 0;
+			selected = -1;
 			if (cbFlow.Items.Count > 0 && Settings.Default.Flow != null)
 			{
-				for (; index5 < cbFlow.Items.Count; ++index5)
+				for (; index < cbFlow.Items.Count; ++index)
 				{
-					if (cbFlow.Items[index5].ToString() == Settings.Default.Flow)
+					if (cbFlow.Items[index].ToString() == Settings.Default.Flow)
 					{
-						num7 = index5;
+						selected = index;
 						break;
 					}
 				}
 			}
-			if (num7 != -1)
-				cbFlow.SelectedIndex = num7;
+			if (selected != -1)
+				cbFlow.SelectedIndex = selected;
 			else
 				cbFlow.SelectedIndex = 2;
-			monoUtils.SetMaximumSize((Form)this);
+
+			monoUtils.SetMaximumSize(this);
 		}
 	}
 }

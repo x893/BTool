@@ -286,7 +286,7 @@ namespace BTool
 				comPort.WriteTimeout = 5000;
 				comPort.ReadTimeout = 5000;
 				if (DisplayMsgCallback != null)
-					DisplayMsgCallback(SharedAppObjs.MsgType.Info, "Port opened at " + (object)DateTime.Now + "\n");
+					DisplayMsgCallback(SharedAppObjs.MsgType.Info, "Port opened at " + DateTime.Now.ToString() + "\n");
 				if (sharedObjs.IsMonoRunning())
 				{
 					taskThread = new Thread(new ParameterizedThreadStart(DataRxPollThread));
@@ -300,9 +300,8 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = string.Format("Com Port Open Process Error\n\n" + ex.Message + "\n", new object[0]);
 				if (DisplayMsgCallback != null)
-					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+					DisplayMsgCallback(SharedAppObjs.MsgType.Error, string.Format("Com Port Open Process Error\n\n" + ex.Message + "\n"));
 				return false;
 			}
 		}

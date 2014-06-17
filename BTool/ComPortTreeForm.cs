@@ -76,11 +76,12 @@ namespace BTool
 		public ComPortTreeForm()
 		{
 			InitializeComponent();
+
 			boldFont = new Font(tvPorts.Font, FontStyle.Bold);
 			underlineFont = new Font(tvPorts.Font, FontStyle.Underline);
 			regularFont = new Font(tvPorts.Font, FontStyle.Regular);
 			tvPorts.ShowNodeToolTips = true;
-			tvPorts.ContextMenuStrip = (ContextMenuStrip)null;
+			tvPorts.ContextMenuStrip = null;
 		}
 
 		private void tsmiSetConnectionHandle_Click(object sender, EventArgs e)
@@ -160,15 +161,16 @@ namespace BTool
 			if (deviceForm == null || treeNode == null || !(treeNode.Name == "HostHandle") && !(treeNode.Name == "SlaveHandle"))
 				return;
 			string str = treeNode.Text.Replace("Handle: ", "");
-			if (str == null)
-				return;
-			try
+			if (str != null)
 			{
-				ushort handle = Convert.ToUInt16(str, 16);
-				deviceForm.sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_DiscAllPrimaryServices() { connHandle = handle }, cmdType);
-				deviceForm.sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_DiscAllCharDescs() { connHandle = handle }, cmdType);
+				try
+				{
+					ushort handle = Convert.ToUInt16(str, 16);
+					deviceForm.sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_DiscAllPrimaryServices() { connHandle = handle }, cmdType);
+					deviceForm.sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_DiscAllCharDescs() { connHandle = handle }, cmdType);
+				}
+				catch { }
 			}
-			catch { }
 		}
 
 		private void tsmiCopyAddress_Click(object sender, EventArgs e)
@@ -204,7 +206,7 @@ namespace BTool
 		public bool RemovePort(string portName)
 		{
 			bool flag = true;
-			treeViewUtils.RemoveTextFromTree((TreeView)tvPorts, portName);
+			treeViewUtils.RemoveTextFromTree(tvPorts, portName);
 			return flag;
 		}
 
@@ -213,10 +215,10 @@ namespace BTool
 			bool flag = true;
 			foreach (TreeNode treeNode in tvPorts.Nodes)
 			{
-				DeviceForm deviceForm = ((DeviceInfo)treeNode.Tag).devForm;
+				DeviceForm deviceForm = ((DeviceInfo)treeNode.Tag).DevForm;
 				if (deviceForm != null)
 				{
-					((Control)deviceForm).Show();
+					deviceForm.Show();
 					treeNode.NodeFont = underlineFont;
 				}
 			}
@@ -237,7 +239,7 @@ namespace BTool
 				foreach (TreeNode treeNode in tvPorts.Nodes)
 				{
 					DeviceInfo deviceInfo = (DeviceInfo)treeNode.Tag;
-					if (deviceInfo.comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
+					if (deviceInfo.ComPortInfo.ComPort == devForm.devInfo.ComPortInfo.ComPort)
 					{
 						TreeNode node1 = new TreeNode();
 						node1.Name = ComPortTreeForm.NodeNames.DeviceInfo.ToString();
@@ -248,7 +250,7 @@ namespace BTool
 						TreeNode node2 = new TreeNode();
 						node2.Name = ComPortTreeForm.NodeNames.HostHandle.ToString();
 						node2.Text = string.Format("Handle: 0x{0:X4}", 65534);
-						deviceInfo.handle = 65534;
+						deviceInfo.Handle = 65534;
 						node2.Tag = treeNode.Tag;
 						node2.ToolTipText = string.Format("Device Handle\nSelect Handle Then Right Click To See Options.");
 						TreeNode node3 = new TreeNode();
@@ -280,7 +282,7 @@ namespace BTool
 				foreach (TreeNode treeNode in tvPorts.Nodes)
 				{
 					DeviceInfo deviceInfo = (DeviceInfo)treeNode.Tag;
-					if (deviceInfo.comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
+					if (deviceInfo.ComPortInfo.ComPort == devForm.devInfo.ComPortInfo.ComPort)
 					{
 						TreeNode node1 = new TreeNode();
 						node1.Name = ComPortTreeForm.NodeNames.ConnectionInfo.ToString();
@@ -291,7 +293,7 @@ namespace BTool
 						TreeNode node2 = new TreeNode();
 						node2.Name = ComPortTreeForm.NodeNames.SlaveHandle.ToString();
 						node2.Text = string.Format("Handle: 0x{0:X4}", connectInfo.handle);
-						deviceInfo.connectInfo.handle = connectInfo.handle;
+						deviceInfo.ConnectInfo.handle = connectInfo.handle;
 						node2.Tag = treeNode.Tag;
 						node2.ToolTipText = string.Format("Connection Handle\nSelect Handle Then Right Click To See Options.");
 						TreeNode node3 = new TreeNode();
@@ -325,7 +327,7 @@ namespace BTool
 			{
 				foreach (TreeNode treeNode in tvPorts.Nodes)
 				{
-					if (((DeviceInfo)treeNode.Tag).comPortInfo.comPort == devForm.devInfo.comPortInfo.comPort)
+					if (((DeviceInfo)treeNode.Tag).ComPortInfo.ComPort == devForm.devInfo.ComPortInfo.ComPort)
 					{
 						string target = string.Format("Handle: 0x{0:X4}", connectInfo.handle);
 						SharedObjects.log.Write(Logging.MsgType.Debug, ComPortTreeForm.moduleName, "Disconnecting Device " + target);
@@ -346,7 +348,7 @@ namespace BTool
 			bool flag = true;
 			TreeNode node1 = new TreeNode();
 			node1.Name = ((object)ComPortTreeForm.NodeNames.PortName).ToString();
-			node1.Text = devInfo.comPortInfo.comPort;
+			node1.Text = devInfo.ComPortInfo.ComPort;
 			node1.Tag = (object)devInfo;
 			node1.ToolTipText = string.Format("Device Port Name\nSelect Port Name To Switch View To This Device\nSelect Port Name Then Right Click To See Options.", new object[0]);
 			tvPorts.Nodes.Add(node1);
@@ -361,42 +363,42 @@ namespace BTool
 			node2.Nodes.Add(new TreeNode()
 			{
 				Name = ComPortTreeForm.NodeNames.Port.ToString(),
-				Text = string.Format("Port: {0:S}", devInfo.comPortInfo.comPort),
+				Text = string.Format("Port: {0:S}", devInfo.ComPortInfo.ComPort),
 				Tag = devInfo,
 				ToolTipText = string.Format("Port Name")
 			});
 			node2.Nodes.Add(new TreeNode()
 			{
 				Name = ComPortTreeForm.NodeNames.Baudrate.ToString(),
-				Text = string.Format("Baudrate: {0:S}", devInfo.comPortInfo.baudRate),
+				Text = string.Format("Baudrate: {0:S}", devInfo.ComPortInfo.BaudRate),
 				Tag = devInfo,
 				ToolTipText = string.Format("Port Baudrate")
 			});
 			node2.Nodes.Add(new TreeNode()
 			{
 				Name = ComPortTreeForm.NodeNames.FlowControl.ToString(),
-				Text = string.Format("Flow Control: {0:S}", devInfo.comPortInfo.flow),
+				Text = string.Format("Flow Control: {0:S}", devInfo.ComPortInfo.Flow),
 				Tag = devInfo,
 				ToolTipText = string.Format("Port Flow Of Control Method")
 			});
 			node2.Nodes.Add(new TreeNode()
 			{
 				Name = ComPortTreeForm.NodeNames.DataBits.ToString(),
-				Text = string.Format("Data Bits: {0:S}", devInfo.comPortInfo.dataBits),
+				Text = string.Format("Data Bits: {0:S}", devInfo.ComPortInfo.DataBits),
 				Tag = devInfo,
 				ToolTipText = string.Format("Port Data Bits")
 			});
 			node2.Nodes.Add(new TreeNode()
 			{
 				Name = ComPortTreeForm.NodeNames.Parity.ToString(),
-				Text = string.Format("Parity: {0:S}", devInfo.comPortInfo.parity),
+				Text = string.Format("Parity: {0:S}", devInfo.ComPortInfo.Parity),
 				ToolTipText = string.Format("Port Parity Bits"),
 				Tag = devInfo
 			});
 			node2.Nodes.Add(new TreeNode()
 			{
 				Name = ComPortTreeForm.NodeNames.StopBits.ToString(),
-				Text = string.Format("Stop Bits: {0:S}", devInfo.comPortInfo.stopBits),
+				Text = string.Format("Stop Bits: {0:S}", devInfo.ComPortInfo.StopBits),
 				Tag = devInfo,
 				ToolTipText = string.Format("Port Stop Bits")
 			});
@@ -410,7 +412,7 @@ namespace BTool
 			if (devForm != null)
 			{
 				foreach (TreeNode treeNode in tvPorts.Nodes)
-					treeNode.NodeFont = !(((DeviceInfo)treeNode.Tag).devName == devForm.devInfo.devName) ? regularFont : underlineFont;
+					treeNode.NodeFont = !(((DeviceInfo)treeNode.Tag).DevName == devForm.devInfo.DevName) ? regularFont : underlineFont;
 			}
 			else
 				flag = false;
@@ -426,10 +428,10 @@ namespace BTool
 				{
 					if (treeNode != null)
 					{
-						DeviceForm deviceForm = ((DeviceInfo)treeNode.Tag).devForm;
+						DeviceForm deviceForm = ((DeviceInfo)treeNode.Tag).DevForm;
 						deviceForm.DeviceFormClose(true);
 						deviceForm.Close();
-						treeViewUtils.RemoveTextFromTree((TreeView)tvPorts, deviceForm.devInfo.comPortInfo.comPort);
+						treeViewUtils.RemoveTextFromTree((TreeView)tvPorts, deviceForm.devInfo.ComPortInfo.ComPort);
 					}
 				}
 			}
@@ -446,15 +448,15 @@ namespace BTool
 			DeviceForm deviceForm = GetActiveDeviceFormCallback();
 			if (deviceForm == null)
 				return;
-			if (deviceInfo.comPortInfo.comPort != deviceForm.devInfo.comPortInfo.comPort)
+			if (deviceInfo.ComPortInfo.ComPort != deviceForm.devInfo.ComPortInfo.ComPort)
 			{
-				((Control)deviceInfo.devForm).Show();
-				deviceForm.devInfo.devForm.Hide();
+				deviceInfo.DevForm.Show();
+				deviceForm.devInfo.DevForm.Hide();
 			}
 			switch (name)
 			{
 				case "PortName":
-					if (!(deviceInfo.comPortInfo.comPort == deviceForm.devInfo.comPortInfo.comPort))
+					if (!(deviceInfo.ComPortInfo.ComPort == deviceForm.devInfo.ComPortInfo.ComPort))
 						break;
 					tvPorts.ContextMenuStrip = cmsTreeComPort;
 					break;
@@ -478,7 +480,7 @@ namespace BTool
 					break;
 				case "HostHandle":
 				case "SlaveHandle":
-					if (!(deviceInfo.comPortInfo.comPort == deviceForm.devInfo.comPortInfo.comPort))
+					if (!(deviceInfo.ComPortInfo.ComPort == deviceForm.devInfo.ComPortInfo.ComPort))
 						break;
 					tvPorts.ContextMenuStrip = cmsTreeHandle;
 					break;
@@ -486,7 +488,7 @@ namespace BTool
 					break;
 				case "HostBda":
 				case "SlaveBda":
-					if (!(deviceInfo.comPortInfo.comPort == deviceForm.devInfo.comPortInfo.comPort))
+					if (!(deviceInfo.ComPortInfo.ComPort == deviceForm.devInfo.ComPortInfo.ComPort))
 						break;
 					tvPorts.ContextMenuStrip = cmsTreeBda;
 					break;

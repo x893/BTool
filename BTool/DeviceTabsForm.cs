@@ -238,7 +238,7 @@ namespace BTool
 		{
 			PairBondFieldTabDisable(true);
 			HCICmds.GAPCmds.GAP_Authenticate gapAuthenticate = new HCICmds.GAPCmds.GAP_Authenticate();
-			gapAuthenticate.connHandle = devForm.devInfo.handle;
+			gapAuthenticate.connHandle = devForm.devInfo.Handle;
 			try
 			{
 				gapAuthenticate.connHandle = Convert.ToUInt16(tbPairingConnHandle.Text.Trim(), 16);

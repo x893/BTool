@@ -2661,77 +2661,68 @@ namespace BTool
 			bool flag = true;
 			try
 			{
-				byte[] sourceData1 = devUtils.String2Bytes_LSBMSB(obj.irk, 16);
-				if (sourceData1 == null)
+				byte[] s_IRK = devUtils.String2Bytes_LSBMSB(obj.irk, 16);
+				if (s_IRK == null)
 				{
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid IRK Value Entry '{0}'\nFormat Is 00:00....\n", obj.irk));
 					return false;
 				}
-				else
+
+				byte[] s_CSRK = devUtils.String2Bytes_LSBMSB(obj.csrk, 16);
+				if (s_CSRK == null)
 				{
-					byte[] sourceData2 = devUtils.String2Bytes_LSBMSB(obj.csrk, 16);
-					if (sourceData2 == null)
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid CSRK Value Entry '{0}'\nFormat Is 00:00....\n", obj.csrk));
+					return false;
+				}
+
+				byte dataLength = (byte)((int)obj.dataLength + s_IRK.Length + s_CSRK.Length);
+				byte[] data = new byte[(int)dataLength + 4];
+				int index = 0;
+				bool dataErr = false;
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+				{
+					byte bits = 0;
+					if (obj.broadcasterProfileRole == HCICmds.GAP_EnableDisable.Enable)
+						bits |= 1;
+					if (obj.observerProfileRole == HCICmds.GAP_EnableDisable.Enable)
+						bits |= 2;
+					if (obj.peripheralProfileRole == HCICmds.GAP_EnableDisable.Enable)
+						bits |= 4;
+					if (obj.centralProfileRole == HCICmds.GAP_EnableDisable.Enable)
+						bits |= 8;
+					if (!dataUtils.Load8Bits(ref data, ref index, bits, ref dataErr))
 					{
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid CSRK Value Entry '{0}'\nFormat Is 00:00....\n", obj.csrk));
-						return false;
-					}
-					else
-					{
-						byte dataLength = (byte)((int)obj.dataLength + sourceData1.Length + sourceData2.Length);
-						byte[] data = new byte[(int)dataLength + 4];
-						int index = 0;
-						bool dataErr = false;
-						if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+						if (!dataUtils.Load8Bits(ref data, ref index, obj.maxScanResponses, ref dataErr))
 						{
-							byte bits = (byte)0;
-							if (obj.broadcasterProfileRole == HCICmds.GAP_EnableDisable.Enable)
-								bits |= 1;
-							if (obj.observerProfileRole == HCICmds.GAP_EnableDisable.Enable)
-								bits |= (byte)2;
-							if (obj.peripheralProfileRole == HCICmds.GAP_EnableDisable.Enable)
-								bits |= (byte)4;
-							if (obj.centralProfileRole == HCICmds.GAP_EnableDisable.Enable)
-								bits |= (byte)8;
-							dataUtils.Load8Bits(ref data, ref index, bits, ref dataErr);
-							if (!dataErr)
+							if (s_IRK.Length == 16)
 							{
-								dataUtils.Load8Bits(ref data, ref index, obj.maxScanResponses, ref dataErr);
-								if (!dataErr)
+								if (!dataUtils.LoadDataBytes(ref data, ref index, s_IRK, ref dataErr))
 								{
-									if (sourceData1.Length == 16)
+									if (s_CSRK.Length == 16)
 									{
-										dataUtils.LoadDataBytes(ref data, ref index, sourceData1, ref dataErr);
-										if (!dataErr)
+										if (!dataUtils.LoadDataBytes(ref data, ref index, s_CSRK, ref dataErr))
 										{
-											if (sourceData2.Length == 16)
-											{
-												dataUtils.LoadDataBytes(ref data, ref index, sourceData2, ref dataErr);
-												if (!dataErr)
-												{
-													dataUtils.Load32Bits(ref data, ref index, obj.signCounter, ref dataErr, false);
-													if (!dataErr)
-														TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-												}
-											}
-											else
-											{
-												msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid CSRK Data Length = {0:D} \nLength must be {1:D}\n", sourceData2.Length, 16));
-												return false;
-											}
+											if (!dataUtils.Load32Bits(ref data, ref index, obj.signCounter, ref dataErr, false))
+												TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 										}
 									}
 									else
 									{
-										msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid IRK Data Length = {0:D} \nLength must be {1:D}\n", sourceData1.Length, 16));
+										msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid CSRK Data Length = {0:D} \nLength must be {1:D}\n", s_CSRK.Length, 16));
 										return false;
 									}
 								}
 							}
+							else
+							{
+								msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid IRK Data Length = {0:D} \nLength must be {1:D}\n", s_IRK.Length, 16));
+								return false;
+							}
 						}
-						if (dataErr)
-							flag = HandleDataError(obj.cmdName);
 					}
 				}
+				if (dataErr)
+					flag = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
@@ -2752,14 +2743,12 @@ namespace BTool
 				bool dataErr = false;
 				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
 				{
-					dataUtils.Load8Bits(ref data, ref index, (byte)obj.addrType, ref dataErr);
-					if (!dataErr)
+					if (!dataUtils.Load8Bits(ref data, ref index, (byte)obj.addrType, ref dataErr))
 					{
 						byte[] sourceData = devUtils.String2BDA_LSBMSB(obj.addr);
 						if (sourceData != null)
 						{
-							dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-							if (!dataErr)
+							if (!dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr))
 								TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 						}
 						else
@@ -2785,20 +2774,12 @@ namespace BTool
 				byte[] data = new byte[(int)dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load8Bits(ref data, ref index, (byte)obj.mode, ref dataErr);
-					if (!dataErr)
-					{
-						dataUtils.Load8Bits(ref data, ref index, (byte)obj.activeScan, ref dataErr);
-						if (!dataErr)
-						{
-							dataUtils.Load8Bits(ref data, ref index, (byte)obj.whiteList, ref dataErr);
-							if (!dataErr)
-								TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-						}
-					}
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.mode, ref dataErr)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.activeScan, ref dataErr)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.whiteList, ref dataErr))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
+
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -2811,23 +2792,20 @@ namespace BTool
 
 		public bool SendGAP(HCICmds.GAPCmds.GAP_DeviceDiscoveryCancel obj)
 		{
-			bool flag1 = true;
+			bool flag = true;
 			try
 			{
 				byte dataLength = obj.dataLength;
 				byte[] data = new byte[(int)dataLength + 4];
 				int index = 0;
-				bool flag2 = false;
 				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
 					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-				if (flag2)
-					flag1 = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
-				flag1 = HandleException(obj.cmdName, ex.Message);
+				flag = HandleException(obj.cmdName, ex.Message);
 			}
-			return flag1;
+			return flag;
 		}
 
 		public bool SendGAP(HCICmds.GAPCmds.GAP_MakeDiscoverable obj)
@@ -2841,45 +2819,31 @@ namespace BTool
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Initiator Address Value Entry.\n '{0}'\nFormat Is  00:00....\n", obj.initiatorAddr));
 					return false;
 				}
-				else
+				byte dataLength = (byte)(obj.dataLength + sourceData.Length);
+				byte[] data = new byte[dataLength + 4];
+				int index = 0;
+				bool dataErr = false;
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
 				{
-					byte dataLength = (byte)((uint)obj.dataLength + (uint)sourceData.Length);
-					byte[] data = new byte[(int)dataLength + 4];
-					int index = 0;
-					bool dataErr = false;
-					if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+					if (!dataUtils.Load8Bits(ref data, ref index, (byte)obj.eventType, ref dataErr)
+					&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.initiatorAddrType, ref dataErr))
 					{
-						dataUtils.Load8Bits(ref data, ref index, (byte)obj.eventType, ref dataErr);
-						if (!dataErr)
+						if (sourceData.Length == 6)
 						{
-							dataUtils.Load8Bits(ref data, ref index, (byte)obj.initiatorAddrType, ref dataErr);
-							if (!dataErr)
-							{
-								if (sourceData.Length == 6)
-								{
-									dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-									if (!dataErr)
-									{
-										dataUtils.Load8Bits(ref data, ref index, obj.channelMap, ref dataErr);
-										if (!dataErr)
-										{
-											dataUtils.Load8Bits(ref data, ref index, (byte)obj.filterPolicy, ref dataErr);
-											if (!dataErr)
-												TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-										}
-									}
-								}
-								else
-								{
-									msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Initiator's Address Length = {0:D} \nLength must be {1:D}", sourceData.Length, 6));
-									return false;
-								}
-							}
+							if (!dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr)
+							&& !dataUtils.Load8Bits(ref data, ref index, obj.channelMap, ref dataErr)
+							&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.filterPolicy, ref dataErr))
+								TransmitCmd(obj.cmdName, obj.opCodeValue, data);
+						}
+						else
+						{
+							msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Initiator's Address Length = {0:D} \nLength must be {1:D}", sourceData.Length, 6));
+							return false;
 						}
 					}
-					if (dataErr)
-						flag = HandleDataError(obj.cmdName);
 				}
+				if (dataErr)
+					flag = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
@@ -2899,30 +2863,21 @@ namespace BTool
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Advert Data Entry.\n '{0}' \nFormat Is  00:00....\n", obj.advertData));
 					return false;
 				}
-				else
+
+				byte dataLength = (byte)(obj.dataLength + sourceData.Length);
+				byte[] data = new byte[dataLength + 4];
+				int index = 0;
+				bool dataErr = false;
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.adType, ref dataErr))
 				{
-					byte dataLength = (byte)((uint)obj.dataLength + (uint)sourceData.Length);
-					byte[] data = new byte[(int)dataLength + 4];
-					int index = 0;
-					bool dataErr = false;
-					if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-					{
-						dataUtils.Load8Bits(ref data, ref index, (byte)obj.adType, ref dataErr);
-						if (!dataErr)
-						{
-							obj.dataLen = (byte)sourceData.Length;
-							dataUtils.Load8Bits(ref data, ref index, obj.dataLen, ref dataErr);
-							if (!dataErr)
-							{
-								dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-								if (!dataErr)
-									TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-							}
-						}
-					}
-					if (dataErr)
-						flag = HandleDataError(obj.cmdName);
+					obj.dataLen = (byte)sourceData.Length;
+					if (!dataUtils.Load8Bits(ref data, ref index, obj.dataLen, ref dataErr)
+					&& !dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr))
+						TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				}
+				if (dataErr)
+					flag = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
@@ -2933,23 +2888,20 @@ namespace BTool
 
 		public bool SendGAP(HCICmds.GAPCmds.GAP_EndDiscoverable obj)
 		{
-			bool flag1 = true;
+			bool flag = true;
 			try
 			{
 				byte dataLength = obj.dataLength;
 				byte[] data = new byte[(int)dataLength + 4];
 				int index = 0;
-				bool flag2 = false;
 				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
 					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-				if (flag2)
-					flag1 = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
-				flag1 = HandleException(obj.cmdName, ex.Message);
+				flag = HandleException(obj.cmdName, ex.Message);
 			}
-			return flag1;
+			return flag;
 		}
 
 		public bool SendGAP(HCICmds.GAPCmds.GAP_EstablishLinkRequest obj)
@@ -2962,26 +2914,16 @@ namespace BTool
 				byte[] data = new byte[(int)dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.highDutyCycle, ref dataErr)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.whiteList, ref dataErr)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.addrTypePeer, ref dataErr))
 				{
-					dataUtils.Load8Bits(ref data, ref index, (byte)obj.highDutyCycle, ref dataErr);
-					if (!dataErr)
-					{
-						dataUtils.Load8Bits(ref data, ref index, (byte)obj.whiteList, ref dataErr);
-						if (!dataErr)
-						{
-							dataUtils.Load8Bits(ref data, ref index, (byte)obj.addrTypePeer, ref dataErr);
-							if (!dataErr)
-							{
-								byte[] sourceData = devUtils.String2BDA_LSBMSB(obj.peerAddr);
-								if (sourceData == null)
-									return false;
-								dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-								if (!dataErr)
-									TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-							}
-						}
-					}
+					byte[] sourceData = devUtils.String2BDA_LSBMSB(obj.peerAddr);
+					if (sourceData == null)
+						return false;
+					if (!dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr))
+						TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				}
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
@@ -3002,16 +2944,10 @@ namespace BTool
 				byte[] data = new byte[(int)dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false);
-					if (!dataErr)
-					{
-						dataUtils.Load8Bits(ref data, ref index, (byte)obj.discReason, ref dataErr);
-						if (!dataErr)
-							TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-					}
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.discReason, ref dataErr))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -3031,67 +2967,30 @@ namespace BTool
 				byte[] data = new byte[(int)dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.secReq_ioCaps, ref dataErr)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.secReq_oobAvailable, ref dataErr))
 				{
-					dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false);
-					if (!dataErr)
+					byte[] sourceData = devUtils.String2Bytes_LSBMSB(obj.secReq_oob, 16);
+					if (sourceData.Length == 16)
 					{
-						dataUtils.Load8Bits(ref data, ref index, (byte)obj.secReq_ioCaps, ref dataErr);
-						if (!dataErr)
-						{
-							dataUtils.Load8Bits(ref data, ref index, (byte)obj.secReq_oobAvailable, ref dataErr);
-							if (!dataErr)
-							{
-								byte[] sourceData = devUtils.String2Bytes_LSBMSB(obj.secReq_oob, 16);
-								if (sourceData.Length == 16)
-								{
-									dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-									if (!dataErr)
-									{
-										dataUtils.Load8Bits(ref data, ref index, obj.secReq_authReq, ref dataErr);
-										if (!dataErr)
-										{
-											dataUtils.Load8Bits(ref data, ref index, obj.secReq_maxEncKeySize, ref dataErr);
-											if (!dataErr)
-											{
-												dataUtils.Load8Bits(ref data, ref index, obj.secReq_keyDist, ref dataErr);
-												if (!dataErr)
-												{
-													dataUtils.Load8Bits(ref data, ref index, (byte)obj.pairReq_Enable, ref dataErr);
-													if (!dataErr)
-													{
-														dataUtils.Load8Bits(ref data, ref index, (byte)obj.pairReq_ioCaps, ref dataErr);
-														if (!dataErr)
-														{
-															dataUtils.Load8Bits(ref data, ref index, (byte)obj.pairReq_oobDataFlag, ref dataErr);
-															if (!dataErr)
-															{
-																dataUtils.Load8Bits(ref data, ref index, obj.pairReq_authReq, ref dataErr);
-																if (!dataErr)
-																{
-																	dataUtils.Load8Bits(ref data, ref index, obj.pairReq_maxEncKeySize, ref dataErr);
-																	if (!dataErr)
-																	{
-																		dataUtils.Load8Bits(ref data, ref index, obj.secReq_keyDist, ref dataErr);
-																		if (!dataErr)
-																			TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-																	}
-																}
-															}
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-								else
-								{
-									msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid secReq_OOB = {0:D} \nLength must be {1:D}", sourceData.Length, 16));
-									return false;
-								}
-							}
-						}
+						if (!dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr)
+						&& !dataUtils.Load8Bits(ref data, ref index, obj.secReq_authReq, ref dataErr)
+						&& !dataUtils.Load8Bits(ref data, ref index, obj.secReq_maxEncKeySize, ref dataErr)
+						&& !dataUtils.Load8Bits(ref data, ref index, obj.secReq_keyDist, ref dataErr)
+						&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.pairReq_Enable, ref dataErr)
+						&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.pairReq_ioCaps, ref dataErr)
+						&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.pairReq_oobDataFlag, ref dataErr)
+						&& !dataUtils.Load8Bits(ref data, ref index, obj.pairReq_authReq, ref dataErr)
+						&& !dataUtils.Load8Bits(ref data, ref index, obj.pairReq_maxEncKeySize, ref dataErr)
+						&& !dataUtils.Load8Bits(ref data, ref index, obj.secReq_keyDist, ref dataErr))
+							TransmitCmd(obj.cmdName, obj.opCodeValue, data);
+					}
+					else
+					{
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid secReq_OOB = {0:D} \nLength must be {1:D}", sourceData.Length, 16));
+						return false;
 					}
 				}
 				if (dataErr)
@@ -3110,21 +3009,17 @@ namespace BTool
 			try
 			{
 				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false))
 				{
-					dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false);
-					if (!dataErr)
-					{
-						byte[] sourceData = devUtils.String2Bytes_LSBMSB(obj.passKey, byte.MaxValue);
-						if (sourceData.Length != 6)
-							return false;
-						dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-						if (!dataErr)
-							TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-					}
+					byte[] sourceData = devUtils.String2Bytes_LSBMSB(obj.passKey, byte.MaxValue);
+					if (sourceData.Length != 6)
+						return false;
+					if (!dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr))
+						TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				}
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
@@ -3142,19 +3037,13 @@ namespace BTool
 			try
 			{
 				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false);
-					if (!dataErr)
-					{
-						dataUtils.Load8Bits(ref data, ref index, obj.authReq, ref dataErr);
-						if (!dataErr)
-							TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-					}
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false)
+				&& !dataUtils.Load8Bits(ref data, ref index, obj.authReq, ref dataErr))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -3173,45 +3062,32 @@ namespace BTool
 				byte[] sourceData = devUtils.String2Bytes_LSBMSB(obj.csrk, 16);
 				if (sourceData == null)
 				{
-					string msg = string.Format("Invalid CSRK Value Entry.\n '{0}'\nFormat Is  00:00....\n", obj.csrk);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid CSRK Value Entry.\n '{0}'\nFormat Is  00:00....\n", obj.csrk));
 					return false;
 				}
-				else
+
+				byte dataLength = (byte)(obj.dataLength + sourceData.Length);
+				byte[] data = new byte[dataLength + 4];
+				int index = 0;
+				bool dataErr = false;
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.authenticated, ref dataErr))
 				{
-					byte dataLength = (byte)((uint)obj.dataLength + (uint)sourceData.Length);
-					byte[] data = new byte[(int)dataLength + 4];
-					int index = 0;
-					bool dataErr = false;
-					if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+					if (sourceData.Length == 16)
 					{
-						dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false);
-						if (!dataErr)
-						{
-							dataUtils.Load8Bits(ref data, ref index, (byte)obj.authenticated, ref dataErr);
-							if (!dataErr)
-							{
-								if (sourceData.Length == 16)
-								{
-									dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-									if (!dataErr)
-									{
-										dataUtils.Load32Bits(ref data, ref index, obj.signCounter, ref dataErr, false);
-										if (!dataErr)
-											TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-									}
-								}
-								else
-								{
-									msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid CSRK Data Length = {0:D} \nLength must be {1:D}", sourceData.Length, 16));
-									return false;
-								}
-							}
-						}
+						if (!dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr)
+						&& !dataUtils.Load32Bits(ref data, ref index, obj.signCounter, ref dataErr, false))
+							TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 					}
-					if (dataErr)
-						flag = HandleDataError(obj.cmdName);
+					else
+					{
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid CSRK Data Length = {0:D} \nLength must be {1:D}", sourceData.Length, 16));
+						return false;
+					}
 				}
+				if (dataErr)
+					flag = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
@@ -3225,72 +3101,58 @@ namespace BTool
 			bool flag = true;
 			try
 			{
-				byte[] sourceData1 = devUtils.String2Bytes_LSBMSB(obj.secInfo_LTK, 16);
-				if (sourceData1 == null)
+				byte[] s_LTK = devUtils.String2Bytes_LSBMSB(obj.secInfo_LTK, 16);
+				if (s_LTK == null)
 				{
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid secInfo_LTK Entry.\n '{0}'\nFormat Is  00:00....", obj.secInfo_LTK));
 					return false;
 				}
-				else
+
+				byte[] s_RRAND = devUtils.String2Bytes_LSBMSB(obj.secInfo_RAND, 16);
+				if (s_RRAND == null)
 				{
-					byte[] sourceData2 = devUtils.String2Bytes_LSBMSB(obj.secInfo_RAND, 16);
-					if (sourceData1 == null)
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid secInfo_RRAND Value Entry.\n '{0}'\nFormat Is  00:00....", obj.secInfo_RAND));
+					return false;
+				}
+
+				byte dataLength = (byte)(obj.dataLength + s_LTK.Length + s_RRAND.Length);
+				byte[] data = new byte[dataLength + 4];
+				int index = 0;
+				bool dataErr = false;
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+				{
+					if (!dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false))
 					{
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid secInfo_RRAND Value Entry.\n '{0}'\nFormat Is  00:00....", obj.secInfo_RAND));
-						return false;
-					}
-					else
-					{
-						byte dataLength = (byte)((int)obj.dataLength + sourceData1.Length + sourceData2.Length);
-						byte[] data = new byte[(int)dataLength + 4];
-						int index = 0;
-						bool dataErr = false;
-						if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+						if (!dataUtils.Load8Bits(ref data, ref index, (byte)obj.authenticated, ref dataErr))
 						{
-							dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false);
-							if (!dataErr)
+							if (s_LTK.Length == 16)
 							{
-								dataUtils.Load8Bits(ref data, ref index, (byte)obj.authenticated, ref dataErr);
-								if (!dataErr)
+								if (!dataUtils.LoadDataBytes(ref data, ref index, s_LTK, ref dataErr)
+								&& !dataUtils.Load16Bits(ref data, ref index, obj.secInfo_DIV, ref dataErr, false))
 								{
-									if (sourceData1.Length == 16)
+									if (s_RRAND.Length == 8)
 									{
-										dataUtils.LoadDataBytes(ref data, ref index, sourceData1, ref dataErr);
-										if (!dataErr)
-										{
-											dataUtils.Load16Bits(ref data, ref index, obj.secInfo_DIV, ref dataErr, false);
-											if (!dataErr)
-											{
-												if (sourceData2.Length == 8)
-												{
-													dataUtils.LoadDataBytes(ref data, ref index, sourceData2, ref dataErr);
-													if (!dataErr)
-													{
-														dataUtils.Load8Bits(ref data, ref index, obj.secInfo_LTKSize, ref dataErr);
-														if (!dataErr)
-															TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-													}
-												}
-												else
-												{
-													msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid secInfo_RAND Data Length = {0:D} \nLength must be {1:D}", sourceData1.Length, 8));
-													return false;
-												}
-											}
-										}
+										if (!dataUtils.LoadDataBytes(ref data, ref index, s_RRAND, ref dataErr)
+										&& !dataUtils.Load8Bits(ref data, ref index, obj.secInfo_LTKSize, ref dataErr))
+											TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 									}
 									else
 									{
-										msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid secInfo_LTK Data Length = {0:D} \nLength must be {1:D}", sourceData1.Length, 16));
+										msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid secInfo_RAND Data Length = {0:D} \nLength must be {1:D}", s_LTK.Length, 8));
 										return false;
 									}
 								}
 							}
+							else
+							{
+								msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid secInfo_LTK Data Length = {0:D} \nLength must be {1:D}", s_LTK.Length, 16));
+								return false;
+							}
 						}
-						if (dataErr)
-							flag = HandleDataError(obj.cmdName);
 					}
 				}
+				if (dataErr)
+					flag = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
@@ -3308,16 +3170,10 @@ namespace BTool
 				byte[] data = new byte[(int)dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false);
-					if (!dataErr)
-					{
-						dataUtils.Load8Bits(ref data, ref index, (byte)obj.reason, ref dataErr);
-						if (!dataErr)
-							TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-					}
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.reason, ref dataErr))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -3334,31 +3190,16 @@ namespace BTool
 			try
 			{
 				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false);
-					if (!dataErr)
-					{
-						dataUtils.Load16Bits(ref data, ref index, obj.intervalMin, ref dataErr, false);
-						if (!dataErr)
-						{
-							dataUtils.Load16Bits(ref data, ref index, obj.intervalMax, ref dataErr, false);
-							if (!dataErr)
-							{
-								dataUtils.Load16Bits(ref data, ref index, obj.connLatency, ref dataErr, false);
-								if (!dataErr)
-								{
-									dataUtils.Load16Bits(ref data, ref index, obj.connTimeout, ref dataErr, false);
-									if (!dataErr)
-										TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-								}
-							}
-						}
-					}
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.intervalMin, ref dataErr, false)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.intervalMax, ref dataErr, false)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connLatency, ref dataErr, false)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connTimeout, ref dataErr, false))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -3378,16 +3219,11 @@ namespace BTool
 				byte[] data = new byte[(int)dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load8Bits(ref data, ref index, (byte)obj.paramId, ref dataErr);
-					if (!dataErr)
-					{
-						dataUtils.Load16Bits(ref data, ref index, obj.value, ref dataErr, false);
-						if (!dataErr)
-							TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-					}
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.paramId, ref dataErr)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.value, ref dataErr, false))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
+
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -3404,15 +3240,13 @@ namespace BTool
 			try
 			{
 				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load8Bits(ref data, ref index, (byte)obj.paramId, ref dataErr);
-					if (!dataErr)
-						TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.paramId, ref dataErr))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
+
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -3444,21 +3278,19 @@ namespace BTool
 					}
 					else
 					{
-						byte dataLength = (byte)((int)obj.dataLength + sourceData1.Length + sourceData2.Length);
-						byte[] data = new byte[(int)dataLength + 4];
+						byte dataLength = (byte)(obj.dataLength + sourceData1.Length + sourceData2.Length);
+						byte[] data = new byte[dataLength + 4];
 						int index = 0;
 						bool dataErr = false;
 						if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
 						{
 							if (sourceData1.Length == 16)
 							{
-								dataUtils.LoadDataBytes(ref data, ref index, sourceData1, ref dataErr);
-								if (!dataErr)
+								if (!dataUtils.LoadDataBytes(ref data, ref index, sourceData1, ref dataErr))
 								{
 									if (sourceData2.Length == 6)
 									{
-										dataUtils.LoadDataBytes(ref data, ref index, sourceData2, ref dataErr);
-										if (!dataErr)
+										if (!dataUtils.LoadDataBytes(ref data, ref index, sourceData2, ref dataErr))
 											TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 									}
 									else
@@ -3497,30 +3329,21 @@ namespace BTool
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid ADV Data Value Entry.\n '{0}'\nFormat Is  00:00....\n", obj.advData));
 					return false;
 				}
-				else
+
+				byte dataLength = (byte)(obj.dataLength + sourceData.Length);
+				byte[] data = new byte[dataLength + 4];
+				int index = 0;
+				bool dataErr = false;
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.adType, ref dataErr))
 				{
-					byte dataLength = (byte)((uint)obj.dataLength + (uint)sourceData.Length);
-					byte[] data = new byte[(int)dataLength + 4];
-					int index = 0;
-					bool dataErr = false;
-					if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-					{
-						dataUtils.Load8Bits(ref data, ref index, (byte)obj.adType, ref dataErr);
-						if (!dataErr)
-						{
-							obj.advDataLen = (byte)sourceData.Length;
-							dataUtils.Load8Bits(ref data, ref index, obj.advDataLen, ref dataErr);
-							if (!dataErr)
-							{
-								dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-								if (!dataErr)
-									TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-							}
-						}
-					}
-					if (dataErr)
-						flag = HandleDataError(obj.cmdName);
+					obj.advDataLen = (byte)sourceData.Length;
+					if (!dataUtils.Load8Bits(ref data, ref index, obj.advDataLen, ref dataErr)
+					&& !dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr))
+						TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				}
+				if (dataErr)
+					flag = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
@@ -3535,15 +3358,12 @@ namespace BTool
 			try
 			{
 				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load8Bits(ref data, ref index, (byte)obj.adType, ref dataErr);
-					if (!dataErr)
-						TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.adType, ref dataErr))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -3560,13 +3380,10 @@ namespace BTool
 			try
 			{
 				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
-				bool flag2 = false;
 				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
 					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-				if (flag2)
-					flag1 = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
@@ -3586,30 +3403,21 @@ namespace BTool
 					DisplayInvalidValue(obj.value);
 					return false;
 				}
-				else
+
+				byte dataLength = (byte)(obj.dataLength + sourceData.Length);
+				byte[] data = new byte[dataLength + 4];
+				int index = 0;
+				bool dataErr = false;
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load16Bits(ref data, ref index, (ushort)obj.paramId, ref dataErr, false))
 				{
-					byte dataLength = (byte)((uint)obj.dataLength + (uint)sourceData.Length);
-					byte[] data = new byte[(int)dataLength + 4];
-					int index = 0;
-					bool dataErr = false;
-					if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-					{
-						dataUtils.Load16Bits(ref data, ref index, (ushort)obj.paramId, ref dataErr, false);
-						if (!dataErr)
-						{
-							obj.length = (byte)sourceData.Length;
-							dataUtils.Load8Bits(ref data, ref index, obj.length, ref dataErr);
-							if (!dataErr)
-							{
-								dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-								if (!dataErr)
-									TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-							}
-						}
-					}
-					if (dataErr)
-						flag = HandleDataError(obj.cmdName);
+					obj.length = (byte)sourceData.Length;
+					if (!dataUtils.Load8Bits(ref data, ref index, obj.length, ref dataErr)
+					&& !dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr))
+						TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				}
+				if (dataErr)
+					flag = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
@@ -3624,15 +3432,12 @@ namespace BTool
 			try
 			{
 				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load16Bits(ref data, ref index, (ushort)obj.paramId, ref dataErr, false);
-					if (!dataErr)
-						TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load16Bits(ref data, ref index, (ushort)obj.paramId, ref dataErr, false))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -3649,15 +3454,12 @@ namespace BTool
 			try
 			{
 				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load8Bits(ref data, ref index, (byte)obj.resetType, ref dataErr);
-					if (!dataErr)
-						TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.resetType, ref dataErr))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -3674,19 +3476,13 @@ namespace BTool
 			try
 			{
 				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load8Bits(ref data, ref index, obj.nvId, ref dataErr);
-					if (!dataErr)
-					{
-						dataUtils.Load8Bits(ref data, ref index, obj.nvDataLen, ref dataErr);
-						if (!dataErr)
-							TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-					}
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, obj.nvId, ref dataErr)
+				&& !dataUtils.Load8Bits(ref data, ref index, obj.nvDataLen, ref dataErr))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -3708,72 +3504,17 @@ namespace BTool
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid NV Data Entry.\n '{0}'\nFormat Is  00:00....\n", obj.nvData));
 					return false;
 				}
-				else
-				{
-					byte dataLength = (byte)((uint)obj.dataLength + (uint)sourceData.Length);
-					byte[] data = new byte[(int)dataLength + 4];
-					int index = 0;
-					bool dataErr = false;
-					if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-					{
-						dataUtils.Load8Bits(ref data, ref index, obj.nvId, ref dataErr);
-						if (!dataErr)
-						{
-							obj.nvDataLen = (byte)sourceData.Length;
-							dataUtils.Load8Bits(ref data, ref index, obj.nvDataLen, ref dataErr);
-							if (!dataErr)
-							{
-								dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-								if (!dataErr)
-									TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-							}
-						}
-					}
-					if (dataErr)
-						flag = HandleDataError(obj.cmdName);
-				}
-			}
-			catch (Exception ex)
-			{
-				flag = HandleException(obj.cmdName, ex.Message);
-			}
-			return flag;
-		}
 
-		public bool SendUTIL(HCICmds.UTILCmds.UTIL_ForceBoot obj)
-		{
-			bool flag1 = true;
-			try
-			{
-				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
-				int index = 0;
-				bool flag2 = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-				if (flag2)
-					flag1 = HandleDataError(obj.cmdName);
-			}
-			catch (Exception ex)
-			{
-				flag1 = HandleException(obj.cmdName, ex.Message);
-			}
-			return flag1;
-		}
-
-		public bool SendHCIOther(HCICmds.HCIOtherCmds.HCIOther_ReadRSSI obj)
-		{
-			bool flag = true;
-			try
-			{
-				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte dataLength = (byte)(obj.dataLength + sourceData.Length);
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, obj.nvId, ref dataErr))
 				{
-					dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false);
-					if (!dataErr)
+					obj.nvDataLen = (byte)sourceData.Length;
+					if (!dataUtils.Load8Bits(ref data, ref index, obj.nvDataLen, ref dataErr)
+					&& !dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr))
 						TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				}
 				if (dataErr)
@@ -3786,25 +3527,62 @@ namespace BTool
 			return flag;
 		}
 
-		public bool SendHCIOther(HCICmds.HCIOtherCmds.HCIOther_LEClearWhiteList obj)
+		public bool SendUTIL(HCICmds.UTILCmds.UTIL_ForceBoot obj)
 		{
-			bool flag1 = true;
+			bool flag = true;
 			try
 			{
 				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
-				bool flag2 = false;
 				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
 					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-				if (flag2)
-					flag1 = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
-				flag1 = HandleException(obj.cmdName, ex.Message);
+				flag = HandleException(obj.cmdName, ex.Message);
 			}
-			return flag1;
+			return flag;
+		}
+
+		public bool SendHCIOther(HCICmds.HCIOtherCmds.HCIOther_ReadRSSI obj)
+		{
+			bool flag = true;
+			try
+			{
+				byte dataLength = obj.dataLength;
+				byte[] data = new byte[dataLength + 4];
+				int index = 0;
+				bool dataErr = false;
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connHandle, ref dataErr, false))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
+				if (dataErr)
+					flag = HandleDataError(obj.cmdName);
+			}
+			catch (Exception ex)
+			{
+				flag = HandleException(obj.cmdName, ex.Message);
+			}
+			return flag;
+		}
+
+		public bool SendHCIOther(HCICmds.HCIOtherCmds.HCIOther_LEClearWhiteList obj)
+		{
+			bool flag = true;
+			try
+			{
+				byte dataLength = obj.dataLength;
+				byte[] data = new byte[dataLength + 4];
+				int index = 0;
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
+			}
+			catch (Exception ex)
+			{
+				flag = HandleException(obj.cmdName, ex.Message);
+			}
+			return flag;
 		}
 
 		public bool SendHCIOther(HCICmds.HCIOtherCmds.HCIOther_LEAddDeviceToWhiteList obj)
@@ -3818,33 +3596,27 @@ namespace BTool
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Addr Value Entry.\n '{0}'\nFormat Is  00:00....\n", obj.devAddr));
 					return false;
 				}
-				else
+
+				byte dataLength = (byte)(obj.dataLength + sourceData.Length);
+				byte[] data = new byte[dataLength + 4];
+				int index = 0;
+				bool dataErr = false;
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.addrType, ref dataErr))
 				{
-					byte dataLength = (byte)((uint)obj.dataLength + (uint)sourceData.Length);
-					byte[] data = new byte[(int)dataLength + 4];
-					int index = 0;
-					bool dataErr = false;
-					if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+					if (sourceData.Length == 6)
 					{
-						dataUtils.Load8Bits(ref data, ref index, (byte)obj.addrType, ref dataErr);
-						if (!dataErr)
-						{
-							if (sourceData.Length == 6)
-							{
-								dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-								if (!dataErr)
-									TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-							}
-							else
-							{
-								msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Address Length = {0:D} \nLength must be {1:D}\n", sourceData.Length, 6));
-								return false;
-							}
-						}
+						if (!dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr))
+							TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 					}
-					if (dataErr)
-						flag = HandleDataError(obj.cmdName);
+					else
+					{
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Address Length = {0:D} \nLength must be {1:D}\n", sourceData.Length, 6));
+						return false;
+					}
 				}
+				if (dataErr)
+					flag = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
@@ -3864,33 +3636,27 @@ namespace BTool
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Addr Value Entry.\n '{0}'\nFormat Is  00:00....\n", obj.devAddr));
 					return false;
 				}
-				else
+
+				byte dataLength = (byte)(obj.dataLength + sourceData.Length);
+				byte[] data = new byte[dataLength + 4];
+				int index = 0;
+				bool dataErr = false;
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load8Bits(ref data, ref index, (byte)obj.addrType, ref dataErr))
 				{
-					byte dataLength = (byte)((uint)obj.dataLength + (uint)sourceData.Length);
-					byte[] data = new byte[(int)dataLength + 4];
-					int index = 0;
-					bool dataErr = false;
-					if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
+					if (sourceData.Length == 6)
 					{
-						dataUtils.Load8Bits(ref data, ref index, (byte)obj.addrType, ref dataErr);
-						if (!dataErr)
-						{
-							if (sourceData.Length == 6)
-							{
-								dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-								if (!dataErr)
-									TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-							}
-							else
-							{
-								msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Address Length = {0:D} \nLength must be {1:D}\n", sourceData.Length, 6));
-								return false;
-							}
-						}
+						if (!dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr))
+							TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 					}
-					if (dataErr)
-						flag = HandleDataError(obj.cmdName);
+					else
+					{
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Address Length = {0:D} \nLength must be {1:D}\n", sourceData.Length, 6));
+						return false;
+					}
 				}
+				if (dataErr)
+					flag = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
@@ -3905,39 +3671,18 @@ namespace BTool
 			try
 			{
 				byte dataLength = obj.dataLength;
-				byte[] data = new byte[(int)dataLength + 4];
+				byte[] data = new byte[dataLength + 4];
 				int index = 0;
 				bool dataErr = false;
-				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength))
-				{
-					dataUtils.Load16Bits(ref data, ref index, obj.handle, ref dataErr, false);
-					if (!dataErr)
-					{
-						dataUtils.Load16Bits(ref data, ref index, obj.connInterval, ref dataErr, false);
-						if (!dataErr)
-						{
-							dataUtils.Load16Bits(ref data, ref index, obj.connIntervalMax, ref dataErr, false);
-							if (!dataErr)
-							{
-								dataUtils.Load16Bits(ref data, ref index, obj.connLatency, ref dataErr, false);
-								if (!dataErr)
-								{
-									dataUtils.Load16Bits(ref data, ref index, obj.connTimeout, ref dataErr, false);
-									if (!dataErr)
-									{
-										dataUtils.Load16Bits(ref data, ref index, obj.minimumLength, ref dataErr, false);
-										if (!dataErr)
-										{
-											dataUtils.Load16Bits(ref data, ref index, obj.maximumLength, ref dataErr, false);
-											if (!dataErr)
-												TransmitCmd(obj.cmdName, obj.opCodeValue, data);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, obj.opCodeValue, dataLength)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.handle, ref dataErr, false)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connInterval, ref dataErr, false)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connIntervalMax, ref dataErr, false)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connLatency, ref dataErr, false)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.connTimeout, ref dataErr, false)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.minimumLength, ref dataErr, false)
+				&& !dataUtils.Load16Bits(ref data, ref index, obj.maximumLength, ref dataErr, false))
+					TransmitCmd(obj.cmdName, obj.opCodeValue, data);
 				if (dataErr)
 					flag = HandleDataError(obj.cmdName);
 			}
@@ -3959,37 +3704,30 @@ namespace BTool
 					DisplayInvalidData(obj.data);
 					return false;
 				}
-				else
+
+				obj.dataLength = (byte)sourceData.Length;
+				byte dataLength = (byte)(obj.dataLength + sourceData.Length);
+				byte[] data = new byte[dataLength + 4];
+				int index = 0;
+				bool dataErr = false;
+				ushort num;
+				try
 				{
-					obj.dataLength = (byte)sourceData.Length;
-					byte dataLength = (byte)((uint)obj.dataLength + (uint)sourceData.Length);
-					byte[] data = new byte[(int)dataLength + 4];
-					int index = 0;
-					bool dataErr = false;
-					ushort num;
-					try
-					{
-						num = Convert.ToUInt16((obj.opCode).ToString(), 16);
-					}
-					catch (Exception ex)
-					{
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid OpCode Entry.\n '{0}'\nFormat Is 0x0000.\n\n{1}\n", (obj.opCode).ToString(), ex.Message));
-						return false;
-					}
-					if (devUtils.LoadMsgHeader(ref data, ref index, 1, num, dataLength))
-					{
-						if (sourceData.Length > 0)
-						{
-							dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-							if (dataErr)
-								goto label_10;
-						}
-						TransmitCmd(obj.cmdName, num, data);
-					}
-				label_10:
-					if (dataErr)
-						flag = HandleDataError(obj.cmdName);
+					num = Convert.ToUInt16((obj.opCode).ToString(), 16);
 				}
+				catch (Exception ex)
+				{
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid OpCode Entry.\n '{0}'\nFormat Is 0x0000.\n\n{1}\n", obj.opCode.ToString(), ex.Message));
+					return false;
+				}
+				if (devUtils.LoadMsgHeader(ref data, ref index, 1, num, dataLength))
+				{
+					if (sourceData.Length == 0 || !dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr))
+						TransmitCmd(obj.cmdName, num, data);
+				}
+
+				if (dataErr)
+					flag = HandleDataError(obj.cmdName);
 			}
 			catch (Exception ex)
 			{
@@ -4010,26 +3748,23 @@ namespace BTool
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Message Entry.\n '{0}'\nFormat Is  00:00....\n", obj.message));
 					return false;
 				}
+
+				byte[] data = new byte[obj.dataLength + sourceData.Length];
+				int index = 0;
+				if (sourceData.Length >= 4)
+				{
+					if (!dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr))
+					{
+						ushort cmdOpcode = (ushort)(dataUtils.SetByte16(data[1], 0) + dataUtils.SetByte16(data[2], 1));
+						TransmitCmd(obj.cmdName, cmdOpcode, data);
+					}
+					if (dataErr)
+						flag = HandleDataError(obj.cmdName);
+				}
 				else
 				{
-					byte[] data = new byte[(int)(byte)((uint)obj.dataLength + (uint)sourceData.Length)];
-					int index = 0;
-					if (sourceData.Length >= 4)
-					{
-						dataUtils.LoadDataBytes(ref data, ref index, sourceData, ref dataErr);
-						if (!dataErr)
-						{
-							ushort cmdOpcode = (ushort)((uint)dataUtils.SetByte16(data[1], (byte)0) + (uint)dataUtils.SetByte16(data[2], 1));
-							TransmitCmd(obj.cmdName, cmdOpcode, data);
-						}
-						if (dataErr)
-							flag = HandleDataError(obj.cmdName);
-					}
-					else
-					{
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Raw Tx Message Length = {0:D} \nLength must be greater or equal to {1:D}\n", sourceData.Length, 4));
-						return false;
-					}
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Raw Tx Message Length = {0:D} \nLength must be greater or equal to {1:D}\n", sourceData.Length, 4));
+					return false;
 				}
 			}
 			catch (Exception ex)
@@ -4084,15 +3819,16 @@ namespace BTool
 
 		private void TransmitCmd(string cmdName, ushort cmdOpcode, byte[] data, TxDataOut.CmdType cmdType, object tag, SendCmds.SendCmdResult callback)
 		{
-			devForm.threadMgr.txDataOut.dataQ.AddQTail(new TxDataOut()
-			{
-				cmdName = cmdName,
-				cmdOpcode = cmdOpcode,
-				data = data,
-				cmdType = cmdType,
-				tag = tag,
-				callback = callback
-			});
+			devForm.threadMgr.txDataOut.dataQ.AddQTail(
+				new TxDataOut()
+				{
+					cmdName = cmdName,
+					cmdOpcode = cmdOpcode,
+					data = data,
+					cmdType = cmdType,
+					tag = tag,
+					callback = callback
+				});
 		}
 
 		private void TransmitCmd(string cmdName, ushort cmdOpcode, byte[] data, TxDataOut.CmdType cmdType)
