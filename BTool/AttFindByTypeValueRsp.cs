@@ -22,21 +22,21 @@ namespace BTool
 			bool flag;
 			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
 			{
-				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-				HCIReplies.HCI_LE_ExtEvent.ATT_FindByTypeValueRsp findByTypeValueRsp = hciLeExtEvent.attFindByTypeValueRsp;
-				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_FindByTypeValueRsp findByTypeValueRsp = hciLeExtEvent.AttFindByTypeValueRsp;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.Header;
 				if (findByTypeValueRsp != null)
 				{
 					dataFound = true;
-					switch (leExtEventHeader.eventStatus)
+					switch (leExtEventHeader.EventStatus)
 					{
 						case (byte)0:
-							if (findByTypeValueRsp.handle != null)
+							if (findByTypeValueRsp.Handle != null)
 							{
 								Dictionary<string, DataAttr> tmpAttrDict = new Dictionary<string, DataAttr>();
-								foreach (ushort handle in findByTypeValueRsp.handle)
+								foreach (ushort handle in findByTypeValueRsp.Handle)
 								{
-									string attrKey = attrUuidUtils.GetAttrKey(findByTypeValueRsp.attMsgHdr.connHandle, handle);
+									string attrKey = attrUuidUtils.GetAttrKey(findByTypeValueRsp.AttMsgHdr.ConnHandle, handle);
 									DataAttr dataAttr = new DataAttr();
 									bool dataChanged = false;
 									if (!attrDataUtils.GetDataAttr(ref dataAttr, ref dataChanged, attrKey, "AttFindByTypeValueRsp"))
@@ -46,9 +46,9 @@ namespace BTool
 									}
 									else
 									{
-										dataAttr.key = attrKey;
-										dataAttr.connHandle = findByTypeValueRsp.attMsgHdr.connHandle;
-										dataAttr.handle = handle;
+										dataAttr.Key = attrKey;
+										dataAttr.ConnHandle = findByTypeValueRsp.AttMsgHdr.ConnHandle;
+										dataAttr.Handle = handle;
 										if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr, dataChanged, attrKey))
 										{
 											flag = false;
@@ -88,8 +88,8 @@ namespace BTool
 			AttFindByTypeValueRspCallback(new AttFindByTypeValueRsp.RspInfo()
 			{
 				success = success,
-				header = hciReplies.hciLeExtEvent.header,
-				aTT_FindByTypeValueRsp = hciReplies.hciLeExtEvent.attFindByTypeValueRsp
+				header = hciReplies.HciLeExtEvent.Header,
+				aTT_FindByTypeValueRsp = hciReplies.HciLeExtEvent.AttFindByTypeValueRsp
 			});
 		}
 

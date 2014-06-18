@@ -315,7 +315,7 @@ namespace BTool
 			{
 				List<string> dataItems = new List<string>();
 				for (int index = 0; index < devForm.Connections.Count; ++index)
-					dataItems.Add(devForm.Connections[index].bDA);
+					dataItems.Add(devForm.Connections[index].BDA);
 				listSelectForm.LoadFormData(dataItems);
 				int num = (int)listSelectForm.ShowDialog();
 				if (listSelectForm.DialogResult != DialogResult.OK)
@@ -328,7 +328,7 @@ namespace BTool
 				return;
 			ConnectInfo connectInfo = devForm.GetConnectInfo();
 			DeviceTabsForm.CsvData csvData1 = new DeviceTabsForm.CsvData();
-			csvData1.addr = devForm.numConnections <= 1 ? connectInfo.bDA : str;
+			csvData1.addr = devForm.numConnections <= 1 ? connectInfo.BDA : str;
 			if (csvData1.addr == null || csvData1.addr.Length == 0)
 			{
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Connection Address Is Invalid\nA Device Must Be Connected To Read Data\n"));
@@ -456,7 +456,7 @@ namespace BTool
 				csvKeyData = ReadCsv(saveFileDialog.FileName, ref fileError);
 			ConnectInfo connectInfo = devForm.GetConnectInfo();
 			DeviceTabsForm.CsvData newCsvData = new DeviceTabsForm.CsvData();
-			newCsvData.addr = connectInfo.bDA;
+			newCsvData.addr = connectInfo.BDA;
 			newCsvData.auth = lastAuthStr;
 			newCsvData.ltk = lastGAP_AuthenticationComplete.devSecInfo_LTK;
 			newCsvData.div = Convert.ToString((int)lastGAP_AuthenticationComplete.devSecInfo_DIV, 16).ToUpper();
@@ -513,7 +513,7 @@ namespace BTool
 
 		public void PairBondUserInputControl()
 		{
-			if (devForm.GetConnectInfo().bDA == "00:00:00:00:00:00")
+			if (devForm.GetConnectInfo().BDA == "00:00:00:00:00:00")
 			{
 				devForm.StopTimer(DeviceForm.EventType.PairBond);
 				pairingStatus = DeviceTabsForm.PairingStatus.NotConnected;
@@ -527,7 +527,7 @@ namespace BTool
 					break;
 				case DeviceTabsForm.PairingStatus.NotConnected:
 					UsePasskeySecurity(HCICmds.GAP_UiOutput.DISPLAY_PASSCODE);
-					if (devForm.GetConnectInfo().bDA != "00:00:00:00:00:00")
+					if (devForm.GetConnectInfo().BDA != "00:00:00:00:00:00")
 					{
 						pairingStatus = DeviceTabsForm.PairingStatus.NotPaired;
 						break;

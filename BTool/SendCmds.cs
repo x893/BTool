@@ -144,8 +144,7 @@ namespace BTool
 				byte[] s_Key = devUtils.String2Bytes_LSBMSB(cmd.key, 16);
 				if (s_Key == null)
 				{
-					string msg = string.Format("Invalid Key Entry.\n '{0}'\nFormat Is 00:00....\n", cmd.key);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Key Entry.\n '{0}'\nFormat Is 00:00....\n", cmd.key));
 					return false;
 				}
 

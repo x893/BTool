@@ -7,6 +7,14 @@ namespace BTool
 {
 	public class DeviceFormUtils
 	{
+		private enum UuidFormat
+		{
+			TwoBytes = 1,
+			SixteenBytes = 2,
+		}
+
+		private const string newline_2tab = "\n       \t\t  ";
+
 		private MsgBox msgBox = new MsgBox();
 		private DataUtils dataUtils = new DataUtils();
 		private const string moduleName = "DeviceFormUtils";
@@ -15,10 +23,8 @@ namespace BTool
 		{
 			string opc = string.Format("0x{0:X4}", opCode);
 			for (int index = 0; index < HCICmds.OpCodeLookupTable.Length / 2; ++index)
-			{
 				if (HCICmds.OpCodeLookupTable[index, 0] == opc)
 					return HCICmds.OpCodeLookupTable[index, 1];
-			}
 			return "Unknown Op Code";
 		}
 
@@ -79,18 +85,17 @@ namespace BTool
 			byte[] numArray;
 			try
 			{
-				if ((int)radix != (int)byte.MaxValue)
+				if (radix != byte.MaxValue)
 				{
 					string[] strArray = str.Split(new char[2] { ' ', ':' });
 					int length = 0;
-					for (uint index = 0U; (long)index < (long)strArray.Length; ++index)
-					{
+					for (int index = 0; index < strArray.Length; ++index)
 						if (strArray[index].Length > 0)
 							++length;
-					}
+					
 					numArray = new byte[length];
 					int num = 0;
-					for (uint index = 0U; (long)index < (long)strArray.Length; ++index)
+					for (int index = 0; index < strArray.Length; ++index)
 					{
 						try
 						{
@@ -107,7 +112,7 @@ namespace BTool
 				{
 					char[] chArray = str.ToCharArray();
 					numArray = new byte[chArray.Length];
-					for (uint index = 0; index < chArray.Length; ++index)
+					for (int index = 0; index < chArray.Length; ++index)
 						numArray[index] = (byte)chArray[index];
 				}
 			}
@@ -134,17 +139,15 @@ namespace BTool
 				{
 					if (strArray.Length <= 4)
 					{
-						for (uint index = 0U; (long)index < (long)strArray.Length; ++index)
-						{
+						for (int index = 0; index < strArray.Length; ++index)
 							try
 							{
-								num += (uint)Convert.ToByte(strArray[index], 16) << (int)(byte)(8U * index);
+								num += (uint)Convert.ToByte(strArray[index], 16) << (8 * index);
 							}
 							catch (Exception ex)
 							{
 								msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Convert The Value Into Decimal.\n\n{0}\n", ex.Message));
 							}
-						}
 						str = str + string.Format("{0:D} ", num);
 					}
 					else
@@ -153,7 +156,6 @@ namespace BTool
 				else if (strType == SharedAppObjs.StringType.ASCII)
 				{
 					for (uint index = 0U; (long)index < (long)strArray.Length; ++index)
-					{
 						try
 						{
 							char ch = Convert.ToChar(Convert.ToByte(strArray[index], 16));
@@ -163,7 +165,6 @@ namespace BTool
 						{
 							msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Can Not Convert The Value Into ASCII.\n\n{0}\n", ex.Message));
 						}
-					}
 				}
 				else
 					str = msg;
@@ -184,12 +185,12 @@ namespace BTool
 				{
 					string[] strArray = str.Split(new char[3] { ' ', ':', ';' });
 					numArray = new ushort[strArray.Length];
-					for (uint index = 0U; (long)index < (long)strArray.Length; ++index)
+					for (int index = 0; index < strArray.Length; ++index)
 					{
 						try
 						{
-							if (!(strArray[index] != string.Empty))
-								return (ushort[])null;
+							if (strArray[index] == string.Empty)
+								return null;
 							numArray[index] = Convert.ToUInt16(strArray[index], (int)radix);
 						}
 						catch
@@ -255,12 +256,12 @@ namespace BTool
 							if (dataErr)
 								throw new ApplicationException("Error Loading 32 Bit Value");
 							int num = 0;
-							for (int index2 = data.Length - 1; index2 >= 0 && (int)data[index2] == 0; --index2)
+							for (int index2 = data.Length - 1; index2 >= 0 && data[index2] == 0; --index2)
 								++num;
 							if (num == 4)
 								num = 3;
 							byte[] numArray = new byte[4 - num];
-							Array.Copy((Array)data, (Array)numArray, numArray.Length);
+							Array.Copy(data, numArray, numArray.Length);
 							for (int index2 = 0; index2 < numArray.Length; ++index2)
 							{
 								str1 = str1 + numArray[index2].ToString("X2");
@@ -349,9 +350,9 @@ namespace BTool
 										throw new ApplicationException("Conversion String Exceeds Four Hex Bytes");
 									uint num1 = 0U;
 									for (int index = 0; index < strArray.Length; ++index)
-										num1 += (uint)Convert.ToByte(strArray[index], 16) << (int)(byte)(8 * index);
+										num1 += (uint)Convert.ToByte(strArray[index], 16) << (8 * index);
 									outStr = string.Format("{0:D}", num1);
-									int num2 = (int)Convert.ToUInt32(outStr, 10);
+									Convert.ToUInt32(outStr, 10);
 									break;
 								}
 								catch (Exception ex)
@@ -365,10 +366,7 @@ namespace BTool
 								try
 								{
 									foreach (string str2 in strArray)
-									{
-										char ch = Convert.ToChar(Convert.ToByte(str2, 16));
-										outStr += string.Format("{0:S}", ch.ToString());
-									}
+										outStr += string.Format("{0:S}", Convert.ToChar(Convert.ToByte(str2, 16)).ToString());
 									if (!dataUtils.CheckAsciiString(outStr))
 										throw new ApplicationException("Ascii String Value Contains Unprintable Characters");
 									else
@@ -404,17 +402,10 @@ namespace BTool
 			try
 			{
 				bool dataErr = false;
-				dataUtils.Load8Bits(ref data, ref index, packetType, ref dataErr);
-				if (!dataErr)
-				{
-					dataUtils.Load16Bits(ref data, ref index, opCode, ref dataErr, false);
-					if (!dataErr)
-					{
-						dataUtils.Load8Bits(ref data, ref index, dataLength, ref dataErr);
-						if (!dataErr)
-							flag = true;
-					}
-				}
+				if (!dataUtils.Load8Bits(ref data, ref index, packetType, ref dataErr)
+				&& !dataUtils.Load16Bits(ref data, ref index, opCode, ref dataErr, false)
+				&& !dataUtils.Load8Bits(ref data, ref index, dataLength, ref dataErr))
+					flag = true;
 			}
 			catch (Exception ex)
 			{
@@ -466,28 +457,21 @@ namespace BTool
 
 		public string UnloadDeviceAddr(byte[] data, ref byte[] addr, ref int index, bool direction, ref bool dataErr)
 		{
-			string str = string.Empty;
-			byte bits = (byte)0;
+			string address = string.Empty;
+			byte bits = 0;
 			dataErr = false;
 			try
 			{
 				for (int index1 = 0; index1 < 6; ++index1)
 				{
-					if (!dataErr)
-					{
-						int num = (int)dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-						if (!dataErr)
-						{
-							addr[index1] = bits;
-							str = !direction
-								? (index1 == 0 ? string.Format("{0:X2}", bits) + str : string.Format("{0:X2}:", bits) + str)
-								: (index1 == 5 ? str + string.Format("{0:X2}", bits) : str + string.Format("{0:X2}:", bits));
-						}
-						else
-							break;
-					}
-					else
+					dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
+					if (dataErr)
 						break;
+
+					addr[index1] = bits;
+					address = !direction
+						? (index1 == 0 ? string.Format("{0:X2}", bits) + address : string.Format("{0:X2}:", bits) + address)
+						: (index1 == 5 ? address + string.Format("{0:X2}", bits) : address + string.Format("{0:X2}:", bits));
 				}
 			}
 			catch (Exception ex)
@@ -495,27 +479,24 @@ namespace BTool
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Unload Device Address Failed\nMessage Data Transfer Issue.\n\n{0}\n", ex.Message));
 				dataErr = true;
 			}
-			return str;
+			return address;
 		}
 
 		public string UnloadColonData(byte[] data, ref int index, int numBytes, ref bool dataErr, bool limitLen)
 		{
-			string msg1 = string.Empty;
-			byte bits = (byte)0;
+			string colon = string.Empty;
+			byte bits = 0;
 			dataErr = false;
 			try
 			{
 				for (int index1 = 0; index1 < numBytes; ++index1)
 				{
-					if (!dataErr)
-					{
-						int num = (int)dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-						msg1 = index1 == numBytes - 1 ? msg1 + string.Format("{0:X2}", bits) : msg1 + string.Format("{0:X2}:", bits);
-						if (limitLen && index1 != numBytes - 1)
-							CheckLineLength(ref msg1, (uint)index1, true);
-					}
-					else
+					dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
+					if (dataErr)
 						break;
+					colon = index1 == numBytes - 1 ? colon + string.Format("{0:X2}", bits) : colon + string.Format("{0:X2}:", bits);
+					if (limitLen && index1 != numBytes - 1)
+						CheckLineLength(ref colon, (uint)index1, true);
 				}
 			}
 			catch (Exception ex)
@@ -523,12 +504,11 @@ namespace BTool
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Unload Colon Data Failed\nMessage Data Transfer Issue.\n\n{0}\n", ex.Message));
 				dataErr = true;
 			}
-			return msg1;
+			return colon;
 		}
 
 		public string UnloadColonData(byte[] data, bool limitLen)
 		{
-			string str = string.Empty;
 			bool dataErr = false;
 			int index = 0;
 			return UnloadColonData(data, ref index, data.Length, ref dataErr, limitLen);
@@ -536,17 +516,16 @@ namespace BTool
 
 		public string UnloadColonData(byte[] data, ref int index, int numBytes, ref bool dataErr)
 		{
-			string str = string.Empty;
 			return UnloadColonData(data, ref index, numBytes, ref dataErr, true);
 		}
 
 		public string UnloadHandleValueData(byte[] data, ref int index, int totalLength, int dataLength, ref string handleStr, ref string valueStr, ref bool dataErr, string strDataName, ref List<HCIReplies.HandleData> handleData)
 		{
-			string str1 = string.Empty;
-			string msg1 = string.Empty;
+			string value = string.Empty;
+			string dataStr = string.Empty;
 			valueStr = string.Empty;
 			handleStr = string.Empty;
-			ushort num1 = ushort.MaxValue;
+			ushort handle = ushort.MaxValue;
 			dataErr = false;
 			int num2 = totalLength;
 			byte bits = (byte)0;
@@ -554,43 +533,41 @@ namespace BTool
 			{
 				while (num2 > 0 && !dataErr)
 				{
-					if (num2 >= (int)(byte)dataLength)
-					{
-						try
-						{
-							HCIReplies.HandleData handleData1 = new HCIReplies.HandleData();
-							num1 = ushort.MaxValue;
-							num1 = dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-							handleData1.handle = num1;
-							int length = dataLength - 2;
-							handleData1.data = new byte[length];
-							for (int index1 = 0; index1 < length && !dataErr; ++index1)
-							{
-								int num3 = (int)dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-								handleData1.data[index1] = bits;
-								valueStr += string.Format("{0:X2} ", bits);
-								msg1 = (index1 == length - 1)
-									? msg1 + string.Format("{0:X2}", bits)
-									: msg1 + string.Format("{0:X2}:", bits);
-								CheckLineLength(ref msg1, (uint)index1, true);
-							}
-							handleData.Add(handleData1);
-						}
-						catch (Exception ex)
-						{
-							msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Unload Handle Value Data Failed\nMessage Data Transfer Issue.\n\n{0}\n", ex.Message));
-							dataErr = true;
-						}
-						handleStr += string.Format("0x{0:X4} ", num1);
-						str1 = str1 + string.Format(" Handle\t\t: 0x{0:X4}\n", num1) + string.Format(" {0}\t\t: {1:S}\n", strDataName, msg1);
-						msg1 = string.Empty;
-						num2 -= dataLength;
-					}
-					else
+					if (num2 < dataLength)
 						break;
+
+					try
+					{
+						HCIReplies.HandleData handleData1 = new HCIReplies.HandleData();
+						handle = ushort.MaxValue;
+						handle = dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
+						handleData1.Handle = handle;
+						int length = dataLength - 2;
+						handleData1.Data = new byte[length];
+						for (int index1 = 0; index1 < length && !dataErr; ++index1)
+						{
+							dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
+							handleData1.Data[index1] = bits;
+							valueStr += string.Format("{0:X2} ", bits);
+							dataStr = (index1 == length - 1)
+								? dataStr + string.Format("{0:X2}", bits)
+								: dataStr + string.Format("{0:X2}:", bits);
+							CheckLineLength(ref dataStr, (uint)index1, true);
+						}
+						handleData.Add(handleData1);
+					}
+					catch (Exception ex)
+					{
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Unload Handle Value Data Failed\nMessage Data Transfer Issue.\n\n{0}\n", ex.Message));
+						dataErr = true;
+					}
+					handleStr += string.Format("0x{0:X4} ", handle);
+					value = string.Format(" Handle\t\t: 0x{0:X4}\n", handle) + string.Format(" {0}\t\t: {1:S}\n", strDataName, dataStr);
+					dataStr = string.Empty;
+					num2 -= dataLength;
 				}
 			}
-			return str1;
+			return value;
 		}
 
 		public string UnloadHandleValueData(byte[] data, ref int index, int totalLength, int dataLength, ref string handleStr, ref string valueStr, ref bool dataErr, string strDataName)
@@ -641,16 +618,16 @@ namespace BTool
 							HCIReplies.HandleHandleData handleHandleData1 = new HCIReplies.HandleHandleData();
 							num1 = ushort.MaxValue;
 							num1 = dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-							handleHandleData1.handle1 = num1;
+							handleHandleData1.Handle1 = num1;
 							num2 = ushort.MaxValue;
 							num2 = dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
-							handleHandleData1.handle2 = num2;
+							handleHandleData1.Handle2 = num2;
 							int length = dataLength - 4;
-							handleHandleData1.data = new byte[length];
+							handleHandleData1.Data = new byte[length];
 							for (int index1 = 0; index1 < length && !dataErr; ++index1)
 							{
 								int num4 = (int)dataUtils.Unload8Bits(data, ref index, ref bits, ref dataErr);
-								handleHandleData1.data[index1] = bits;
+								handleHandleData1.Data[index1] = bits;
 								msg1 = index1 == length - 1 ? msg1 + string.Format("{0:X2}", (object)bits) : msg1 + string.Format("{0:X2}:", (object)bits);
 								CheckLineLength(ref msg1, (uint)index1, true);
 							}
@@ -681,277 +658,301 @@ namespace BTool
 
 		public string GetGapProfileStr(byte gapProfile)
 		{
-			string str = string.Empty;
+			string profile = string.Empty;
 			if (gapProfile == 0)
 				return "Gap Profile Role Bit Mask Is Not Set";
 			if ((gapProfile & 0x01) == 0x01)
-				str = str + " Broadcaster ";
+				profile += " Broadcaster ";
 			if ((gapProfile & 0x02) == 0x02)
-				str = str + " Observer ";
+				profile += " Observer ";
 			if ((gapProfile & 0x04) == 0x04)
-				str = str + " Peripheral ";
+				profile += " Peripheral ";
 			if ((gapProfile & 0x08) == 0x08)
-				str = str + " Central ";
-			return str;
+				profile += " Central ";
+			return profile;
 		}
 
 		public string GetGapEnableDisableStr(byte gapEnableDisable)
 		{
-			string str2;
+			string en_dis;
 			switch (gapEnableDisable)
 			{
 				case 0:
-					str2 = "Disable";
+					en_dis = "Disable";
 					break;
 				case 1:
-					str2 = "Enable";
+					en_dis = "Enable";
 					break;
 				default:
-					str2 = "Unknown Gap EnableDisable";
+					en_dis = "Unknown Gap EnableDisable";
 					break;
 			}
-			return str2;
+			return en_dis;
 		}
 
 		public string GetGapTrueFalseStr(byte gapTrueFalse)
 		{
-			string str2;
+			string true_false;
 			switch (gapTrueFalse)
 			{
 				case 0:
-					str2 = "False";
+					true_false = "False";
 					break;
 				case 1:
-					str2 = "True";
+					true_false = "True";
 					break;
 				default:
-					str2 = "Unknown Gap TrueFalse";
+					true_false = "Unknown Gap TrueFalse";
 					break;
 			}
-			return str2;
+			return true_false;
 		}
 
 		public string GetGapYesNoStr(byte gapYesNo)
 		{
-			string str2;
+			string yes_no;
 			switch (gapYesNo)
 			{
 				case 0:
-					str2 = "No";
+					yes_no = "No";
 					break;
 				case 1:
-					str2 = "Yes";
+					yes_no = "Yes";
 					break;
 				default:
-					str2 = "Unknown Gap Yes No";
+					yes_no = "Unknown Gap Yes No";
 					break;
 			}
-			return str2;
+			return yes_no;
 		}
 
 		public string GetPacketTypeStr(byte packetType)
 		{
-			string str2;
+			string pack_type;
 			switch (packetType)
 			{
 				case 1:
-					str2 = "Command";
+					pack_type = "Command";
 					break;
 				case 2:
-					str2 = "Async Data";
+					pack_type = "Async Data";
 					break;
 				case 3:
-					str2 = "Sync Data";
+					pack_type = "Sync Data";
 					break;
 				case 4:
-					str2 = "Event";
+					pack_type = "Event";
 					break;
 				default:
-					str2 = "Unknown Packet Type";
+					pack_type = "Unknown Packet Type";
 					break;
 			}
-			return str2;
+			return pack_type;
 		}
 
 		public string GetGapDiscoveryModeStr(byte discoveryMode)
 		{
-			string str;
+			string mode;
 			switch (discoveryMode)
 			{
 				case 0:
-					str = "Nondiscoverable";
+					mode = "Nondiscoverable";
 					break;
 				case 1:
-					str = "General";
+					mode = "General";
 					break;
 				case 2:
-					str = "Limited";
+					mode = "Limited";
 					break;
 				case 3:
-					str = "All";
+					mode = "All";
 					break;
 				default:
-					str = "Unknown Discovery Mode";
+					mode = "Unknown Discovery Mode";
 					break;
 			}
-			return str;
+			return mode;
 		}
 
 		public string GetGapAddrTypeStr(byte addrType)
 		{
-			string str;
+			string addr_type;
 			switch (addrType)
 			{
 				case 0:
-					str = "Public";
+					addr_type = "Public";
 					break;
 				case 1:
-					str = "Static";
+					addr_type = "Static";
 					break;
 				case 2:
-					str = "PrivateNonResolve";
+					addr_type = "PrivateNonResolve";
 					break;
 				case 3:
-					str = "PrivateResolve";
+					addr_type = "PrivateResolve";
 					break;
 				default:
-					str = "Unknown Addr Type";
+					addr_type = "Unknown Addr Type";
 					break;
 			}
-			return str;
+			return addr_type;
 		}
 
 		public string GetGapIOCapsStr(byte ioCaps)
 		{
-			string str;
+			string io_cap;
 			switch (ioCaps)
 			{
 				case 0:
-					str = "DisplayOnly";
+					io_cap = "DisplayOnly";
 					break;
 				case 1:
-					str = "DisplayYesNo";
+					io_cap = "DisplayYesNo";
 					break;
 				case 2:
-					str = "KeyboardOnly";
+					io_cap = "KeyboardOnly";
 					break;
 				case 3:
-					str = "NoInputNoOutput";
+					io_cap = "NoInputNoOutput";
 					break;
 				case 4:
-					str = "KeyboardDisplay";
+					io_cap = "KeyboardDisplay";
 					break;
 				default:
-					str = "Unknown Gap IO Caps";
+					io_cap = "Unknown Gap IO Caps";
 					break;
 			}
-			return str;
+			return io_cap;
 		}
 
 		public string GetGapParamIdStr(byte paramId)
 		{
-			string s_delim = "\n       \t\t  ";
 			string str;
 			switch (paramId)
 			{
 				case 0:
-					str = "Minimum Time To Remain Advertising When In , " + s_delim + "Discoverable Mode (mSec). Setting This " + s_delim + "Parameter To 0 Turns Off The Timer " + s_delim + "(default). TGAP_GEN_DISC_ADV_MIN";
-					break;
+					return string.Concat(
+						"Minimum Time To Remain Advertising When In , ", newline_2tab,
+						"Discoverable Mode (mSec). Setting This ", newline_2tab,
+						"Parameter To 0 Turns Off The Timer ", newline_2tab,
+						"(default). TGAP_GEN_DISC_ADV_MIN");
 				case 1:
-					str = "Maximum Time To Remain Advertising, When In " + s_delim + "Limited Discoverable Mode (mSec). TGAP_LIM_ADV_TIMEOUT";
-					break;
+					return string.Concat(
+						"Maximum Time To Remain Advertising, When In ", newline_2tab,
+						"Limited Discoverable Mode (mSec). TGAP_LIM_ADV_TIMEOUT");
 				case 2:
-					str = "Minimum Time To Perform Scanning, When Performing " + s_delim + "General Discovery Proc (mSec). TGAP_GEN_DISC_SCAN";
-					break;
+					return string.Concat(
+						"Minimum Time To Perform Scanning, When Performing ", newline_2tab,
+						"General Discovery Proc (mSec). TGAP_GEN_DISC_SCAN");
 				case 3:
-					str = "Minimum Time To Perform Scanning, When Performing " + s_delim + "Limited Discovery Proc (mSec). TGAP_LIM_DISC_SCAN";
-					break;
+					return string.Concat(
+						"Minimum Time To Perform Scanning, When Performing ", newline_2tab,
+						"Limited Discovery Proc (mSec). TGAP_LIM_DISC_SCAN");
 				case 4:
-					str = "Advertising Timeout, When Performing " + s_delim + "Connection Establishment Proc (mSec). " + s_delim + "TGAP_CONN_EST_ADV_TIMEOUT";
-					break;
+					return string.Concat(
+						"Advertising Timeout, When Performing ", newline_2tab,
+						"Connection Establishment Proc (mSec). ", newline_2tab,
+						"TGAP_CONN_EST_ADV_TIMEOUT");
 				case 5:
-					str = "Link Layer Connection Parameter Update " + s_delim + "Notification Timer, Connection Parameter " + s_delim + "Update Proc (mSec). TGAP_CONN_PARAM_TIMEOUT";
-					break;
+					return string.Concat(
+						"Link Layer Connection Parameter Update ", newline_2tab,
+						"Notification Timer, Connection Parameter ", newline_2tab,
+						"Update Proc (mSec). TGAP_CONN_PARAM_TIMEOUT");
 				case 6:
-					str = "Minimum Advertising Interval, When In Limited " + s_delim + "Discoverable Mode (mSec). TGAP_LIM_DISC_ADV_INT_MIN";
-					break;
+					return string.Concat(
+						"Minimum Advertising Interval, When In Limited ", newline_2tab,
+						"Discoverable Mode (mSec). TGAP_LIM_DISC_ADV_INT_MIN");
 				case 7:
-					str = "Maximum Advertising Interval, When In Limited " + s_delim + "Discoverable Mode (mSec). TGAP_LIM_DISC_ADV_INT_MAX";
-					break;
+					return string.Concat(
+						"Maximum Advertising Interval, When In Limited ", newline_2tab,
+						"Discoverable Mode (mSec). TGAP_LIM_DISC_ADV_INT_MAX");
 				case 8:
-					str = "Minimum Advertising Interval, When In General " + s_delim + "Discoverable Mode (mSec). TGAP_GEN_DISC_ADV_INT_MIN";
-					break;
+					return string.Concat(
+						"Minimum Advertising Interval, When In General ", newline_2tab,
+						"Discoverable Mode (mSec). TGAP_GEN_DISC_ADV_INT_MIN");
 				case 9:
-					str = "Maximum Advertising Interval, When In General " + s_delim + "Discoverable Mode (mSec). TGAP_GEN_DISC_ADV_INT_MAX";
-					break;
+					return string.Concat(
+						"Maximum Advertising Interval, When In General ", newline_2tab,
+						"Discoverable Mode (mSec). TGAP_GEN_DISC_ADV_INT_MAX");
 				case 10:
-					str = "Minimum Advertising Interval, When In Connectable " + s_delim + "Mode (mSec). TGAP_CONN_ADV_INT_MIN";
-					break;
+					return string.Concat(
+						"Minimum Advertising Interval, When In Connectable ", newline_2tab,
+						"Mode (mSec). TGAP_CONN_ADV_INT_MIN");
 				case 11:
-					str = "Maximum Advertising Interval, When In Connectable " + s_delim + "Mode (mSec). TGAP_CONN_ADV_INT_MAX";
-					break;
+					return string.Concat(
+						"Maximum Advertising Interval, When In Connectable ", newline_2tab,
+						"Mode (mSec). TGAP_CONN_ADV_INT_MAX");
 				case 12:
-					str = "Scan Interval Used During Link Layer Initiating " + s_delim + "State, When In Connectable Mode (mSec). TGAP_CONN_SCAN_INT";
-					break;
+					return string.Concat(
+						"Scan Interval Used During Link Layer Initiating ", newline_2tab,
+						"State, When In Connectable Mode (mSec). TGAP_CONN_SCAN_INT");
 				case 13:
-					str = "Scan Window Used During Link Layer Initiating " + s_delim + "State, When In Connectable Mode (mSec). " + s_delim + "TGAP_CONN_SCAN_WIND";
-					break;
+					return string.Concat(
+						"Scan Window Used During Link Layer Initiating ", newline_2tab,
+						"State, When In Connectable Mode (mSec). ", newline_2tab,
+						"TGAP_CONN_SCAN_WIND");
 				case 14:
-					str = "Scan Interval Used During Link Layer Initiating " + s_delim + "State, When In Connectable Mode, High Duty " + s_delim + "Scan Cycle Scan Paramaters (mSec). TGAP_CONN_HIGH_SCAN_INT";
-					break;
+					return string.Concat(
+						"Scan Interval Used During Link Layer Initiating ", newline_2tab,
+						"State, When In Connectable Mode, High Duty ", newline_2tab,
+						"Scan Cycle Scan Paramaters (mSec). TGAP_CONN_HIGH_SCAN_INT");
 				case 15:
-					str = "Scan Window Used During Link Layer Initiating " + s_delim + "State, When In Connectable Mode, High Duty " + s_delim + "Scan Cycle Scan Paramaters (mSec). TGAP_CONN_HIGH_SCAN_WIND";
-					break;
+					return string.Concat(
+						"Scan Window Used During Link Layer Initiating ", newline_2tab,
+						"State, When In Connectable Mode, High Duty ", newline_2tab,
+						"Scan Cycle Scan Paramaters (mSec). TGAP_CONN_HIGH_SCAN_WIND");
 				case 16:
-					str = "Scan Interval Used During Link Layer Scanning " + s_delim + "State, When In General Discovery " + s_delim + "Proc (mSec). TGAP_GEN_DISC_SCAN_INT";
-					break;
+					return string.Concat(
+						"Scan Interval Used During Link Layer Scanning ", newline_2tab,
+						"State, When In General Discovery ", newline_2tab,
+						"Proc (mSec). TGAP_GEN_DISC_SCAN_INT");
 				case 17:
-					str = "Scan Window Used During Link Layer Scanning " + s_delim + "State, When In General Discovery " + s_delim + "Proc (mSec). TGAP_GEN_DISC_SCAN_WIND";
+					str = "Scan Window Used During Link Layer Scanning " + newline_2tab + "State, When In General Discovery " + newline_2tab + "Proc (mSec). TGAP_GEN_DISC_SCAN_WIND";
 					break;
 				case 18:
-					str = "Scan Interval Used During Link Layer Scanning " + s_delim + "State, When In Limited Discovery " + s_delim + "Proc (mSec). TGAP_LIM_DISC_SCAN_INT";
+					str = "Scan Interval Used During Link Layer Scanning " + newline_2tab + "State, When In Limited Discovery " + newline_2tab + "Proc (mSec). TGAP_LIM_DISC_SCAN_INT";
 					break;
 				case 19:
-					str = "Scan Window Used During Link Layer Scanning " + s_delim + "State, When In Limited Discovery " + s_delim + "Proc (mSec). TGAP_LIM_DISC_SCAN_WIND";
+					str = "Scan Window Used During Link Layer Scanning " + newline_2tab + "State, When In Limited Discovery " + newline_2tab + "Proc (mSec). TGAP_LIM_DISC_SCAN_WIND";
 					break;
 				case 20:
-					str = "Advertising Interval, When Using Connection " + s_delim + "Establishment Proc (mSec). TGAP_CONN_EST_ADV";
+					str = "Advertising Interval, When Using Connection " + newline_2tab + "Establishment Proc (mSec). TGAP_CONN_EST_ADV";
 					break;
 				case 21:
-					str = "Minimum Link Layer Connection Interval, " + s_delim + "When Using Connection Establishment " + s_delim + "Proc (mSec). TGAP_CONN_EST_INT_MIN";
+					str = "Minimum Link Layer Connection Interval, " + newline_2tab + "When Using Connection Establishment " + newline_2tab + "Proc (mSec). TGAP_CONN_EST_INT_MIN";
 					break;
 				case 22:
-					str = "Maximum Link Layer Connection Interval, " + s_delim + "When Using Connection Establishment " + s_delim + "Proc (mSec). TGAP_CONN_EST_INT_MAX";
+					str = "Maximum Link Layer Connection Interval, " + newline_2tab + "When Using Connection Establishment " + newline_2tab + "Proc (mSec). TGAP_CONN_EST_INT_MAX";
 					break;
 				case 23:
-					str = "Scan Interval Used During Link Layer Initiating " + s_delim + "State, When Using Connection Establishment " + s_delim + "Proc (mSec). TGAP_CONN_EST_SCAN_INT";
+					str = "Scan Interval Used During Link Layer Initiating " + newline_2tab + "State, When Using Connection Establishment " + newline_2tab + "Proc (mSec). TGAP_CONN_EST_SCAN_INT";
 					break;
 				case 24:
-					str = "Scan window Used During Link Layer Initiating " + s_delim + "State, When Using Connection Establishment " + s_delim + "Proc (mSec). TGAP_CONN_EST_SCAN_WIND";
+					str = "Scan window Used During Link Layer Initiating " + newline_2tab + "State, When Using Connection Establishment " + newline_2tab + "Proc (mSec). TGAP_CONN_EST_SCAN_WIND";
 					break;
 				case 25:
-					str = "Link Layer Connection Supervision Timeout, " + s_delim + "When Using Connection Establishment " + s_delim + "Proc (mSec). TGAP_CONN_EST_SUPERV_TIMEOUT";
+					str = "Link Layer Connection Supervision Timeout, " + newline_2tab + "When Using Connection Establishment " + newline_2tab + "Proc (mSec). TGAP_CONN_EST_SUPERV_TIMEOUT";
 					break;
 				case 26:
-					str = "Link Layer Connection Slave Latency, When Using " + s_delim + "Connection Establishment Proc (mSec) TGAP_CONN_EST_LATENCY";
+					str = "Link Layer Connection Slave Latency, When Using " + newline_2tab + "Connection Establishment Proc (mSec) TGAP_CONN_EST_LATENCY";
 					break;
 				case 27:
-					str = "Local Informational Parameter About Min Len " + s_delim + "Of Connection Needed, When Using Connection" + s_delim + " Establishment Proc (mSec). TGAP_CONN_EST_MIN_CE_LEN";
+					str = "Local Informational Parameter About Min Len " + newline_2tab + "Of Connection Needed, When Using Connection" + newline_2tab + " Establishment Proc (mSec). TGAP_CONN_EST_MIN_CE_LEN";
 					break;
 				case 28:
-					str = "Local Informational Parameter About Max Len " + s_delim + "Of Connection Needed, When Using Connection " + s_delim + "Establishment Proc (mSec). TGAP_CONN_EST_MAX_CE_LEN";
+					str = "Local Informational Parameter About Max Len " + newline_2tab + "Of Connection Needed, When Using Connection " + newline_2tab + "Establishment Proc (mSec). TGAP_CONN_EST_MAX_CE_LEN";
 					break;
 				case 29:
-					str = "Minimum Time Interval Between Private " + s_delim + "(Resolvable) Address Changes. In Minutes " + s_delim + "(Default 15 Minutes) TGAP_PRIVATE_ADDR_INT";
+					str = "Minimum Time Interval Between Private " + newline_2tab + "(Resolvable) Address Changes. In Minutes " + newline_2tab + "(Default 15 Minutes) TGAP_PRIVATE_ADDR_INT";
 					break;
 				case 30:
-					str = "SM Message Timeout (Milliseconds). " + s_delim + "(Default 30 Seconds). TGAP_SM_TIMEOUT";
+					str = "SM Message Timeout (Milliseconds). " + newline_2tab + "(Default 30 Seconds). TGAP_SM_TIMEOUT";
 					break;
 				case 31:
-					str = "SM Minimum Key Length Supported " + s_delim + "(default 7). TGAP_SM_MIN_KEY_LEN";
+					str = "SM Minimum Key Length Supported " + newline_2tab + "(default 7). TGAP_SM_MIN_KEY_LEN";
 					break;
 				case 32:
-					str = "SM Maximum Key Length Supported " + s_delim + "(Default 16). TGAP_SM_MAX_KEY_LEN";
+					str = "SM Maximum Key Length Supported " + newline_2tab + "(Default 16). TGAP_SM_MAX_KEY_LEN";
 					break;
 				case 33:
 					str = "TGAP_FILTER_ADV_REPORTS";
@@ -960,16 +961,16 @@ namespace BTool
 					str = "TGAP_SCAN_RSP_RSSI_MIN";
 					break;
 				case 35:
-					str = "GAP TestCodes - Puts GAP Into A " + s_delim + "Test Mode TGAP_GAP_TESTCODE";
+					str = "GAP TestCodes - Puts GAP Into A " + newline_2tab + "Test Mode TGAP_GAP_TESTCODE";
 					break;
 				case 36:
-					str = "SM TestCodes - Puts SM Into A " + s_delim + "Test Mode TGAP_SM_TESTCODE";
+					str = "SM TestCodes - Puts SM Into A " + newline_2tab + "Test Mode TGAP_SM_TESTCODE";
 					break;
 				case 100:
-					str = "GATT TestCodes - Puts GATT Into A Test " + s_delim + "Mode (ParamValue Maintained By GATT) " + s_delim + "TGAP_GATT_TESTCODE";
+					str = "GATT TestCodes - Puts GATT Into A Test " + newline_2tab + "Mode (ParamValue Maintained By GATT) " + newline_2tab + "TGAP_GATT_TESTCODE";
 					break;
 				case 101:
-					str = "ATT TestCodes - Puts ATT Into A Test Mode " + s_delim + "(ParamValue Maintained By ATT) TGAP_ATT_TESTCODE";
+					str = "ATT TestCodes - Puts ATT Into A Test Mode " + newline_2tab + "(ParamValue Maintained By ATT) TGAP_ATT_TESTCODE";
 					break;
 				case 102:
 					str = "TGAP_GGS_TESTCODE";
@@ -977,7 +978,7 @@ namespace BTool
 				case 254:
 					str = "SET_RX_DEBUG";
 					break;
-				case byte.MaxValue:
+				case 255:
 					str = "GET_MEM_USED";
 					break;
 				default:
@@ -989,250 +990,144 @@ namespace BTool
 
 		public string GetGapTerminationReasonStr(byte termReason)
 		{
-			byte num = termReason;
-			string str2;
-			if (num <= 22)
+			switch (termReason)
 			{
-				if (num != 8)
-				{
-					if (num != 19)
-					{
-						if (num == 22)
-						{
-							str2 = "Host Requested";
-							goto label_15;
-						}
-					}
-					else
-					{
-						str2 = "Peer Requested";
-						goto label_15;
-					}
-				}
-				else
-				{
-					str2 = "Supervisor Timeout";
-					goto label_15;
-				}
+				case 8:
+					return "Supervisor Timeout";
+				case 19:
+					return "Peer Requested";
+				case 22:
+					return "Host Requested";
+				case 34:
+					return "Control Packet Timeout";
+				case 40:
+					return "Control Packet Instant Passed";
+				case 59:
+					return "LSTO Violation";
+				case 61:
+					return "MIC Failure";
+				case 62:
+					return "Failed To Establish";
+				case 63:
+					return "MAC Connection Failed";
 			}
-			else
-			{
-				switch (num)
-				{
-					case 34:
-						str2 = "Control Packet Timeout";
-						goto label_15;
-					case 40:
-						str2 = "Control Packet Instant Passed";
-						goto label_15;
-					case 59:
-						str2 = "LSTO Violation";
-						goto label_15;
-					case 61:
-						str2 = "MIC Failure";
-						goto label_15;
-					case 62:
-						str2 = "Failed To Establish";
-						goto label_15;
-					case 63:
-						str2 = "MAC Connection Failed";
-						goto label_15;
-				}
-			}
-			str2 = "Unknown Gap Termination Reason 0x" + termReason.ToString("X2");
-
-		label_15:
-			return str2;
+			return "Unknown Gap Termination Reason 0x" + termReason.ToString("X2");
 		}
 
 		public string GetGapDisconnectReasonStr(byte discReason)
 		{
-			string str1 = string.Empty;
-			byte num = discReason;
-			string str2;
-			if ((uint)num <= 21U)
+			switch (discReason)
 			{
-				switch (num)
-				{
-					case 5:
-						str2 = "Authentication Failure";
-						goto label_13;
-					case 19:
-						str2 = "Remote User Terminated Connection";
-						goto label_13;
-					case 20:
-						str2 = "Remote Device Terminated Connection Due To Low Resources";
-						goto label_13;
-					case 21:
-						str2 = "Remote Device Terminated Connection due to Power Off";
-						goto label_13;
-				}
+				case 5:
+					return "Authentication Failure";
+				case 19:
+					return "Remote User Terminated Connection";
+				case 20:
+					return "Remote Device Terminated Connection Due To Low Resources";
+				case 21:
+					return "Remote Device Terminated Connection due to Power Off";
+				case 26:
+					return "Unsupported Remote Feature";
+				case 41:
+					return "Pairing With Unit Key Not Supported";
+				case 59:
+					return "Unacceptable Connection Interval";
 			}
-			else if (num != 26)
-			{
-				if (num != 41)
-				{
-					if (num == 59)
-					{
-						str2 = "Unacceptable Connection Interval";
-						goto label_13;
-					}
-				}
-				else
-				{
-					str2 = "Pairing With Unit Key Not Supported";
-					goto label_13;
-				}
-			}
-			else
-			{
-				str2 = "Unsupported Remote Feature";
-				goto label_13;
-			}
-			str2 = "Unknown Gap Disconnect Reason 0x" + discReason.ToString("X2");
-		label_13:
-			return str2;
+			return "Unknown Gap Disconnect Reason 0x" + discReason.ToString("X2");
 		}
 
 		public string GetGapEventTypeStr(byte eventType)
 		{
-			string str;
 			switch (eventType)
 			{
 				case 0:
-					str = "Connectable Undirect Advertisement";
-					break;
+					return "Connectable Undirect Advertisement";
 				case 1:
-					str = "Connectable Direct Advertisement";
-					break;
+					return "Connectable Direct Advertisement";
 				case 2:
-					str = "Scannable Undirect Advertisement";
-					break;
+					return "Scannable Undirect Advertisement";
 				case 3:
-					str = "Non-connectable Undirect Advertisement";
-					break;
+					return "Non-connectable Undirect Advertisement";
 				case 4:
-					str = "Scan Response";
-					break;
-				default:
-					str = "Unknown Gap Event Type";
-					break;
+					return "Scan Response";
 			}
-			return str;
+			return "Unknown Gap Event Type";
 		}
 
 		public string GetHciExtTxPowerStr(byte txPower)
 		{
-			string str;
 			switch (txPower)
 			{
 				case 0:
-					str = "HCI_EXT_TX_POWER_MINUS_23_DBM";
-					break;
+					return "HCI_EXT_TX_POWER_MINUS_23_DBM";
 				case 1:
-					str = "HCI_EXT_TX_POWER_MINUS_6_DBM";
-					break;
+					return "HCI_EXT_TX_POWER_MINUS_6_DBM";
 				case 2:
-					str = "HCI_EXT_TX_POWER_0_DBM";
-					break;
+					return "HCI_EXT_TX_POWER_0_DBM";
 				case 3:
-					str = "HCI_EXT_TX_POWER_4_DBM";
-					break;
-				default:
-					str = "Unknown Tx Power";
-					break;
+					return "HCI_EXT_TX_POWER_4_DBM";
 			}
-			return str;
+			return "Unknown Tx Power";
 		}
 
 		public string GetHciExtRxGainStr(byte rxGain)
 		{
-			string str;
 			switch (rxGain)
 			{
 				case 0:
-					str = "HCI_EXT_RX_GAIN_STD";
-					break;
+					return "HCI_EXT_RX_GAIN_STD";
 				case 1:
-					str = "HCI_EXT_RX_GAIN_HIGH";
-					break;
-				default:
-					str = "Unknown Rx Gain";
-					break;
+					return "HCI_EXT_RX_GAIN_HIGH";
 			}
-			return str;
+			return "Unknown Rx Gain";
 		}
 
 		public string GetHciExtOnePktPerEvtCtrlStr(byte control)
 		{
-			string str;
 			switch (control)
 			{
 				case 0:
-					str = "HCI_EXT_DISABLE_ONE_PKT_PER_EVT";
-					break;
+					return "HCI_EXT_DISABLE_ONE_PKT_PER_EVT";
 				case 1:
-					str = "HCI_EXT_ENABLE_ONE_PKT_PER_EVT";
-					break;
-				default:
-					str = "Unknown One Pkt Per Evt Ctrl";
-					break;
+					return "HCI_EXT_ENABLE_ONE_PKT_PER_EVT";
 			}
-			return str;
+			return "Unknown One Pkt Per Evt Ctrl";
 		}
 
 		public string GetHciExtClkDivideOnHaltCtrlStr(byte control)
 		{
-			string str;
 			switch (control)
 			{
 				case 0:
-					str = "HCI_EXT_DISABLE_CLK_DIVIDE_ON_HALT";
-					break;
+					return "HCI_EXT_DISABLE_CLK_DIVIDE_ON_HALT";
 				case 1:
-					str = "HCI_EXT_ENABLE_CLK_DIVIDE_ON_HALT";
-					break;
-				default:
-					str = "Unknown Clk Divide On Halt Ctrl";
-					break;
+					return "HCI_EXT_ENABLE_CLK_DIVIDE_ON_HALT";
 			}
-			return str;
+			return "Unknown Clk Divide On Halt Ctrl";
 		}
 
 		public string GetHciExtDeclareNvUsageModeStr(byte control)
 		{
-			string str;
 			switch (control)
 			{
 				case 0:
-					str = "NV Not In Use";
-					break;
+					return "NV Not In Use";
 				case 1:
-					str = "NV In Use";
-					break;
-				default:
-					str = "Unknown Declare Nv Usage Proc Mode";
-					break;
+					return "NV In Use";
 			}
-			return str;
+			return "Unknown Declare Nv Usage Proc Mode";
 		}
 
 		public string GetHciExtSetFastTxRespTimeCtrlStr(byte control)
 		{
-			string str;
 			switch (control)
 			{
 				case 0:
-					str = "HCI_EXT_DISABLE_FAST_TX_RESP_TIME";
-					break;
+					return "HCI_EXT_DISABLE_FAST_TX_RESP_TIME";
 				case 1:
-					str = "HCI_EXT_ENABLE_FAST_TX_RESP_TIME";
-					break;
-				default:
-					str = "Unknown Set Fast Tx Resp Time Ctrl";
-					break;
+					return "HCI_EXT_ENABLE_FAST_TX_RESP_TIME";
 			}
-			return str;
+			return "Unknown Set Fast Tx Resp Time Ctrl";
 		}
 
 		public string GetHciExtCwModeStr(byte cwMode)
@@ -1406,8 +1301,7 @@ namespace BTool
 
 		public string GetErrorStatusStr(byte errorStatus)
 		{
-			string newLineSpacer = "\n       \t\t  ";
-			return GetErrorStatusStr(errorStatus, newLineSpacer);
+			return GetErrorStatusStr(errorStatus, newline_2tab);
 		}
 
 		public string GetStatusStr(byte status)
@@ -1724,59 +1618,40 @@ namespace BTool
 
 		public string GetSigAuthStr(byte sigAuth)
 		{
-			string str;
 			switch (sigAuth)
 			{
 				case 0:
-					str = "The Authentication Signature is not included with the Write PDU.";
-					break;
+					return "The Authentication Signature is not included with the Write PDU.";
 				case 1:
-					str = "The included Authentication Signature is valid.";
-					break;
+					return "The included Authentication Signature is valid.";
 				case 2:
-					str = "The included Authentication Signature is not valid.";
-					break;
-				default:
-					str = "Unknown Signature Authorization";
-					break;
+					return "The included Authentication Signature is not valid.";
 			}
-			return str;
+			return "Unknown Signature Authorization";
 		}
 
 		public string GetFindFormatStr(byte findFormat)
 		{
-			string str;
 			switch (findFormat)
 			{
 				case 1:
-					str = "A List Of 1 Or More Handles With Their 16-bit Bluetooth UUIDs";
-					break;
+					return "A List Of 1 Or More Handles With Their 16-bit Bluetooth UUIDs";
 				case 2:
-					str = "A List Of 1 Or More Handles With Their 128-bit UUIDs";
-					break;
-				default:
-					str = "Unknown Find Format";
-					break;
+					return "A List Of 1 Or More Handles With Their 128-bit UUIDs";
 			}
-			return str;
+			return "Unknown Find Format";
 		}
 
 		public string GetGapAuthenticatedCsrkStr(byte authCsrk)
 		{
-			string str;
 			switch (authCsrk)
 			{
 				case 0:
-					str = "CSRK Is Not Authenticated";
-					break;
+					return "CSRK Is Not Authenticated";
 				case 1:
-					str = "CSRK Is Authenticated";
-					break;
-				default:
-					str = "Unknown GAP Authenticated Csrk";
-					break;
+					return "CSRK Is Authenticated";
 			}
-			return str;
+			return "Unknown GAP Authenticated Csrk";
 		}
 
 		public string GetGapBondParamIdStr(ushort bondParamId)
@@ -1838,38 +1713,26 @@ namespace BTool
 
 		public string GetGapAdventAdTypeStr(byte adType)
 		{
-			string str;
 			switch (adType)
 			{
 				case 0:
-					str = "SCAN_RSP data";
-					break;
+					return "SCAN_RSP data";
 				case 1:
-					str = "Advertisement data";
-					break;
-				default:
-					str = "Unknown GAP Advent Ad Type";
-					break;
+					return "Advertisement data";
 			}
-			return str;
+			return "Unknown GAP Advent Ad Type";
 		}
 
 		public string GetGapUiInputStr(byte uiInput)
 		{
-			string str;
 			switch (uiInput)
 			{
 				case 0:
-					str = "Don’t Ask User To Input A Passcode";
-					break;
+					return "Don’t Ask User To Input A Passcode";
 				case 1:
-					str = "Ask User To Input A Passcode";
-					break;
-				default:
-					str = "Unknown GAP UI Input";
-					break;
+					return "Ask User To Input A Passcode";
 			}
-			return str;
+			return "Unknown GAP UI Input";
 		}
 
 		public string GetGapUiOutputStr(byte uiOutput)
@@ -1911,51 +1774,49 @@ namespace BTool
 
 		public string GetGapChannelMapStr(byte channelMap)
 		{
-			string str1 = "\n       \t\t  ";
-			string str2 = string.Empty;
+			string ch_map = string.Empty;
 			if (channelMap == 0)
 				return "Channel Map Bit Mask Is Not Set";
 
-			byte num1 = (byte)0;
-			if (((int)channelMap & (int)num1) == (int)num1)
-				str2 = "Channel 37";
+			if ((channelMap & 0x00) == 0x00)
+				ch_map = "Channel 37";
 
 			if ((channelMap & 0x01) == 0x01)
 			{
-				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
-				str2 = str2 + "Channel 38";
+				if (!string.IsNullOrEmpty(ch_map))
+					ch_map = ch_map + newline_2tab;
+				ch_map = ch_map + "Channel 38";
 			}
 
 			if ((channelMap & 0x02) == 0x02)
 			{
-				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
-				str2 = str2 + "Channel 39";
+				if (!string.IsNullOrEmpty(ch_map))
+					ch_map = ch_map + newline_2tab;
+				ch_map = ch_map + "Channel 39";
 			}
-			if (string.IsNullOrEmpty(str2))
-				str2 = "Unknown Gap Channel Map";
-			return str2;
+
+			if (string.IsNullOrEmpty(ch_map))
+				ch_map = "Unknown Gap Channel Map";
+			return ch_map;
 		}
 
 		public string GetGapFilterPolicyStr(byte filterPolicy)
 		{
-			string str1 = "\n       \t\t  ";
 			string str2 = string.Empty;
 			string str3;
 			switch (filterPolicy)
 			{
 				case 0:
-					str3 = "Allow Scan Requests From Any, Allow " + str1 + "Connect Request From Any.";
+					str3 = "Allow Scan Requests From Any, Allow " + newline_2tab + "Connect Request From Any.";
 					break;
 				case 1:
-					str3 = "Allow Scan Requests From White List Only, " + str1 + "Allow Connect Request From Any.";
+					str3 = "Allow Scan Requests From White List Only, " + newline_2tab + "Allow Connect Request From Any.";
 					break;
 				case 2:
-					str3 = "Allow Scan Requests From Any, Allow " + str1 + "Connect Request From White List Only.";
+					str3 = "Allow Scan Requests From Any, Allow " + newline_2tab + "Connect Request From White List Only.";
 					break;
 				case 3:
-					str3 = "Allow Scan Requests From White List Only, " + str1 + "Allow Connect Requests From White List Only.";
+					str3 = "Allow Scan Requests From White List Only, " + newline_2tab + "Allow Connect Requests From White List Only.";
 					break;
 				default:
 					str3 = "Unknown Gap Filter Policy";
@@ -1966,7 +1827,6 @@ namespace BTool
 
 		public string GetGapAuthReqStr(byte authReq)
 		{
-			string str1 = "\n       \t\t  ";
 			string str2 = string.Empty;
 			if ((int)authReq == 0)
 				return "Gap Auth Req Bit Mask Is Not Set";
@@ -1977,7 +1837,7 @@ namespace BTool
 			if (((int)authReq & (int)num2) == (int)num2)
 			{
 				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
+					str2 += newline_2tab;
 				str2 = str2 + "Man-In-The-Middle protection";
 			}
 			if (string.IsNullOrEmpty(str2))
@@ -1987,48 +1847,48 @@ namespace BTool
 
 		public string GetGapKeyDiskStr(byte keyDisk)
 		{
-			string str1 = "\n       \t\t  ";
 			string str2 = string.Empty;
-			if ((int)keyDisk == 0)
+			if (keyDisk == 0)
 				return "Gap Key Disk Bit Mask Is Not Set";
-			byte num1 = (byte)1;
-			if (((int)keyDisk & (int)num1) == (int)num1)
+
+			if ((keyDisk & 0x01) == 0x01)
 				str2 = "Slave Encryption Key";
-			byte num2 = (byte)2;
-			if (((int)keyDisk & (int)num2) == (int)num2)
+
+			if ((keyDisk & 0x02) == 0x02)
 			{
 				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
+					str2 += newline_2tab;
 				str2 = str2 + "Slave Identification Key";
 			}
-			byte num3 = (byte)4;
-			if (((int)keyDisk & (int)num3) == (int)num3)
+
+			if ((keyDisk & 0x04) == 0x04)
 			{
 				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
+					str2 += newline_2tab;
 				str2 = str2 + "Slave Signing Key";
 			}
-			byte num4 = (byte)8;
-			if (((int)keyDisk & (int)num4) == (int)num4)
+
+			if ((keyDisk & 0x08) == 0x08)
 			{
 				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
+					str2 += newline_2tab;
 				str2 = str2 + "Master Encryption Key";
 			}
-			byte num5 = (byte)16;
-			if (((int)keyDisk & (int)num5) == (int)num5)
+
+			if ((keyDisk & 0x10) == 0x10)
 			{
 				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
+					str2 += newline_2tab;
 				str2 = str2 + "Master Identification Key";
 			}
-			byte num6 = (byte)32;
-			if (((int)keyDisk & (int)num6) == (int)num6)
+
+			if ((keyDisk & 0x20) == 0x20)
 			{
 				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
+					str2 += newline_2tab;
 				str2 = str2 + "Master Signing Key";
 			}
+
 			if (string.IsNullOrEmpty(str2))
 				str2 = "Unknown Gap Key Disk";
 			return str2;
@@ -2118,46 +1978,40 @@ namespace BTool
 
 		public string GetGattPermissionsStr(byte permissions)
 		{
-			string str1 = "\n       \t\t  ";
 			string str2 = string.Empty;
 			if ((int)permissions == 0)
 				return "Gatt Permissions Bit Mask Is Not Set";
-			byte num1 = (byte)1;
-			if (((int)permissions & (int)num1) == (int)num1)
+
+			if ((permissions & 0x01) == 0x01)
 				str2 = "GATT_PERMIT_READ";
-			byte num2 = (byte)2;
-			if (((int)permissions & (int)num2) == (int)num2)
+			if ((permissions & 0x02) == 0x02)
 			{
 				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
+					str2 += newline_2tab;
 				str2 = str2 + "GATT_PERMIT_WRITE";
 			}
-			byte num3 = (byte)4;
-			if (((int)permissions & (int)num3) == (int)num3)
+			if ((permissions & 0x04) == 0x04)
 			{
 				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
+					str2 += newline_2tab;
 				str2 = str2 + "GATT_PERMIT_AUTHEN_READ";
 			}
-			byte num4 = (byte)8;
-			if (((int)permissions & (int)num4) == (int)num4)
+			if ((permissions & 0x08) == 0x08)
 			{
 				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
+					str2 += newline_2tab;
 				str2 = str2 + "GATT_PERMIT_AUTHEN_WRITE";
 			}
-			byte num5 = (byte)16;
-			if (((int)permissions & (int)num5) == (int)num5)
+			if ((permissions & 0x10) == 0x10)
 			{
 				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
+					str2 += newline_2tab;
 				str2 = str2 + "GATT_PERMIT_AUTHOR_READ";
 			}
-			byte num6 = (byte)32;
-			if (((int)permissions & (int)num6) == (int)num6)
+			if ((permissions & 0x20) == 0x20)
 			{
 				if (!string.IsNullOrEmpty(str2))
-					str2 = str2 + str1;
+					str2 += newline_2tab;
 				str2 = str2 + "GATT_PERMIT_AUTHOR_WRITE";
 			}
 			if (string.IsNullOrEmpty(str2))
@@ -2232,7 +2086,6 @@ namespace BTool
 
 		public string GetGapAdTypesStr(byte adTypes)
 		{
-			string str1 = "\n       \t\t  ";
 			string str2 = string.Empty;
 			string str3;
 			switch (adTypes)
@@ -2268,13 +2121,13 @@ namespace BTool
 					str3 = "TX Power Level: 0xXX: -127 to +127 dBm";
 					break;
 				case 13:
-					str3 = "Simple Pairing OOB Tag: Class Of device" + str1 + " (3 octets)";
+					str3 = "Simple Pairing OOB Tag: Class Of device" + newline_2tab + " (3 octets)";
 					break;
 				case 14:
-					str3 = "Simple Pairing OOB Tag: Simple Pairing " + str1 + "Hash C (16 octets)";
+					str3 = "Simple Pairing OOB Tag: Simple Pairing " + newline_2tab + "Hash C (16 octets)";
 					break;
 				case 15:
-					str3 = "Simple Pairing OOB Tag: Simple Pairing " + str1 + "Randomizer R (16 octets)";
+					str3 = "Simple Pairing OOB Tag: Simple Pairing " + newline_2tab + "Randomizer R (16 octets)";
 					break;
 				case 16:
 					str3 = "Security Manager TK Value";
@@ -2283,22 +2136,22 @@ namespace BTool
 					str3 = "Secutiry Manager OOB Flags";
 					break;
 				case 18:
-					str3 = "Min And Max Values Of The Connection Interval " + str1 + "(2 Octets Min, 2 Octets Max) (0xFFFF Indicates " + str1 + "No Conn Interval Min Or Max)";
+					str3 = "Min And Max Values Of The Connection Interval " + newline_2tab + "(2 Octets Min, 2 Octets Max) (0xFFFF Indicates " + newline_2tab + "No Conn Interval Min Or Max)";
 					break;
 				case 19:
 					str3 = "Signed Data Field";
 					break;
 				case 20:
-					str3 = "Service Solicitation: List Of 16-bit " + str1 + "Service UUIDs";
+					str3 = "Service Solicitation: List Of 16-bit " + newline_2tab + "Service UUIDs";
 					break;
 				case 21:
-					str3 = "Service Solicitation: List Of 128-bit " + str1 + "Service UUIDs";
+					str3 = "Service Solicitation: List Of 128-bit " + newline_2tab + "Service UUIDs";
 					break;
 				case 22:
 					str3 = "Service Data";
 					break;
 				case byte.MaxValue:
-					str3 = "Manufacturer Specific Data: First 2 Octets " + str1 + "Contain The Company Identifier Code " + str1 + "Followed By The Additional Manufacturer " + str1 + "Specific Data";
+					str3 = "Manufacturer Specific Data: First 2 Octets " + newline_2tab + "Contain The Company Identifier Code " + newline_2tab + "Followed By The Additional Manufacturer " + newline_2tab + "Specific Data";
 					break;
 				default:
 					str3 = "Unknown Gap Ad Types";
@@ -2309,196 +2162,129 @@ namespace BTool
 
 		public string GetLEAddressTypeStr(byte dataFlag)
 		{
-			string str1 = string.Empty;
-			string str2;
 			switch (dataFlag)
 			{
 				case 0:
-					str2 = "Public Device Address";
-					break;
+					return "Public Device Address";
 				case 1:
-					str2 = "Random Device Address";
-					break;
-				default:
-					str2 = "Unknown LE Address Type";
-					break;
+					return "Random Device Address";
 			}
-			return str2;
+			return "Unknown LE Address Type";
 		}
 
 		public string GetHciExtSetFreqTuneStr(byte data)
 		{
-			string str1 = string.Empty;
-			string str2;
 			switch (data)
 			{
 				case 0:
-					str2 = "Tune Frequency Down";
-					break;
+					return "Tune Frequency Down";
 				case 1:
-					str2 = "Tune Frequency Up";
-					break;
-				default:
-					str2 = "Unknown HciExtSetFreqTune Data";
-					break;
+					return "Tune Frequency Up";
 			}
-			return str2;
+			return "Unknown HciExtSetFreqTune Data";
 		}
 
 		public string GetHciExtMapPmIoPortStr(byte data)
 		{
-			string str1 = string.Empty;
-			string str2;
 			switch (data)
 			{
 				case 0:
-					str2 = "PM IO Port 0";
-					break;
+					return "PM IO Port 0";
 				case 1:
-					str2 = "PM IO Port 1";
-					break;
+					return "PM IO Port 1";
 				case 2:
-					str2 = "PM IO Port 2";
-					break;
-				case byte.MaxValue:
-					str2 = "PM IO Port None";
-					break;
-				default:
-					str2 = "Unknown HciExtMapPmIoPort Data";
-					break;
+					return "PM IO Port 2";
+				case 255:
+					return "PM IO Port None";
 			}
-			return str2;
+			return "Unknown HciExtMapPmIoPort Data";
 		}
 
 		public string GetHciExtPERTestCommandStr(byte data)
 		{
-			string str1 = string.Empty;
-			string str2;
 			switch (data)
 			{
 				case 0:
-					str2 = "Reset PER Counters";
-					break;
+					return "Reset PER Counters";
 				case 1:
-					str2 = "Read PER Counters";
-					break;
-				default:
-					str2 = "Unknown HciExtPERTestCommand Data";
-					break;
+					return "Read PER Counters";
 			}
-			return str2;
+			return "Unknown HciExtPERTestCommand Data";
 		}
 
 		public int GetUuidLength(byte format, ref bool dataErr)
 		{
-			int num = 0;
 			dataErr = false;
 			switch (format)
 			{
 				case 1:
-					num = 2;
-					break;
+					return 2;
 				case 2:
-					num = 16;
-					break;
-				default:
-					string msg = string.Format("Can Not Convert The UUID Format. [{0}]\n", (object)(int)format);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-					dataErr = true;
-					break;
+					return 16;
 			}
-			return num;
+			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Can Not Convert The UUID Format. [{0}]\n", format));
+			dataErr = true;
+			return 0;
 		}
 
 		public string GetHciReqOpCodeStr(byte data)
 		{
-			string str1 = string.Empty;
-			string str2;
 			switch (data)
 			{
 				case 1:
-					str2 = "ATT_ErrorRsp";
-					break;
+					return "ATT_ErrorRsp";
 				case 2:
-					str2 = "ATT_ExchangeMTUReq";
-					break;
+					return "ATT_ExchangeMTUReq";
 				case 3:
-					str2 = "ATT_ExchangeMTURsp";
-					break;
+					return "ATT_ExchangeMTURsp";
 				case 4:
-					str2 = "ATT_FindInfoReq";
-					break;
+					return "ATT_FindInfoReq";
 				case 5:
-					str2 = "ATT_FindInfoRsp";
-					break;
+					return "ATT_FindInfoRsp";
 				case 6:
-					str2 = "ATT_FindByTypeValueReq";
-					break;
+					return "ATT_FindByTypeValueReq";
 				case 7:
-					str2 = "ATT_FindByTypeValueRsp";
-					break;
+					return "ATT_FindByTypeValueRsp";
 				case 8:
-					str2 = "ATT_ReadByTypeReq";
-					break;
+					return "ATT_ReadByTypeReq";
 				case 9:
-					str2 = "ATT_ReadByTypeRsp";
-					break;
+					return "ATT_ReadByTypeRsp";
 				case 10:
-					str2 = "ATT_ReadReq";
-					break;
+					return "ATT_ReadReq";
 				case 11:
-					str2 = "ATT_ReadRsp";
-					break;
+					return "ATT_ReadRsp";
 				case 12:
-					str2 = "ATT_ReadBlobReq";
-					break;
+					return "ATT_ReadBlobReq";
 				case 13:
-					str2 = "ATT_ReadBlobRsp";
-					break;
+					return "ATT_ReadBlobRsp";
 				case 14:
-					str2 = "ATT_ReadMultiReq";
-					break;
+					return "ATT_ReadMultiReq";
 				case 15:
-					str2 = "ATT_ReadMultiRsp";
-					break;
+					return "ATT_ReadMultiRsp";
 				case 16:
-					str2 = "ATT_ReadByGrpTypeReq";
-					break;
+					return "ATT_ReadByGrpTypeReq";
 				case 17:
-					str2 = "ATT_ReadByGrpTypeRsp";
-					break;
+					return "ATT_ReadByGrpTypeRsp";
 				case 18:
-					str2 = "ATT_WriteReq";
-					break;
+					return "ATT_WriteReq";
 				case 19:
-					str2 = "ATT_WriteRsp";
-					break;
+					return "ATT_WriteRsp";
 				case 22:
-					str2 = "ATT_PrepareWriteReq";
-					break;
+					return "ATT_PrepareWriteReq";
 				case 23:
-					str2 = "ATT_PrepareWriteRsp";
-					break;
+					return "ATT_PrepareWriteRsp";
 				case 24:
-					str2 = "ATT_ExecuteWriteReq";
-					break;
+					return "ATT_ExecuteWriteReq";
 				case 25:
-					str2 = "ATT_ExecuteWriteRsp";
-					break;
+					return "ATT_ExecuteWriteRsp";
 				case 27:
-					str2 = "ATT_HandleValueNotification";
-					break;
+					return "ATT_HandleValueNotification";
 				case 29:
-					str2 = "ATT_HandleValueIndication";
-					break;
+					return "ATT_HandleValueIndication";
 				case 30:
-					str2 = "ATT_HandleValueConfirmation";
-					break;
-				default:
-					str2 = "Unknown HCIReqOpcode Data";
-					break;
+					return "ATT_HandleValueConfirmation";
 			}
-			return str2;
+			return "Unknown HCIReqOpcode Data";
 		}
 
 		public string GetGattCharProperties(byte properties, bool useShort)
@@ -2507,37 +2293,32 @@ namespace BTool
 			string s_space = " ";
 			if (properties == 0)
 				return str;
-			byte num = 0x01;
-			if ((properties & num) == num)
-				str = (!useShort ? str + ((object)GATT_CharProperties.Broadcast).ToString() : str + "Bcst") + s_space;
-			num = 0x02;
-			if ((properties & num) == num)
-				str = (!useShort ? str + ((object)GATT_CharProperties.Read).ToString() : str + "Rd") + s_space;
-			num = 0x04;
-			if ((properties & num) == num)
-				str = (!useShort ? str + ((object)GATT_CharProperties.WriteWithoutResponse).ToString() : str + "Wwr") + s_space;
-			num = 0x08;
-			if ((properties & num) == num)
-				str = (!useShort ? str + ((object)GATT_CharProperties.Write).ToString() : str + "Wr") + s_space;
-			num = 0x10;
-			if ((properties & num) == num)
-				str = (!useShort ? str + ((object)GATT_CharProperties.Notify).ToString() : str + "Nfy") + s_space;
-			num = 0x20;
-			if ((properties & num) == num)
-				str = (!useShort ? str + ((object)GATT_CharProperties.Indicate).ToString() : str + "Ind") + s_space;
-			num = 0x40;
-			if ((properties & num) == num)
-				str = (!useShort ? str + ((object)GATT_CharProperties.AuthenticatedSignedWrites).ToString() : str + "Asw") + s_space;
-			num = 0x80;
-			if ((properties & num) == num)
-				str = !useShort ? str + ((object)GATT_CharProperties.ExtendedProperties).ToString() : str + "Exp";
-			return str;
-		}
 
-		private enum UuidFormat
-		{
-			TwoBytes = 1,
-			SixteenBytes = 2,
+			if ((properties & 0x01) == 0x01)
+				str = (!useShort ? str + GATT_CharProperties.Broadcast.ToString() : str + "Bcst") + s_space;
+
+			if ((properties & 0x02) == 0x02)
+				str = (!useShort ? str + GATT_CharProperties.Read.ToString() : str + "Rd") + s_space;
+
+			if ((properties & 0x04) == 0x04)
+				str = (!useShort ? str + GATT_CharProperties.WriteWithoutResponse.ToString() : str + "Wwr") + s_space;
+
+			if ((properties & 0x08) == 0x08)
+				str = (!useShort ? str + GATT_CharProperties.Write.ToString() : str + "Wr") + s_space;
+
+			if ((properties & 0x10) == 0x10)
+				str = (!useShort ? str + GATT_CharProperties.Notify.ToString() : str + "Nfy") + s_space;
+
+			if ((properties & 0x20) == 0x20)
+				str = (!useShort ? str + GATT_CharProperties.Indicate.ToString() : str + "Ind") + s_space;
+
+			if ((properties & 0x40) == 0x40)
+				str = (!useShort ? str + GATT_CharProperties.AuthenticatedSignedWrites.ToString() : str + "Asw") + s_space;
+
+			if ((properties & 0x80) == 0x80)
+				str = !useShort ? str + GATT_CharProperties.ExtendedProperties.ToString() : str + "Exp";
+
+			return str.Trim();
 		}
 	}
 }

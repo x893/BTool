@@ -2,11 +2,11 @@
 {
 	public class RxDataIn
 	{
-		public byte type;
-		public ushort cmdOpcode;
-		public ushort eventOpcode;
-		public byte length;
-		public byte[] data;
-		public string time;
+		public byte RxType;
+		public ushort CmdOpcode;
+		public ushort EventOpcode;
+		public byte Length;
+		public byte[] Data;
+		public string Time;
 	}
 }

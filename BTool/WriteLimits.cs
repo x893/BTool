@@ -2,7 +2,7 @@
 {
 	public struct WriteLimits
 	{
-		public int maxPacketSize;
-		public int maxNumPreparedWrites;
+		public int MaxPacketSize;
+		public int MaxNumPreparedWrites;
 	}
 }

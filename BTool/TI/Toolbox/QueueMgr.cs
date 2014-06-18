@@ -5,12 +5,13 @@ namespace TI.Toolbox
 {
 	public class QueueMgr
 	{
+		public ManualResetEvent qDataReadyEvent = new ManualResetEvent(false);
+
+		private const string moduleName = "QueueMgr";
 		private string callingModuleName = string.Empty;
 		private MsgBox msgBox = new MsgBox();
 		private Queue dataQ = new Queue();
 		private Mutex qDataMutex = new Mutex();
-		public ManualResetEvent qDataReadyEvent = new ManualResetEvent(false);
-		private const string moduleName = "QueueMgr";
 		private Queue syncDataQ;
 
 		public QueueMgr()
@@ -73,17 +74,17 @@ namespace TI.Toolbox
 		public int GetQLength()
 		{
 			qDataMutex.WaitOne();
-			int num = 0;
+			int length = 0;
 			try
 			{
-				num = syncDataQ.Count;
+				length = syncDataQ.Count;
 			}
 			catch
 			{
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "GetQLength\nError Getting Number Of Items In The Queue\n");
 			}
 			qDataMutex.ReleaseMutex();
-			return num;
+			return length;
 		}
 
 		public bool ClearQ()

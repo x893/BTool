@@ -7,8 +7,8 @@ namespace BTool
 	{
 		public static Mutex uuidDictAccess = new Mutex();
 		public static Dictionary<string, UuidData> uuidDict = new Dictionary<string, UuidData>();
-		public const ushort InvalidConnHandle = (ushort)65535;
-		public const ushort InvalidHandle = (ushort)0;
+		public const ushort InvalidConnHandle = 0xFFFF;
+		public const ushort InvalidHandle = 0;
 		public const string InvalidData = "";
 
 		static AttrUuid()

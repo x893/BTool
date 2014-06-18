@@ -12,17 +12,17 @@
 			bool flag;
 			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
 			{
-				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-				HCIReplies.HCI_LE_ExtEvent.ATT_ExecuteWriteRsp attExecuteWriteRsp = hciLeExtEvent.attExecuteWriteRsp;
-				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
-				if (attExecuteWriteRsp != null && hciReplies.objTag != null)
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_ExecuteWriteRsp attExecuteWriteRsp = hciLeExtEvent.AttExecuteWriteRsp;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.Header;
+				if (attExecuteWriteRsp != null && hciReplies.ObjTag != null)
 				{
 					dataFound = true;
-					switch (leExtEventHeader.eventStatus)
+					switch (leExtEventHeader.EventStatus)
 					{
 						case (byte)0:
 						case (byte)23:
-							int num = (int)(ushort)hciReplies.objTag;
+							int num = (int)(ushort)hciReplies.ObjTag;
 							SendRspCallback(hciReplies, true);
 							break;
 						default:
@@ -43,8 +43,8 @@
 			AttExecuteWriteRspCallback(new AttExecuteWriteRsp.RspInfo()
 			{
 				success = success,
-				header = hciReplies.hciLeExtEvent.header,
-				aTT_ExecuteWriteRsp = hciReplies.hciLeExtEvent.attExecuteWriteRsp
+				header = hciReplies.HciLeExtEvent.Header,
+				aTT_ExecuteWriteRsp = hciReplies.HciLeExtEvent.AttExecuteWriteRsp
 			});
 		}
 

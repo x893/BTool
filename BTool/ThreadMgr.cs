@@ -5,7 +5,6 @@ namespace BTool
 {
 	public class ThreadMgr
 	{
-		private const string moduleName = "ThreadMgr";
 		public RspDataInThread rspDataIn;
 		public TxDataOutThread txDataOut;
 		public RxDataInThread rxDataIn;
@@ -32,37 +31,33 @@ namespace BTool
 
 		public bool StopThreads()
 		{
-			bool flag = true;
 			rspDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Stop);
 			txDataOut.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Stop);
 			rxDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Stop);
 			rxTxMgr.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Stop);
-			return flag;
+			return true;
 		}
 
 		public bool PauseThreads()
 		{
-			bool flag = true;
 			rspDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Pause);
 			txDataOut.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Pause);
 			rxDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Pause);
 			rxTxMgr.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Pause);
-			return flag;
+			return true;
 		}
 
 		public bool ResumeThreads()
 		{
-			bool flag = true;
 			rspDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Resume);
 			txDataOut.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Resume);
 			rxDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Resume);
 			rxTxMgr.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Resume);
-			return flag;
+			return true;
 		}
 
 		public bool ExitThreads()
 		{
-			bool flag = true;
 			if (rspDataIn != null)
 				rspDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Exit);
 			if (txDataOut != null)
@@ -71,17 +66,16 @@ namespace BTool
 				rxDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Exit);
 			if (rxTxMgr != null)
 				rxTxMgr.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Exit);
-			return flag;
+			return true;
 		}
 
 		public bool ClearQueues()
 		{
-			bool flag = true;
 			rspDataIn.dataQ.ClearQ();
 			txDataOut.dataQ.ClearQ();
 			rxDataIn.dataQ.ClearQ();
 			rxTxMgr.dataQ.ClearQ();
-			return flag;
+			return true;
 		}
 
 		public bool WaitForPause()
@@ -91,16 +85,20 @@ namespace BTool
 			{
 				Thread.Sleep(100);
 			}
-			while (!rspDataIn.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused) || !txDataOut.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused) || (!rxDataIn.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused) || !rxTxMgr.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused)));
+			while (!rspDataIn.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused)
+				|| !txDataOut.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused)
+				|| !rxDataIn.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused)
+				|| !rxTxMgr.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused)
+				);
 			return flag;
 		}
 
 		public bool CheckForIdle()
 		{
-			bool flag = false;
-			if (rspDataIn.dataQ.GetQLength() <= 0 && txDataOut.dataQ.GetQLength() <= 0 && (rxDataIn.dataQ.GetQLength() <= 0 && rxTxMgr.dataQ.GetQLength() <= 0))
-				flag = true;
-			return flag;
+			return (rspDataIn.dataQ.GetQLength() <= 0
+			&& txDataOut.dataQ.GetQLength() <= 0
+			&& (rxDataIn.dataQ.GetQLength() <= 0
+			&& rxTxMgr.dataQ.GetQLength() <= 0));
 		}
 	}
 }

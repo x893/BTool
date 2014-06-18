@@ -2,8 +2,8 @@
 {
 	public struct ConnectInfo
 	{
-		public ushort handle;
-		public byte addrType;
-		public string bDA;
+		public ushort Handle;
+		public byte AddrType;
+		public string BDA;
 	}
 }

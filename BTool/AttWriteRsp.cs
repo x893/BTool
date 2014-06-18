@@ -2,29 +2,35 @@
 {
 	public class AttWriteRsp
 	{
+		public struct RspInfo
+		{
+			public bool Success;
+			public HCIReplies.LE_ExtEventHeader Header;
+			public HCIReplies.HCI_LE_ExtEvent.ATT_WriteRsp ATT_WriteRsp;
+		}
+
+		public delegate void AttWriteRspDelegate(AttWriteRsp.RspInfo rspInfo);
+		public AttWriteRsp.AttWriteRspDelegate AttWriteRspCallback;
+
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
 		private const string moduleName = "AttWriteRsp";
-		public AttWriteRsp.AttWriteRspDelegate AttWriteRspCallback;
 
 		public bool GetATT_WriteRsp(HCIReplies hciReplies, ref bool dataFound)
 		{
 			dataFound = false;
-			bool flag;
-			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
+			bool flag = rspHdlrsUtils.CheckValidResponse(hciReplies);
+			if (flag)
 			{
-				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-				HCIReplies.HCI_LE_ExtEvent.ATT_WriteRsp attWriteRsp = hciLeExtEvent.attWriteRsp;
-				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
-				if (attWriteRsp != null && hciReplies.objTag != null)
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_WriteRsp attWriteRsp = hciLeExtEvent.AttWriteRsp;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.Header;
+				if (attWriteRsp != null && hciReplies.ObjTag != null)
 				{
 					dataFound = true;
-					switch (leExtEventHeader.eventStatus)
+					switch (leExtEventHeader.EventStatus)
 					{
-						case (byte)0:
-							int num = (int)(ushort)hciReplies.objTag;
-							SendRspCallback(hciReplies, true);
-							break;
-						case (byte)23:
+						case 0:
+						case 23:
 							SendRspCallback(hciReplies, true);
 							break;
 						default:
@@ -40,23 +46,15 @@
 
 		private void SendRspCallback(HCIReplies hciReplies, bool success)
 		{
-			if (AttWriteRspCallback == null)
-				return;
-			AttWriteRspCallback(new AttWriteRsp.RspInfo()
+			if (AttWriteRspCallback != null)
 			{
-				success = success,
-				header = hciReplies.hciLeExtEvent.header,
-				aTT_WriteRsp = hciReplies.hciLeExtEvent.attWriteRsp
-			});
-		}
-
-		public delegate void AttWriteRspDelegate(AttWriteRsp.RspInfo rspInfo);
-
-		public struct RspInfo
-		{
-			public bool success;
-			public HCIReplies.LE_ExtEventHeader header;
-			public HCIReplies.HCI_LE_ExtEvent.ATT_WriteRsp aTT_WriteRsp;
+				AttWriteRspCallback(new AttWriteRsp.RspInfo()
+				{
+					Success = success,
+					Header = hciReplies.HciLeExtEvent.Header,
+					ATT_WriteRsp = hciReplies.HciLeExtEvent.AttWriteRsp
+				});
+			}
 		}
 	}
 }

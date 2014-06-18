@@ -9,10 +9,9 @@ namespace BTool
 
 		public bool CheckValidResponse(HCIReplies hciReplies)
 		{
-			bool flag = true;
-			if (hciReplies == null || hciReplies.hciLeExtEvent == null)
-				flag = false;
-			return flag;
+			if (hciReplies == null || hciReplies.HciLeExtEvent == null)
+				return false;
+			return true;
 		}
 
 		public bool UnexpectedRspEventStatus(HCIReplies hciReplies, string moduleName)

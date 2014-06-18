@@ -21,13 +21,13 @@
 			bool flag;
 			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
 			{
-				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-				HCIReplies.HCI_LE_ExtEvent.ATT_ErrorRsp attErrorRsp = hciLeExtEvent.attErrorRsp;
-				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_ErrorRsp attErrorRsp = hciLeExtEvent.AttErrorRsp;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.Header;
 				if (attErrorRsp != null)
 				{
 					dataFound = true;
-					if (leExtEventHeader.eventStatus != 0)
+					if (leExtEventHeader.EventStatus != 0)
 						flag = rspHdlrsUtils.UnexpectedRspEventStatus(hciReplies, "AttErrorRsp");
 					else
 						SendRspCallback(hciReplies, true);
@@ -45,8 +45,8 @@
 			AttErrorRspCallback(new AttErrorRsp.RspInfo()
 									{
 										success = success,
-										header = hciReplies.hciLeExtEvent.header,
-										aTT_ErrorRsp = hciReplies.hciLeExtEvent.attErrorRsp
+										header = hciReplies.HciLeExtEvent.Header,
+										aTT_ErrorRsp = hciReplies.HciLeExtEvent.AttErrorRsp
 									}
 								);
 		}

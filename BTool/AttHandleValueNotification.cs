@@ -22,19 +22,19 @@ namespace BTool
 			bool flag;
 			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
 			{
-				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-				HCIReplies.HCI_LE_ExtEvent.ATT_HandleValueNotification valueNotification = hciLeExtEvent.attHandleValueNotification;
-				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_HandleValueNotification valueNotification = hciLeExtEvent.AttHandleValueNotification;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.Header;
 				if (valueNotification != null)
 				{
 					dataFound = true;
-					switch (leExtEventHeader.eventStatus)
+					switch (leExtEventHeader.EventStatus)
 					{
 						case (byte)0:
-							if (valueNotification.value != null)
+							if (valueNotification.Value != null)
 							{
 								Dictionary<string, DataAttr> tmpAttrDict = new Dictionary<string, DataAttr>();
-								string attrKey = attrUuidUtils.GetAttrKey(valueNotification.attMsgHdr.connHandle, valueNotification.handle);
+								string attrKey = attrUuidUtils.GetAttrKey(valueNotification.AttMsgHdr.ConnHandle, valueNotification.Handle);
 								DataAttr dataAttr = new DataAttr();
 								bool dataChanged = false;
 								if (!attrDataUtils.GetDataAttr(ref dataAttr, ref dataChanged, attrKey, "AttHandleValueNotification"))
@@ -44,10 +44,10 @@ namespace BTool
 								}
 								else
 								{
-									dataAttr.key = attrKey;
-									dataAttr.connHandle = valueNotification.attMsgHdr.connHandle;
-									dataAttr.handle = valueNotification.handle;
-									dataAttr.value = valueNotification.value;
+									dataAttr.Key = attrKey;
+									dataAttr.ConnHandle = valueNotification.AttMsgHdr.ConnHandle;
+									dataAttr.Handle = valueNotification.Handle;
+									dataAttr.Value = valueNotification.Value;
 									if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr, dataChanged, attrKey))
 									{
 										flag = false;
@@ -85,8 +85,8 @@ namespace BTool
 			AttHandleValueNotificationCallback(new AttHandleValueNotification.RspInfo()
 			{
 				success = success,
-				header = hciReplies.hciLeExtEvent.header,
-				aTT_HandleValueNotification = hciReplies.hciLeExtEvent.attHandleValueNotification
+				header = hciReplies.HciLeExtEvent.Header,
+				aTT_HandleValueNotification = hciReplies.HciLeExtEvent.AttHandleValueNotification
 			});
 		}
 

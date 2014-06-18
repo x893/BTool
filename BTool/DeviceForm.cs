@@ -19,7 +19,7 @@ namespace BTool
 		public delegate void DeviceRxDataDelegate(RxDataIn rxDataIn);
 		public delegate bool HandleRxTxMessageDelegate(RxTxMgrData rxTxMgrData);
 
-		private delegate void RxDataHandlerDelegate(byte[] data, uint length);
+		private delegate void RxDataHandlerDelegate(byte[] data, int length);
 		private delegate void DisplayRxCmdDelegate(RxDataIn rxDataIn, bool displayBytes);
 
 		public enum EventType
@@ -218,12 +218,12 @@ namespace BTool
 		public DeviceForm()
 		{
 			devInfo.DevForm = this;
-			connectInfo.bDA = "00:00:00:00:00:00";
-			connectInfo.handle = 0;
-			connectInfo.addrType = 0;
-			disconnectInfo.bDA = "00:00:00:00:00:00";
-			disconnectInfo.handle = 0;
-			disconnectInfo.addrType = 0;
+			connectInfo.BDA = "00:00:00:00:00:00";
+			connectInfo.Handle = 0;
+			connectInfo.AddrType = 0;
+			disconnectInfo.BDA = "00:00:00:00:00:00";
+			disconnectInfo.Handle = 0;
+			disconnectInfo.AddrType = 0;
 			Connections.Clear();
 			commMgr.InitCommManager();
 			msgLogForm = new MsgLogForm(this);
@@ -242,15 +242,18 @@ namespace BTool
 			LoadUserSettings();
 
 			sendCmds.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
+
 			threadMgr.txDataOut.DeviceTxDataCallback = new DeviceForm.DeviceTxDataDelegate(DeviceTxData);
 			threadMgr.txDataOut.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
 			threadMgr.rxDataIn.DeviceRxDataCallback = new DeviceForm.DeviceRxDataDelegate(DeviceRxData);
 			threadMgr.rxTxMgr.HandleRxTxMessageCallback = new DeviceForm.HandleRxTxMessageDelegate(HandleRxTxMessage);
+
 			dspTxCmds.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
 			dspTxCmds.DisplayMsgTimeCallback = new DeviceForm.DisplayMsgTimeDelegate(DisplayMsgTime);
 			attributesForm.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
 			msgLogForm.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
 			devTabsForm.DisplayMsgCallback = new DeviceForm.DisplayMsgDelegate(DisplayMsg);
+
 			threadMgr.Init(this);
 
 			msgLogForm.TopLevel = false;
@@ -320,8 +323,8 @@ namespace BTool
 			connectInfo = tmpConnectInfo;
 			Connections.Add(connectInfo);
 			ConnectionNotify(this, EventArgs.Empty);
-			DisplayMsg(SharedAppObjs.MsgType.Info, "Device Connected\nHandle = 0x" + connectInfo.handle.ToString("X4") + "\nAddr Type = 0x" + connectInfo.addrType.ToString("X2") + " (" + devUtils.GetGapAddrTypeStr(connectInfo.addrType) + ")\nBDAddr = " + connectInfo.bDA + "\n");
-			attributesForm.RemoveData(connectInfo.handle);
+			DisplayMsg(SharedAppObjs.MsgType.Info, "Device Connected\nHandle = 0x" + connectInfo.Handle.ToString("X4") + "\nAddr Type = 0x" + connectInfo.AddrType.ToString("X2") + " (" + devUtils.GetGapAddrTypeStr(connectInfo.AddrType) + ")\nBDAddr = " + connectInfo.BDA + "\n");
+			attributesForm.RemoveData(connectInfo.Handle);
 		}
 
 		protected void OnDisconnectionNotify(ref ConnectInfo tmpDisconnectInfo)
@@ -329,14 +332,14 @@ namespace BTool
 			disconnectInfo = tmpDisconnectInfo;
 			for (int index = 0; index < Connections.Count; ++index)
 			{
-				if (Connections[index].handle == disconnectInfo.handle)
+				if (Connections[index].Handle == disconnectInfo.Handle)
 				{
-					DisplayMsg(SharedAppObjs.MsgType.Info, "Device Disconnected\nHandle = 0x" + disconnectInfo.handle.ToString("X4") + "\nAddr Type = 0x" + Connections[index].addrType.ToString("X2") + " (" + devUtils.GetGapAddrTypeStr(Connections[index].addrType) + ")\nBDAddr = " + Connections[index].bDA + "\n");
+					DisplayMsg(SharedAppObjs.MsgType.Info, "Device Disconnected\nHandle = 0x" + disconnectInfo.Handle.ToString("X4") + "\nAddr Type = 0x" + Connections[index].AddrType.ToString("X2") + " (" + devUtils.GetGapAddrTypeStr(Connections[index].AddrType) + ")\nBDAddr = " + Connections[index].BDA + "\n");
 					Connections.RemoveAt(index);
 					DisconnectionNotify(this, EventArgs.Empty);
 					if (numConnections > 0)
 						--numConnections;
-					attributesForm.RemoveData(disconnectInfo.handle);
+					attributesForm.RemoveData(disconnectInfo.Handle);
 					break;
 				}
 			}
@@ -359,6 +362,7 @@ namespace BTool
 				if (commMgr.OpenPort())
 				{
 					Text = commSelectForm.cbPorts.Text;
+
 					devInfo.DevName = commMgr.PortName;
 					devInfo.ConnectStatus = "None";
 					devInfo.ComPortInfo.BaudRate = commMgr.BaudRate;
@@ -367,7 +371,9 @@ namespace BTool
 					devInfo.ComPortInfo.DataBits = commMgr.DataBits;
 					devInfo.ComPortInfo.Parity = commMgr.Parity;
 					devInfo.ComPortInfo.StopBits = commMgr.StopBits;
+
 					commMgr.RxDataInd = new CommManager.FP_ReceiveDataInd(RxDataHandler);
+
 					processRxProc = new Thread(new ThreadStart(ProcessRxProc));
 					processRxProc.Name = "ProcessRxProcThread";
 					processRxProc.Start();
@@ -458,7 +464,7 @@ namespace BTool
 			}
 		}
 
-		internal void RxDataHandler(byte[] data, uint length)
+		internal void RxDataHandler(byte[] data, int length)
 		{
 			if (InvokeRequired)
 				BeginInvoke((Delegate)new DeviceForm.RxDataHandlerDelegate(RxDataHandler), data, length);
@@ -488,11 +494,11 @@ namespace BTool
 				threadMgr.rxDataIn.dataQ.AddQTail(
 					new RxDataIn()
 					{
-						type = type,
-						cmdOpcode = opCode,
-						eventOpcode = eventOpCode,
-						length = length,
-						data = data
+						RxType = type,
+						CmdOpcode = opCode,
+						EventOpcode = eventOpCode,
+						Length = length,
+						Data = data
 					});
 				type = 0;
 				opCode = 0xFFFF;
@@ -522,7 +528,7 @@ namespace BTool
 					DisplayRxCmd(rxTxMgrData.rxDataIn, msgLogForm.GetDisplayRxDumps());
 				else if (rxTxMgrData.txDataOut != null)
 				{
-					if (commMgr.comPort.IsOpen)
+					if (commMgr.ComPort.IsOpen)
 					{
 						dspTxCmds.DisplayTxCmd(rxTxMgrData.txDataOut, msgLogForm.GetDisplayTxDumps());
 						string str = "";
@@ -922,256 +928,256 @@ namespace BTool
 		{
 			bool dataErr = false;
 			RxDataIn rxDataIn = new RxDataIn();
-			rxDataIn.type = 4;
-			rxDataIn.cmdOpcode = byte.MaxValue;
-			rxDataIn.length = length;
-			rxDataIn.data = data;
+			rxDataIn.RxType = 4;
+			rxDataIn.CmdOpcode = byte.MaxValue;
+			rxDataIn.Length = length;
+			rxDataIn.Data = data;
 			msgLogForm.AppendLog(s_delimeter);
 
-			rxDataIn.eventOpcode = 1024;
+			rxDataIn.EventOpcode = 1024;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1025;
+			rxDataIn.EventOpcode = 1025;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1026;
+			rxDataIn.EventOpcode = 1026;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1027;
+			rxDataIn.EventOpcode = 1027;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1028;
+			rxDataIn.EventOpcode = 1028;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1029;
+			rxDataIn.EventOpcode = 1029;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1030;
+			rxDataIn.EventOpcode = 1030;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1031;
+			rxDataIn.EventOpcode = 1031;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1032;
+			rxDataIn.EventOpcode = 1032;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1033;
+			rxDataIn.EventOpcode = 1033;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1034;
+			rxDataIn.EventOpcode = 1034;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1035;
+			rxDataIn.EventOpcode = 1035;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1036;
+			rxDataIn.EventOpcode = 1036;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1037;
+			rxDataIn.EventOpcode = 1037;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1038;
+			rxDataIn.EventOpcode = 1038;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1039;
+			rxDataIn.EventOpcode = 1039;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1040;
+			rxDataIn.EventOpcode = 1040;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1041;
+			rxDataIn.EventOpcode = 1041;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1042;
+			rxDataIn.EventOpcode = 1042;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1043;
+			rxDataIn.EventOpcode = 1043;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1044;
+			rxDataIn.EventOpcode = 1044;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1153;
+			rxDataIn.EventOpcode = 1153;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1163;
+			rxDataIn.EventOpcode = 1163;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1171;
+			rxDataIn.EventOpcode = 1171;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1281;
+			rxDataIn.EventOpcode = 1281;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1282;
+			rxDataIn.EventOpcode = 1282;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1283;
+			rxDataIn.EventOpcode = 1283;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1284;
+			rxDataIn.EventOpcode = 1284;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1285;
+			rxDataIn.EventOpcode = 1285;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1286;
+			rxDataIn.EventOpcode = 1286;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1287;
+			rxDataIn.EventOpcode = 1287;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1288;
+			rxDataIn.EventOpcode = 1288;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1289;
+			rxDataIn.EventOpcode = 1289;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1290;
+			rxDataIn.EventOpcode = 1290;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1291;
+			rxDataIn.EventOpcode = 1291;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1292;
+			rxDataIn.EventOpcode = 1292;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1293;
+			rxDataIn.EventOpcode = 1293;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1294;
+			rxDataIn.EventOpcode = 1294;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1295;
+			rxDataIn.EventOpcode = 1295;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1295;
+			rxDataIn.EventOpcode = 1295;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1296;
+			rxDataIn.EventOpcode = 1296;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1297;
+			rxDataIn.EventOpcode = 1297;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1298;
+			rxDataIn.EventOpcode = 1298;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1299;
+			rxDataIn.EventOpcode = 1299;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1302;
+			rxDataIn.EventOpcode = 1302;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1303;
+			rxDataIn.EventOpcode = 1303;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1304;
+			rxDataIn.EventOpcode = 1304;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1305;
+			rxDataIn.EventOpcode = 1305;
 			DisplayRxCmd(rxDataIn, true);
 
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1307;
+			rxDataIn.EventOpcode = 1307;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1309;
+			rxDataIn.EventOpcode = 1309;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1310;
+			rxDataIn.EventOpcode = 1310;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1536;
+			rxDataIn.EventOpcode = 1536;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1537;
+			rxDataIn.EventOpcode = 1537;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1538;
+			rxDataIn.EventOpcode = 1538;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1539;
+			rxDataIn.EventOpcode = 1539;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1540;
+			rxDataIn.EventOpcode = 1540;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1541;
+			rxDataIn.EventOpcode = 1541;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1542;
+			rxDataIn.EventOpcode = 1542;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1543;
+			rxDataIn.EventOpcode = 1543;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1544;
+			rxDataIn.EventOpcode = 1544;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1545;
+			rxDataIn.EventOpcode = 1545;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1546;
+			rxDataIn.EventOpcode = 1546;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1547;
+			rxDataIn.EventOpcode = 1547;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1548;
+			rxDataIn.EventOpcode = 1548;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1549;
+			rxDataIn.EventOpcode = 1549;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1550;
+			rxDataIn.EventOpcode = 1550;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1551;
+			rxDataIn.EventOpcode = 1551;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
-			rxDataIn.eventOpcode = 1663;
+			rxDataIn.EventOpcode = 1663;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
 
 			int index1 = 0;
-			rxDataIn.cmdOpcode = 14;
-			rxDataIn.eventOpcode = 0;
+			rxDataIn.CmdOpcode = 14;
+			rxDataIn.EventOpcode = 0;
 			dataUtils.Load8Bits(ref data, ref index1, 1, ref dataErr);
 			dataUtils.Load16Bits(ref data, ref index1, 5125, ref dataErr, false);
-			rxDataIn.data = data;
+			rxDataIn.Data = data;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
 
 			int index2 = 0;
 			dataUtils.Load8Bits(ref data, ref index2, 1, ref dataErr);
 			dataUtils.Load16Bits(ref data, ref index2, 8208, ref dataErr, false);
-			rxDataIn.data = data;
+			rxDataIn.Data = data;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
 
 			int index3 = 0;
 			dataUtils.Load8Bits(ref data, ref index3, 1, ref dataErr);
 			dataUtils.Load16Bits(ref data, ref index3, 8209, ref dataErr, false);
-			rxDataIn.data = data;
+			rxDataIn.Data = data;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
 
 			int index4 = 0;
 			dataUtils.Load8Bits(ref data, ref index4, 1, ref dataErr);
 			dataUtils.Load16Bits(ref data, ref index4, 8210, ref dataErr, false);
-			rxDataIn.data = data;
+			rxDataIn.Data = data;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
 
 			int index5 = 0;
 			dataUtils.Load8Bits(ref data, ref index5, 1, ref dataErr);
 			dataUtils.Load16Bits(ref data, ref index5, 8211, ref dataErr, false);
-			rxDataIn.data = data;
+			rxDataIn.Data = data;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
 
-			rxDataIn.cmdOpcode = 19;
+			rxDataIn.CmdOpcode = 19;
 			DisplayRxCmd(rxDataIn, true);
 			msgLogForm.AppendLog(s_delimeter);
 		}
@@ -1336,11 +1342,11 @@ namespace BTool
 			}
 			else
 			{
-				byte packetType = rxDataIn.type;
-				ushort opCode1 = rxDataIn.cmdOpcode;
-				ushort opCode2 = rxDataIn.eventOpcode;
-				byte num1 = rxDataIn.length;
-				byte[] data1 = rxDataIn.data;
+				byte packetType = rxDataIn.RxType;
+				ushort opCode1 = rxDataIn.CmdOpcode;
+				ushort opCode2 = rxDataIn.EventOpcode;
+				byte num1 = rxDataIn.Length;
+				byte[] data1 = rxDataIn.Data;
 				string msg1 = string.Empty;
 				byte[] addr = new byte[6];
 				string msg2 =
@@ -1943,11 +1949,11 @@ namespace BTool
 													if ((int)status == 0)
 													{
 														ConnectInfo tmpConnectInfo = new ConnectInfo();
-														tmpConnectInfo.handle = num7;
-														tmpConnectInfo.addrType = addrType1;
-														tmpConnectInfo.bDA = str5;
+														tmpConnectInfo.Handle = num7;
+														tmpConnectInfo.AddrType = addrType1;
+														tmpConnectInfo.BDA = str5;
 														OnConnectionNotify(ref tmpConnectInfo);
-														devTabsForm.SetConnHandles(tmpConnectInfo.handle);
+														devTabsForm.SetConnHandles(tmpConnectInfo.Handle);
 													}
 													ushort num9 = dataUtils.Unload16Bits(data1, ref index1, ref dataErr, false);
 													if (!dataErr)
@@ -1984,9 +1990,9 @@ namespace BTool
 												{
 													ConnectInfo connectInfo = new ConnectInfo()
 													{
-														handle = num20,
-														bDA = "00:00:00:00:00:00",
-														addrType = 0
+														Handle = num20,
+														BDA = "00:00:00:00:00:00",
+														AddrType = 0
 													};
 													OnDisconnectionNotify(ref connectInfo);
 													devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotConnected);
@@ -2554,7 +2560,7 @@ namespace BTool
 				if (dataErr)
 					DisplayMsg(SharedAppObjs.MsgType.Error, "Could Not Convert All The Data In The Following Message\n(Message Is Missing Data Bytes To Process)\n");
 
-				DisplayMsgTime(SharedAppObjs.MsgType.Incoming, msg2, rxDataIn.time);
+				DisplayMsgTime(SharedAppObjs.MsgType.Incoming, msg2, rxDataIn.Time);
 				if (displayBytes)
 				{
 					string msg4 = string.Format("{0:X2} {1:X2} {2:X2} ", packetType, (opCode1 & 0xFF), num1);

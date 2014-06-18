@@ -24,23 +24,23 @@ namespace BTool
 			bool flag;
 			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
 			{
-				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-				HCIReplies.HCI_LE_ExtEvent.ATT_HandleValueIndication handleValueIndication = hciLeExtEvent.attHandleValueIndication;
-				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_HandleValueIndication handleValueIndication = hciLeExtEvent.AttHandleValueIndication;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.Header;
 				if (handleValueIndication != null)
 				{
 					dataFound = true;
-					switch (leExtEventHeader.eventStatus)
+					switch (leExtEventHeader.EventStatus)
 					{
 						case (byte)0:
-							if (handleValueIndication.value != null)
+							if (handleValueIndication.Value != null)
 							{
 								sendCmds.SendATT(new HCICmds.ATTCmds.ATT_HandleValueConfirmation()
 								{
-									connHandle = handleValueIndication.attMsgHdr.connHandle
+									connHandle = handleValueIndication.AttMsgHdr.ConnHandle
 								});
 								Dictionary<string, DataAttr> tmpAttrDict = new Dictionary<string, DataAttr>();
-								string attrKey = attrUuidUtils.GetAttrKey(handleValueIndication.attMsgHdr.connHandle, handleValueIndication.handle);
+								string attrKey = attrUuidUtils.GetAttrKey(handleValueIndication.AttMsgHdr.ConnHandle, handleValueIndication.Handle);
 								DataAttr dataAttr = new DataAttr();
 								bool dataChanged = false;
 								if (!attrDataUtils.GetDataAttr(ref dataAttr, ref dataChanged, attrKey, "AttHandleValueIndication"))
@@ -50,10 +50,10 @@ namespace BTool
 								}
 								else
 								{
-									dataAttr.key = attrKey;
-									dataAttr.connHandle = handleValueIndication.attMsgHdr.connHandle;
-									dataAttr.handle = handleValueIndication.handle;
-									dataAttr.value = handleValueIndication.value;
+									dataAttr.Key = attrKey;
+									dataAttr.ConnHandle = handleValueIndication.AttMsgHdr.ConnHandle;
+									dataAttr.Handle = handleValueIndication.Handle;
+									dataAttr.Value = handleValueIndication.Value;
 									if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr, dataChanged, attrKey))
 									{
 										flag = false;
@@ -91,8 +91,8 @@ namespace BTool
 			AttHandleValueIndicationCallback(new AttHandleValueIndication.RspInfo()
 			{
 				success = success,
-				header = hciReplies.hciLeExtEvent.header,
-				aTT_HandleValueIndication = hciReplies.hciLeExtEvent.attHandleValueIndication
+				header = hciReplies.HciLeExtEvent.Header,
+				aTT_HandleValueIndication = hciReplies.HciLeExtEvent.AttHandleValueIndication
 			});
 		}
 

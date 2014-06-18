@@ -4,10 +4,20 @@ namespace BTool
 {
 	public class AttReadByTypeRsp
 	{
+
+		public struct RspInfo
+		{
+			public bool Success;
+			public HCIReplies.LE_ExtEventHeader Header;
+			public HCIReplies.HCI_LE_ExtEvent.ATT_ReadByTypeRsp ATT_ReadByTypeRsp;
+		}
+
+		public delegate void AttReadByTypeRspDelegate(AttReadByTypeRsp.RspInfo rspInfo);
+		public AttReadByTypeRsp.AttReadByTypeRspDelegate AttReadByTypeRspCallback;
+
 		private DeviceFormUtils devUtils = new DeviceFormUtils();
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
 		private const string moduleName = "AttReadByTypeRsp";
-		public AttReadByTypeRsp.AttReadByTypeRspDelegate AttReadByTypeRspCallback;
 		private AttrUuidUtils attrUuidUtils;
 		private AttrDataUtils attrDataUtils;
 
@@ -20,24 +30,24 @@ namespace BTool
 		public bool GetATT_ReadByTypeRsp(HCIReplies hciReplies, ref bool dataFound)
 		{
 			dataFound = false;
-			bool flag;
-			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
+			bool flag = rspHdlrsUtils.CheckValidResponse(hciReplies);
+			if (flag)
 			{
-				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-				HCIReplies.HCI_LE_ExtEvent.ATT_ReadByTypeRsp attReadByTypeRsp = hciLeExtEvent.attReadByTypeRsp;
-				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_ReadByTypeRsp attReadByTypeRsp = hciLeExtEvent.AttReadByTypeRsp;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.Header;
 				if (attReadByTypeRsp != null)
 				{
 					dataFound = true;
-					switch (leExtEventHeader.eventStatus)
+					switch (leExtEventHeader.EventStatus)
 					{
-						case (byte)0:
-							if (attReadByTypeRsp.handleData != null)
+						case 0:
+							if (attReadByTypeRsp.HandleData != null)
 							{
 								Dictionary<string, DataAttr> tmpAttrDict = new Dictionary<string, DataAttr>();
-								foreach (HCIReplies.HandleData handleData in attReadByTypeRsp.handleData)
+								foreach (HCIReplies.HandleData handleData in attReadByTypeRsp.HandleData)
 								{
-									string attrKey = attrUuidUtils.GetAttrKey(attReadByTypeRsp.attMsgHdr.connHandle, handleData.handle);
+									string attrKey = attrUuidUtils.GetAttrKey(attReadByTypeRsp.AttMsgHdr.ConnHandle, handleData.Handle);
 									DataAttr dataAttr = new DataAttr();
 									bool dataChanged = false;
 									if (!attrDataUtils.GetDataAttr(ref dataAttr, ref dataChanged, attrKey, "AttReadByTypeRsp"))
@@ -45,31 +55,22 @@ namespace BTool
 										flag = false;
 										break;
 									}
-									else
+									dataAttr.Key = attrKey;
+									dataAttr.ConnHandle = attReadByTypeRsp.AttMsgHdr.ConnHandle;
+									dataAttr.Handle = handleData.Handle;
+									dataAttr.Value = devUtils.UnloadColonData(handleData.Data, false);
+									if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr, dataChanged, attrKey))
 									{
-										dataAttr.key = attrKey;
-										dataAttr.connHandle = attReadByTypeRsp.attMsgHdr.connHandle;
-										dataAttr.handle = handleData.handle;
-										dataAttr.value = devUtils.UnloadColonData(handleData.data, false);
-										if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr, dataChanged, attrKey))
-										{
-											flag = false;
-											break;
-										}
+										flag = false;
+										break;
 									}
 								}
 								if (!attrDataUtils.UpdateAttrDict(tmpAttrDict))
-								{
 									flag = false;
-									break;
-								}
-								else
-									break;
 							}
-							else
-								break;
-						case (byte)23:
-						case (byte)26:
+							break;
+						case 23:
+						case 26:
 							SendRspCallback(hciReplies, true);
 							break;
 						default:
@@ -85,23 +86,15 @@ namespace BTool
 
 		private void SendRspCallback(HCIReplies hciReplies, bool success)
 		{
-			if (AttReadByTypeRspCallback == null)
-				return;
-			AttReadByTypeRspCallback(new AttReadByTypeRsp.RspInfo()
+			if (AttReadByTypeRspCallback != null)
 			{
-				success = success,
-				header = hciReplies.hciLeExtEvent.header,
-				aTT_ReadByTypeRsp = hciReplies.hciLeExtEvent.attReadByTypeRsp
-			});
-		}
-
-		public delegate void AttReadByTypeRspDelegate(AttReadByTypeRsp.RspInfo rspInfo);
-
-		public struct RspInfo
-		{
-			public bool success;
-			public HCIReplies.LE_ExtEventHeader header;
-			public HCIReplies.HCI_LE_ExtEvent.ATT_ReadByTypeRsp aTT_ReadByTypeRsp;
+				AttReadByTypeRspCallback(new AttReadByTypeRsp.RspInfo()
+				{
+					Success = success,
+					Header = hciReplies.HciLeExtEvent.Header,
+					ATT_ReadByTypeRsp = hciReplies.HciLeExtEvent.AttReadByTypeRsp
+				});
+			}
 		}
 	}
 }

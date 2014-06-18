@@ -258,9 +258,11 @@ namespace BTool
 			{"0x2013","HCI_LEConnectionUpdate"}
 		};
 		#endregion
+
 		private const string strDone = "Done";
 		private const string strCrLf = "\n";
 		private const string strAutoCalc = "This field is auto calculated when the command is sent.";
+
 		public const string ConnHandleDefault = "0xFFFE";
 		public const string ConnHandleInit = "0xFFFE";
 		public const string ConnHandleAll = "0xFFFF";
@@ -273,13 +275,13 @@ namespace BTool
 		public const string Empty8BytesStr = "00:00:00:00:00:00:00:00";
 		public const string Empty6BytesStr = "00:00:00:00:00:00";
 		public const string Empty2BytesStr = "00:00";
-		public const ushort MaxUInt16 = (ushort)65535;
+		public const ushort MaxUInt16 = 0xFFFF;
 		public const ushort HandleDefault = 1;
 		public const ushort HandleInvalid = 0;
 		public const string HandleDefaultStr = "0x0001";
 		public const string HandleInvalidStr = "0x0000";
 		public const ushort StartHandleDefault = 1;
-		public const ushort EndHandleDefault = (ushort)65535;
+		public const ushort EndHandleDefault = 0xFFFF;
 		public const string StartHandleDefaultStr = "0x0001";
 		public const string EndHandleDefaultStr = "0xFFFF";
 		public const ushort OffsetDefault = 0;

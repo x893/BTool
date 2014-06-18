@@ -762,69 +762,69 @@ namespace BTool
 				{
 					if (dataChanged)
 					{
-						tbConnHnd.Text = "0x" + dataAttr.connHandle.ToString("X4");
-						tbHandle.Text = "0x" + dataAttr.handle.ToString("X4");
-						if (dataAttr.uuidHex != string.Empty && dataAttr.uuidHex != null)
-							tbUuid.Text = "0x" + dataAttr.uuidHex;
-						tbUuidDesc.Text = dataAttr.uuidDesc;
+						tbConnHnd.Text = "0x" + dataAttr.ConnHandle.ToString("X4");
+						tbHandle.Text = "0x" + dataAttr.Handle.ToString("X4");
+						if (dataAttr.UuidHex != string.Empty && dataAttr.UuidHex != null)
+							tbUuid.Text = "0x" + dataAttr.UuidHex;
+						tbUuidDesc.Text = dataAttr.UuidDesc;
 						string outStr = string.Empty;
 						if (lastValueDisplaySet)
 						{
-							devUtils.ConvertDisplayTypes(ValueDisplay.Hex, dataAttr.value, ref lastValueDisplay, ref outStr, false);
+							devUtils.ConvertDisplayTypes(ValueDisplay.Hex, dataAttr.Value, ref lastValueDisplay, ref outStr, false);
 						}
 						else
 						{
-							devUtils.ConvertDisplayTypes(ValueDisplay.Hex, dataAttr.value, ref dataAttr.valueDsp, ref outStr, false);
-							lastValueDisplay = dataAttr.valueDsp;
+							devUtils.ConvertDisplayTypes(ValueDisplay.Hex, dataAttr.Value, ref dataAttr.ValueDisplay, ref outStr, false);
+							lastValueDisplay = dataAttr.ValueDisplay;
 							lastValueDisplaySet = true;
 							cbDataType.SelectedIndex = (int)lastValueDisplay;
 						}
 						tbValue.Text = outStr;
-						tbValueDesc.Text = dataAttr.valueDesc;
-						tbProperties.Text = dataAttr.propertiesStr;
+						tbValueDesc.Text = dataAttr.ValueDesc;
+						tbProperties.Text = dataAttr.PropertiesStr;
 						bool flag = false;
-						if (dataAttr.propertiesStr != null && dataAttr.propertiesStr != string.Empty)
+						if (dataAttr.PropertiesStr != null && dataAttr.PropertiesStr != string.Empty)
 						{
 							flag = true;
 							Color green = Color.Green;
 							Color red = Color.Red;
 
-							if ((dataAttr.properties & 0x01) == 0x01)
+							if ((dataAttr.Properties & 0x01) == 0x01)
 								lblBroadcast.ForeColor = green;
 							else
 								lblBroadcast.ForeColor = red;
 
-							if ((dataAttr.properties & 0x02) == 0x02)
+							if ((dataAttr.Properties & 0x02) == 0x02)
 								lblRead.ForeColor = green;
 							else
 								lblRead.ForeColor = red;
 
-							if ((dataAttr.properties & 0x04) == 0x04)
+							if ((dataAttr.Properties & 0x04) == 0x04)
 								lblWriteWithoutResponse.ForeColor = green;
 							else
 								lblWriteWithoutResponse.ForeColor = red;
 
-							if ((dataAttr.properties & 0x08) == 0x08)
+							if ((dataAttr.Properties & 0x08) == 0x08)
 								lblWrite.ForeColor = green;
 							else
 								lblWrite.ForeColor = red;
 
-							if ((dataAttr.properties & 0x10) == 0x10)
+							if ((dataAttr.Properties & 0x10) == 0x10)
 								lblNotify.ForeColor = green;
 							else
 								lblNotify.ForeColor = red;
 
-							if ((dataAttr.properties & 0x20) == 0x20)
+							if ((dataAttr.Properties & 0x20) == 0x20)
 								lblIndicate.ForeColor = green;
 							else
 								lblIndicate.ForeColor = red;
 
-							if ((dataAttr.properties & 0x40) == 0x40)
+							if ((dataAttr.Properties & 0x40) == 0x40)
 								lblAuthenticatedSignedWrites.ForeColor = green;
 							else
 								lblAuthenticatedSignedWrites.ForeColor = red;
 
-							if ((dataAttr.properties & 0x80) == 0x80)
+							if ((dataAttr.Properties & 0x80) == 0x80)
 								lblExtendedProperties.ForeColor = green;
 							else
 								lblExtendedProperties.ForeColor = red;
@@ -841,7 +841,7 @@ namespace BTool
 						lblAuthenticatedSignedWrites.Enabled = flag;
 						lblExtendedProperties.Enabled = flag;
 					}
-					if (dataAttr.valueEdit == ValueEdit.ReadOnly)
+					if (dataAttr.ValueEdit == ValueEdit.ReadOnly)
 					{
 						btnWriteValue.Enabled = false;
 						tbValue.ReadOnly = true;
@@ -852,7 +852,7 @@ namespace BTool
 						tbValue.ReadOnly = false;
 					}
 					if (!lastValueDisplaySet)
-						cbDataType.SelectedIndex = (int)dataAttr.valueDsp;
+						cbDataType.SelectedIndex = (int)dataAttr.ValueDisplay;
 				}
 				formDataAccess.ReleaseMutex();
 			}
@@ -887,8 +887,8 @@ namespace BTool
 			if (sendCmds.SendGATT(
 							new HCICmds.GATTCmds.GATT_ReadLongCharValue()
 							{
-								connHandle = dataAttr.connHandle,
-								handle = dataAttr.handle
+								connHandle = dataAttr.ConnHandle,
+								handle = dataAttr.Handle
 							},
 							TxDataOut.CmdType.General,
 							new SendCmds.SendCmdResult(SendCmdResult)
@@ -910,7 +910,7 @@ namespace BTool
 			else
 			{
 				string outStr = string.Empty;
-				ValueDisplay inValueDisplay = dataAttr.valueDsp;
+				ValueDisplay inValueDisplay = dataAttr.ValueDisplay;
 				ValueDisplay outValueDisplay = ValueDisplay.Hex;
 				if (lastValueDisplaySet)
 					inValueDisplay = lastValueDisplay;
@@ -929,12 +929,12 @@ namespace BTool
 						devForm.threadMgr.rspDataIn.attPrepareWriteRsp.AttPrepareWriteRspCallback = new AttPrepareWriteRsp.AttPrepareWriteRspDelegate(AttPrepareWriteRsp);
 						devForm.threadMgr.rspDataIn.attExecuteWriteRsp.AttExecuteWriteRspCallback = new AttExecuteWriteRsp.AttExecuteWriteRspDelegate(AttExecuteWriteRsp);
 						HCICmds.GATTCmds.GATT_WriteLongCharValue writeLongCharValue = new HCICmds.GATTCmds.GATT_WriteLongCharValue();
-						writeLongCharValue.connHandle = dataAttr.connHandle;
-						writeLongCharValue.handle = dataAttr.handle;
+						writeLongCharValue.connHandle = dataAttr.ConnHandle;
+						writeLongCharValue.handle = dataAttr.Handle;
 						writeLongCharValue.value = str;
 						gattWriteDataAttr = dataAttr;
-						gattWriteDataAttr.value = str;
-						int length1 = AttrData.writeLimits.maxPacketSize >= AttrData.writeLimits.maxNumPreparedWrites * 18 ? AttrData.writeLimits.maxNumPreparedWrites * 18 : AttrData.writeLimits.maxPacketSize;
+						gattWriteDataAttr.Value = str;
+						int length1 = AttrData.writeLimits.MaxPacketSize >= AttrData.writeLimits.MaxNumPreparedWrites * 18 ? AttrData.writeLimits.MaxNumPreparedWrites * 18 : AttrData.writeLimits.MaxPacketSize;
 						byte[] numArray = devUtils.String2Bytes_LSBMSB(str, (byte)16);
 						if (numArray == null)
 						{
@@ -988,7 +988,7 @@ namespace BTool
 		public void ExtCmdStatus(ExtCmdStatus.RspInfo rspInfo)
 		{
 			ClearRspDelegates();
-			if (!rspInfo.success)
+			if (!rspInfo.Success)
 			{
 				string msg = "Command Failed\n";
 				if (DisplayMsgCallback != null)
@@ -997,7 +997,7 @@ namespace BTool
 			}
 			else
 			{
-				string msg = "Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n" + "Event = " + devUtils.GetOpCodeName(rspInfo.header.eventCode) + "\n";
+				string msg = "Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.Header.EventStatus) + "\n" + "Event = " + devUtils.GetOpCodeName(rspInfo.Header.EventCode) + "\n";
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -1020,7 +1020,7 @@ namespace BTool
 				ClearRspDelegates();
 				string msg = "ATT Command Failed\n";
 				if (rspInfo.aTT_ErrorRsp != null)
-					msg = msg + "Command = " + devUtils.GetHciReqOpCodeStr(rspInfo.aTT_ErrorRsp.reqOpCode) + "\n" + "Handle = 0x" + rspInfo.aTT_ErrorRsp.handle.ToString("X4") + "\n" + "Error = " + devUtils.GetErrorStatusStr(rspInfo.aTT_ErrorRsp.errorCode, "") + "\n";
+					msg = msg + "Command = " + devUtils.GetHciReqOpCodeStr(rspInfo.aTT_ErrorRsp.ReqOpCode) + "\n" + "Handle = 0x" + rspInfo.aTT_ErrorRsp.Handle.ToString("X4") + "\n" + "Error = " + devUtils.GetErrorStatusStr(rspInfo.aTT_ErrorRsp.ErrorCode, "") + "\n";
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -1041,16 +1041,16 @@ namespace BTool
 			else
 			{
 				ClearRspDelegates();
-				if (!rspInfo.success)
+				if (!rspInfo.Success)
 				{
 					string msg = "Att Read Blob Command Failed\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 				}
-				else if ((int)rspInfo.header.eventStatus != 26)
+				else if ((int)rspInfo.Header.EventStatus != 26)
 				{
-					string msg = "Att Read Blob Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n";
+					string msg = "Att Read Blob Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.Header.EventStatus) + "\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -1083,7 +1083,7 @@ namespace BTool
 				}
 				else
 				{
-					string msg = "Att Prepare Write Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n";
+					string msg = "Att Prepare Write Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.EventStatus) + "\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -1112,9 +1112,9 @@ namespace BTool
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 				}
-				else if ((int)rspInfo.header.eventStatus != 0)
+				else if ((int)rspInfo.header.EventStatus != 0)
 				{
-					string msg = "Att Execute Write Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n";
+					string msg = "Att Execute Write Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.EventStatus) + "\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -1122,7 +1122,7 @@ namespace BTool
 				else
 				{
 					formDataAccess.WaitOne();
-					gattWriteDataAttr.dataUpdate = true;
+					gattWriteDataAttr.DataUpdate = true;
 					if (!attrDataUtils.UpdateAttrDictItem(gattWriteDataAttr))
 					{
 						string msg = "Att Write Execute Command Data Update Failed\nAttribute Form Data For This Items Did Not Update\n";

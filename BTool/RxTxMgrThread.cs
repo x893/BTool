@@ -31,19 +31,19 @@ namespace BTool
 			{
 				bool flag = false;
 				threadCtrl.Init();
-				threadCtrl.runningThread = true;
+				threadCtrl.RunningThread = true;
 				SharedObjects.log.Write(Logging.MsgType.Debug, "RxTxMgrThread", "Starting Thread");
 				while (!flag)
 				{
-					if (!threadCtrl.exitThread)
+					if (!threadCtrl.ExitThread)
 					{
-						if (threadCtrl.pauseThread)
+						if (threadCtrl.PauseThread)
 						{
-							threadCtrl.idleThread = true;
+							threadCtrl.IdleThread = true;
 							SharedObjects.log.Write(Logging.MsgType.Debug, "RxTxMgrThread", "Pausing Thread");
 							threadCtrl.eventPause.WaitOne();
-							threadCtrl.idleThread = false;
-							if (threadCtrl.exitThread)
+							threadCtrl.IdleThread = false;
+							if (threadCtrl.ExitThread)
 								break;
 						}
 						switch (WaitHandle.WaitAny(new WaitHandle[3]
@@ -55,7 +55,7 @@ namespace BTool
 						{
 							case 0:
 								flag = true;
-								if (!threadCtrl.exitThread)
+								if (!threadCtrl.ExitThread)
 									continue;
 								else
 									continue;

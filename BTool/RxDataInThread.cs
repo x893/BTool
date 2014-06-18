@@ -43,19 +43,19 @@ namespace BTool
 			{
 				bool flag = false;
 				threadCtrl.Init();
-				threadCtrl.runningThread = true;
+				threadCtrl.RunningThread = true;
 				SharedObjects.log.Write(Logging.MsgType.Debug, "RxDataInThread", "Starting Thread");
 				while (!flag)
 				{
-					if (!threadCtrl.exitThread)
+					if (!threadCtrl.ExitThread)
 					{
-						if (threadCtrl.pauseThread)
+						if (threadCtrl.PauseThread)
 						{
-							threadCtrl.idleThread = true;
+							threadCtrl.IdleThread = true;
 							SharedObjects.log.Write(Logging.MsgType.Debug, "RxDataInThread", "Pausing Thread");
 							threadCtrl.eventPause.WaitOne();
-							threadCtrl.idleThread = false;
-							if (threadCtrl.exitThread)
+							threadCtrl.IdleThread = false;
+							if (threadCtrl.ExitThread)
 								break;
 						}
 						switch (WaitHandle.WaitAny(new WaitHandle[3]
@@ -67,7 +67,7 @@ namespace BTool
 						{
 							case 0:
 								flag = true;
-								if (!threadCtrl.exitThread)
+								if (!threadCtrl.ExitThread)
 									continue;
 								else
 									continue;
@@ -129,7 +129,7 @@ namespace BTool
 					stopWaitEvent = (HCIStopWait.StopWaitEvent)null;
 					DeviceTxStopWaitCallback(true);
 				}
-				rxDataIn.time = DateTime.Now.ToString("hh:mm:ss.fff");
+				rxDataIn.Time = DateTime.Now.ToString("hh:mm:ss.fff");
 				if (DeviceRxDataCallback != null)
 					DeviceRxDataCallback(rxDataIn);
 				dataFound = true;
@@ -162,17 +162,17 @@ namespace BTool
 			bool flag = false;
 			try
 			{
-				if (rxDataIn.type == 4)
+				if (rxDataIn.RxType == 4)
 				{
 					int index = 0;
 					bool dataErr = false;
-					switch (rxDataIn.cmdOpcode)
+					switch (rxDataIn.CmdOpcode)
 					{
 						case 0xff:
-							byte eventStatus = dataUtils.Unload8Bits(rxDataIn.data, ref index, ref dataErr);
+							byte eventStatus = dataUtils.Unload8Bits(rxDataIn.Data, ref index, ref dataErr);
 							if (!dataErr)
 							{
-								ushort num1 = rxDataIn.eventOpcode;
+								ushort num1 = rxDataIn.EventOpcode;
 								if (num1 <= 1171)
 								{
 									if (num1 <= 1153)
@@ -195,17 +195,17 @@ namespace BTool
 										case 1281:
 											HCIReplies.ATT_MsgHeader attMsgHdr = new HCIReplies.ATT_MsgHeader();
 											int num2;
-											if ((num2 = rxDataInRspData.UnloadAttMsgHeader(ref rxDataIn.data, ref index, ref dataErr, ref attMsgHdr)) == 0)
+											if ((num2 = rxDataInRspData.UnloadAttMsgHeader(ref rxDataIn.Data, ref index, ref dataErr, ref attMsgHdr)) == 0)
 											{
 												if (num2 == 0)
 													break;
 											}
-											byte num3 = dataUtils.Unload8Bits(rxDataIn.data, ref index, ref dataErr);
+											byte num3 = dataUtils.Unload8Bits(rxDataIn.Data, ref index, ref dataErr);
 											if (!dataErr)
 											{
-												if ((num3 & 0x80) != (int)(byte)(stopWaitEvent.txOpcode & (HCICmds.HCICmdOpcode)65408) && (num3 & 0x80) != (int)(byte)(stopWaitEvent.reqEvt & (HCICmds.HCIEvtOpCode)65408))
+												if ((num3 & 0x80) != (int)(byte)(stopWaitEvent.TxOpcode & (HCICmds.HCICmdOpcode)65408) && (num3 & 0x80) != (int)(byte)(stopWaitEvent.ReqEvt & (HCICmds.HCIEvtOpCode)65408))
 												{
-													if (stopWaitEvent.reqEvt != HCICmds.HCIEvtOpCode.InvalidEventCode)
+													if (stopWaitEvent.ReqEvt != HCICmds.HCIEvtOpCode.InvalidEventCode)
 														break;
 												}
 												flag = true;
@@ -238,12 +238,12 @@ namespace BTool
 										case (ushort)1307:
 										case (ushort)1309:
 										case (ushort)1310:
-											if ((int)rxDataIn.eventOpcode != (int)(ushort)stopWaitEvent.rspEvt1)
+											if ((int)rxDataIn.EventOpcode != (int)(ushort)stopWaitEvent.RspEvt1)
 											{
-												if ((int)rxDataIn.eventOpcode != (int)(ushort)stopWaitEvent.rspEvt2)
+												if ((int)rxDataIn.EventOpcode != (int)(ushort)stopWaitEvent.RspEvt2)
 													break;
 											}
-											flag = CheckMsgComplete(stopWaitEvent.msgComp, eventStatus);
+											flag = CheckMsgComplete(stopWaitEvent.MsgComp, eventStatus);
 											break;
 									}
 								}
@@ -252,12 +252,12 @@ namespace BTool
 									switch (num1)
 									{
 										case 1663:
-											ushort num4 = dataUtils.Unload16Bits(rxDataIn.data, ref index, ref dataErr, false);
+											ushort num4 = dataUtils.Unload16Bits(rxDataIn.Data, ref index, ref dataErr, false);
 											if (!dataErr)
 											{
-												if (num4 == (ushort)stopWaitEvent.txOpcode)
+												if (num4 == (ushort)stopWaitEvent.TxOpcode)
 												{
-													flag = CheckMsgComplete(stopWaitEvent.extCmdStat.msgComp, eventStatus);
+													flag = CheckMsgComplete(stopWaitEvent.ExtCmdStat.MsgComp, eventStatus);
 													break;
 												}
 												else

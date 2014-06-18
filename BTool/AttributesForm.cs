@@ -207,8 +207,8 @@ namespace BTool
 					devForm.threadMgr.rspDataIn.attReadBlobRsp.AttReadBlobRspCallback = new AttReadBlobRsp.AttReadBlobRspDelegate(AttReadBlobRsp);
 					if (sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_ReadLongCharValue()
 					{
-						connHandle = dataAttr.connHandle,
-						handle = dataAttr.handle
+						connHandle = dataAttr.ConnHandle,
+						handle = dataAttr.Handle
 					}, TxDataOut.CmdType.General, new SendCmds.SendCmdResult(SendCmdResult)))
 						Enabled = false;
 					else
@@ -275,11 +275,11 @@ namespace BTool
 					foreach (KeyValuePair<string, DataAttr> keyValuePair in devForm.attrData.attrDict)
 					{
 						DataAttr dataAttr1 = keyValuePair.Value;
-						if (dataAttr1.dataUpdate)
+						if (dataAttr1.DataUpdate)
 						{
 							DataAttr dataAttr3 = dataAttr1;
-							dataAttr3.dataUpdate = false;
-							tmpAttrDict.Add(dataAttr1.key, dataAttr3);
+							dataAttr3.DataUpdate = false;
+							tmpAttrDict.Add(dataAttr1.Key, dataAttr3);
 							int nodeIndex = 0;
 							string str1 = string.Empty;
 							if (lvAttributes.Items.Count >= 1500)
@@ -292,11 +292,11 @@ namespace BTool
 							{
 								Color fore = AttrData.defaultForeground;
 								Color back = AttrData.defaultBackground;
-								if (dataAttr1.foreColor != Color.Empty && dataAttr1.foreColor.ToKnownColor() != (KnownColor)0)
-									fore = dataAttr1.foreColor;
-								if (dataAttr1.backColor != Color.Empty && dataAttr1.backColor.ToKnownColor() != (KnownColor)0)
-									back = dataAttr1.backColor;
-								if (FindAttr(dataAttr1.key, ref nodeIndex))
+								if (dataAttr1.ForeColor != Color.Empty && dataAttr1.ForeColor.ToKnownColor() != (KnownColor)0)
+									fore = dataAttr1.ForeColor;
+								if (dataAttr1.BackColor != Color.Empty && dataAttr1.BackColor.ToKnownColor() != (KnownColor)0)
+									back = dataAttr1.BackColor;
+								if (FindAttr(dataAttr1.Key, ref nodeIndex))
 								{
 									try
 									{
@@ -304,49 +304,49 @@ namespace BTool
 										UpdateItemColor(nodeIndex, (int)listSubItem2, fore, back);
 
 										AttributesForm.ListSubItem listSubItem3 = AttributesForm.ListSubItem.ConnectionHandle;
-										if ((int)dataAttr1.connHandle != (int)ushort.MaxValue)
-											UpdateSubItem(nodeIndex, (int)listSubItem3, "0x" + dataAttr1.connHandle.ToString("X4"), fore, back);
+										if ((int)dataAttr1.ConnHandle != (int)ushort.MaxValue)
+											UpdateSubItem(nodeIndex, (int)listSubItem3, "0x" + dataAttr1.ConnHandle.ToString("X4"), fore, back);
 										
 										UpdateItemColor(nodeIndex, (int)listSubItem3, fore, back);
 										AttributesForm.ListSubItem listSubItem4 = AttributesForm.ListSubItem.Handle;
-										if (dataAttr1.handle != 0)
+										if (dataAttr1.Handle != 0)
 										{
-											UpdateSubItem(nodeIndex, (int)listSubItem4, "0x" + dataAttr1.handle.ToString("X4"), fore, back);
+											UpdateSubItem(nodeIndex, (int)listSubItem4, "0x" + dataAttr1.Handle.ToString("X4"), fore, back);
 										}
 
 										UpdateItemColor(nodeIndex, (int)listSubItem4, fore, back);
 										AttributesForm.ListSubItem listSubItem5 = AttributesForm.ListSubItem.Uuid;
-										if (CheckForStringData(dataAttr1.uuidHex))
+										if (CheckForStringData(dataAttr1.UuidHex))
 										{
-											UpdateSubItem(nodeIndex, (int)listSubItem5, "0x" + dataAttr1.uuidHex, fore, back);
+											UpdateSubItem(nodeIndex, (int)listSubItem5, "0x" + dataAttr1.UuidHex, fore, back);
 										}
 										UpdateItemColor(nodeIndex, (int)listSubItem5, fore, back);
 										AttributesForm.ListSubItem listSubItem6 = AttributesForm.ListSubItem.UuidDesc;
-										if (CheckForStringData(dataAttr1.uuidDesc))
+										if (CheckForStringData(dataAttr1.UuidDesc))
 										{
-											int num = (int)dataAttr1.indentLevel;
+											int num = (int)dataAttr1.IndentLevel;
 											string str2 = "";
 											for (int index = 0; index < num; ++index)
 												str2 = str2 + " ";
-											UpdateSubItem(nodeIndex, (int)listSubItem6, str2 + dataAttr1.uuidDesc, fore, back);
+											UpdateSubItem(nodeIndex, (int)listSubItem6, str2 + dataAttr1.UuidDesc, fore, back);
 										}
 										UpdateItemColor(nodeIndex, (int)listSubItem6, fore, back);
 										AttributesForm.ListSubItem listSubItem7 = AttributesForm.ListSubItem.Value;
-										if (CheckForStringData(dataAttr1.value))
+										if (CheckForStringData(dataAttr1.Value))
 										{
 											string outStr = string.Empty;
-											devUtils.ConvertDisplayTypes(ValueDisplay.Hex, dataAttr1.value, ref dataAttr1.valueDsp, ref outStr, false);
+											devUtils.ConvertDisplayTypes(ValueDisplay.Hex, dataAttr1.Value, ref dataAttr1.ValueDisplay, ref outStr, false);
 											UpdateSubItem(nodeIndex, (int)listSubItem7, outStr, fore, back);
 										}
 										UpdateItemColor(nodeIndex, (int)listSubItem7, fore, back);
 										AttributesForm.ListSubItem listSubItem8 = AttributesForm.ListSubItem.ValueDesc;
-										if (CheckForStringData(dataAttr1.valueDesc))
-											UpdateSubItem(nodeIndex, (int)listSubItem8, dataAttr1.valueDesc, fore, back);
+										if (CheckForStringData(dataAttr1.ValueDesc))
+											UpdateSubItem(nodeIndex, (int)listSubItem8, dataAttr1.ValueDesc, fore, back);
 
 										UpdateItemColor(nodeIndex, (int)listSubItem8, fore, back);
 										AttributesForm.ListSubItem listSubItem9 = AttributesForm.ListSubItem.Properties;
-										if (CheckForStringData(dataAttr1.propertiesStr))
-											UpdateSubItem(nodeIndex, (int)listSubItem9, dataAttr1.propertiesStr, fore, back);
+										if (CheckForStringData(dataAttr1.PropertiesStr))
+											UpdateSubItem(nodeIndex, (int)listSubItem9, dataAttr1.PropertiesStr, fore, back);
 										UpdateItemColor(nodeIndex, (int)listSubItem9, fore, back);
 									}
 									catch (Exception ex)
@@ -361,46 +361,46 @@ namespace BTool
 									{
 										ListViewItem lvItem = new ListViewItem();
 										lvItem.UseItemStyleForSubItems = false;
-										lvItem.Text = dataAttr1.key;
+										lvItem.Text = dataAttr1.Key;
 										lvItem.Tag = (object)dataAttr1;
 										lvItem.ForeColor = fore;
 										lvItem.BackColor = back;
 										lvAttributes.Items.Insert(lvAttributes.Items.Count, lvItem);
 										str1 = string.Empty;
 										string data;
-										if ((int)dataAttr1.connHandle != (int)ushort.MaxValue)
-											data = "0x" + dataAttr1.connHandle.ToString("X4");
+										if ((int)dataAttr1.ConnHandle != (int)ushort.MaxValue)
+											data = "0x" + dataAttr1.ConnHandle.ToString("X4");
 										else
 											data = "";
 										InsertSubItem(lvItem, data, fore, back);
 
-										if ((int)dataAttr1.handle != 0)
+										if ((int)dataAttr1.Handle != 0)
 										{
-											data = "0x" + dataAttr1.handle.ToString("X4");
+											data = "0x" + dataAttr1.Handle.ToString("X4");
 										}
 										else
 											data = "";
 										InsertSubItem(lvItem, data, fore, back);
 
-										data = !CheckForStringData(dataAttr1.uuidHex) ? "" : "0x" + dataAttr1.uuidHex;
+										data = !CheckForStringData(dataAttr1.UuidHex) ? "" : "0x" + dataAttr1.UuidHex;
 										InsertSubItem(lvItem, data, fore, back);
 
-										int num = (int)dataAttr1.indentLevel;
+										int num = (int)dataAttr1.IndentLevel;
 										string str2 = "";
 										for (int index = 0; index < num; ++index)
 											str2 = str2 + " ";
-										data = !CheckForStringData(dataAttr1.uuidDesc) ? "" : str2 + dataAttr1.uuidDesc;
+										data = !CheckForStringData(dataAttr1.UuidDesc) ? "" : str2 + dataAttr1.UuidDesc;
 										InsertSubItem(lvItem, data, fore, back);
 
-										string inStr = !CheckForStringData(dataAttr1.value) ? "" : dataAttr1.value;
+										string inStr = !CheckForStringData(dataAttr1.Value) ? "" : dataAttr1.Value;
 										string outStr = string.Empty;
-										devUtils.ConvertDisplayTypes(ValueDisplay.Hex, inStr, ref dataAttr1.valueDsp, ref outStr, false);
+										devUtils.ConvertDisplayTypes(ValueDisplay.Hex, inStr, ref dataAttr1.ValueDisplay, ref outStr, false);
 										InsertSubItem(lvItem, outStr, fore, back);
 
-										data = !CheckForStringData(dataAttr1.valueDesc) ? "" : dataAttr1.valueDesc;
+										data = !CheckForStringData(dataAttr1.ValueDesc) ? "" : dataAttr1.ValueDesc;
 										InsertSubItem(lvItem, data, fore, back);
 
-										data = !CheckForStringData(dataAttr1.propertiesStr) ? "" : dataAttr1.propertiesStr;
+										data = !CheckForStringData(dataAttr1.PropertiesStr) ? "" : dataAttr1.PropertiesStr;
 										InsertSubItem(lvItem, data, fore, back);
 									}
 									catch (Exception ex)
@@ -716,7 +716,7 @@ namespace BTool
 		public void ExtCmdStatus(ExtCmdStatus.RspInfo rspInfo)
 		{
 			ClearRspDelegates();
-			if (!rspInfo.success)
+			if (!rspInfo.Success)
 			{
 				string msg = "Command Failed\n";
 				if (DisplayMsgCallback != null)
@@ -725,7 +725,7 @@ namespace BTool
 			}
 			else
 			{
-				string msg = "Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n" + "Event = " + devUtils.GetOpCodeName(rspInfo.header.eventCode) + "\n";
+				string msg = "Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.Header.EventStatus) + "\n" + "Event = " + devUtils.GetOpCodeName(rspInfo.Header.EventCode) + "\n";
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -748,7 +748,7 @@ namespace BTool
 				ClearRspDelegates();
 				string msg = "ATT Command Failed\n";
 				if (rspInfo.aTT_ErrorRsp != null)
-					msg = msg + "Command = " + devUtils.GetHciReqOpCodeStr(rspInfo.aTT_ErrorRsp.reqOpCode) + "\n" + "Handle = 0x" + rspInfo.aTT_ErrorRsp.handle.ToString("X4") + "\n" + "Error = " + devUtils.GetErrorStatusStr(rspInfo.aTT_ErrorRsp.errorCode, "") + "\n";
+					msg = msg + "Command = " + devUtils.GetHciReqOpCodeStr(rspInfo.aTT_ErrorRsp.ReqOpCode) + "\n" + "Handle = 0x" + rspInfo.aTT_ErrorRsp.Handle.ToString("X4") + "\n" + "Error = " + devUtils.GetErrorStatusStr(rspInfo.aTT_ErrorRsp.ErrorCode, "") + "\n";
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -769,16 +769,16 @@ namespace BTool
 			else
 			{
 				ClearRspDelegates();
-				if (!rspInfo.success)
+				if (!rspInfo.Success)
 				{
 					string msg = "Att Read Blob Command Failed\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
 				}
-				else if ((int)rspInfo.header.eventStatus != 26)
+				else if ((int)rspInfo.Header.EventStatus != 26)
 				{
-					string msg = "Att Read Blob Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.eventStatus) + "\n";
+					string msg = "Att Read Blob Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.Header.EventStatus) + "\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);

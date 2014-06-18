@@ -12,13 +12,13 @@
 			bool flag;
 			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
 			{
-				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-				HCIReplies.HCI_LE_ExtEvent.ATT_PrepareWriteRsp attPrepareWriteRsp = hciLeExtEvent.attPrepareWriteRsp;
-				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_PrepareWriteRsp attPrepareWriteRsp = hciLeExtEvent.AttPrepareWriteRsp;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.Header;
 				if (attPrepareWriteRsp != null)
 				{
 					dataFound = true;
-					switch (leExtEventHeader.eventStatus)
+					switch (leExtEventHeader.EventStatus)
 					{
 						case (byte)0:
 						case (byte)26:
@@ -44,8 +44,8 @@
 			AttPrepareWriteRspCallback(new AttPrepareWriteRsp.RspInfo()
 			{
 				success = success,
-				header = hciReplies.hciLeExtEvent.header,
-				aTT_PrepareWriteRsp = hciReplies.hciLeExtEvent.attPrepareWriteRsp
+				header = hciReplies.HciLeExtEvent.Header,
+				aTT_PrepareWriteRsp = hciReplies.HciLeExtEvent.AttPrepareWriteRsp
 			});
 		}
 

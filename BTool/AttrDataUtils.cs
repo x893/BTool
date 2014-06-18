@@ -45,7 +45,7 @@ namespace BTool
 			{
 				if (dataChanged)
 				{
-					dataAttr.dataUpdate = true;
+					dataAttr.DataUpdate = true;
 					tmpAttrDict.Add(key, dataAttr);
 				}
 				else if (devForm.attrData.attrDict.Count >= 1500)
@@ -56,7 +56,7 @@ namespace BTool
 				else
 				{
 					devForm.attrData.attrDictAccess.WaitOne();
-					dataAttr.dataUpdate = true;
+					dataAttr.DataUpdate = true;
 					devForm.attrData.attrDict.Add(key, dataAttr);
 					devForm.attrData.attrDictAccess.ReleaseMutex();
 				}
@@ -74,7 +74,7 @@ namespace BTool
 			bool flag = true;
 			devForm.attrData.attrDictAccess.WaitOne();
 			foreach (KeyValuePair<string, DataAttr> keyValuePair in tmpAttrDict)
-				devForm.attrData.attrDict[keyValuePair.Value.key] = tmpAttrDict[keyValuePair.Value.key];
+				devForm.attrData.attrDict[keyValuePair.Value.Key] = tmpAttrDict[keyValuePair.Value.Key];
 			devForm.attrData.attrDictAccess.ReleaseMutex();
 			return flag;
 		}
@@ -83,9 +83,9 @@ namespace BTool
 		{
 			bool flag = true;
 			devForm.attrData.attrDictAccess.WaitOne();
-			if (devForm.attrData.attrDict.ContainsKey(dataAttr.key))
+			if (devForm.attrData.attrDict.ContainsKey(dataAttr.Key))
 			{
-				devForm.attrData.attrDict[dataAttr.key] = dataAttr;
+				devForm.attrData.attrDict[dataAttr.Key] = dataAttr;
 			}
 			else
 			{

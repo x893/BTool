@@ -7,6 +7,17 @@ namespace BTool
 {
 	public class AttributeFormUtils
 	{
+		public struct CsvData
+		{
+			public string connectionHandle;
+			public string handle;
+			public string uuid;
+			public string uuidDesc;
+			public string value;
+			public string valueDesc;
+			public string properties;
+		}
+
 		private MsgBox msgBox = new MsgBox();
 		private const string moduleName = "DataUtils";
 
@@ -50,17 +61,6 @@ namespace BTool
 				flag = false;
 			}
 			return flag;
-		}
-
-		public struct CsvData
-		{
-			public string connectionHandle;
-			public string handle;
-			public string uuid;
-			public string uuidDesc;
-			public string value;
-			public string valueDesc;
-			public string properties;
 		}
 	}
 }

@@ -8,7 +8,7 @@ namespace BTool
 {
 	public class CommManager
 	{
-		public delegate void FP_ReceiveDataInd(byte[] data, uint length);
+		public delegate void FP_ReceiveDataInd(byte[] data, int length);
 
 		private class ThreadData
 		{
@@ -20,11 +20,12 @@ namespace BTool
 			Hex,
 		}
 
+		public SerialPort ComPort = new SerialPort();
+
 		private MsgBox msgBox = new MsgBox();
 		private CommManager.ThreadData threadData = new CommManager.ThreadData();
 		private ThreadControl threadCtrl = new ThreadControl();
 		private SharedObjects sharedObjs = new SharedObjects();
-		public SerialPort comPort = new SerialPort();
 		private string _baudRate = string.Empty;
 		private string _parity = string.Empty;
 		private string _stopBits = string.Empty;
@@ -39,98 +40,50 @@ namespace BTool
 
 		public CommManager.FP_ReceiveDataInd RxDataInd
 		{
-			get
-			{
-				return fp_rxDataInd;
-			}
-			set
-			{
-				fp_rxDataInd = value;
-			}
+			get { return fp_rxDataInd; }
+			set { fp_rxDataInd = value; }
 		}
 
 		public string BaudRate
 		{
-			get
-			{
-				return _baudRate;
-			}
-			set
-			{
-				_baudRate = value;
-			}
+			get { return _baudRate; }
+			set { _baudRate = value; }
 		}
 
 		public string Parity
 		{
-			get
-			{
-				return _parity;
-			}
-			set
-			{
-				_parity = value;
-			}
+			get { return _parity; }
+			set { _parity = value; }
 		}
 
 		public string StopBits
 		{
-			get
-			{
-				return _stopBits;
-			}
-			set
-			{
-				_stopBits = value;
-			}
+			get { return _stopBits; }
+			set { _stopBits = value; }
 		}
 
 		public string DataBits
 		{
-			get
-			{
-				return _dataBits;
-			}
-			set
-			{
-				_dataBits = value;
-			}
+			get { return _dataBits; }
+			set { _dataBits = value; }
 		}
 
 		public string PortName
 		{
-			get
-			{
-				return _portName;
-			}
-			set
-			{
-				_portName = value;
-			}
+			get { return _portName; }
+			set { _portName = value; }
 		}
 
 		public CommManager.TransmissionType CurrentTransmissionType
 		{
-			get
-			{
-				return _transType;
-			}
-			set
-			{
-				_transType = value;
-			}
+			get { return _transType; }
+			set { _transType = value; }
 		}
 
 		public Handshake HandShake
 		{
-			get
-			{
-				return _handShake;
-			}
-			set
-			{
-				_handShake = value;
-			}
+			get { return _handShake; }
+			set { _handShake = value; }
 		}
 
 		~CommManager()
@@ -149,7 +102,7 @@ namespace BTool
 			_portName = name;
 			if (sharedObjs.IsMonoRunning())
 				return;
-			comPort.DataReceived += new SerialDataReceivedEventHandler(comPort_DataReceived);
+			ComPort.DataReceived += new SerialDataReceivedEventHandler(comPort_DataReceived);
 		}
 
 		public void InitCommManager()
@@ -161,78 +114,69 @@ namespace BTool
 			_portName = "COM1";
 			if (sharedObjs.IsMonoRunning())
 				return;
-			comPort.DataReceived += new SerialDataReceivedEventHandler(comPort_DataReceived);
+			ComPort.DataReceived += new SerialDataReceivedEventHandler(comPort_DataReceived);
 		}
 
 		public bool WriteData(string msg)
 		{
 			bool flag = true;
-			if (!comPort.IsOpen && !OpenPort())
+			if (!ComPort.IsOpen && !OpenPort())
 				return false;
 			switch (CurrentTransmissionType)
 			{
 				case CommManager.TransmissionType.Text:
 					try
 					{
-						comPort.Write(msg);
+						ComPort.Write(msg);
 						if (DisplayMsgCallback != null)
-						{
 							DisplayMsgCallback(SharedAppObjs.MsgType.Outgoing, msg + "\n");
-							break;
-						}
-						else
-							break;
 					}
 					catch (Exception ex)
 					{
-						string msg1 = string.Format("Error Writing To {0:S} (Text)\n" + ex.Message + "\n", comPort.PortName);
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg1);
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Error Writing To {0:S} (Text)\n" + ex.Message + "\n", ComPort.PortName));
 						flag = false;
-						break;
 					}
+					break;
 				case CommManager.TransmissionType.Hex:
 					try
 					{
 						byte[] buffer = HexToByte(msg);
 						try
 						{
-							comPort.Write(buffer, 0, buffer.Length);
-							break;
+							ComPort.Write(buffer, 0, buffer.Length);
 						}
 						catch (Exception ex)
 						{
-							string msg1 = string.Format("Error Writing To {0:S} (Hex)\n" + ex.Message + "\n", comPort.PortName);
+							string msg_ex = string.Format("Error Writing To {0:S} (Hex)\n" + ex.Message + "\n", ComPort.PortName);
 							if (DisplayMsgCallback != null)
-								DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg1);
-							msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg1);
+								DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg_ex);
+							msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg_ex);
 							flag = false;
-							break;
 						}
 					}
 					catch (Exception ex)
 					{
-						string msg1 = string.Format("Com Port Error\n Port Number = {0:S} (Hex)\n" + ex.Message + "\n", comPort.PortName);
+						string msg_ex = string.Format("Com Port Error\n Port Number = {0:S} (Hex)\n" + ex.Message + "\n", ComPort.PortName);
 						if (DisplayMsgCallback != null)
-							DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg1);
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg1);
+							DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg_ex);
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg_ex);
 						flag = false;
-						break;
 					}
+					break;
 				default:
 					try
 					{
-						comPort.Write(msg);
-						break;
+						ComPort.Write(msg);
 					}
 					catch (Exception ex)
 					{
-						string msg1 = string.Format("Error Writing To {0:S} (Default)\n" + ex.Message + "\n", comPort.PortName);
+						string msg_ex = string.Format("Error Writing To {0:S} (Default)\n" + ex.Message + "\n", ComPort.PortName);
 						if (DisplayMsgCallback != null)
-							DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg1);
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg1);
+							DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg_ex);
+						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg_ex);
 						flag = false;
-						break;
 					}
+					break;
 			}
 			return flag;
 		}
@@ -255,46 +199,45 @@ namespace BTool
 			StringBuilder stringBuilder = new StringBuilder(comByte.Length * 3);
 			foreach (byte num in comByte)
 				stringBuilder.Append(Convert.ToString(num, 16).PadLeft(2, '0').PadRight(3, ' '));
-			return ((object)stringBuilder).ToString().ToUpper();
+			return stringBuilder.ToString().ToUpper();
 		}
 
 		public bool OpenPort()
 		{
 			try
 			{
-				if (comPort.IsOpen)
+				if (ComPort.IsOpen)
 					return true;
-				comPort.BaudRate = int.Parse(_baudRate);
-				comPort.DataBits = int.Parse(_dataBits);
-				comPort.StopBits = (StopBits)Enum.Parse(typeof(StopBits), _stopBits);
-				comPort.Parity = (Parity)Enum.Parse(typeof(Parity), _parity);
-				comPort.PortName = _portName;
-				comPort.Handshake = _handShake;
+				ComPort.BaudRate = int.Parse(_baudRate);
+				ComPort.DataBits = int.Parse(_dataBits);
+				ComPort.StopBits = (StopBits)Enum.Parse(typeof(StopBits), _stopBits);
+				ComPort.Parity = (Parity)Enum.Parse(typeof(Parity), _parity);
+				ComPort.PortName = _portName;
+				ComPort.Handshake = _handShake;
 				try
 				{
-					comPort.Open();
+					ComPort.Open();
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Com Port Open Error\n\n" + ex.Message + "\n", new object[0]);
 					if (DisplayMsgCallback != null)
-						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+						DisplayMsgCallback(SharedAppObjs.MsgType.Error, string.Format("Com Port Open Error\n\n" + ex.Message + "\n"));
 					return false;
 				}
-				comPort.DiscardInBuffer();
-				comPort.DiscardOutBuffer();
-				comPort.WriteTimeout = 5000;
-				comPort.ReadTimeout = 5000;
+				ComPort.DiscardInBuffer();
+				ComPort.DiscardOutBuffer();
+				ComPort.WriteTimeout = 5000;
+				ComPort.ReadTimeout = 5000;
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Info, "Port opened at " + DateTime.Now.ToString() + "\n");
 				if (sharedObjs.IsMonoRunning())
 				{
 					taskThread = new Thread(new ParameterizedThreadStart(DataRxPollThread));
 					taskThread.Name = "CommManager";
-					taskThread.Start((object)threadData);
+					taskThread.Start(threadData);
 					Thread.Sleep(0);
 					while (!taskThread.IsAlive)
-						;
+					{ }
 				}
 				return true;
 			}
@@ -308,17 +251,17 @@ namespace BTool
 
 		public bool ClosePort()
 		{
-			if (comPort.IsOpen)
+			if (ComPort.IsOpen)
 			{
 				try
 				{
 					if (sharedObjs.IsMonoRunning() && taskThread != null)
 						threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Exit);
-					comPort.Close();
+					ComPort.Close();
 				}
 				catch (Exception ex)
 				{
-					string msg = string.Format("Error closing {0:S}\n\n{1}\n", (object)comPort.PortName, (object)ex.Message);
+					string msg = string.Format("Error closing {0:S}\n\n{1}\n", (object)ComPort.PortName, (object)ex.Message);
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
@@ -330,28 +273,22 @@ namespace BTool
 
 		private void comPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
 		{
-			switch (CurrentTransmissionType)
-			{
-				case CommManager.TransmissionType.Hex:
-					try
-					{
-						int bytesToRead = comPort.BytesToRead;
-						byte[] numArray = new byte[bytesToRead];
-						comPort.Read(numArray, 0, bytesToRead);
-						if (fp_rxDataInd == null)
-							break;
-						fp_rxDataInd(numArray, (uint)numArray.Length);
-						break;
-					}
-					catch (Exception ex)
-					{
-						string msg = string.Format("Error Reading From {0:S} (Hex)\n" + ex.Message + "\n", (object)comPort.PortName);
-						if (DisplayMsgCallback != null)
-							DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-						break;
-					}
-			}
+			if (CurrentTransmissionType == CommManager.TransmissionType.Hex)
+				try
+				{
+					int bytesToRead = ComPort.BytesToRead;
+					byte[] bytes = new byte[bytesToRead];
+					ComPort.Read(bytes, 0, bytesToRead);
+					if (fp_rxDataInd != null)
+						fp_rxDataInd(bytes, bytes.Length);
+				}
+				catch (Exception ex)
+				{
+					string msg = string.Format("Error Reading From {0:S} (Hex)\n" + ex.Message + "\n", (object)ComPort.PortName);
+					if (DisplayMsgCallback != null)
+						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				}
 		}
 
 		[STAThread]
@@ -360,26 +297,26 @@ namespace BTool
 			try
 			{
 				threadCtrl.Init();
-				threadCtrl.runningThread = true;
+				threadCtrl.RunningThread = true;
 				SharedObjects.log.Write(Logging.MsgType.Debug, "CommManager", "Starting Thread");
-				while (!threadCtrl.exitThread)
+				while (!threadCtrl.ExitThread)
 				{
-					if (threadCtrl.pauseThread)
+					if (threadCtrl.PauseThread)
 					{
-						threadCtrl.idleThread = true;
+						threadCtrl.IdleThread = true;
 						SharedObjects.log.Write(Logging.MsgType.Debug, "CommManager", "Pausing Thread");
 						threadCtrl.eventPause.WaitOne();
-						threadCtrl.idleThread = false;
-						if (threadCtrl.exitThread)
+						threadCtrl.IdleThread = false;
+						if (threadCtrl.ExitThread)
 							break;
 					}
-					int bytesToRead = comPort.BytesToRead;
+					int bytesToRead = ComPort.BytesToRead;
 					if (bytesToRead > 0)
 					{
-						byte[] numArray = new byte[bytesToRead];
-						comPort.Read(numArray, 0, bytesToRead);
+						byte[] bytes = new byte[bytesToRead];
+						ComPort.Read(bytes, 0, bytesToRead);
 						if (fp_rxDataInd != null)
-							fp_rxDataInd(numArray, (uint)numArray.Length);
+							fp_rxDataInd(bytes, bytes.Length);
 					}
 					else
 						Thread.Sleep(10);
@@ -387,8 +324,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				string msg = "Task Thread Problem.\n" + ex.Message + "\nCommManager\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Task Thread Problem.\n" + ex.Message + "\nCommManager\n");
 			}
 			SharedObjects.log.Write(Logging.MsgType.Debug, "CommManager", "Exiting Thread");
 			threadCtrl.Exit();

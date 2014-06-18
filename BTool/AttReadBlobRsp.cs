@@ -6,11 +6,20 @@ namespace BTool
 {
 	public class AttReadBlobRsp
 	{
+		public struct RspInfo
+		{
+			public bool Success;
+			public HCIReplies.LE_ExtEventHeader Header;
+			public HCIReplies.HCI_LE_ExtEvent.ATT_ReadBlobRsp ATT_ReadBlobRsp;
+		}
+
+		public delegate void AttReadBlobRspDelegate(AttReadBlobRsp.RspInfo rspInfo);
+		public AttReadBlobRsp.AttReadBlobRspDelegate AttReadBlobRspCallback;
+
 		private DataUtils dataUtils = new DataUtils();
 		private DeviceFormUtils devUtils = new DeviceFormUtils();
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
 		private const string moduleName = "AttReadBlobRsp";
-		public AttReadBlobRsp.AttReadBlobRspDelegate AttReadBlobRspCallback;
 		private AttrUuidUtils attrUuidUtils;
 		private AttrDataUtils attrDataUtils;
 		private byte[] readBlobData;
@@ -29,43 +38,42 @@ namespace BTool
 			bool flag;
 			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
 			{
-				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-				HCIReplies.HCI_LE_ExtEvent.ATT_ReadBlobRsp attReadBlobRsp = hciLeExtEvent.attReadBlobRsp;
-				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_ReadBlobRsp attReadBlobRsp = hciLeExtEvent.AttReadBlobRsp;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.Header;
 				if (attReadBlobRsp != null)
 				{
 					dataFound = true;
-					switch (leExtEventHeader.eventStatus)
+					switch (leExtEventHeader.EventStatus)
 					{
-						case (byte)0:
-							if (attReadBlobRsp.data != null)
+						case 0:
+							if (attReadBlobRsp.Data != null)
 							{
-								int length = attReadBlobRsp.data.Length;
-								byte[] numArray1 = attReadBlobRsp.data;
+								int length = attReadBlobRsp.Data.Length;
+								byte[] data = attReadBlobRsp.Data;
 								if (length > 0)
 								{
 									if (readBlobData == null)
 									{
 										readBlobData = new byte[length];
-										readBlobData = numArray1;
+										readBlobData = data;
 									}
 									else
 									{
-										byte[] numArray2 = new byte[readBlobData.Length];
-										byte[] numArray3 = readBlobData;
-										readBlobData = new byte[numArray3.Length + length];
-										Array.Copy((Array)numArray3, 0, (Array)readBlobData, 0, numArray3.Length);
-										Array.Copy((Array)numArray1, 0, (Array)readBlobData, numArray3.Length, numArray1.Length);
+										byte[] bytes = readBlobData;
+										readBlobData = new byte[bytes.Length + length];
+										Array.Copy(bytes, 0, readBlobData, 0, bytes.Length);
+										Array.Copy(data, 0, readBlobData, bytes.Length, data.Length);
 									}
-									if (hciReplies.objTag != null)
+									if (hciReplies.ObjTag != null)
 									{
-										readBlobHandle = (ushort)hciReplies.objTag;
+										readBlobHandle = (ushort)hciReplies.ObjTag;
 										readBlobHandleValid = true;
 										break;
 									}
 									else
 									{
-										readBlobHandle = (ushort)0;
+										readBlobHandle = 0;
 										readBlobHandleValid = false;
 										break;
 									}
@@ -75,14 +83,14 @@ namespace BTool
 							}
 							else
 								break;
-						case (byte)23:
+						case 23:
 							SendRspCallback(hciReplies, true);
 							break;
-						case (byte)26:
+						case 26:
 							if (readBlobData != null && readBlobHandleValid)
 							{
 								Dictionary<string, DataAttr> tmpAttrDict = new Dictionary<string, DataAttr>();
-								string attrKey1 = attrUuidUtils.GetAttrKey(attReadBlobRsp.attMsgHdr.connHandle, readBlobHandle);
+								string attrKey1 = attrUuidUtils.GetAttrKey(attReadBlobRsp.AttMsgHdr.ConnHandle, readBlobHandle);
 								DataAttr dataAttr1 = new DataAttr();
 								bool dataChanged1 = false;
 								if (!attrDataUtils.GetDataAttr(ref dataAttr1, ref dataChanged1, attrKey1, "AttReadBlobRsp"))
@@ -90,91 +98,85 @@ namespace BTool
 									flag = false;
 									break;
 								}
-								else
+
+								dataAttr1.Key = attrKey1;
+								dataAttr1.ConnHandle = attReadBlobRsp.AttMsgHdr.ConnHandle;
+								dataAttr1.Handle = readBlobHandle;
+								dataAttr1.Value = devUtils.UnloadColonData(readBlobData, false);
+								if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr1, dataChanged1, attrKey1))
 								{
-									dataAttr1.key = attrKey1;
-									dataAttr1.connHandle = attReadBlobRsp.attMsgHdr.connHandle;
-									dataAttr1.handle = readBlobHandle;
-									dataAttr1.value = devUtils.UnloadColonData(readBlobData, false);
-									if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr1, dataChanged1, attrKey1))
+									flag = false;
+									break;
+								}
+
+								string[] delimiterStrs = new string[2] { " ", ":" };
+								byte[] uuid = dataUtils.GetHexBytes(dataAttr1.Uuid, delimiterStrs);
+								if (uuid != null
+								&& uuid.Length > 1
+								&& uuid[0] == 3
+								&& uuid[1] == 40
+								&& dataAttr1.Value.Length > 0)
+								{
+									byte[] value = dataUtils.GetHexBytes(dataAttr1.Value, delimiterStrs);
+									if (value.Length > 0)
 									{
-										flag = false;
-										break;
-									}
-									else
-									{
-										string[] delimiterStrs = new string[2]
-                    {
-                      " ",
-                      ":"
-                    };
-										byte[] hexBytes1 = dataUtils.GetHexBytes(dataAttr1.uuid, delimiterStrs);
-										if (hexBytes1 != null && hexBytes1.Length > 1 && ((int)hexBytes1[0] == 3 && (int)hexBytes1[1] == 40) && dataAttr1.value.Length > 0)
+										int index = 0;
+										bool dataErr = false;
+										dataAttr1.Properties = dataUtils.Unload8Bits(value, ref index, ref dataErr);
+										if (dataAttr1.Properties == 0)
 										{
-											byte[] hexBytes2 = dataUtils.GetHexBytes(dataAttr1.value, delimiterStrs);
-											if (hexBytes2.Length > 0)
+											dataAttr1.PropertiesStr = string.Empty;
+										}
+										else
+										{
+											dataAttr1.PropertiesStr = devUtils.GetGattCharProperties(dataAttr1.Properties, true) + " 0x" + dataAttr1.Properties.ToString("X2");
+											if (value.Length >= 5)
 											{
-												int index = 0;
-												bool dataErr = false;
-												dataAttr1.properties = dataUtils.Unload8Bits(hexBytes2, ref index, ref dataErr);
-												if ((int)dataAttr1.properties == 0)
+												ushort handle = dataUtils.Unload16Bits(value, ref index, ref dataErr, false);
+												ushort connHandle = attReadBlobRsp.AttMsgHdr.ConnHandle;
+												string attrKey2 = attrUuidUtils.GetAttrKey(connHandle, handle);
+												DataAttr dataAttr2 = new DataAttr();
+												bool dataChanged2 = false;
+												if (!attrDataUtils.GetDataAttr(ref dataAttr2, ref dataChanged2, attrKey2, "AttReadBlobRsp"))
 												{
-													dataAttr1.propertiesStr = string.Empty;
+													flag = false;
+													break;
 												}
-												else
+
+												dataAttr2.Key = attrKey2;
+												dataAttr2.ConnHandle = connHandle;
+												dataAttr2.Handle = handle;
+												int dataLength = value.Length - index;
+												byte[] destData = new byte[dataLength];
+												dataUtils.UnloadDataBytes(value, dataLength, ref index, ref destData, ref dataErr);
+												dataAttr2.Uuid = devUtils.UnloadColonData(destData, false);
+												dataAttr2.UuidHex = dataUtils.GetStringFromBytes(destData, true);
+												dataAttr2.Properties = dataAttr1.Properties;
+												dataAttr2.PropertiesStr = dataAttr1.PropertiesStr;
+												dataAttr2.IndentLevel = attrUuidUtils.GetIndentLevel(dataAttr2.UuidHex);
+												dataAttr2.UuidDesc = attrUuidUtils.GetUuidDesc(dataAttr2.UuidHex);
+												dataAttr2.ValueDesc = attrUuidUtils.GetUuidValueDesc(dataAttr2.UuidHex);
+												dataAttr2.ForeColor = attrUuidUtils.GetForegroundColor(dataAttr2.UuidHex);
+												dataAttr2.BackColor = attrUuidUtils.GetBackgroundColor(dataAttr2.UuidHex);
+												dataAttr2.ValueDisplay = attrUuidUtils.GetValueDsp(dataAttr2.UuidHex);
+												dataAttr2.ValueEdit = attrUuidUtils.GetValueEdit(dataAttr2.UuidHex);
+												if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr2, dataChanged2, attrKey2))
 												{
-													dataAttr1.propertiesStr = devUtils.GetGattCharProperties(dataAttr1.properties, true) + " 0x" + dataAttr1.properties.ToString("X2");
-													if (hexBytes2.Length >= 5)
-													{
-														ushort handle = dataUtils.Unload16Bits(hexBytes2, ref index, ref dataErr, false);
-														ushort connHandle = attReadBlobRsp.attMsgHdr.connHandle;
-														string attrKey2 = attrUuidUtils.GetAttrKey(connHandle, handle);
-														DataAttr dataAttr2 = new DataAttr();
-														bool dataChanged2 = false;
-														if (!attrDataUtils.GetDataAttr(ref dataAttr2, ref dataChanged2, attrKey2, "AttReadBlobRsp"))
-														{
-															flag = false;
-															break;
-														}
-														else
-														{
-															dataAttr2.key = attrKey2;
-															dataAttr2.connHandle = connHandle;
-															dataAttr2.handle = handle;
-															int dataLength = hexBytes2.Length - index;
-															byte[] destData = new byte[dataLength];
-															dataUtils.UnloadDataBytes(hexBytes2, dataLength, ref index, ref destData, ref dataErr);
-															dataAttr2.uuid = devUtils.UnloadColonData(destData, false);
-															dataAttr2.uuidHex = dataUtils.GetStringFromBytes(destData, true);
-															dataAttr2.properties = dataAttr1.properties;
-															dataAttr2.propertiesStr = dataAttr1.propertiesStr;
-															dataAttr2.indentLevel = attrUuidUtils.GetIndentLevel(dataAttr2.uuidHex);
-															dataAttr2.uuidDesc = attrUuidUtils.GetUuidDesc(dataAttr2.uuidHex);
-															dataAttr2.valueDesc = attrUuidUtils.GetUuidValueDesc(dataAttr2.uuidHex);
-															dataAttr2.foreColor = attrUuidUtils.GetForegroundColor(dataAttr2.uuidHex);
-															dataAttr2.backColor = attrUuidUtils.GetBackgroundColor(dataAttr2.uuidHex);
-															dataAttr2.valueDsp = attrUuidUtils.GetValueDsp(dataAttr2.uuidHex);
-															dataAttr2.valueEdit = attrUuidUtils.GetValueEdit(dataAttr2.uuidHex);
-															if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr2, dataChanged2, attrKey2))
-															{
-																flag = false;
-																break;
-															}
-														}
-													}
+													flag = false;
+													break;
 												}
 											}
 										}
-										if (!attrDataUtils.UpdateAttrDict(tmpAttrDict))
-										{
-											flag = false;
-											break;
-										}
 									}
 								}
+								if (!attrDataUtils.UpdateAttrDict(tmpAttrDict))
+								{
+									flag = false;
+									break;
+								}
 							}
-							readBlobData = (byte[])null;
-							readBlobHandle = (ushort)0;
+							readBlobData = null;
+							readBlobHandle = 0;
 							SendRspCallback(hciReplies, true);
 							break;
 						default:
@@ -185,8 +187,8 @@ namespace BTool
 			}
 			if (!flag && dataFound)
 			{
-				readBlobData = (byte[])null;
-				readBlobHandle = (ushort)0;
+				readBlobData = null;
+				readBlobHandle = 0;
 				SendRspCallback(hciReplies, false);
 			}
 			return flag;
@@ -196,21 +198,13 @@ namespace BTool
 		{
 			if (AttReadBlobRspCallback == null)
 				return;
-			AttReadBlobRspCallback(new AttReadBlobRsp.RspInfo()
-			{
-				success = success,
-				header = hciReplies.hciLeExtEvent.header,
-				aTT_ReadBlobRsp = hciReplies.hciLeExtEvent.attReadBlobRsp
-			});
-		}
-
-		public delegate void AttReadBlobRspDelegate(AttReadBlobRsp.RspInfo rspInfo);
-
-		public struct RspInfo
-		{
-			public bool success;
-			public HCIReplies.LE_ExtEventHeader header;
-			public HCIReplies.HCI_LE_ExtEvent.ATT_ReadBlobRsp aTT_ReadBlobRsp;
+			AttReadBlobRspCallback(
+				new AttReadBlobRsp.RspInfo()
+				{
+					Success = success,
+					Header = hciReplies.HciLeExtEvent.Header,
+					ATT_ReadBlobRsp = hciReplies.HciLeExtEvent.AttReadBlobRsp
+				});
 		}
 	}
 }

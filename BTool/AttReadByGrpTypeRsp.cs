@@ -4,10 +4,19 @@ namespace BTool
 {
 	public class AttReadByGrpTypeRsp
 	{
+		public struct RspInfo
+		{
+			public bool Success;
+			public HCIReplies.LE_ExtEventHeader Header;
+			public HCIReplies.HCI_LE_ExtEvent.ATT_ReadByGrpTypeRsp ATT_ReadByGrpTypeRsp;
+		}
+
+		public delegate void AttReadByGrpTypeRspDelegate(AttReadByGrpTypeRsp.RspInfo rspInfo);
+		public AttReadByGrpTypeRsp.AttReadByGrpTypeRspDelegate AttReadByGrpTypeRspCallback;
+
 		private DeviceFormUtils devUtils = new DeviceFormUtils();
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
 		private const string moduleName = "AttReadByGrpTypeRsp";
-		public AttReadByGrpTypeRsp.AttReadByGrpTypeRspDelegate AttReadByGrpTypeRspCallback;
 		private AttrUuidUtils attrUuidUtils;
 		private AttrDataUtils attrDataUtils;
 		private SendCmds sendCmds;
@@ -24,24 +33,24 @@ namespace BTool
 		public bool GetATT_ReadByGrpTypeRsp(HCIReplies hciReplies, ref bool dataFound)
 		{
 			dataFound = false;
-			bool flag;
-			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
+			bool flag = rspHdlrsUtils.CheckValidResponse(hciReplies);
+			if (flag)
 			{
-				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.hciLeExtEvent;
-				HCIReplies.HCI_LE_ExtEvent.ATT_ReadByGrpTypeRsp readByGrpTypeRsp = hciLeExtEvent.attReadByGrpTypeRsp;
-				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.header;
+				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
+				HCIReplies.HCI_LE_ExtEvent.ATT_ReadByGrpTypeRsp readByGrpTypeRsp = hciLeExtEvent.AttReadByGrpTypeRsp;
+				HCIReplies.LE_ExtEventHeader leExtEventHeader = hciLeExtEvent.Header;
 				if (readByGrpTypeRsp != null)
 				{
 					dataFound = true;
-					switch (leExtEventHeader.eventStatus)
+					switch (leExtEventHeader.EventStatus)
 					{
-						case (byte)0:
-							if (readByGrpTypeRsp.handleHandleData != null)
+						case 0:
+							if (readByGrpTypeRsp.HandleData != null)
 							{
 								Dictionary<string, DataAttr> tmpAttrDict = new Dictionary<string, DataAttr>();
-								foreach (HCIReplies.HandleHandleData handleHandleData in readByGrpTypeRsp.handleHandleData)
+								foreach (HCIReplies.HandleHandleData handleHandleData in readByGrpTypeRsp.HandleData)
 								{
-									string attrKey1 = attrUuidUtils.GetAttrKey(readByGrpTypeRsp.attMsgHdr.connHandle, handleHandleData.handle1);
+									string attrKey1 = attrUuidUtils.GetAttrKey(readByGrpTypeRsp.AttMsgHdr.ConnHandle, handleHandleData.Handle1);
 									DataAttr dataAttr1 = new DataAttr();
 									bool dataChanged1 = false;
 									if (!attrDataUtils.GetDataAttr(ref dataAttr1, ref dataChanged1, attrKey1, "AttReadByGrpTypeRsp"))
@@ -49,72 +58,59 @@ namespace BTool
 										flag = false;
 										break;
 									}
-									else
+
+									dataAttr1.Key = attrKey1;
+									dataAttr1.ConnHandle = readByGrpTypeRsp.AttMsgHdr.ConnHandle;
+									dataAttr1.Handle = handleHandleData.Handle1;
+									dataAttr1.Value = devUtils.UnloadColonData(handleHandleData.Data, false);
+									if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr1, dataChanged1, attrKey1))
 									{
-										dataAttr1.key = attrKey1;
-										dataAttr1.connHandle = readByGrpTypeRsp.attMsgHdr.connHandle;
-										dataAttr1.handle = handleHandleData.handle1;
-										dataAttr1.value = devUtils.UnloadColonData(handleHandleData.data, false);
-										if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr1, dataChanged1, attrKey1))
+										flag = false;
+										break;
+									}
+
+									if (handleHandleData.Handle2 != ushort.MaxValue)
+									{
+										if ((int)handleHandleData.Handle2 - (int)handleHandleData.Handle1 <= 0)
 										{
 											flag = false;
 											break;
 										}
-										else if ((int)handleHandleData.handle2 != (int)ushort.MaxValue)
+										for (int index = handleHandleData.Handle1 + 1; index <= handleHandleData.Handle2; ++index)
 										{
-											if ((int)handleHandleData.handle2 - (int)handleHandleData.handle1 <= 0)
+											string attrKey2 = attrUuidUtils.GetAttrKey(readByGrpTypeRsp.AttMsgHdr.ConnHandle, (ushort)index);
+											DataAttr dataAttr2 = new DataAttr();
+											bool dataChanged2 = false;
+											if (!attrDataUtils.GetDataAttr(ref dataAttr2, ref dataChanged2, attrKey2, "AttReadByGrpTypeRsp"))
 											{
 												flag = false;
 												break;
 											}
-											else
-											{
-												for (int index = (int)handleHandleData.handle1 + 1; index <= (int)handleHandleData.handle2; ++index)
+											dataAttr2.Key = attrKey2;
+											dataAttr2.ConnHandle = readByGrpTypeRsp.AttMsgHdr.ConnHandle;
+											dataAttr2.Handle = (ushort)index;
+											if (devForm.attrData.sendAutoCmds)
+												sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_ReadLongCharValue()
 												{
-													string attrKey2 = attrUuidUtils.GetAttrKey(readByGrpTypeRsp.attMsgHdr.connHandle, (ushort)index);
-													DataAttr dataAttr2 = new DataAttr();
-													bool dataChanged2 = false;
-													if (!attrDataUtils.GetDataAttr(ref dataAttr2, ref dataChanged2, attrKey2, "AttReadByGrpTypeRsp"))
-													{
-														flag = false;
-														break;
-													}
-													else
-													{
-														dataAttr2.key = attrKey2;
-														dataAttr2.connHandle = readByGrpTypeRsp.attMsgHdr.connHandle;
-														dataAttr2.handle = (ushort)index;
-														if (devForm.attrData.sendAutoCmds)
-															sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_ReadLongCharValue()
-															{
-																connHandle = dataAttr2.connHandle,
-																handle = dataAttr2.handle
-															}, TxDataOut.CmdType.DiscUuidAndValues, (SendCmds.SendCmdResult)null);
-														if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr2, dataChanged2, attrKey2))
-														{
-															flag = false;
-															break;
-														}
-													}
-												}
+													connHandle = dataAttr2.ConnHandle,
+													handle = dataAttr2.Handle
+												}, TxDataOut.CmdType.DiscUuidAndValues, null);
+											if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr2, dataChanged2, attrKey2))
+											{
+												flag = false;
+												break;
 											}
 										}
-										else
-											break;
 									}
+									else
+										break;
 								}
 								if (!attrDataUtils.UpdateAttrDict(tmpAttrDict))
-								{
 									flag = false;
-									break;
-								}
-								else
-									break;
 							}
-							else
-								break;
-						case (byte)23:
-						case (byte)26:
+							break;
+						case 23:
+						case 26:
 							SendRspCallback(hciReplies, true);
 							break;
 						default:
@@ -130,23 +126,16 @@ namespace BTool
 
 		private void SendRspCallback(HCIReplies hciReplies, bool success)
 		{
-			if (AttReadByGrpTypeRspCallback == null)
-				return;
-			AttReadByGrpTypeRspCallback(new AttReadByGrpTypeRsp.RspInfo()
+			if (AttReadByGrpTypeRspCallback != null)
 			{
-				success = success,
-				header = hciReplies.hciLeExtEvent.header,
-				aTT_ReadByGrpTypeRsp = hciReplies.hciLeExtEvent.attReadByGrpTypeRsp
-			});
-		}
-
-		public delegate void AttReadByGrpTypeRspDelegate(AttReadByGrpTypeRsp.RspInfo rspInfo);
-
-		public struct RspInfo
-		{
-			public bool success;
-			public HCIReplies.LE_ExtEventHeader header;
-			public HCIReplies.HCI_LE_ExtEvent.ATT_ReadByGrpTypeRsp aTT_ReadByGrpTypeRsp;
+				AttReadByGrpTypeRspCallback(
+					new AttReadByGrpTypeRsp.RspInfo()
+					{
+						Success = success,
+						Header = hciReplies.HciLeExtEvent.Header,
+						ATT_ReadByGrpTypeRsp = hciReplies.HciLeExtEvent.AttReadByGrpTypeRsp
+					});
+			}
 		}
 	}
 }

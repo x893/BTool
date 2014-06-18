@@ -16,105 +16,103 @@ namespace BTool
 			data_token,
 		}
 
-		private Queue _dataBuffer;
+		private Queue dataBuffer;
 		private Mutex bufferMutex;
-		private CommParser.ParserStateEnum ParserState;
+		private CommParser.ParserStateEnum parserState;
 
 		public CommParser()
 		{
-			_dataBuffer = new Queue();
+			dataBuffer = new Queue();
 			bufferMutex = new Mutex();
-			ParserState = CommParser.ParserStateEnum.packet_type_token;
+			parserState = CommParser.ParserStateEnum.packet_type_token;
 		}
 
 		public void EnQueueData(byte[] data)
 		{
 			bufferMutex.WaitOne();
-			foreach (int num in data)
-				_dataBuffer.Enqueue(num);
+			foreach (byte num in data)
+				dataBuffer.Enqueue(num);
 			bufferMutex.ReleaseMutex();
 		}
 
 		public void DeQueueData(int length)
 		{
 			bufferMutex.WaitOne();
-			if (length >= _dataBuffer.Count)
-				_dataBuffer.Clear();
+			if (length >= dataBuffer.Count)
+				dataBuffer.Clear();
 			else
 				for (int index = 0; index < length; ++index)
-					_dataBuffer.Dequeue();
+					dataBuffer.Dequeue();
 			bufferMutex.ReleaseMutex();
 		}
 
 		public int GetDataSize()
 		{
-			return _dataBuffer.Count;
+			return dataBuffer.Count;
 		}
 
 		public bool ParseData(ref byte type, ref ushort opCode, ref ushort eventOpCode, ref byte length, ref byte[] data)
 		{
-			bool flag = false;
+			bool data_presents = false;
 			bufferMutex.WaitOne();
-			if (_dataBuffer.Count != 0)
+			if (dataBuffer.Count != 0)
 			{
-				switch (ParserState)
+				switch (parserState)
 				{
 					case CommParser.ParserStateEnum.packet_type_token:
-						if ((int)_dataBuffer.Peek() == 4)
+						if ((byte)dataBuffer.Peek() == 4)
 						{
-							type = (byte)((int)_dataBuffer.Dequeue());
-							ParserState = CommParser.ParserStateEnum.event_code_token;
-							break;
+							type = (byte)dataBuffer.Dequeue();
+							parserState = CommParser.ParserStateEnum.event_code_token;
 						}
 						else
-						{
-							_dataBuffer.Dequeue();
-							break;
-						}
+							dataBuffer.Dequeue();
+						break;
 					case CommParser.ParserStateEnum.event_code_token:
-						opCode = (ushort)(int)_dataBuffer.Dequeue();
-						ParserState = CommParser.ParserStateEnum.length_token;
+						opCode = (ushort)(byte)dataBuffer.Dequeue();
+						parserState = CommParser.ParserStateEnum.length_token;
 						break;
 					case CommParser.ParserStateEnum.eop0_token:
-						eventOpCode = (ushort)(int)_dataBuffer.Dequeue();
-						ParserState = CommParser.ParserStateEnum.eop1_token;
+						eventOpCode = (ushort)(byte)dataBuffer.Dequeue();
+						parserState = CommParser.ParserStateEnum.eop1_token;
 						break;
 					case CommParser.ParserStateEnum.eop1_token:
-						eventOpCode |= (ushort)((int)_dataBuffer.Dequeue() << 8);
-						ParserState = CommParser.ParserStateEnum.data_token;
+						eventOpCode |= (ushort)((ushort)(byte)dataBuffer.Dequeue() << 8);
+						parserState = CommParser.ParserStateEnum.data_token;
 						break;
 					case CommParser.ParserStateEnum.length_token:
-						length = (byte)(int)_dataBuffer.Dequeue();
-						ParserState = opCode == 19 || opCode == 0xff ? CommParser.ParserStateEnum.eop0_token : CommParser.ParserStateEnum.data_token;
+						length = (byte)dataBuffer.Dequeue();
+						parserState =
+							(opCode == 19 || opCode == 0xff)
+							? CommParser.ParserStateEnum.eop0_token
+							: CommParser.ParserStateEnum.data_token;
 						break;
 					case CommParser.ParserStateEnum.data_token:
 						if (type == 4)
 						{
-							int length1 = (opCode == 19 || opCode == 0xff)
+							int pack_length =
+								(opCode == 19 || opCode == 0xff)
 								? length - 2
 								: length;
-							if (_dataBuffer.Count >= length1)
+							if (dataBuffer.Count >= pack_length)
 							{
-								data = new byte[length1];
+								data = new byte[pack_length];
 								for (int index = 0; index < data.Length; ++index)
-									data[index] = (byte)(int)_dataBuffer.Dequeue();
-								flag = true;
-								ParserState = CommParser.ParserStateEnum.packet_type_token;
-								break;
+									data[index] = (byte)dataBuffer.Dequeue();
+								data_presents = true;
+								parserState = CommParser.ParserStateEnum.packet_type_token;
 							}
-							else
-								break;
 						}
 						else
 						{
-							flag = false;
-							ParserState = CommParser.ParserStateEnum.packet_type_token;
-							break;
+							data_presents = false;
+							parserState = CommParser.ParserStateEnum.packet_type_token;
 						}
+						break;
 				}
 			}
 			bufferMutex.ReleaseMutex();
-			return flag;
+			return data_presents;
 		}
 	}
 }

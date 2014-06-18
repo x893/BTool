@@ -93,3 +93,5 @@ Desktop.ini
 *.vshost.exe.manifest
 
 [Bb]in
+CC2541Lib
+SensorTag

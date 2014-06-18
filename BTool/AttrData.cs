@@ -22,8 +22,8 @@ namespace BTool
 		};
 		public static WriteLimits writeLimits = new WriteLimits()
 		{
-			maxPacketSize = (int)sbyte.MaxValue,
-			maxNumPreparedWrites = 5
+			MaxPacketSize = (int)sbyte.MaxValue,
+			MaxNumPreparedWrites = 5
 		};
 		public Mutex attrDictAccess = new Mutex();
 		public SortedDictionary<string, DataAttr> attrDict = new SortedDictionary<string, DataAttr>();
