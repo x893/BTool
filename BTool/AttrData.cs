@@ -4,11 +4,24 @@ using System.Threading;
 
 namespace BTool
 {
+	public struct Columns
+	{
+		public int keyWidth;
+		public int connHandleWidth;
+		public int handleWidth;
+		public int uuidWidth;
+		public int uuidDescWidth;
+		public int valueWidth;
+		public int valueDescWidth;
+		public int propertiesWidth;
+	}
+
 	public class AttrData
 	{
 		public static Color defaultForeground = Color.Black;
 		public static Color defaultBackground = Color.White;
-		public static byte unknownIndentLevel = (byte)4;
+		public static byte unknownIndentLevel = 4;
+
 		public static Columns columns = new Columns()
 		{
 			keyWidth = 70,
@@ -25,6 +38,7 @@ namespace BTool
 			MaxPacketSize = (int)sbyte.MaxValue,
 			MaxNumPreparedWrites = 5
 		};
+
 		public Mutex attrDictAccess = new Mutex();
 		public SortedDictionary<string, DataAttr> attrDict = new SortedDictionary<string, DataAttr>();
 		public bool sendAutoCmds = true;

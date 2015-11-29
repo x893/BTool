@@ -231,7 +231,7 @@ namespace BTool
 
 			InitializeComponent();
 
-			Text = FormMain.programTitle + FormMain.programVersion;
+			Text = FormMain.ProgramTitle + FormMain.ProgramVersion;
 			threadMgr = new ThreadMgr(this);
 			sendCmds = new SendCmds(this);
 			attrData.sendAutoCmds = false;
@@ -384,7 +384,7 @@ namespace BTool
 				else
 				{
 					string msg = string.Format("Failed Connecting To {0}\n", commSelectForm.cbPorts.SelectedItem);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					DisplayMsg(SharedAppObjs.MsgType.Error, msg);
 				}
 			}
@@ -479,7 +479,7 @@ namespace BTool
 			ushort eventOpCode = 0xFFFF;
 			byte length = 0;
 			byte[] data = null;
-			SharedObjects.log.Write(Logging.MsgType.Debug, "ProcessRxProc", "Starting Thread");
+			SharedObjects.Log.Write(Logging.MsgType.Debug, "ProcessRxProc", "Starting Thread");
 			while (!formClosing)
 			{
 				if (commParser.GetDataSize() == 0)
@@ -491,7 +491,7 @@ namespace BTool
 				if (formClosing)
 					break;
 
-				threadMgr.rxDataIn.dataQ.AddQTail(
+				threadMgr.rxDataIn.DataQueue.AddQTail(
 					new RxDataIn()
 					{
 						RxType = type,
@@ -506,7 +506,7 @@ namespace BTool
 				length = 0;
 				data = null;
 			}
-			SharedObjects.log.Write(Logging.MsgType.Debug, "ProcessRxProc", "Exiting Thread");
+			SharedObjects.Log.Write(Logging.MsgType.Debug, "ProcessRxProc", "Exiting Thread");
 		}
 
 		private bool HandleRxTxMessage(RxTxMgrData rxTxMgrData)
@@ -532,7 +532,7 @@ namespace BTool
 					{
 						dspTxCmds.DisplayTxCmd(rxTxMgrData.txDataOut, msgLogForm.GetDisplayTxDumps());
 						string str = "";
-						foreach (byte num in rxTxMgrData.txDataOut.data)
+						foreach (byte num in rxTxMgrData.txDataOut.Data)
 							str = str + string.Format("{0:X2} ", num);
 						flag = commMgr.WriteData(str.Trim());
 						if (!flag && threadMgr.rxDataIn.DeviceTxStopWaitCallback != null)
@@ -540,7 +540,7 @@ namespace BTool
 					}
 					else
 					{
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, string.Format("Attempt To Send Empty Message Detected\nRequest Ignored\n", commSelectForm.cbPorts.SelectedItem));
+						msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Warning, string.Format("Attempt To Send Empty Message Detected\nRequest Ignored\n", commSelectForm.cbPorts.SelectedItem));
 						flag = false;
 					}
 				}
@@ -585,7 +585,7 @@ namespace BTool
 
 		private void DeviceForm_Load(object sender, EventArgs e)
 		{
-			if (sharedObjs.IsMonoRunning())
+			if (SharedObjects.IsMonoRunning())
 				scTopBottom.SplitterDistance = 550;
 			else
 				scTopBottom.SplitterDistance = 530;
@@ -802,19 +802,19 @@ namespace BTool
 			sendCmds.SendATT(ATT_ErrorRsp);
 			sendCmds.SendATT(ATT_ExchangeMTUReq);
 			sendCmds.SendATT(ATT_ExchangeMTURsp);
-			sendCmds.SendATT(ATT_FindInfoReq, TxDataOut.CmdType.General);
+			sendCmds.SendATT(ATT_FindInfoReq, TxDataOut.CmdTypes.General);
 			sendCmds.SendATT(ATT_FindInfoRsp);
 			sendCmds.SendATT(ATT_FindByTypeValueReq);
 			sendCmds.SendATT(ATT_FindByTypeValueRsp);
 			sendCmds.SendATT(ATT_ReadByTypeReq);
 			sendCmds.SendATT(ATT_ReadByTypeRsp);
-			sendCmds.SendATT(ATT_ReadReq, TxDataOut.CmdType.General, null);
+			sendCmds.SendATT(ATT_ReadReq, TxDataOut.CmdTypes.General, null);
 			sendCmds.SendATT(ATT_ReadRsp);
-			sendCmds.SendATT(ATT_ReadBlobReq, TxDataOut.CmdType.General, null);
+			sendCmds.SendATT(ATT_ReadBlobReq, TxDataOut.CmdTypes.General, null);
 			sendCmds.SendATT(ATT_ReadBlobRsp);
 			sendCmds.SendATT(ATT_ReadMultiReq);
 			sendCmds.SendATT(ATT_ReadMultiRsp);
-			sendCmds.SendATT(ATT_ReadByGrpTypeReq, TxDataOut.CmdType.General);
+			sendCmds.SendATT(ATT_ReadByGrpTypeReq, TxDataOut.CmdTypes.General);
 			sendCmds.SendATT(ATT_ReadByGrpTypeRsp);
 			sendCmds.SendATT(ATT_WriteReq, null);
 			sendCmds.SendATT(ATT_WriteRsp);
@@ -826,15 +826,15 @@ namespace BTool
 			sendCmds.SendATT(ATT_HandleValueIndication);
 			sendCmds.SendATT(ATT_HandleValueConfirmation);
 			sendCmds.SendGATT(GATT_ExchangeMTU);
-			sendCmds.SendGATT(GATT_DiscAllPrimaryServices, TxDataOut.CmdType.General);
+			sendCmds.SendGATT(GATT_DiscAllPrimaryServices, TxDataOut.CmdTypes.General);
 			sendCmds.SendGATT(GATT_DiscPrimaryServiceByUUID);
 			sendCmds.SendGATT(GATT_FindIncludedServices);
 			sendCmds.SendGATT(GATT_DiscAllChars);
 			sendCmds.SendGATT(GATT_DiscCharsByUUID);
-			sendCmds.SendGATT(GATT_DiscAllCharDescs, TxDataOut.CmdType.General);
-			sendCmds.SendGATT(GATT_ReadCharValue, TxDataOut.CmdType.General, null);
+			sendCmds.SendGATT(GATT_DiscAllCharDescs, TxDataOut.CmdTypes.General);
+			sendCmds.SendGATT(GATT_ReadCharValue, TxDataOut.CmdTypes.General, null);
 			sendCmds.SendGATT(GATT_ReadUsingCharUUID);
-			sendCmds.SendGATT(GATT_ReadLongCharValue, TxDataOut.CmdType.General, null);
+			sendCmds.SendGATT(GATT_ReadLongCharValue, TxDataOut.CmdTypes.General, null);
 			sendCmds.SendGATT(GATT_ReadMultiCharValues);
 			sendCmds.SendGATT(GATT_WriteNoRsp);
 			sendCmds.SendGATT(GATT_SignedWriteNoRsp);
@@ -1184,12 +1184,12 @@ namespace BTool
 
 		public void SendAttrDataCmds()
 		{
-			sendCmds.SendGATT(GATT_DiscAllPrimaryServices, TxDataOut.CmdType.General);
+			sendCmds.SendGATT(GATT_DiscAllPrimaryServices, TxDataOut.CmdTypes.General);
 			sendCmds.SendGATT(GATT_DiscPrimaryServiceByUUID);
 			sendCmds.SendGATT(GATT_FindIncludedServices);
 			sendCmds.SendGATT(GATT_DiscAllChars);
 			sendCmds.SendGATT(GATT_DiscCharsByUUID);
-			sendCmds.SendGATT(GATT_DiscAllCharDescs, TxDataOut.CmdType.General);
+			sendCmds.SendGATT(GATT_DiscAllCharDescs, TxDataOut.CmdTypes.General);
 		}
 
 		public void TestCase()
@@ -1294,7 +1294,7 @@ namespace BTool
 
 			string msg = "Device Scan Timeout.\n";
 			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+			msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 		}
 
 		private void timerInitEvent(object obj, EventArgs args)
@@ -1305,7 +1305,7 @@ namespace BTool
 
 			string msg = "GAP Device Initialization Timeout.\nDevice May Not Function Properly.\n";
 			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+			msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 		}
 
 		private void timerEstablishEvent(object obj, EventArgs args)
@@ -1316,7 +1316,7 @@ namespace BTool
 
 			string msg = "GAP Link Establish Request Timeout.\n";
 			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+			msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 		}
 
 		private void timerPairBondEvent(object obj, EventArgs args)
@@ -1331,7 +1331,7 @@ namespace BTool
 
 			string msg = "Pairing Bonding Request Timeout.\n";
 			DisplayMsg(SharedAppObjs.MsgType.Warning, msg);
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+			msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 		}
 
 		private void DisplayRxCmd(RxDataIn rxDataIn, bool displayBytes)
@@ -1832,7 +1832,7 @@ namespace BTool
 										}
 										catch (Exception ex)
 										{
-											msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Message Data Conversion Issue.\n\n{0}\n", ex.Message));
+											msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Message Data Conversion Issue.\n\n{0}\n", ex.Message));
 											DisplayMsg(SharedAppObjs.MsgType.Error, "Could Not Convert All The Data In The Following Message\n(Message Is Missing Data Bytes To Process)\n");
 											dataErr = true;
 										}
@@ -1899,7 +1899,7 @@ namespace BTool
 										StopTimer(DeviceForm.EventType.Scan);
 										devTabsForm.ShowProgress(false);
 										if (status != 0 && status != 48)
-											msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_DeviceDiscoveryDone Failed.\n{0}\n", str4));
+											msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("GAP_DeviceDiscoveryDone Failed.\n{0}\n", str4));
 
 										byte num16 = dataUtils.Unload8Bits(data1, ref index1, ref dataErr);
 										if (!dataErr)
@@ -2268,7 +2268,7 @@ namespace BTool
 											else
 											{
 												devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
-												msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_BondComplete: Failed.\n{0}\n", str4));
+												msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("GAP_BondComplete: Failed.\n{0}\n", str4));
 											}
 											devTabsForm.PairBondUserInputControl();
 										}
@@ -2427,14 +2427,14 @@ namespace BTool
 														case 65028:
 															if ((int)status != 0)
 															{
-																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_DeviceDiscoveryRequest Failed.\n{0}\n", str4));
+																msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("GAP_DeviceDiscoveryRequest Failed.\n{0}\n", str4));
 																devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
 																devTabsForm.DiscoverConnectUserInputControl();
 															}
 															goto label_319;
 														case 65029:
 															if (status != 0)
-																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_DeviceDiscoveryCancel Failed.\n{0}\n", str4));
+																msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("GAP_DeviceDiscoveryCancel Failed.\n{0}\n", str4));
 
 															devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
 															devTabsForm.DiscoverConnectUserInputControl();
@@ -2443,14 +2443,14 @@ namespace BTool
 															StopTimer(DeviceForm.EventType.Establish);
 															devTabsForm.ShowProgress(false);
 															if (status != 0)
-																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_EstablishLinkRequest Failed.\n{0}\n", str4));
+																msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("GAP_EstablishLinkRequest Failed.\n{0}\n", str4));
 
 															devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
 															devTabsForm.DiscoverConnectUserInputControl();
 															goto label_319;
 														case 65034:
 															if (status != 0)
-																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_TerminateLinkRequest Failed.\n{0}\n", str4));
+																msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("GAP_TerminateLinkRequest Failed.\n{0}\n", str4));
 
 															devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
 															devTabsForm.DiscoverConnectUserInputControl();
@@ -2464,7 +2464,7 @@ namespace BTool
 																devTabsForm.TabPairBondInitValues();
 																devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
 																devTabsForm.PairBondUserInputControl();
-																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP Authenticate Failed.\n{0}\n",str4));
+																msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("GAP Authenticate Failed.\n{0}\n",str4));
 															}
 															goto label_319;
 														case 65039:
@@ -2474,19 +2474,19 @@ namespace BTool
 																devTabsForm.ShowProgress(false);
 																devTabsForm.SetPairingStatus(DeviceTabsForm.PairingStatus.NotPaired);
 																devTabsForm.PairBondUserInputControl();
-																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_Bond: Failed.\n{0}\n",str4));
+																msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("GAP_Bond: Failed.\n{0}\n",str4));
 															}
 															goto label_319;
 														case 65072:
 															if (status != 0)
-																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_SetParam: Failed.\n{0}\n", str4));
+																msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("GAP_SetParam: Failed.\n{0}\n", str4));
 
 															devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
 															devTabsForm.DiscoverConnectUserInputControl();
 															goto label_319;
 														case 65073:
 															if (status != 0)
-																msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("GAP_GetParam: Failed.\n{0}\n", str4));
+																msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("GAP_GetParam: Failed.\n{0}\n", str4));
 
 															devTabsForm.discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
 															devTabsForm.DiscoverConnectUserInputControl();

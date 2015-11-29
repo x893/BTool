@@ -12,47 +12,47 @@ namespace BTool
 
 		private class ThreadData { }
 
-		public QueueMgr dataQ = new QueueMgr(moduleName);
-		public ThreadControl threadCtrl = new ThreadControl();
+		public QueueMgr DataQueue = new QueueMgr(moduleName);
+		public ThreadControl ThreadCtrl = new ThreadControl();
 		public RspDataInThread.RspDataInChangedDelegate RspDataInChangedCallback;
-		public ExtCmdStatus extCmdStatus;
-		public AttErrorRsp attErrorRsp;
-		public AttReadRsp attReadRsp;
-		public AttReadBlobRsp attReadBlobRsp;
-		public AttWriteRsp attWriteRsp;
-		public AttPrepareWriteRsp attPrepareWriteRsp;
-		public AttExecuteWriteRsp attExecuteWriteRsp;
-		public AttHandleValueNotification attHandleValueNotification;
-		public AttHandleValueIndication attHandleValueIndication;
+		public ExtCmdStatus ExtCmdStatus;
+		public AttErrorRsp AttErrorRsp;
+		public AttReadRsp AttReadRsp;
+		public AttReadBlobRsp AttReadBlobRsp;
+		public AttWriteRsp AttWriteRsp;
+		public AttPrepareWriteRsp AttPrepareWriteRsp;
+		public AttExecuteWriteRsp AttExecuteWriteRsp;
+		public AttHandleValueNotification AttHandleValueNotification;
+		public AttHandleValueIndication AttHandleValueIndication;
 
-		private RspDataInThread.ThreadData threadData = new RspDataInThread.ThreadData();
-		private MsgBox msgBox = new MsgBox();
-		private Thread taskThread;
-		private AttFindInfoRsp attFindInfoRsp;
-		private AttFindByTypeValueRsp attFindByTypeValueRsp;
-		private AttReadByTypeRsp attReadByTypeRsp;
-		private AttReadByGrpTypeRsp attReadByGrpTypeRsp;
+		private RspDataInThread.ThreadData m_threadData = new RspDataInThread.ThreadData();
+		private MsgBox m_msgBox = new MsgBox();
+		private Thread m_taskThread;
+		private AttFindInfoRsp m_attFindInfoRsp;
+		private AttFindByTypeValueRsp m_attFindByTypeValueRsp;
+		private AttReadByTypeRsp m_attReadByTypeRsp;
+		private AttReadByGrpTypeRsp m_attReadByGrpTypeRsp;
 
 		public RspDataInThread(DeviceForm deviceForm)
 		{
-			extCmdStatus = new ExtCmdStatus();
-			attErrorRsp = new AttErrorRsp();
-			attFindInfoRsp = new AttFindInfoRsp(deviceForm);
-			attFindByTypeValueRsp = new AttFindByTypeValueRsp(deviceForm);
-			attReadByTypeRsp = new AttReadByTypeRsp(deviceForm);
-			attReadRsp = new AttReadRsp(deviceForm);
-			attReadBlobRsp = new AttReadBlobRsp(deviceForm);
-			attReadByGrpTypeRsp = new AttReadByGrpTypeRsp(deviceForm);
-			attWriteRsp = new AttWriteRsp();
-			attPrepareWriteRsp = new AttPrepareWriteRsp();
-			attExecuteWriteRsp = new AttExecuteWriteRsp();
-			attHandleValueNotification = new AttHandleValueNotification(deviceForm);
-			attHandleValueIndication = new AttHandleValueIndication(deviceForm);
-			taskThread = new Thread(new ParameterizedThreadStart(TaskThread));
-			taskThread.Name = moduleName;
-			taskThread.Start(threadData);
+			ExtCmdStatus = new ExtCmdStatus();
+			AttErrorRsp = new AttErrorRsp();
+			m_attFindInfoRsp = new AttFindInfoRsp(deviceForm);
+			m_attFindByTypeValueRsp = new AttFindByTypeValueRsp(deviceForm);
+			m_attReadByTypeRsp = new AttReadByTypeRsp(deviceForm);
+			AttReadRsp = new AttReadRsp(deviceForm);
+			AttReadBlobRsp = new AttReadBlobRsp(deviceForm);
+			m_attReadByGrpTypeRsp = new AttReadByGrpTypeRsp(deviceForm);
+			AttWriteRsp = new AttWriteRsp();
+			AttPrepareWriteRsp = new AttPrepareWriteRsp();
+			AttExecuteWriteRsp = new AttExecuteWriteRsp();
+			AttHandleValueNotification = new AttHandleValueNotification(deviceForm);
+			AttHandleValueIndication = new AttHandleValueIndication(deviceForm);
+			m_taskThread = new Thread(new ParameterizedThreadStart(TaskThread));
+			m_taskThread.Name = moduleName;
+			m_taskThread.Start(m_threadData);
 			Thread.Sleep(0);
-			while (!taskThread.IsAlive)
+			while (!m_taskThread.IsAlive)
 			{ }
 		}
 
@@ -61,122 +61,122 @@ namespace BTool
 		{
 			try
 			{
-				bool flag = false;
-				threadCtrl.Init();
-				threadCtrl.RunningThread = true;
-				SharedObjects.log.Write(Logging.MsgType.Debug, moduleName, "Starting Thread");
-				while (!flag)
+				bool stopped = false;
+				ThreadCtrl.Init();
+				ThreadCtrl.RunningThread = true;
+				SharedObjects.Log.Write(Logging.MsgType.Debug, moduleName, "Starting Thread");
+				while (!stopped)
 				{
-					if (threadCtrl.ExitThread)
+					if (ThreadCtrl.ExitThread)
 						break;
 
-					if (threadCtrl.PauseThread)
+					if (ThreadCtrl.PauseThread)
 					{
-						threadCtrl.IdleThread = true;
-						SharedObjects.log.Write(Logging.MsgType.Debug, moduleName, "Pausing Thread");
-						threadCtrl.eventPause.WaitOne();
-						threadCtrl.IdleThread = false;
-						if (threadCtrl.ExitThread)
+						ThreadCtrl.IdleThread = true;
+						SharedObjects.Log.Write(Logging.MsgType.Debug, moduleName, "Pausing Thread");
+						ThreadCtrl.EventPause.WaitOne();
+						ThreadCtrl.IdleThread = false;
+						if (ThreadCtrl.ExitThread)
 							break;
 					}
 					switch (WaitHandle.WaitAny(
 								new WaitHandle[3]
 									{
-										threadCtrl.eventExit,
-										threadCtrl.eventPause,
-										dataQ.qDataReadyEvent
+										ThreadCtrl.EventExit,
+										ThreadCtrl.EventPause,
+										DataQueue.qDataReadyEvent
 									}))
 					{
 						case 0:
-							flag = true;
+							stopped = true;
 							break;
 						case 1:
-							threadCtrl.eventPause.Reset();
-							SharedObjects.log.Write(Logging.MsgType.Debug, moduleName, "Resuming Thread");
+							ThreadCtrl.EventPause.Reset();
+							SharedObjects.Log.Write(Logging.MsgType.Debug, moduleName, "Resuming Thread");
 							break;
 						case 2:
-							dataQ.qDataReadyEvent.Reset();
+							DataQueue.qDataReadyEvent.Reset();
 							QueueDataReady();
 							break;
 						default:
-							flag = true;
+							stopped = true;
 							break;
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Task Thread Problem.\n" + ex.Message + "\nRspDataInThread\n");
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "Task Thread Problem.\n" + ex.Message + "\nRspDataInThread\n");
 			}
-			SharedObjects.log.Write(Logging.MsgType.Debug, moduleName, "Exiting Thread");
-			threadCtrl.Exit();
+			SharedObjects.Log.Write(Logging.MsgType.Debug, moduleName, "Exiting Thread");
+			ThreadCtrl.Exit();
 		}
 
 		private bool QueueDataReady()
 		{
 			object data = new HCIReplies();
-			bool flag = dataQ.RemoveQHead(ref data);
-			if (flag)
+			bool success = DataQueue.RemoveQHead(ref data);
+			if (success)
 			{
 				HCIReplies hciReplies = (HCIReplies)data;
 				bool dataFound = false;
-				flag = ProcessQData(hciReplies, ref dataFound);
-				if (flag && dataFound && RspDataInChangedCallback != null)
+				success = ProcessQData(hciReplies, ref dataFound);
+				if (success && dataFound && RspDataInChangedCallback != null)
 					RspDataInChangedCallback();
 			}
 			Thread.Sleep(10);
-			return flag;
+			return success;
 		}
 
 		private bool ProcessQData(HCIReplies hciReplies, ref bool dataFound)
 		{
-			bool flag = true;
+			bool success = true;
 			dataFound = false;
 			if (hciReplies == null || hciReplies.HciLeExtEvent == null)
 				return false;
 			switch (hciReplies.HciLeExtEvent.Header.EventCode)
 			{
 				case 1281:
-					flag = attErrorRsp.GetATT_ErrorRsp(hciReplies, ref dataFound);
+					success = AttErrorRsp.GetATT_ErrorRsp(hciReplies, ref dataFound);
 					break;
 				case 1285:
-					flag = attFindInfoRsp.GetATT_FindInfoRsp(hciReplies, ref dataFound);
+					success = m_attFindInfoRsp.GetATT_FindInfoRsp(hciReplies, ref dataFound);
 					break;
 				case 1287:
-					flag = attFindByTypeValueRsp.GetATT_FindByTypeValueRsp(hciReplies, ref dataFound);
+					success = m_attFindByTypeValueRsp.GetATT_FindByTypeValueRsp(hciReplies, ref dataFound);
 					break;
 				case 1289:
-					flag = attReadByTypeRsp.GetATT_ReadByTypeRsp(hciReplies, ref dataFound);
+					success = m_attReadByTypeRsp.GetATT_ReadByTypeRsp(hciReplies, ref dataFound);
 					break;
 				case 1291:
-					flag = attReadRsp.GetATT_ReadRsp(hciReplies, ref dataFound);
+					success = AttReadRsp.GetATT_ReadRsp(hciReplies, ref dataFound);
 					break;
 				case 1293:
-					flag = attReadBlobRsp.GetATT_ReadBlobRsp(hciReplies, ref dataFound);
+					success = AttReadBlobRsp.GetATT_ReadBlobRsp(hciReplies, ref dataFound);
 					break;
 				case 1297:
-					flag = attReadByGrpTypeRsp.GetATT_ReadByGrpTypeRsp(hciReplies, ref dataFound);
+					success = m_attReadByGrpTypeRsp.GetATT_ReadByGrpTypeRsp(hciReplies, ref dataFound);
 					break;
 				case 1299:
-					flag = attWriteRsp.GetATT_WriteRsp(hciReplies, ref dataFound);
+					success = AttWriteRsp.GetATT_WriteRsp(hciReplies, ref dataFound);
 					break;
 				case 1303:
-					flag = attPrepareWriteRsp.GetATT_PrepareWriteRsp(hciReplies, ref dataFound);
+					success = AttPrepareWriteRsp.GetATT_PrepareWriteRsp(hciReplies, ref dataFound);
 					break;
 				case 1305:
-					flag = attExecuteWriteRsp.GetATT_ExecuteWriteRsp(hciReplies, ref dataFound);
+					success = AttExecuteWriteRsp.GetATT_ExecuteWriteRsp(hciReplies, ref dataFound);
 					break;
 				case 1307:
-					flag = attHandleValueNotification.GetATT_HandleValueNotification(hciReplies, ref dataFound);
+					success = AttHandleValueNotification.GetATT_HandleValueNotification(hciReplies, ref dataFound);
 					break;
 				case 1309:
-					flag = attHandleValueIndication.GetATT_HandleValueIndication(hciReplies, ref dataFound);
+					success = AttHandleValueIndication.GetATT_HandleValueIndication(hciReplies, ref dataFound);
 					break;
 				case 1663:
-					flag = extCmdStatus.GetExtensionCommandStatus(hciReplies, ref dataFound);
+					success = ExtCmdStatus.GetExtensionCommandStatus(hciReplies, ref dataFound);
 					break;
 			}
-			return flag;
+			return success;
 		}
 	}
 }

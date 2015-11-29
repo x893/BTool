@@ -19,8 +19,6 @@ namespace BTool
 
 		private MsgBox msgBox = new MsgBox();
 		private SharedObjects sharedObjs = new SharedObjects();
-		private MonoUtils monoUtils = new MonoUtils();
-		private IContainer components;
 		private Label lblPort;
 		private Label lblBaud;
 		private Label lblParity;
@@ -36,7 +34,8 @@ namespace BTool
 			InitializeComponent();
 		}
 
-		#region InitializeComponent
+		#region Windows Form Designer generated code
+		private System.ComponentModel.IContainer components = null;
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing && components != null)
@@ -269,7 +268,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid COM Port Name Found During Sort.\nSort Terminated.\n\n{0}\n", ex.Message));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Invalid COM Port Name Found During Sort.\nSort Terminated.\n\n{0}\n", ex.Message));
 			}
 			return 0;
 		}
@@ -288,7 +287,7 @@ namespace BTool
 		private void commSelect_FormLoad(object sender, EventArgs e)
 		{
 			string[] portNames = SerialPort.GetPortNames();
-			if (!sharedObjs.IsMonoRunning())
+			if (!SharedObjects.IsMonoRunning())
 				SortComPorts(portNames);
 			try
 			{
@@ -315,7 +314,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid COM Port Name Found During Form Load.\nPort Name Load Stopped Before Completion.\n\n{0}\n", ex.Message));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Invalid COM Port Name Found During Form Load.\nPort Name Load Stopped Before Completion.\n\n{0}\n", ex.Message));
 				if (index == 0)
 					cbPorts.Items.Add("No Ports Found");
 			}
@@ -411,7 +410,7 @@ namespace BTool
 			else
 				cbFlow.SelectedIndex = 2;
 
-			monoUtils.SetMaximumSize(this);
+			SharedObjects.SetMaximumSize(this);
 		}
 	}
 }

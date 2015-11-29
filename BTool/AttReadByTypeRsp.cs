@@ -12,8 +12,8 @@ namespace BTool
 			public HCIReplies.HCI_LE_ExtEvent.ATT_ReadByTypeRsp ATT_ReadByTypeRsp;
 		}
 
-		public delegate void AttReadByTypeRspDelegate(AttReadByTypeRsp.RspInfo rspInfo);
-		public AttReadByTypeRsp.AttReadByTypeRspDelegate AttReadByTypeRspCallback;
+		public delegate void AttReadByTypeRspDelegate(RspInfo rspInfo);
+		public AttReadByTypeRspDelegate AttReadByTypeRspCallback;
 
 		private DeviceFormUtils devUtils = new DeviceFormUtils();
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();

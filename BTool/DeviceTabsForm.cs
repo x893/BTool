@@ -11,7 +11,6 @@ namespace BTool
 {
 	public class DeviceTabsForm : Form
 	{
-		public static string moduleName = "DeviceTabsForm";
 		public enum DiscoverConnectStatus
 		{
 			Idle,
@@ -30,11 +29,12 @@ namespace BTool
 			public HCICmds.GAP_AddrType addrType;
 		}
 
+		public delegate void SetSupervisionTimeoutDelegate(uint timeout);
+		public delegate void ShowProgressDelegate(bool enable);
+
 		private delegate void SetMinConnectionIntervalDelegate(uint interval);
 		private delegate void SetMaxConnectionIntervalDelegate(uint interval);
 		private delegate void SetSlaveLatencyDelegate(uint latency);
-		public delegate void SetSupervisionTimeoutDelegate(uint timeout);
-		public delegate void ShowProgressDelegate(bool enable);
 
 		public enum DeviceTabs
 		{
@@ -42,14 +42,6 @@ namespace BTool
 			ReadWrite,
 			PairingBonding,
 			AdvCommands,
-		}
-
-		private enum ReadSubProc
-		{
-			ReadCharacteristicValueDescriptor,
-			ReadUsingCharacteristicUuid,
-			ReadMultipleCharacteristicValues,
-			DiscoverCharacteristicByUuid,
 		}
 
 		private List<DeviceTabsForm.CsvData> csvKeyData = new List<DeviceTabsForm.CsvData>();
@@ -180,7 +172,7 @@ namespace BTool
 		private ProgressBar pbSharedDevice;
 		private ContextMenuStrip cmsAdvTab;
 		private ToolStripMenuItem tsmiSendAdvCmd;
-		public DeviceTabsForm.DiscoverConnectStatus discoverConnectStatus;
+		public DiscoverConnectStatus discoverConnectStatus;
 		private DeviceForm devForm;
 		public DeviceForm.DisplayMsgDelegate DisplayMsgCallback;
 		private ushort SlaveDeviceFound;
@@ -245,7 +237,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message));
 				tbPairingConnHandle.Focus();
 				PairBondUserInputControl();
 				return;
@@ -285,7 +277,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message));
 				tbPasskeyConnHandle.Focus();
 				PairBondUserInputControl();
 				return;
@@ -301,7 +293,7 @@ namespace BTool
 				ShowProgress(false);
 				PairBondUserInputControl();
 			}
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Passkey Length\nLength must be {0:D}", 6));
+			msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Passkey Length\nLength must be {0:D}", 6));
 		}
 
 		private void btnLoadLongTermKey_Click(object sender, EventArgs e)
@@ -331,7 +323,7 @@ namespace BTool
 			csvData1.addr = devForm.numConnections <= 1 ? connectInfo.BDA : str;
 			if (csvData1.addr == null || csvData1.addr.Length == 0)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Connection Address Is Invalid\nA Device Must Be Connected To Read Data\n"));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Connection Address Is Invalid\nA Device Must Be Connected To Read Data\n"));
 			}
 			else
 			{
@@ -340,7 +332,7 @@ namespace BTool
 					return;
 				if (csvIndex == -1)
 				{
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Find The Device Address In The Specified File\nSearch Address = {0:S}\nNo Data Was Loaded.\n", csvData1.addr));
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Find The Device Address In The Specified File\nSearch Address = {0:S}\nNo Data Was Loaded.\n", csvData1.addr));
 				}
 				else
 				{
@@ -373,14 +365,14 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Long Term Key Entry.\n '{0}'\nNo Data Was Loaded.\nFormat Is 00:00....\n\n{1}", ex.Message));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Long Term Key Entry.\n '{0}'\nNo Data Was Loaded.\nFormat Is 00:00....\n\n{1}", ex.Message));
 				tbLongTermKey.Focus();
 				PairBondUserInputControl();
 				return;
 			}
 			if (str2.Length != 47)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Long Term Key Length = {0:D} \nLength must be {1:D}", str2.Length, 16));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Long Term Key Length = {0:D} \nLength must be {1:D}", str2.Length, 16));
 				tbLongTermKey.Focus();
 				PairBondUserInputControl();
 			}
@@ -393,7 +385,7 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid LTK Diversifier Entry.\nFormat: 0x0000\n\n{0}\n", ex.Message));
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Invalid LTK Diversifier Entry.\nFormat: 0x0000\n\n{0}\n", ex.Message));
 					tbLTKDiversifier.Focus();
 					PairBondUserInputControl();
 					return;
@@ -406,14 +398,14 @@ namespace BTool
 				}
 				catch (Exception ex)
 				{
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid LTK Random Entry.\n'{0}'\nFormat Is 00:00....\n\n{1}\n", ex.Message));
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Invalid LTK Random Entry.\n'{0}'\nFormat Is 00:00....\n\n{1}\n", ex.Message));
 					tbLTKRandom.Focus();
 					PairBondUserInputControl();
 					return;
 				}
 				if (str4.Length != 23)
 				{
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid LTK Random Length = {0:D} \nLength must be {1:D}\n", str4.Length, 8));
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Invalid LTK Random Length = {0:D} \nLength must be {1:D}\n", str4.Length, 8));
 					tbLTKRandom.Focus();
 					PairBondUserInputControl();
 				}
@@ -427,7 +419,7 @@ namespace BTool
 					}
 					catch (Exception ex)
 					{
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Connection Handle\n\n{0}\n", ex.Message));
+						msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Invalid Connection Handle\n\n{0}\n", ex.Message));
 						tbBondConnHandle.Focus();
 						PairBondUserInputControl();
 						return;
@@ -463,7 +455,7 @@ namespace BTool
 			newCsvData.rand = lastGAP_AuthenticationComplete.devSecInfo_RAND;
 			if (newCsvData.addr == null || newCsvData.addr.Length == 0)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Connection Address Is Invalid\nDevice Must Be Connected To Save Data\n"));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Connection Address Is Invalid\nDevice Must Be Connected To Save Data\n"));
 			}
 			else
 			{
@@ -760,7 +752,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Load Or Parse The CSV File.\n\n{0}\n", ex.Message));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Load Or Parse The CSV File.\n\n{0}\n", ex.Message));
 				fileError = true;
 			}
 			return list;
@@ -787,7 +779,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Write The CSV File\n\n{0}\n", ex.Message));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Write The CSV File\n\n{0}\n", ex.Message));
 				flag = true;
 			}
 			return flag;
@@ -812,7 +804,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Add Data To End Of The CSV List.\n\n{0}\n", ex.Message));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Add Data To End Of The CSV List.\n\n{0}\n", ex.Message));
 				flag = true;
 			}
 			return flag;
@@ -845,7 +837,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Access The Data To Find The Addr In The CSV List\n\n{0}\n", ex.Message));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Access The Data To Find The Addr In The CSV List\n\n{0}\n", ex.Message));
 				flag = true;
 			}
 			return flag;
@@ -871,7 +863,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Access The Data To Replace The Addr In The CSV List\n\n{0}\n", ex.Message));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Access The Data To Replace The Addr In The CSV List\n\n{0}\n", ex.Message));
 				flag = true;
 			}
 			return flag;
@@ -1042,10 +1034,10 @@ namespace BTool
 			this.tcDeviceTabs.Controls.Add(this.tpAdvCommands);
 			this.tcDeviceTabs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.tcDeviceTabs.Location = new System.Drawing.Point(1, 1);
-			this.tcDeviceTabs.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tcDeviceTabs.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tcDeviceTabs.Name = "tcDeviceTabs";
 			this.tcDeviceTabs.SelectedIndex = 0;
-			this.tcDeviceTabs.Size = new System.Drawing.Size(395, 534);
+			this.tcDeviceTabs.Size = new System.Drawing.Size(527, 637);
 			this.tcDeviceTabs.TabIndex = 1;
 			this.tcDeviceTabs.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcDeviceTab_Selected);
 			// 
@@ -1055,11 +1047,11 @@ namespace BTool
 			this.tpDiscoverConnect.Controls.Add(this.gbLinkControl);
 			this.tpDiscoverConnect.Controls.Add(this.gbConnSettings);
 			this.tpDiscoverConnect.Controls.Add(this.gbDiscovery);
-			this.tpDiscoverConnect.Location = new System.Drawing.Point(4, 22);
-			this.tpDiscoverConnect.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tpDiscoverConnect.Location = new System.Drawing.Point(4, 26);
+			this.tpDiscoverConnect.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tpDiscoverConnect.Name = "tpDiscoverConnect";
-			this.tpDiscoverConnect.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.tpDiscoverConnect.Size = new System.Drawing.Size(387, 508);
+			this.tpDiscoverConnect.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.tpDiscoverConnect.Size = new System.Drawing.Size(519, 607);
 			this.tpDiscoverConnect.TabIndex = 1;
 			this.tpDiscoverConnect.Text = "Discover / Connect";
 			this.tpDiscoverConnect.UseVisualStyleBackColor = true;
@@ -1069,11 +1061,11 @@ namespace BTool
 			this.gbLinkControl.Controls.Add(this.gbTerminateLink);
 			this.gbLinkControl.Controls.Add(this.gbEstablishLink);
 			this.gbLinkControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.gbLinkControl.Location = new System.Drawing.Point(4, 290);
-			this.gbLinkControl.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbLinkControl.Location = new System.Drawing.Point(5, 349);
+			this.gbLinkControl.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbLinkControl.Name = "gbLinkControl";
-			this.gbLinkControl.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbLinkControl.Size = new System.Drawing.Size(377, 213);
+			this.gbLinkControl.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbLinkControl.Size = new System.Drawing.Size(503, 250);
 			this.gbLinkControl.TabIndex = 5;
 			this.gbLinkControl.TabStop = false;
 			this.gbLinkControl.Text = "Link Control";
@@ -1085,11 +1077,11 @@ namespace BTool
 			this.gbTerminateLink.Controls.Add(this.btnTerminate);
 			this.gbTerminateLink.Controls.Add(this.tbTermConnHandle);
 			this.gbTerminateLink.Controls.Add(this.lblConnHandle);
-			this.gbTerminateLink.Location = new System.Drawing.Point(7, 141);
-			this.gbTerminateLink.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbTerminateLink.Location = new System.Drawing.Point(9, 170);
+			this.gbTerminateLink.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbTerminateLink.Name = "gbTerminateLink";
-			this.gbTerminateLink.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbTerminateLink.Size = new System.Drawing.Size(365, 65);
+			this.gbTerminateLink.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbTerminateLink.Size = new System.Drawing.Size(487, 72);
 			this.gbTerminateLink.TabIndex = 19;
 			this.gbTerminateLink.TabStop = false;
 			// 
@@ -1097,10 +1089,9 @@ namespace BTool
 			// 
 			this.lblTerminateLink.AutoSize = true;
 			this.lblTerminateLink.BackColor = System.Drawing.SystemColors.ControlLight;
-			this.lblTerminateLink.Location = new System.Drawing.Point(134, 2);
-			this.lblTerminateLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblTerminateLink.Location = new System.Drawing.Point(179, 2);
 			this.lblTerminateLink.Name = "lblTerminateLink";
-			this.lblTerminateLink.Size = new System.Drawing.Size(77, 13);
+			this.lblTerminateLink.Size = new System.Drawing.Size(102, 17);
 			this.lblTerminateLink.TabIndex = 19;
 			this.lblTerminateLink.Text = "Terminate Link";
 			// 
@@ -1108,10 +1099,10 @@ namespace BTool
 			// 
 			this.btnTerminate.BackColor = System.Drawing.SystemColors.Control;
 			this.btnTerminate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.btnTerminate.Location = new System.Drawing.Point(227, 23);
-			this.btnTerminate.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnTerminate.Location = new System.Drawing.Point(303, 28);
+			this.btnTerminate.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnTerminate.Name = "btnTerminate";
-			this.btnTerminate.Size = new System.Drawing.Size(126, 28);
+			this.btnTerminate.Size = new System.Drawing.Size(168, 34);
 			this.btnTerminate.TabIndex = 0;
 			this.btnTerminate.Text = "Terminate";
 			this.btnTerminate.UseVisualStyleBackColor = true;
@@ -1119,11 +1110,11 @@ namespace BTool
 			// 
 			// tbTermConnHandle
 			// 
-			this.tbTermConnHandle.Location = new System.Drawing.Point(126, 26);
-			this.tbTermConnHandle.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbTermConnHandle.Location = new System.Drawing.Point(168, 32);
+			this.tbTermConnHandle.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbTermConnHandle.MaxLength = 6;
 			this.tbTermConnHandle.Name = "tbTermConnHandle";
-			this.tbTermConnHandle.Size = new System.Drawing.Size(60, 20);
+			this.tbTermConnHandle.Size = new System.Drawing.Size(79, 23);
 			this.tbTermConnHandle.TabIndex = 17;
 			this.tbTermConnHandle.Text = "0x0000";
 			this.tbTermConnHandle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -1132,10 +1123,9 @@ namespace BTool
 			// 
 			this.lblConnHandle.AutoSize = true;
 			this.lblConnHandle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblConnHandle.Location = new System.Drawing.Point(16, 29);
-			this.lblConnHandle.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblConnHandle.Location = new System.Drawing.Point(21, 36);
 			this.lblConnHandle.Name = "lblConnHandle";
-			this.lblConnHandle.Size = new System.Drawing.Size(101, 13);
+			this.lblConnHandle.Size = new System.Drawing.Size(132, 17);
 			this.lblConnHandle.TabIndex = 18;
 			this.lblConnHandle.Text = "Connection Handle:";
 			// 
@@ -1150,11 +1140,11 @@ namespace BTool
 			this.gbEstablishLink.Controls.Add(this.lblSlaveBDA);
 			this.gbEstablishLink.Controls.Add(this.cbConnAddrType);
 			this.gbEstablishLink.Controls.Add(this.lblEstablishLink);
-			this.gbEstablishLink.Location = new System.Drawing.Point(7, 15);
-			this.gbEstablishLink.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbEstablishLink.Location = new System.Drawing.Point(9, 18);
+			this.gbEstablishLink.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbEstablishLink.Name = "gbEstablishLink";
-			this.gbEstablishLink.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbEstablishLink.Size = new System.Drawing.Size(365, 123);
+			this.gbEstablishLink.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbEstablishLink.Size = new System.Drawing.Size(487, 147);
 			this.gbEstablishLink.TabIndex = 20;
 			this.gbEstablishLink.TabStop = false;
 			// 
@@ -1162,10 +1152,10 @@ namespace BTool
 			// 
 			this.btnEstablishCancel.BackColor = System.Drawing.SystemColors.Control;
 			this.btnEstablishCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.btnEstablishCancel.Location = new System.Drawing.Point(229, 83);
-			this.btnEstablishCancel.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnEstablishCancel.Location = new System.Drawing.Point(305, 102);
+			this.btnEstablishCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnEstablishCancel.Name = "btnEstablishCancel";
-			this.btnEstablishCancel.Size = new System.Drawing.Size(126, 28);
+			this.btnEstablishCancel.Size = new System.Drawing.Size(168, 34);
 			this.btnEstablishCancel.TabIndex = 18;
 			this.btnEstablishCancel.Text = "Cancel";
 			this.btnEstablishCancel.UseVisualStyleBackColor = true;
@@ -1175,11 +1165,11 @@ namespace BTool
 			// 
 			this.ckBoxConnWhiteList.AutoSize = true;
 			this.ckBoxConnWhiteList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.ckBoxConnWhiteList.Location = new System.Drawing.Point(275, 28);
-			this.ckBoxConnWhiteList.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.ckBoxConnWhiteList.Location = new System.Drawing.Point(367, 34);
+			this.ckBoxConnWhiteList.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.ckBoxConnWhiteList.Name = "ckBoxConnWhiteList";
 			this.ckBoxConnWhiteList.RightToLeft = System.Windows.Forms.RightToLeft.No;
-			this.ckBoxConnWhiteList.Size = new System.Drawing.Size(70, 17);
+			this.ckBoxConnWhiteList.Size = new System.Drawing.Size(88, 21);
 			this.ckBoxConnWhiteList.TabIndex = 14;
 			this.ckBoxConnWhiteList.Text = "WhiteList";
 			this.ckBoxConnWhiteList.UseVisualStyleBackColor = true;
@@ -1188,10 +1178,10 @@ namespace BTool
 			// 
 			this.btnEstablish.BackColor = System.Drawing.SystemColors.Control;
 			this.btnEstablish.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.btnEstablish.Location = new System.Drawing.Point(10, 83);
-			this.btnEstablish.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnEstablish.Location = new System.Drawing.Point(13, 102);
+			this.btnEstablish.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnEstablish.Name = "btnEstablish";
-			this.btnEstablish.Size = new System.Drawing.Size(126, 28);
+			this.btnEstablish.Size = new System.Drawing.Size(168, 34);
 			this.btnEstablish.TabIndex = 1;
 			this.btnEstablish.Text = "Establish";
 			this.btnEstablish.UseVisualStyleBackColor = true;
@@ -1201,11 +1191,11 @@ namespace BTool
 			// 
 			this.cbConnSlaveDeviceBDAddress.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.cbConnSlaveDeviceBDAddress.FormattingEnabled = true;
-			this.cbConnSlaveDeviceBDAddress.Location = new System.Drawing.Point(96, 54);
-			this.cbConnSlaveDeviceBDAddress.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.cbConnSlaveDeviceBDAddress.Location = new System.Drawing.Point(128, 66);
+			this.cbConnSlaveDeviceBDAddress.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.cbConnSlaveDeviceBDAddress.MaxLength = 17;
 			this.cbConnSlaveDeviceBDAddress.Name = "cbConnSlaveDeviceBDAddress";
-			this.cbConnSlaveDeviceBDAddress.Size = new System.Drawing.Size(150, 21);
+			this.cbConnSlaveDeviceBDAddress.Size = new System.Drawing.Size(199, 25);
 			this.cbConnSlaveDeviceBDAddress.TabIndex = 2;
 			this.cbConnSlaveDeviceBDAddress.SelectedIndexChanged += new System.EventHandler(this.cbConnSlaveDeviceBDAddress_SelectedIndexChanged);
 			// 
@@ -1214,10 +1204,9 @@ namespace BTool
 			this.lblAddrType.AutoSize = true;
 			this.lblAddrType.BackColor = System.Drawing.Color.Transparent;
 			this.lblAddrType.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblAddrType.Location = new System.Drawing.Point(35, 28);
-			this.lblAddrType.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblAddrType.Location = new System.Drawing.Point(47, 34);
 			this.lblAddrType.Name = "lblAddrType";
-			this.lblAddrType.Size = new System.Drawing.Size(56, 13);
+			this.lblAddrType.Size = new System.Drawing.Size(74, 17);
 			this.lblAddrType.TabIndex = 16;
 			this.lblAddrType.Text = "AddrType:";
 			// 
@@ -1225,10 +1214,9 @@ namespace BTool
 			// 
 			this.lblSlaveBDA.AutoSize = true;
 			this.lblSlaveBDA.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblSlaveBDA.Location = new System.Drawing.Point(29, 57);
-			this.lblSlaveBDA.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblSlaveBDA.Location = new System.Drawing.Point(39, 70);
 			this.lblSlaveBDA.Name = "lblSlaveBDA";
-			this.lblSlaveBDA.Size = new System.Drawing.Size(62, 13);
+			this.lblSlaveBDA.Size = new System.Drawing.Size(79, 17);
 			this.lblSlaveBDA.TabIndex = 12;
 			this.lblSlaveBDA.Text = "Slave BDA:";
 			// 
@@ -1242,20 +1230,19 @@ namespace BTool
             "0x01 (Static)",
             "0x02 (PrivateNonResolve)",
             "0x03 (PrivateResolve)"});
-			this.cbConnAddrType.Location = new System.Drawing.Point(96, 24);
-			this.cbConnAddrType.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.cbConnAddrType.Location = new System.Drawing.Point(128, 30);
+			this.cbConnAddrType.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.cbConnAddrType.Name = "cbConnAddrType";
-			this.cbConnAddrType.Size = new System.Drawing.Size(150, 21);
+			this.cbConnAddrType.Size = new System.Drawing.Size(199, 25);
 			this.cbConnAddrType.TabIndex = 15;
 			// 
 			// lblEstablishLink
 			// 
 			this.lblEstablishLink.AutoSize = true;
 			this.lblEstablishLink.BackColor = System.Drawing.SystemColors.ControlLight;
-			this.lblEstablishLink.Location = new System.Drawing.Point(139, 0);
-			this.lblEstablishLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblEstablishLink.Location = new System.Drawing.Point(185, 0);
 			this.lblEstablishLink.Name = "lblEstablishLink";
-			this.lblEstablishLink.Size = new System.Drawing.Size(72, 13);
+			this.lblEstablishLink.Size = new System.Drawing.Size(95, 17);
 			this.lblEstablishLink.TabIndex = 17;
 			this.lblEstablishLink.Text = "Establish Link";
 			// 
@@ -1276,11 +1263,11 @@ namespace BTool
 			this.gbConnSettings.Controls.Add(this.lblMaxConn);
 			this.gbConnSettings.Controls.Add(this.lblMinConn);
 			this.gbConnSettings.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.gbConnSettings.Location = new System.Drawing.Point(4, 116);
-			this.gbConnSettings.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbConnSettings.Location = new System.Drawing.Point(5, 135);
+			this.gbConnSettings.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbConnSettings.Name = "gbConnSettings";
-			this.gbConnSettings.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbConnSettings.Size = new System.Drawing.Size(377, 171);
+			this.gbConnSettings.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbConnSettings.Size = new System.Drawing.Size(503, 206);
 			this.gbConnSettings.TabIndex = 4;
 			this.gbConnSettings.TabStop = false;
 			this.gbConnSettings.Text = "Connection Settings";
@@ -1288,10 +1275,10 @@ namespace BTool
 			// btnSetConnectionParams
 			// 
 			this.btnSetConnectionParams.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.btnSetConnectionParams.Location = new System.Drawing.Point(236, 130);
-			this.btnSetConnectionParams.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnSetConnectionParams.Location = new System.Drawing.Point(315, 160);
+			this.btnSetConnectionParams.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnSetConnectionParams.Name = "btnSetConnectionParams";
-			this.btnSetConnectionParams.Size = new System.Drawing.Size(126, 28);
+			this.btnSetConnectionParams.Size = new System.Drawing.Size(168, 34);
 			this.btnSetConnectionParams.TabIndex = 22;
 			this.btnSetConnectionParams.Text = "Set";
 			this.btnSetConnectionParams.UseVisualStyleBackColor = true;
@@ -1300,10 +1287,10 @@ namespace BTool
 			// btnGetConnectionParams
 			// 
 			this.btnGetConnectionParams.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.btnGetConnectionParams.Location = new System.Drawing.Point(15, 130);
-			this.btnGetConnectionParams.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnGetConnectionParams.Location = new System.Drawing.Point(20, 160);
+			this.btnGetConnectionParams.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnGetConnectionParams.Name = "btnGetConnectionParams";
-			this.btnGetConnectionParams.Size = new System.Drawing.Size(126, 28);
+			this.btnGetConnectionParams.Size = new System.Drawing.Size(168, 34);
 			this.btnGetConnectionParams.TabIndex = 21;
 			this.btnGetConnectionParams.Text = "Get";
 			this.btnGetConnectionParams.UseVisualStyleBackColor = true;
@@ -1312,8 +1299,8 @@ namespace BTool
 			// nudSprVisionTimeout
 			// 
 			this.nudSprVisionTimeout.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.nudSprVisionTimeout.Location = new System.Drawing.Point(235, 101);
-			this.nudSprVisionTimeout.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.nudSprVisionTimeout.Location = new System.Drawing.Point(313, 124);
+			this.nudSprVisionTimeout.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.nudSprVisionTimeout.Maximum = new decimal(new int[] {
             3200,
             0,
@@ -1325,7 +1312,7 @@ namespace BTool
             0,
             0});
 			this.nudSprVisionTimeout.Name = "nudSprVisionTimeout";
-			this.nudSprVisionTimeout.Size = new System.Drawing.Size(50, 20);
+			this.nudSprVisionTimeout.Size = new System.Drawing.Size(67, 23);
 			this.nudSprVisionTimeout.TabIndex = 20;
 			this.nudSprVisionTimeout.Value = new decimal(new int[] {
             10,
@@ -1337,22 +1324,22 @@ namespace BTool
 			// nudSlaveLatency
 			// 
 			this.nudSlaveLatency.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.nudSlaveLatency.Location = new System.Drawing.Point(235, 75);
-			this.nudSlaveLatency.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.nudSlaveLatency.Location = new System.Drawing.Point(313, 92);
+			this.nudSlaveLatency.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.nudSlaveLatency.Maximum = new decimal(new int[] {
             499,
             0,
             0,
             0});
 			this.nudSlaveLatency.Name = "nudSlaveLatency";
-			this.nudSlaveLatency.Size = new System.Drawing.Size(50, 20);
+			this.nudSlaveLatency.Size = new System.Drawing.Size(67, 23);
 			this.nudSlaveLatency.TabIndex = 19;
 			// 
 			// nudMaxConnInt
 			// 
 			this.nudMaxConnInt.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.nudMaxConnInt.Location = new System.Drawing.Point(235, 46);
-			this.nudMaxConnInt.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.nudMaxConnInt.Location = new System.Drawing.Point(313, 57);
+			this.nudMaxConnInt.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.nudMaxConnInt.Maximum = new decimal(new int[] {
             3200,
             0,
@@ -1364,7 +1351,7 @@ namespace BTool
             0,
             0});
 			this.nudMaxConnInt.Name = "nudMaxConnInt";
-			this.nudMaxConnInt.Size = new System.Drawing.Size(50, 20);
+			this.nudMaxConnInt.Size = new System.Drawing.Size(67, 23);
 			this.nudMaxConnInt.TabIndex = 18;
 			this.nudMaxConnInt.Value = new decimal(new int[] {
             6,
@@ -1377,8 +1364,8 @@ namespace BTool
 			// 
 			this.nudMinConnInt.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.nudMinConnInt.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.nudMinConnInt.Location = new System.Drawing.Point(235, 20);
-			this.nudMinConnInt.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.nudMinConnInt.Location = new System.Drawing.Point(313, 25);
+			this.nudMinConnInt.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.nudMinConnInt.Maximum = new decimal(new int[] {
             3200,
             0,
@@ -1390,7 +1377,7 @@ namespace BTool
             0,
             0});
 			this.nudMinConnInt.Name = "nudMinConnInt";
-			this.nudMinConnInt.Size = new System.Drawing.Size(50, 20);
+			this.nudMinConnInt.Size = new System.Drawing.Size(67, 23);
 			this.nudMinConnInt.TabIndex = 17;
 			this.nudMinConnInt.Value = new decimal(new int[] {
             3200,
@@ -1403,10 +1390,9 @@ namespace BTool
 			// 
 			this.lblSupervisionTimeout.AutoSize = true;
 			this.lblSupervisionTimeout.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblSupervisionTimeout.Location = new System.Drawing.Point(289, 106);
-			this.lblSupervisionTimeout.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblSupervisionTimeout.Location = new System.Drawing.Point(385, 130);
 			this.lblSupervisionTimeout.Name = "lblSupervisionTimeout";
-			this.lblSupervisionTimeout.Size = new System.Drawing.Size(32, 13);
+			this.lblSupervisionTimeout.Size = new System.Drawing.Size(44, 17);
 			this.lblSupervisionTimeout.TabIndex = 16;
 			this.lblSupervisionTimeout.Text = "(0ms)";
 			// 
@@ -1414,10 +1400,9 @@ namespace BTool
 			// 
 			this.lblMaxConnInt.AutoSize = true;
 			this.lblMaxConnInt.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblMaxConnInt.Location = new System.Drawing.Point(289, 49);
-			this.lblMaxConnInt.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblMaxConnInt.Location = new System.Drawing.Point(385, 60);
 			this.lblMaxConnInt.Name = "lblMaxConnInt";
-			this.lblMaxConnInt.Size = new System.Drawing.Size(32, 13);
+			this.lblMaxConnInt.Size = new System.Drawing.Size(44, 17);
 			this.lblMaxConnInt.TabIndex = 14;
 			this.lblMaxConnInt.Text = "(0ms)";
 			// 
@@ -1425,10 +1410,9 @@ namespace BTool
 			// 
 			this.lblMinConnInt.AutoSize = true;
 			this.lblMinConnInt.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblMinConnInt.Location = new System.Drawing.Point(289, 21);
-			this.lblMinConnInt.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblMinConnInt.Location = new System.Drawing.Point(385, 26);
 			this.lblMinConnInt.Name = "lblMinConnInt";
-			this.lblMinConnInt.Size = new System.Drawing.Size(32, 13);
+			this.lblMinConnInt.Size = new System.Drawing.Size(44, 17);
 			this.lblMinConnInt.TabIndex = 13;
 			this.lblMinConnInt.Text = "(0ms)";
 			// 
@@ -1436,10 +1420,9 @@ namespace BTool
 			// 
 			this.lblSuperTimeout.AutoSize = true;
 			this.lblSuperTimeout.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblSuperTimeout.Location = new System.Drawing.Point(70, 102);
-			this.lblSuperTimeout.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblSuperTimeout.Location = new System.Drawing.Point(93, 126);
 			this.lblSuperTimeout.Name = "lblSuperTimeout";
-			this.lblSuperTimeout.Size = new System.Drawing.Size(154, 13);
+			this.lblSuperTimeout.Size = new System.Drawing.Size(208, 17);
 			this.lblSuperTimeout.TabIndex = 5;
 			this.lblSuperTimeout.Text = "Supervision Timeout (10-3200):";
 			// 
@@ -1447,10 +1430,9 @@ namespace BTool
 			// 
 			this.lblSlaveLat.AutoSize = true;
 			this.lblSlaveLat.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblSlaveLat.Location = new System.Drawing.Point(110, 76);
-			this.lblSlaveLat.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblSlaveLat.Location = new System.Drawing.Point(147, 94);
 			this.lblSlaveLat.Name = "lblSlaveLat";
-			this.lblSlaveLat.Size = new System.Drawing.Size(114, 13);
+			this.lblSlaveLat.Size = new System.Drawing.Size(152, 17);
 			this.lblSlaveLat.TabIndex = 4;
 			this.lblSlaveLat.Text = "Slave Latency (0-499):";
 			// 
@@ -1458,10 +1440,9 @@ namespace BTool
 			// 
 			this.lblMaxConn.AutoSize = true;
 			this.lblMaxConn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblMaxConn.Location = new System.Drawing.Point(56, 47);
-			this.lblMaxConn.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblMaxConn.Location = new System.Drawing.Point(75, 58);
 			this.lblMaxConn.Name = "lblMaxConn";
-			this.lblMaxConn.Size = new System.Drawing.Size(167, 13);
+			this.lblMaxConn.Size = new System.Drawing.Size(221, 17);
 			this.lblMaxConn.TabIndex = 3;
 			this.lblMaxConn.Text = "Max Connection Interval (6-3200):";
 			// 
@@ -1469,10 +1450,9 @@ namespace BTool
 			// 
 			this.lblMinConn.AutoSize = true;
 			this.lblMinConn.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblMinConn.Location = new System.Drawing.Point(60, 21);
-			this.lblMinConn.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblMinConn.Location = new System.Drawing.Point(80, 26);
 			this.lblMinConn.Name = "lblMinConn";
-			this.lblMinConn.Size = new System.Drawing.Size(164, 13);
+			this.lblMinConn.Size = new System.Drawing.Size(218, 17);
 			this.lblMinConn.TabIndex = 2;
 			this.lblMinConn.Text = "Min Connection Interval (6-3200):";
 			// 
@@ -1487,11 +1467,11 @@ namespace BTool
 			this.gbDiscovery.Controls.Add(this.lblDevsFound);
 			this.gbDiscovery.Controls.Add(this.btnScan);
 			this.gbDiscovery.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.gbDiscovery.Location = new System.Drawing.Point(4, 3);
-			this.gbDiscovery.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbDiscovery.Location = new System.Drawing.Point(5, 4);
+			this.gbDiscovery.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbDiscovery.Name = "gbDiscovery";
-			this.gbDiscovery.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbDiscovery.Size = new System.Drawing.Size(377, 109);
+			this.gbDiscovery.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbDiscovery.Size = new System.Drawing.Size(503, 126);
 			this.gbDiscovery.TabIndex = 2;
 			this.gbDiscovery.TabStop = false;
 			this.gbDiscovery.Text = "Discovery";
@@ -1499,10 +1479,10 @@ namespace BTool
 			// btnScanCancel
 			// 
 			this.btnScanCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.btnScanCancel.Location = new System.Drawing.Point(236, 67);
-			this.btnScanCancel.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnScanCancel.Location = new System.Drawing.Point(315, 78);
+			this.btnScanCancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnScanCancel.Name = "btnScanCancel";
-			this.btnScanCancel.Size = new System.Drawing.Size(126, 28);
+			this.btnScanCancel.Size = new System.Drawing.Size(168, 34);
 			this.btnScanCancel.TabIndex = 7;
 			this.btnScanCancel.Text = "Cancel";
 			this.btnScanCancel.UseVisualStyleBackColor = true;
@@ -1512,11 +1492,11 @@ namespace BTool
 			// 
 			this.ckBoxWhiteList.AutoSize = true;
 			this.ckBoxWhiteList.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.ckBoxWhiteList.Location = new System.Drawing.Point(42, 44);
-			this.ckBoxWhiteList.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.ckBoxWhiteList.Location = new System.Drawing.Point(56, 50);
+			this.ckBoxWhiteList.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.ckBoxWhiteList.Name = "ckBoxWhiteList";
 			this.ckBoxWhiteList.RightToLeft = System.Windows.Forms.RightToLeft.No;
-			this.ckBoxWhiteList.Size = new System.Drawing.Size(70, 17);
+			this.ckBoxWhiteList.Size = new System.Drawing.Size(88, 21);
 			this.ckBoxWhiteList.TabIndex = 6;
 			this.ckBoxWhiteList.Text = "WhiteList";
 			this.ckBoxWhiteList.UseVisualStyleBackColor = true;
@@ -1527,10 +1507,10 @@ namespace BTool
 			this.ckBoxActiveScan.Checked = true;
 			this.ckBoxActiveScan.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.ckBoxActiveScan.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.ckBoxActiveScan.Location = new System.Drawing.Point(42, 21);
-			this.ckBoxActiveScan.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.ckBoxActiveScan.Location = new System.Drawing.Point(56, 26);
+			this.ckBoxActiveScan.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.ckBoxActiveScan.Name = "ckBoxActiveScan";
-			this.ckBoxActiveScan.Size = new System.Drawing.Size(84, 17);
+			this.ckBoxActiveScan.Size = new System.Drawing.Size(104, 21);
 			this.ckBoxActiveScan.TabIndex = 5;
 			this.ckBoxActiveScan.Text = "Active Scan";
 			this.ckBoxActiveScan.UseVisualStyleBackColor = true;
@@ -1539,10 +1519,9 @@ namespace BTool
 			// 
 			this.lblMode.AutoSize = true;
 			this.lblMode.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblMode.Location = new System.Drawing.Point(180, 23);
-			this.lblMode.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblMode.Location = new System.Drawing.Point(240, 27);
 			this.lblMode.Name = "lblMode";
-			this.lblMode.Size = new System.Drawing.Size(37, 13);
+			this.lblMode.Size = new System.Drawing.Size(47, 17);
 			this.lblMode.TabIndex = 4;
 			this.lblMode.Text = "Mode:";
 			// 
@@ -1556,20 +1535,19 @@ namespace BTool
             "0x01 (General)",
             "0x02 (Limited)",
             "0x03 (All)"});
-			this.cbScanMode.Location = new System.Drawing.Point(219, 20);
-			this.cbScanMode.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.cbScanMode.Location = new System.Drawing.Point(292, 24);
+			this.cbScanMode.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.cbScanMode.Name = "cbScanMode";
-			this.cbScanMode.Size = new System.Drawing.Size(142, 21);
+			this.cbScanMode.Size = new System.Drawing.Size(188, 25);
 			this.cbScanMode.TabIndex = 3;
 			// 
 			// lblDeviceFound
 			// 
 			this.lblDeviceFound.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblDeviceFound.Location = new System.Drawing.Point(221, 46);
-			this.lblDeviceFound.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblDeviceFound.Location = new System.Drawing.Point(295, 51);
 			this.lblDeviceFound.Name = "lblDeviceFound";
 			this.lblDeviceFound.RightToLeft = System.Windows.Forms.RightToLeft.No;
-			this.lblDeviceFound.Size = new System.Drawing.Size(52, 13);
+			this.lblDeviceFound.Size = new System.Drawing.Size(69, 16);
 			this.lblDeviceFound.TabIndex = 2;
 			this.lblDeviceFound.Text = "0";
 			this.lblDeviceFound.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -1578,10 +1556,9 @@ namespace BTool
 			// 
 			this.lblDevsFound.AutoSize = true;
 			this.lblDevsFound.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblDevsFound.Location = new System.Drawing.Point(137, 46);
-			this.lblDevsFound.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblDevsFound.Location = new System.Drawing.Point(183, 51);
 			this.lblDevsFound.Name = "lblDevsFound";
-			this.lblDevsFound.Size = new System.Drawing.Size(82, 13);
+			this.lblDevsFound.Size = new System.Drawing.Size(106, 17);
 			this.lblDevsFound.TabIndex = 1;
 			this.lblDevsFound.Text = "Devices Found:";
 			// 
@@ -1589,10 +1566,10 @@ namespace BTool
 			// 
 			this.btnScan.BackColor = System.Drawing.SystemColors.Control;
 			this.btnScan.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.btnScan.Location = new System.Drawing.Point(15, 67);
-			this.btnScan.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnScan.Location = new System.Drawing.Point(20, 78);
+			this.btnScan.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnScan.Name = "btnScan";
-			this.btnScan.Size = new System.Drawing.Size(126, 28);
+			this.btnScan.Size = new System.Drawing.Size(168, 34);
 			this.btnScan.TabIndex = 0;
 			this.btnScan.Text = "Scan";
 			this.btnScan.UseVisualStyleBackColor = true;
@@ -1603,10 +1580,10 @@ namespace BTool
 			this.tpReadWrite.BackColor = System.Drawing.Color.Transparent;
 			this.tpReadWrite.Controls.Add(this.gbCharWrite);
 			this.tpReadWrite.Controls.Add(this.gbCharRead);
-			this.tpReadWrite.Location = new System.Drawing.Point(4, 22);
-			this.tpReadWrite.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tpReadWrite.Location = new System.Drawing.Point(4, 26);
+			this.tpReadWrite.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tpReadWrite.Name = "tpReadWrite";
-			this.tpReadWrite.Size = new System.Drawing.Size(387, 508);
+			this.tpReadWrite.Size = new System.Drawing.Size(519, 627);
 			this.tpReadWrite.TabIndex = 5;
 			this.tpReadWrite.Text = "Read / Write";
 			this.tpReadWrite.UseVisualStyleBackColor = true;
@@ -1619,11 +1596,11 @@ namespace BTool
 			this.gbCharWrite.Controls.Add(this.lblWriteHandle);
 			this.gbCharWrite.Controls.Add(this.tbWriteAttrHandle);
 			this.gbCharWrite.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.gbCharWrite.Location = new System.Drawing.Point(4, 288);
-			this.gbCharWrite.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbCharWrite.Location = new System.Drawing.Point(5, 354);
+			this.gbCharWrite.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbCharWrite.Name = "gbCharWrite";
-			this.gbCharWrite.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbCharWrite.Size = new System.Drawing.Size(377, 210);
+			this.gbCharWrite.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbCharWrite.Size = new System.Drawing.Size(503, 258);
 			this.gbCharWrite.TabIndex = 1;
 			this.gbCharWrite.TabStop = false;
 			this.gbCharWrite.Text = "Characteristic Write";
@@ -1638,11 +1615,11 @@ namespace BTool
 			this.gbWriteArea.Controls.Add(this.rbHexWrite);
 			this.gbWriteArea.Controls.Add(this.rbDecimalWrite);
 			this.gbWriteArea.Controls.Add(this.tbWriteValue);
-			this.gbWriteArea.Location = new System.Drawing.Point(14, 83);
-			this.gbWriteArea.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbWriteArea.Location = new System.Drawing.Point(19, 102);
+			this.gbWriteArea.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbWriteArea.Name = "gbWriteArea";
-			this.gbWriteArea.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbWriteArea.Size = new System.Drawing.Size(346, 104);
+			this.gbWriteArea.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbWriteArea.Size = new System.Drawing.Size(461, 128);
 			this.gbWriteArea.TabIndex = 11;
 			this.gbWriteArea.TabStop = false;
 			// 
@@ -1650,10 +1627,9 @@ namespace BTool
 			// 
 			this.lblWriteStatus.AutoSize = true;
 			this.lblWriteStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblWriteStatus.Location = new System.Drawing.Point(6, 58);
-			this.lblWriteStatus.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblWriteStatus.Location = new System.Drawing.Point(8, 71);
 			this.lblWriteStatus.Name = "lblWriteStatus";
-			this.lblWriteStatus.Size = new System.Drawing.Size(37, 13);
+			this.lblWriteStatus.Size = new System.Drawing.Size(48, 17);
 			this.lblWriteStatus.TabIndex = 19;
 			this.lblWriteStatus.Text = "Status";
 			// 
@@ -1661,20 +1637,19 @@ namespace BTool
 			// 
 			this.lblWriteValue.AutoSize = true;
 			this.lblWriteValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblWriteValue.Location = new System.Drawing.Point(6, 16);
-			this.lblWriteValue.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblWriteValue.Location = new System.Drawing.Point(8, 20);
 			this.lblWriteValue.Name = "lblWriteValue";
-			this.lblWriteValue.Size = new System.Drawing.Size(34, 13);
+			this.lblWriteValue.Size = new System.Drawing.Size(44, 17);
 			this.lblWriteValue.TabIndex = 14;
 			this.lblWriteValue.Text = "Value";
 			// 
 			// btnWriteGATTValue
 			// 
 			this.btnWriteGATTValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.btnWriteGATTValue.Location = new System.Drawing.Point(265, 58);
-			this.btnWriteGATTValue.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnWriteGATTValue.Location = new System.Drawing.Point(353, 71);
+			this.btnWriteGATTValue.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnWriteGATTValue.Name = "btnWriteGATTValue";
-			this.btnWriteGATTValue.Size = new System.Drawing.Size(74, 36);
+			this.btnWriteGATTValue.Size = new System.Drawing.Size(99, 44);
 			this.btnWriteGATTValue.TabIndex = 2;
 			this.btnWriteGATTValue.Text = "Write";
 			this.btnWriteGATTValue.UseVisualStyleBackColor = true;
@@ -1682,11 +1657,11 @@ namespace BTool
 			// 
 			// tbWriteStatus
 			// 
-			this.tbWriteStatus.Location = new System.Drawing.Point(8, 75);
-			this.tbWriteStatus.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbWriteStatus.Location = new System.Drawing.Point(11, 92);
+			this.tbWriteStatus.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbWriteStatus.Name = "tbWriteStatus";
 			this.tbWriteStatus.ReadOnly = true;
-			this.tbWriteStatus.Size = new System.Drawing.Size(246, 20);
+			this.tbWriteStatus.Size = new System.Drawing.Size(327, 23);
 			this.tbWriteStatus.TabIndex = 18;
 			this.tbWriteStatus.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
@@ -1694,10 +1669,10 @@ namespace BTool
 			// 
 			this.rbASCIIWrite.AutoSize = true;
 			this.rbASCIIWrite.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.rbASCIIWrite.Location = new System.Drawing.Point(70, 11);
-			this.rbASCIIWrite.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.rbASCIIWrite.Location = new System.Drawing.Point(93, 14);
+			this.rbASCIIWrite.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.rbASCIIWrite.Name = "rbASCIIWrite";
-			this.rbASCIIWrite.Size = new System.Drawing.Size(52, 17);
+			this.rbASCIIWrite.Size = new System.Drawing.Size(62, 21);
 			this.rbASCIIWrite.TabIndex = 13;
 			this.rbASCIIWrite.Text = "ASCII";
 			this.rbASCIIWrite.UseVisualStyleBackColor = true;
@@ -1707,10 +1682,10 @@ namespace BTool
 			this.rbHexWrite.AutoSize = true;
 			this.rbHexWrite.Checked = true;
 			this.rbHexWrite.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.rbHexWrite.Location = new System.Drawing.Point(272, 11);
-			this.rbHexWrite.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.rbHexWrite.Location = new System.Drawing.Point(363, 14);
+			this.rbHexWrite.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.rbHexWrite.Name = "rbHexWrite";
-			this.rbHexWrite.Size = new System.Drawing.Size(44, 17);
+			this.rbHexWrite.Size = new System.Drawing.Size(53, 21);
 			this.rbHexWrite.TabIndex = 12;
 			this.rbHexWrite.TabStop = true;
 			this.rbHexWrite.Text = "Hex";
@@ -1720,30 +1695,30 @@ namespace BTool
 			// 
 			this.rbDecimalWrite.AutoSize = true;
 			this.rbDecimalWrite.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.rbDecimalWrite.Location = new System.Drawing.Point(164, 11);
-			this.rbDecimalWrite.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.rbDecimalWrite.Location = new System.Drawing.Point(219, 14);
+			this.rbDecimalWrite.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.rbDecimalWrite.Name = "rbDecimalWrite";
-			this.rbDecimalWrite.Size = new System.Drawing.Size(63, 17);
+			this.rbDecimalWrite.Size = new System.Drawing.Size(79, 21);
 			this.rbDecimalWrite.TabIndex = 11;
 			this.rbDecimalWrite.Text = "Decimal";
 			this.rbDecimalWrite.UseVisualStyleBackColor = true;
 			// 
 			// tbWriteValue
 			// 
-			this.tbWriteValue.Location = new System.Drawing.Point(8, 32);
-			this.tbWriteValue.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbWriteValue.Location = new System.Drawing.Point(11, 39);
+			this.tbWriteValue.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbWriteValue.Name = "tbWriteValue";
-			this.tbWriteValue.Size = new System.Drawing.Size(330, 20);
+			this.tbWriteValue.Size = new System.Drawing.Size(439, 23);
 			this.tbWriteValue.TabIndex = 10;
 			this.tbWriteValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// tbWriteConnHandle
 			// 
-			this.tbWriteConnHandle.Location = new System.Drawing.Point(296, 42);
-			this.tbWriteConnHandle.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbWriteConnHandle.Location = new System.Drawing.Point(395, 52);
+			this.tbWriteConnHandle.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbWriteConnHandle.MaxLength = 6;
 			this.tbWriteConnHandle.Name = "tbWriteConnHandle";
-			this.tbWriteConnHandle.Size = new System.Drawing.Size(60, 20);
+			this.tbWriteConnHandle.Size = new System.Drawing.Size(79, 23);
 			this.tbWriteConnHandle.TabIndex = 9;
 			this.tbWriteConnHandle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
@@ -1751,10 +1726,9 @@ namespace BTool
 			// 
 			this.lblWriteConnHnd.AutoSize = true;
 			this.lblWriteConnHnd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblWriteConnHnd.Location = new System.Drawing.Point(274, 26);
-			this.lblWriteConnHnd.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblWriteConnHnd.Location = new System.Drawing.Point(365, 32);
 			this.lblWriteConnHnd.Name = "lblWriteConnHnd";
-			this.lblWriteConnHnd.Size = new System.Drawing.Size(98, 13);
+			this.lblWriteConnHnd.Size = new System.Drawing.Size(128, 17);
 			this.lblWriteConnHnd.TabIndex = 8;
 			this.lblWriteConnHnd.Text = "Connection Handle";
 			// 
@@ -1762,19 +1736,18 @@ namespace BTool
 			// 
 			this.lblWriteHandle.AutoSize = true;
 			this.lblWriteHandle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblWriteHandle.Location = new System.Drawing.Point(20, 26);
-			this.lblWriteHandle.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblWriteHandle.Location = new System.Drawing.Point(27, 32);
 			this.lblWriteHandle.Name = "lblWriteHandle";
-			this.lblWriteHandle.Size = new System.Drawing.Size(138, 13);
+			this.lblWriteHandle.Size = new System.Drawing.Size(183, 17);
 			this.lblWriteHandle.TabIndex = 7;
 			this.lblWriteHandle.Text = "Characteristic Value Handle";
 			// 
 			// tbWriteAttrHandle
 			// 
-			this.tbWriteAttrHandle.Location = new System.Drawing.Point(23, 42);
-			this.tbWriteAttrHandle.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbWriteAttrHandle.Location = new System.Drawing.Point(31, 52);
+			this.tbWriteAttrHandle.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbWriteAttrHandle.Name = "tbWriteAttrHandle";
-			this.tbWriteAttrHandle.Size = new System.Drawing.Size(256, 20);
+			this.tbWriteAttrHandle.Size = new System.Drawing.Size(340, 23);
 			this.tbWriteAttrHandle.TabIndex = 6;
 			this.tbWriteAttrHandle.Text = "0x0001";
 			this.tbWriteAttrHandle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -1795,11 +1768,11 @@ namespace BTool
 			this.gbCharRead.Controls.Add(this.lblReadValueHnd);
 			this.gbCharRead.Controls.Add(this.tbReadAttrHandle);
 			this.gbCharRead.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.gbCharRead.Location = new System.Drawing.Point(4, 6);
-			this.gbCharRead.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbCharRead.Location = new System.Drawing.Point(5, 7);
+			this.gbCharRead.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbCharRead.Name = "gbCharRead";
-			this.gbCharRead.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbCharRead.Size = new System.Drawing.Size(377, 275);
+			this.gbCharRead.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbCharRead.Size = new System.Drawing.Size(503, 338);
 			this.gbCharRead.TabIndex = 0;
 			this.gbCharRead.TabStop = false;
 			this.gbCharRead.Text = "Characteristic Read";
@@ -1808,10 +1781,9 @@ namespace BTool
 			// 
 			this.lblReadSubProc.AutoSize = true;
 			this.lblReadSubProc.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblReadSubProc.Location = new System.Drawing.Point(20, 23);
-			this.lblReadSubProc.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblReadSubProc.Location = new System.Drawing.Point(27, 28);
 			this.lblReadSubProc.Name = "lblReadSubProc";
-			this.lblReadSubProc.Size = new System.Drawing.Size(78, 13);
+			this.lblReadSubProc.Size = new System.Drawing.Size(104, 17);
 			this.lblReadSubProc.TabIndex = 23;
 			this.lblReadSubProc.Text = "Sub-Procedure";
 			// 
@@ -1825,10 +1797,10 @@ namespace BTool
             "Read Using Characteristic UUID",
             "Read Multiple Characteristic Values",
             "Discover Characteristic by UUID"});
-			this.cbReadType.Location = new System.Drawing.Point(23, 37);
-			this.cbReadType.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.cbReadType.Location = new System.Drawing.Point(31, 46);
+			this.cbReadType.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.cbReadType.Name = "cbReadType";
-			this.cbReadType.Size = new System.Drawing.Size(256, 21);
+			this.cbReadType.Size = new System.Drawing.Size(340, 25);
 			this.cbReadType.TabIndex = 15;
 			this.cbReadType.SelectedIndexChanged += new System.EventHandler(this.readType_Changed);
 			// 
@@ -1836,10 +1808,9 @@ namespace BTool
 			// 
 			this.lblReadStartHnd.AutoSize = true;
 			this.lblReadStartHnd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblReadStartHnd.Location = new System.Drawing.Point(292, 62);
-			this.lblReadStartHnd.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblReadStartHnd.Location = new System.Drawing.Point(389, 76);
 			this.lblReadStartHnd.Name = "lblReadStartHnd";
-			this.lblReadStartHnd.Size = new System.Drawing.Size(66, 13);
+			this.lblReadStartHnd.Size = new System.Drawing.Size(87, 17);
 			this.lblReadStartHnd.TabIndex = 22;
 			this.lblReadStartHnd.Text = "Start Handle";
 			// 
@@ -1847,10 +1818,9 @@ namespace BTool
 			// 
 			this.lblReadEndHnd.AutoSize = true;
 			this.lblReadEndHnd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblReadEndHnd.Location = new System.Drawing.Point(293, 98);
-			this.lblReadEndHnd.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblReadEndHnd.Location = new System.Drawing.Point(391, 121);
 			this.lblReadEndHnd.Name = "lblReadEndHnd";
-			this.lblReadEndHnd.Size = new System.Drawing.Size(63, 13);
+			this.lblReadEndHnd.Size = new System.Drawing.Size(82, 17);
 			this.lblReadEndHnd.TabIndex = 21;
 			this.lblReadEndHnd.Text = "End Handle";
 			// 
@@ -1858,42 +1828,41 @@ namespace BTool
 			// 
 			this.lblReadCharUuid.AutoSize = true;
 			this.lblReadCharUuid.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblReadCharUuid.Location = new System.Drawing.Point(20, 98);
-			this.lblReadCharUuid.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblReadCharUuid.Location = new System.Drawing.Point(27, 121);
 			this.lblReadCharUuid.Name = "lblReadCharUuid";
-			this.lblReadCharUuid.Size = new System.Drawing.Size(101, 13);
+			this.lblReadCharUuid.Size = new System.Drawing.Size(131, 17);
 			this.lblReadCharUuid.TabIndex = 19;
 			this.lblReadCharUuid.Text = "Characteristic UUID";
 			// 
 			// tbReadUUID
 			// 
-			this.tbReadUUID.Location = new System.Drawing.Point(23, 114);
-			this.tbReadUUID.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbReadUUID.Location = new System.Drawing.Point(31, 140);
+			this.tbReadUUID.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbReadUUID.MaxLength = 47;
 			this.tbReadUUID.Name = "tbReadUUID";
-			this.tbReadUUID.Size = new System.Drawing.Size(256, 20);
+			this.tbReadUUID.Size = new System.Drawing.Size(340, 23);
 			this.tbReadUUID.TabIndex = 18;
 			this.tbReadUUID.Text = "00:2A";
 			this.tbReadUUID.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// tbReadStartHandle
 			// 
-			this.tbReadStartHandle.Location = new System.Drawing.Point(296, 75);
-			this.tbReadStartHandle.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbReadStartHandle.Location = new System.Drawing.Point(395, 92);
+			this.tbReadStartHandle.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbReadStartHandle.MaxLength = 6;
 			this.tbReadStartHandle.Name = "tbReadStartHandle";
-			this.tbReadStartHandle.Size = new System.Drawing.Size(60, 20);
+			this.tbReadStartHandle.Size = new System.Drawing.Size(79, 23);
 			this.tbReadStartHandle.TabIndex = 17;
 			this.tbReadStartHandle.Text = "0x0001";
 			this.tbReadStartHandle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// tbReadEndHandle
 			// 
-			this.tbReadEndHandle.Location = new System.Drawing.Point(296, 114);
-			this.tbReadEndHandle.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbReadEndHandle.Location = new System.Drawing.Point(395, 140);
+			this.tbReadEndHandle.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbReadEndHandle.MaxLength = 6;
 			this.tbReadEndHandle.Name = "tbReadEndHandle";
-			this.tbReadEndHandle.Size = new System.Drawing.Size(60, 20);
+			this.tbReadEndHandle.Size = new System.Drawing.Size(79, 23);
 			this.tbReadEndHandle.TabIndex = 16;
 			this.tbReadEndHandle.Text = "0xFFFF";
 			this.tbReadEndHandle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -1908,11 +1877,11 @@ namespace BTool
 			this.gbReadArea.Controls.Add(this.btnReadGATTValue);
 			this.gbReadArea.Controls.Add(this.rbDecimalRead);
 			this.gbReadArea.Controls.Add(this.tbReadValue);
-			this.gbReadArea.Location = new System.Drawing.Point(14, 154);
-			this.gbReadArea.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbReadArea.Location = new System.Drawing.Point(19, 190);
+			this.gbReadArea.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbReadArea.Name = "gbReadArea";
-			this.gbReadArea.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbReadArea.Size = new System.Drawing.Size(346, 98);
+			this.gbReadArea.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbReadArea.Size = new System.Drawing.Size(461, 121);
 			this.gbReadArea.TabIndex = 15;
 			this.gbReadArea.TabStop = false;
 			// 
@@ -1920,10 +1889,9 @@ namespace BTool
 			// 
 			this.lbReadValue.AutoSize = true;
 			this.lbReadValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lbReadValue.Location = new System.Drawing.Point(5, 11);
-			this.lbReadValue.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lbReadValue.Location = new System.Drawing.Point(7, 14);
 			this.lbReadValue.Name = "lbReadValue";
-			this.lbReadValue.Size = new System.Drawing.Size(34, 13);
+			this.lbReadValue.Size = new System.Drawing.Size(44, 17);
 			this.lbReadValue.TabIndex = 14;
 			this.lbReadValue.Text = "Value";
 			// 
@@ -1931,10 +1899,9 @@ namespace BTool
 			// 
 			this.lblReadStatus.AutoSize = true;
 			this.lblReadStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblReadStatus.Location = new System.Drawing.Point(6, 54);
-			this.lblReadStatus.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblReadStatus.Location = new System.Drawing.Point(8, 66);
 			this.lblReadStatus.Name = "lblReadStatus";
-			this.lblReadStatus.Size = new System.Drawing.Size(37, 13);
+			this.lblReadStatus.Size = new System.Drawing.Size(48, 17);
 			this.lblReadStatus.TabIndex = 17;
 			this.lblReadStatus.Text = "Status";
 			// 
@@ -1942,10 +1909,10 @@ namespace BTool
 			// 
 			this.rbASCIIRead.AutoSize = true;
 			this.rbASCIIRead.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.rbASCIIRead.Location = new System.Drawing.Point(70, 10);
-			this.rbASCIIRead.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.rbASCIIRead.Location = new System.Drawing.Point(93, 12);
+			this.rbASCIIRead.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.rbASCIIRead.Name = "rbASCIIRead";
-			this.rbASCIIRead.Size = new System.Drawing.Size(52, 17);
+			this.rbASCIIRead.Size = new System.Drawing.Size(62, 21);
 			this.rbASCIIRead.TabIndex = 13;
 			this.rbASCIIRead.Text = "ASCII";
 			this.rbASCIIRead.UseVisualStyleBackColor = true;
@@ -1953,11 +1920,11 @@ namespace BTool
 			// 
 			// tbReadStatus
 			// 
-			this.tbReadStatus.Location = new System.Drawing.Point(8, 68);
-			this.tbReadStatus.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbReadStatus.Location = new System.Drawing.Point(11, 84);
+			this.tbReadStatus.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbReadStatus.Name = "tbReadStatus";
 			this.tbReadStatus.ReadOnly = true;
-			this.tbReadStatus.Size = new System.Drawing.Size(250, 20);
+			this.tbReadStatus.Size = new System.Drawing.Size(332, 23);
 			this.tbReadStatus.TabIndex = 16;
 			this.tbReadStatus.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
@@ -1966,10 +1933,10 @@ namespace BTool
 			this.rbHexRead.AutoSize = true;
 			this.rbHexRead.Checked = true;
 			this.rbHexRead.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.rbHexRead.Location = new System.Drawing.Point(272, 10);
-			this.rbHexRead.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.rbHexRead.Location = new System.Drawing.Point(363, 12);
+			this.rbHexRead.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.rbHexRead.Name = "rbHexRead";
-			this.rbHexRead.Size = new System.Drawing.Size(44, 17);
+			this.rbHexRead.Size = new System.Drawing.Size(53, 21);
 			this.rbHexRead.TabIndex = 12;
 			this.rbHexRead.TabStop = true;
 			this.rbHexRead.Text = "Hex";
@@ -1979,10 +1946,10 @@ namespace BTool
 			// btnReadGATTValue
 			// 
 			this.btnReadGATTValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.btnReadGATTValue.Location = new System.Drawing.Point(265, 54);
-			this.btnReadGATTValue.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnReadGATTValue.Location = new System.Drawing.Point(353, 66);
+			this.btnReadGATTValue.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnReadGATTValue.Name = "btnReadGATTValue";
-			this.btnReadGATTValue.Size = new System.Drawing.Size(74, 36);
+			this.btnReadGATTValue.Size = new System.Drawing.Size(99, 44);
 			this.btnReadGATTValue.TabIndex = 1;
 			this.btnReadGATTValue.Text = "Read";
 			this.btnReadGATTValue.UseVisualStyleBackColor = true;
@@ -1992,10 +1959,10 @@ namespace BTool
 			// 
 			this.rbDecimalRead.AutoSize = true;
 			this.rbDecimalRead.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.rbDecimalRead.Location = new System.Drawing.Point(164, 10);
-			this.rbDecimalRead.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.rbDecimalRead.Location = new System.Drawing.Point(219, 12);
+			this.rbDecimalRead.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.rbDecimalRead.Name = "rbDecimalRead";
-			this.rbDecimalRead.Size = new System.Drawing.Size(63, 17);
+			this.rbDecimalRead.Size = new System.Drawing.Size(79, 21);
 			this.rbDecimalRead.TabIndex = 11;
 			this.rbDecimalRead.Text = "Decimal";
 			this.rbDecimalRead.UseVisualStyleBackColor = true;
@@ -2004,22 +1971,22 @@ namespace BTool
 			// tbReadValue
 			// 
 			this.tbReadValue.BackColor = System.Drawing.SystemColors.Control;
-			this.tbReadValue.Location = new System.Drawing.Point(8, 28);
-			this.tbReadValue.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbReadValue.Location = new System.Drawing.Point(11, 34);
+			this.tbReadValue.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbReadValue.Name = "tbReadValue";
 			this.tbReadValue.ReadOnly = true;
-			this.tbReadValue.Size = new System.Drawing.Size(330, 20);
+			this.tbReadValue.Size = new System.Drawing.Size(439, 23);
 			this.tbReadValue.TabIndex = 10;
 			this.tbReadValue.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// tbReadConnHandle
 			// 
 			this.tbReadConnHandle.Enabled = false;
-			this.tbReadConnHandle.Location = new System.Drawing.Point(296, 37);
-			this.tbReadConnHandle.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbReadConnHandle.Location = new System.Drawing.Point(395, 46);
+			this.tbReadConnHandle.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbReadConnHandle.MaxLength = 6;
 			this.tbReadConnHandle.Name = "tbReadConnHandle";
-			this.tbReadConnHandle.Size = new System.Drawing.Size(60, 20);
+			this.tbReadConnHandle.Size = new System.Drawing.Size(79, 23);
 			this.tbReadConnHandle.TabIndex = 5;
 			this.tbReadConnHandle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
@@ -2027,10 +1994,9 @@ namespace BTool
 			// 
 			this.lblReadConnHnd.AutoSize = true;
 			this.lblReadConnHnd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblReadConnHnd.Location = new System.Drawing.Point(277, 23);
-			this.lblReadConnHnd.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblReadConnHnd.Location = new System.Drawing.Point(369, 28);
 			this.lblReadConnHnd.Name = "lblReadConnHnd";
-			this.lblReadConnHnd.Size = new System.Drawing.Size(98, 13);
+			this.lblReadConnHnd.Size = new System.Drawing.Size(128, 17);
 			this.lblReadConnHnd.TabIndex = 4;
 			this.lblReadConnHnd.Text = "Connection Handle";
 			// 
@@ -2038,19 +2004,18 @@ namespace BTool
 			// 
 			this.lblReadValueHnd.AutoSize = true;
 			this.lblReadValueHnd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblReadValueHnd.Location = new System.Drawing.Point(20, 62);
-			this.lblReadValueHnd.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblReadValueHnd.Location = new System.Drawing.Point(27, 76);
 			this.lblReadValueHnd.Name = "lblReadValueHnd";
-			this.lblReadValueHnd.Size = new System.Drawing.Size(138, 13);
+			this.lblReadValueHnd.Size = new System.Drawing.Size(183, 17);
 			this.lblReadValueHnd.TabIndex = 3;
 			this.lblReadValueHnd.Text = "Characteristic Value Handle";
 			// 
 			// tbReadAttrHandle
 			// 
-			this.tbReadAttrHandle.Location = new System.Drawing.Point(23, 75);
-			this.tbReadAttrHandle.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbReadAttrHandle.Location = new System.Drawing.Point(31, 92);
+			this.tbReadAttrHandle.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbReadAttrHandle.Name = "tbReadAttrHandle";
-			this.tbReadAttrHandle.Size = new System.Drawing.Size(256, 20);
+			this.tbReadAttrHandle.Size = new System.Drawing.Size(340, 23);
 			this.tbReadAttrHandle.TabIndex = 2;
 			this.tbReadAttrHandle.Text = "0x0001";
 			this.tbReadAttrHandle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -2063,11 +2028,11 @@ namespace BTool
 			this.tpPairingBonding.Controls.Add(this.gbInitParing);
 			this.tpPairingBonding.Controls.Add(this.labelPairingStatus);
 			this.tpPairingBonding.Controls.Add(this.tbPairingStatus);
-			this.tpPairingBonding.Location = new System.Drawing.Point(4, 22);
-			this.tpPairingBonding.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tpPairingBonding.Location = new System.Drawing.Point(4, 26);
+			this.tpPairingBonding.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tpPairingBonding.Name = "tpPairingBonding";
-			this.tpPairingBonding.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.tpPairingBonding.Size = new System.Drawing.Size(387, 508);
+			this.tpPairingBonding.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.tpPairingBonding.Size = new System.Drawing.Size(519, 627);
 			this.tpPairingBonding.TabIndex = 6;
 			this.tpPairingBonding.Text = "Pairing / Bonding";
 			this.tpPairingBonding.UseVisualStyleBackColor = true;
@@ -2076,21 +2041,21 @@ namespace BTool
 			// 
 			this.gbLongTermKeyData.Controls.Add(this.btnSaveLongTermKey);
 			this.gbLongTermKeyData.Controls.Add(this.tbLongTermKeyData);
-			this.gbLongTermKeyData.Location = new System.Drawing.Point(6, 353);
-			this.gbLongTermKeyData.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbLongTermKeyData.Location = new System.Drawing.Point(8, 434);
+			this.gbLongTermKeyData.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbLongTermKeyData.Name = "gbLongTermKeyData";
-			this.gbLongTermKeyData.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbLongTermKeyData.Size = new System.Drawing.Size(374, 149);
+			this.gbLongTermKeyData.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbLongTermKeyData.Size = new System.Drawing.Size(499, 183);
 			this.gbLongTermKeyData.TabIndex = 4;
 			this.gbLongTermKeyData.TabStop = false;
 			this.gbLongTermKeyData.Text = "Long-Term Key (LTK) Data";
 			// 
 			// btnSaveLongTermKey
 			// 
-			this.btnSaveLongTermKey.Location = new System.Drawing.Point(13, 120);
-			this.btnSaveLongTermKey.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnSaveLongTermKey.Location = new System.Drawing.Point(17, 148);
+			this.btnSaveLongTermKey.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnSaveLongTermKey.Name = "btnSaveLongTermKey";
-			this.btnSaveLongTermKey.Size = new System.Drawing.Size(203, 23);
+			this.btnSaveLongTermKey.Size = new System.Drawing.Size(271, 28);
 			this.btnSaveLongTermKey.TabIndex = 1;
 			this.btnSaveLongTermKey.Text = "Save Long-Term Key Data To File";
 			this.btnSaveLongTermKey.UseVisualStyleBackColor = true;
@@ -2098,12 +2063,12 @@ namespace BTool
 			// 
 			// tbLongTermKeyData
 			// 
-			this.tbLongTermKeyData.Location = new System.Drawing.Point(13, 26);
-			this.tbLongTermKeyData.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbLongTermKeyData.Location = new System.Drawing.Point(17, 32);
+			this.tbLongTermKeyData.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbLongTermKeyData.Multiline = true;
 			this.tbLongTermKeyData.Name = "tbLongTermKeyData";
 			this.tbLongTermKeyData.ReadOnly = true;
-			this.tbLongTermKeyData.Size = new System.Drawing.Size(350, 88);
+			this.tbLongTermKeyData.Size = new System.Drawing.Size(465, 107);
 			this.tbLongTermKeyData.TabIndex = 9;
 			// 
 			// gbEncryptLTKey
@@ -2121,11 +2086,11 @@ namespace BTool
 			this.gbEncryptLTKey.Controls.Add(this.rbAuthBondFalse);
 			this.gbEncryptLTKey.Controls.Add(this.rbAuthBondTrue);
 			this.gbEncryptLTKey.Controls.Add(this.lblAuthBond);
-			this.gbEncryptLTKey.Location = new System.Drawing.Point(6, 171);
-			this.gbEncryptLTKey.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbEncryptLTKey.Location = new System.Drawing.Point(8, 210);
+			this.gbEncryptLTKey.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbEncryptLTKey.Name = "gbEncryptLTKey";
-			this.gbEncryptLTKey.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbEncryptLTKey.Size = new System.Drawing.Size(374, 176);
+			this.gbEncryptLTKey.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbEncryptLTKey.Size = new System.Drawing.Size(499, 217);
 			this.gbEncryptLTKey.TabIndex = 3;
 			this.gbEncryptLTKey.TabStop = false;
 			this.gbEncryptLTKey.Text = "Encrypt Using Long-Term Key";
@@ -2133,11 +2098,11 @@ namespace BTool
 			// tbBondConnHandle
 			// 
 			this.tbBondConnHandle.Enabled = false;
-			this.tbBondConnHandle.Location = new System.Drawing.Point(116, 18);
-			this.tbBondConnHandle.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbBondConnHandle.Location = new System.Drawing.Point(155, 22);
+			this.tbBondConnHandle.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbBondConnHandle.MaxLength = 6;
 			this.tbBondConnHandle.Name = "tbBondConnHandle";
-			this.tbBondConnHandle.Size = new System.Drawing.Size(60, 20);
+			this.tbBondConnHandle.Size = new System.Drawing.Size(79, 23);
 			this.tbBondConnHandle.TabIndex = 12;
 			this.tbBondConnHandle.Text = "0x0000";
 			this.tbBondConnHandle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -2146,19 +2111,18 @@ namespace BTool
 			// 
 			this.lblLtkConnHnd.AutoSize = true;
 			this.lblLtkConnHnd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblLtkConnHnd.Location = new System.Drawing.Point(10, 23);
-			this.lblLtkConnHnd.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblLtkConnHnd.Location = new System.Drawing.Point(13, 28);
 			this.lblLtkConnHnd.Name = "lblLtkConnHnd";
-			this.lblLtkConnHnd.Size = new System.Drawing.Size(101, 13);
+			this.lblLtkConnHnd.Size = new System.Drawing.Size(132, 17);
 			this.lblLtkConnHnd.TabIndex = 11;
 			this.lblLtkConnHnd.Text = "Connection Handle:";
 			// 
 			// btnEncryptLink
 			// 
-			this.btnEncryptLink.Location = new System.Drawing.Point(251, 143);
-			this.btnEncryptLink.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnEncryptLink.Location = new System.Drawing.Point(335, 176);
+			this.btnEncryptLink.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnEncryptLink.Name = "btnEncryptLink";
-			this.btnEncryptLink.Size = new System.Drawing.Size(102, 23);
+			this.btnEncryptLink.Size = new System.Drawing.Size(136, 28);
 			this.btnEncryptLink.TabIndex = 10;
 			this.btnEncryptLink.Text = "Encrypt Link";
 			this.btnEncryptLink.UseVisualStyleBackColor = true;
@@ -2166,10 +2130,10 @@ namespace BTool
 			// 
 			// btnLoadLongTermKey
 			// 
-			this.btnLoadLongTermKey.Location = new System.Drawing.Point(13, 143);
-			this.btnLoadLongTermKey.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnLoadLongTermKey.Location = new System.Drawing.Point(17, 176);
+			this.btnLoadLongTermKey.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnLoadLongTermKey.Name = "btnLoadLongTermKey";
-			this.btnLoadLongTermKey.Size = new System.Drawing.Size(203, 23);
+			this.btnLoadLongTermKey.Size = new System.Drawing.Size(271, 28);
 			this.btnLoadLongTermKey.TabIndex = 9;
 			this.btnLoadLongTermKey.Text = "Load Long-Term Key Data From File";
 			this.btnLoadLongTermKey.UseVisualStyleBackColor = true;
@@ -2177,71 +2141,68 @@ namespace BTool
 			// 
 			// tbLTKRandom
 			// 
-			this.tbLTKRandom.Location = new System.Drawing.Point(146, 114);
-			this.tbLTKRandom.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbLTKRandom.Location = new System.Drawing.Point(195, 140);
+			this.tbLTKRandom.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbLTKRandom.MaxLength = 23;
 			this.tbLTKRandom.Name = "tbLTKRandom";
-			this.tbLTKRandom.Size = new System.Drawing.Size(165, 20);
+			this.tbLTKRandom.Size = new System.Drawing.Size(219, 23);
 			this.tbLTKRandom.TabIndex = 8;
 			this.tbLTKRandom.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbLTKRandom_KeyPress);
 			// 
 			// tbLTKDiversifier
 			// 
-			this.tbLTKDiversifier.Location = new System.Drawing.Point(150, 88);
-			this.tbLTKDiversifier.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbLTKDiversifier.Location = new System.Drawing.Point(200, 108);
+			this.tbLTKDiversifier.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbLTKDiversifier.MaxLength = 4;
 			this.tbLTKDiversifier.Name = "tbLTKDiversifier";
-			this.tbLTKDiversifier.Size = new System.Drawing.Size(52, 20);
+			this.tbLTKDiversifier.Size = new System.Drawing.Size(68, 23);
 			this.tbLTKDiversifier.TabIndex = 7;
 			this.tbLTKDiversifier.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbLTKDiversifier_KeyPress);
 			// 
 			// tbLongTermKey
 			// 
-			this.tbLongTermKey.Location = new System.Drawing.Point(13, 62);
-			this.tbLongTermKey.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbLongTermKey.Location = new System.Drawing.Point(17, 76);
+			this.tbLongTermKey.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbLongTermKey.MaxLength = 47;
 			this.tbLongTermKey.Name = "tbLongTermKey";
-			this.tbLongTermKey.Size = new System.Drawing.Size(336, 20);
+			this.tbLongTermKey.Size = new System.Drawing.Size(447, 23);
 			this.tbLongTermKey.TabIndex = 6;
 			this.tbLongTermKey.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbLongTermKey_KeyPress);
 			// 
 			// lblLtkRandom
 			// 
 			this.lblLtkRandom.AutoSize = true;
-			this.lblLtkRandom.Location = new System.Drawing.Point(14, 117);
-			this.lblLtkRandom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblLtkRandom.Location = new System.Drawing.Point(19, 144);
 			this.lblLtkRandom.Name = "lblLtkRandom";
-			this.lblLtkRandom.Size = new System.Drawing.Size(116, 13);
+			this.lblLtkRandom.Size = new System.Drawing.Size(155, 17);
 			this.lblLtkRandom.TabIndex = 5;
 			this.lblLtkRandom.Text = "LTK Random (8 bytes):";
 			// 
 			// lblLtkDiv
 			// 
 			this.lblLtkDiv.AutoSize = true;
-			this.lblLtkDiv.Location = new System.Drawing.Point(14, 91);
-			this.lblLtkDiv.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblLtkDiv.Location = new System.Drawing.Point(19, 112);
 			this.lblLtkDiv.Name = "lblLtkDiv";
-			this.lblLtkDiv.Size = new System.Drawing.Size(136, 13);
+			this.lblLtkDiv.Size = new System.Drawing.Size(183, 17);
 			this.lblLtkDiv.TabIndex = 4;
 			this.lblLtkDiv.Text = "LTK Diversifier (2 bytes): 0x";
 			// 
 			// lblLtk
 			// 
 			this.lblLtk.AutoSize = true;
-			this.lblLtk.Location = new System.Drawing.Point(12, 46);
-			this.lblLtk.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblLtk.Location = new System.Drawing.Point(16, 57);
 			this.lblLtk.Name = "lblLtk";
-			this.lblLtk.Size = new System.Drawing.Size(131, 13);
+			this.lblLtk.Size = new System.Drawing.Size(177, 17);
 			this.lblLtk.TabIndex = 3;
 			this.lblLtk.Text = "Long Term Key (16 bytes):";
 			// 
 			// rbAuthBondFalse
 			// 
 			this.rbAuthBondFalse.AutoSize = true;
-			this.rbAuthBondFalse.Location = new System.Drawing.Point(302, 36);
-			this.rbAuthBondFalse.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.rbAuthBondFalse.Location = new System.Drawing.Point(403, 44);
+			this.rbAuthBondFalse.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.rbAuthBondFalse.Name = "rbAuthBondFalse";
-			this.rbAuthBondFalse.Size = new System.Drawing.Size(50, 17);
+			this.rbAuthBondFalse.Size = new System.Drawing.Size(63, 21);
 			this.rbAuthBondFalse.TabIndex = 2;
 			this.rbAuthBondFalse.TabStop = true;
 			this.rbAuthBondFalse.Text = "False";
@@ -2250,10 +2211,10 @@ namespace BTool
 			// rbAuthBondTrue
 			// 
 			this.rbAuthBondTrue.AutoSize = true;
-			this.rbAuthBondTrue.Location = new System.Drawing.Point(302, 20);
-			this.rbAuthBondTrue.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.rbAuthBondTrue.Location = new System.Drawing.Point(403, 25);
+			this.rbAuthBondTrue.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.rbAuthBondTrue.Name = "rbAuthBondTrue";
-			this.rbAuthBondTrue.Size = new System.Drawing.Size(47, 17);
+			this.rbAuthBondTrue.Size = new System.Drawing.Size(59, 21);
 			this.rbAuthBondTrue.TabIndex = 1;
 			this.rbAuthBondTrue.TabStop = true;
 			this.rbAuthBondTrue.Text = "True";
@@ -2262,10 +2223,9 @@ namespace BTool
 			// lblAuthBond
 			// 
 			this.lblAuthBond.AutoSize = true;
-			this.lblAuthBond.Location = new System.Drawing.Point(193, 21);
-			this.lblAuthBond.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblAuthBond.Location = new System.Drawing.Point(257, 26);
 			this.lblAuthBond.Name = "lblAuthBond";
-			this.lblAuthBond.Size = new System.Drawing.Size(104, 13);
+			this.lblAuthBond.Size = new System.Drawing.Size(136, 17);
 			this.lblAuthBond.TabIndex = 0;
 			this.lblAuthBond.Text = "Authenticated Bond:";
 			// 
@@ -2277,11 +2237,11 @@ namespace BTool
 			this.gbPasskeyInput.Controls.Add(this.lblPassRange);
 			this.gbPasskeyInput.Controls.Add(this.tbPasskey);
 			this.gbPasskeyInput.Controls.Add(this.lblPasskey);
-			this.gbPasskeyInput.Location = new System.Drawing.Point(6, 86);
-			this.gbPasskeyInput.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbPasskeyInput.Location = new System.Drawing.Point(8, 106);
+			this.gbPasskeyInput.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbPasskeyInput.Name = "gbPasskeyInput";
-			this.gbPasskeyInput.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbPasskeyInput.Size = new System.Drawing.Size(372, 80);
+			this.gbPasskeyInput.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbPasskeyInput.Size = new System.Drawing.Size(496, 98);
 			this.gbPasskeyInput.TabIndex = 2;
 			this.gbPasskeyInput.TabStop = false;
 			this.gbPasskeyInput.Text = "Passkey Input";
@@ -2290,31 +2250,30 @@ namespace BTool
 			// 
 			this.lblConnHnd.AutoSize = true;
 			this.lblConnHnd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblConnHnd.Location = new System.Drawing.Point(14, 21);
-			this.lblConnHnd.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblConnHnd.Location = new System.Drawing.Point(19, 26);
 			this.lblConnHnd.Name = "lblConnHnd";
-			this.lblConnHnd.Size = new System.Drawing.Size(101, 13);
+			this.lblConnHnd.Size = new System.Drawing.Size(132, 17);
 			this.lblConnHnd.TabIndex = 13;
 			this.lblConnHnd.Text = "Connection Handle:";
 			// 
 			// tbPasskeyConnHandle
 			// 
 			this.tbPasskeyConnHandle.Enabled = false;
-			this.tbPasskeyConnHandle.Location = new System.Drawing.Point(118, 18);
-			this.tbPasskeyConnHandle.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbPasskeyConnHandle.Location = new System.Drawing.Point(157, 22);
+			this.tbPasskeyConnHandle.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbPasskeyConnHandle.MaxLength = 6;
 			this.tbPasskeyConnHandle.Name = "tbPasskeyConnHandle";
-			this.tbPasskeyConnHandle.Size = new System.Drawing.Size(60, 20);
+			this.tbPasskeyConnHandle.Size = new System.Drawing.Size(79, 23);
 			this.tbPasskeyConnHandle.TabIndex = 13;
 			this.tbPasskeyConnHandle.Text = "0x0000";
 			this.tbPasskeyConnHandle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			// 
 			// btnSendPasskey
 			// 
-			this.btnSendPasskey.Location = new System.Drawing.Point(251, 15);
-			this.btnSendPasskey.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnSendPasskey.Location = new System.Drawing.Point(335, 18);
+			this.btnSendPasskey.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnSendPasskey.Name = "btnSendPasskey";
-			this.btnSendPasskey.Size = new System.Drawing.Size(102, 23);
+			this.btnSendPasskey.Size = new System.Drawing.Size(136, 28);
 			this.btnSendPasskey.TabIndex = 3;
 			this.btnSendPasskey.Text = "Send Passkey";
 			this.btnSendPasskey.UseVisualStyleBackColor = true;
@@ -2323,20 +2282,19 @@ namespace BTool
 			// lblPassRange
 			// 
 			this.lblPassRange.AutoSize = true;
-			this.lblPassRange.Location = new System.Drawing.Point(170, 49);
-			this.lblPassRange.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblPassRange.Location = new System.Drawing.Point(227, 60);
 			this.lblPassRange.Name = "lblPassRange";
-			this.lblPassRange.Size = new System.Drawing.Size(127, 13);
+			this.lblPassRange.Size = new System.Drawing.Size(171, 17);
 			this.lblPassRange.TabIndex = 2;
 			this.lblPassRange.Text = "(000000 through 999999)";
 			// 
 			// tbPasskey
 			// 
-			this.tbPasskey.Location = new System.Drawing.Point(118, 46);
-			this.tbPasskey.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbPasskey.Location = new System.Drawing.Point(157, 57);
+			this.tbPasskey.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbPasskey.MaxLength = 6;
 			this.tbPasskey.Name = "tbPasskey";
-			this.tbPasskey.Size = new System.Drawing.Size(46, 20);
+			this.tbPasskey.Size = new System.Drawing.Size(60, 23);
 			this.tbPasskey.TabIndex = 1;
 			this.tbPasskey.Text = "000000";
 			this.tbPasskey.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbPasskey_KeyPress);
@@ -2344,10 +2302,9 @@ namespace BTool
 			// lblPasskey
 			// 
 			this.lblPasskey.AutoSize = true;
-			this.lblPasskey.Location = new System.Drawing.Point(65, 49);
-			this.lblPasskey.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblPasskey.Location = new System.Drawing.Point(87, 60);
 			this.lblPasskey.Name = "lblPasskey";
-			this.lblPasskey.Size = new System.Drawing.Size(50, 13);
+			this.lblPasskey.Size = new System.Drawing.Size(65, 17);
 			this.lblPasskey.TabIndex = 0;
 			this.lblPasskey.Text = "Passkey:";
 			// 
@@ -2359,11 +2316,11 @@ namespace BTool
 			this.gbInitParing.Controls.Add(this.ckBoxAuthMitmEnabled);
 			this.gbInitParing.Controls.Add(this.ckBoxBondingEnabled);
 			this.gbInitParing.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.gbInitParing.Location = new System.Drawing.Point(6, 6);
-			this.gbInitParing.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.gbInitParing.Location = new System.Drawing.Point(8, 7);
+			this.gbInitParing.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.gbInitParing.Name = "gbInitParing";
-			this.gbInitParing.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-			this.gbInitParing.Size = new System.Drawing.Size(372, 75);
+			this.gbInitParing.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+			this.gbInitParing.Size = new System.Drawing.Size(496, 92);
 			this.gbInitParing.TabIndex = 1;
 			this.gbInitParing.TabStop = false;
 			this.gbInitParing.Text = "Initiate Pairing";
@@ -2371,11 +2328,11 @@ namespace BTool
 			// tbPairingConnHandle
 			// 
 			this.tbPairingConnHandle.Enabled = false;
-			this.tbPairingConnHandle.Location = new System.Drawing.Point(128, 42);
-			this.tbPairingConnHandle.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbPairingConnHandle.Location = new System.Drawing.Point(171, 52);
+			this.tbPairingConnHandle.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbPairingConnHandle.MaxLength = 6;
 			this.tbPairingConnHandle.Name = "tbPairingConnHandle";
-			this.tbPairingConnHandle.Size = new System.Drawing.Size(60, 20);
+			this.tbPairingConnHandle.Size = new System.Drawing.Size(79, 23);
 			this.tbPairingConnHandle.TabIndex = 15;
 			this.tbPairingConnHandle.Text = "0x0000";
 			this.tbPairingConnHandle.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -2384,19 +2341,18 @@ namespace BTool
 			// 
 			this.lblPairConnHnd.AutoSize = true;
 			this.lblPairConnHnd.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.lblPairConnHnd.Location = new System.Drawing.Point(26, 46);
-			this.lblPairConnHnd.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lblPairConnHnd.Location = new System.Drawing.Point(35, 57);
 			this.lblPairConnHnd.Name = "lblPairConnHnd";
-			this.lblPairConnHnd.Size = new System.Drawing.Size(101, 13);
+			this.lblPairConnHnd.Size = new System.Drawing.Size(132, 17);
 			this.lblPairConnHnd.TabIndex = 14;
 			this.lblPairConnHnd.Text = "Connection Handle:";
 			// 
 			// btnSendPairingRequest
 			// 
-			this.btnSendPairingRequest.Location = new System.Drawing.Point(211, 41);
-			this.btnSendPairingRequest.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnSendPairingRequest.Location = new System.Drawing.Point(281, 50);
+			this.btnSendPairingRequest.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnSendPairingRequest.Name = "btnSendPairingRequest";
-			this.btnSendPairingRequest.Size = new System.Drawing.Size(142, 23);
+			this.btnSendPairingRequest.Size = new System.Drawing.Size(189, 28);
 			this.btnSendPairingRequest.TabIndex = 2;
 			this.btnSendPairingRequest.Text = "Send Pairing Request";
 			this.btnSendPairingRequest.UseVisualStyleBackColor = true;
@@ -2405,10 +2361,10 @@ namespace BTool
 			// ckBoxAuthMitmEnabled
 			// 
 			this.ckBoxAuthMitmEnabled.AutoSize = true;
-			this.ckBoxAuthMitmEnabled.Location = new System.Drawing.Point(169, 18);
-			this.ckBoxAuthMitmEnabled.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.ckBoxAuthMitmEnabled.Location = new System.Drawing.Point(225, 22);
+			this.ckBoxAuthMitmEnabled.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.ckBoxAuthMitmEnabled.Name = "ckBoxAuthMitmEnabled";
-			this.ckBoxAuthMitmEnabled.Size = new System.Drawing.Size(173, 17);
+			this.ckBoxAuthMitmEnabled.Size = new System.Drawing.Size(224, 21);
 			this.ckBoxAuthMitmEnabled.TabIndex = 1;
 			this.ckBoxAuthMitmEnabled.Text = "Authentication (MITM) Enabled";
 			this.ckBoxAuthMitmEnabled.UseVisualStyleBackColor = true;
@@ -2417,10 +2373,10 @@ namespace BTool
 			// 
 			this.ckBoxBondingEnabled.AutoSize = true;
 			this.ckBoxBondingEnabled.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.ckBoxBondingEnabled.Location = new System.Drawing.Point(29, 18);
-			this.ckBoxBondingEnabled.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.ckBoxBondingEnabled.Location = new System.Drawing.Point(39, 22);
+			this.ckBoxBondingEnabled.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.ckBoxBondingEnabled.Name = "ckBoxBondingEnabled";
-			this.ckBoxBondingEnabled.Size = new System.Drawing.Size(107, 17);
+			this.ckBoxBondingEnabled.Size = new System.Drawing.Size(138, 21);
 			this.ckBoxBondingEnabled.TabIndex = 0;
 			this.ckBoxBondingEnabled.Text = "Bonding Enabled";
 			this.ckBoxBondingEnabled.UseVisualStyleBackColor = true;
@@ -2428,21 +2384,20 @@ namespace BTool
 			// labelPairingStatus
 			// 
 			this.labelPairingStatus.AutoSize = true;
-			this.labelPairingStatus.Location = new System.Drawing.Point(62, 468);
-			this.labelPairingStatus.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.labelPairingStatus.Location = new System.Drawing.Point(83, 576);
 			this.labelPairingStatus.Name = "labelPairingStatus";
-			this.labelPairingStatus.Size = new System.Drawing.Size(75, 13);
+			this.labelPairingStatus.Size = new System.Drawing.Size(100, 17);
 			this.labelPairingStatus.TabIndex = 5;
 			this.labelPairingStatus.Text = "Pairing Status:";
 			this.labelPairingStatus.Visible = false;
 			// 
 			// tbPairingStatus
 			// 
-			this.tbPairingStatus.Location = new System.Drawing.Point(144, 465);
-			this.tbPairingStatus.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tbPairingStatus.Location = new System.Drawing.Point(192, 572);
+			this.tbPairingStatus.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tbPairingStatus.Name = "tbPairingStatus";
 			this.tbPairingStatus.ReadOnly = true;
-			this.tbPairingStatus.Size = new System.Drawing.Size(182, 20);
+			this.tbPairingStatus.Size = new System.Drawing.Size(241, 23);
 			this.tbPairingStatus.TabIndex = 7;
 			this.tbPairingStatus.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
 			this.tbPairingStatus.Visible = false;
@@ -2451,10 +2406,10 @@ namespace BTool
 			// 
 			this.tpAdvCommands.BackColor = System.Drawing.Color.Transparent;
 			this.tpAdvCommands.Controls.Add(this.scTreeGrid);
-			this.tpAdvCommands.Location = new System.Drawing.Point(4, 22);
-			this.tpAdvCommands.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tpAdvCommands.Location = new System.Drawing.Point(4, 26);
+			this.tpAdvCommands.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tpAdvCommands.Name = "tpAdvCommands";
-			this.tpAdvCommands.Size = new System.Drawing.Size(387, 508);
+			this.tpAdvCommands.Size = new System.Drawing.Size(519, 627);
 			this.tpAdvCommands.TabIndex = 2;
 			this.tpAdvCommands.Text = "Adv.Commands";
 			this.tpAdvCommands.UseVisualStyleBackColor = true;
@@ -2463,7 +2418,7 @@ namespace BTool
 			// 
 			this.scTreeGrid.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.scTreeGrid.Location = new System.Drawing.Point(0, 0);
-			this.scTreeGrid.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.scTreeGrid.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.scTreeGrid.Name = "scTreeGrid";
 			this.scTreeGrid.Orientation = System.Windows.Forms.Orientation.Horizontal;
 			// 
@@ -2474,9 +2429,8 @@ namespace BTool
 			// scTreeGrid.Panel2
 			// 
 			this.scTreeGrid.Panel2.Controls.Add(this.pgAdvCmds);
-			this.scTreeGrid.Size = new System.Drawing.Size(387, 508);
-			this.scTreeGrid.SplitterDistance = 256;
-			this.scTreeGrid.SplitterWidth = 3;
+			this.scTreeGrid.Size = new System.Drawing.Size(519, 627);
+			this.scTreeGrid.SplitterDistance = 315;
 			this.scTreeGrid.TabIndex = 2;
 			// 
 			// tvAdvCmdList
@@ -2484,9 +2438,9 @@ namespace BTool
 			this.tvAdvCmdList.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tvAdvCmdList.HideSelection = false;
 			this.tvAdvCmdList.Location = new System.Drawing.Point(0, 0);
-			this.tvAdvCmdList.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.tvAdvCmdList.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.tvAdvCmdList.Name = "tvAdvCmdList";
-			this.tvAdvCmdList.Size = new System.Drawing.Size(387, 256);
+			this.tvAdvCmdList.Size = new System.Drawing.Size(519, 315);
 			this.tvAdvCmdList.TabIndex = 1;
 			this.tvAdvCmdList.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewCmdList_AfterSelect);
 			// 
@@ -2494,34 +2448,35 @@ namespace BTool
 			// 
 			this.pgAdvCmds.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pgAdvCmds.Location = new System.Drawing.Point(0, 0);
-			this.pgAdvCmds.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.pgAdvCmds.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.pgAdvCmds.Name = "pgAdvCmds";
 			this.pgAdvCmds.PropertySort = System.Windows.Forms.PropertySort.NoSort;
-			this.pgAdvCmds.Size = new System.Drawing.Size(387, 249);
+			this.pgAdvCmds.Size = new System.Drawing.Size(519, 308);
 			this.pgAdvCmds.TabIndex = 2;
 			this.pgAdvCmds.ToolbarVisible = false;
 			this.pgAdvCmds.Layout += new System.Windows.Forms.LayoutEventHandler(this.pgAdvCmds_Layout);
 			// 
 			// cmsAdvTab
 			// 
+			this.cmsAdvTab.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this.cmsAdvTab.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiSendAdvCmd});
 			this.cmsAdvTab.Name = "contextMenuStrip1";
-			this.cmsAdvTab.Size = new System.Drawing.Size(106, 26);
+			this.cmsAdvTab.Size = new System.Drawing.Size(118, 30);
 			// 
 			// tsmiSendAdvCmd
 			// 
 			this.tsmiSendAdvCmd.Name = "tsmiSendAdvCmd";
-			this.tsmiSendAdvCmd.Size = new System.Drawing.Size(105, 22);
+			this.tsmiSendAdvCmd.Size = new System.Drawing.Size(117, 26);
 			this.tsmiSendAdvCmd.Text = "Send";
 			this.tsmiSendAdvCmd.Click += new System.EventHandler(this.tsmiSendAdvCmd_Click);
 			// 
 			// btnSendShared
 			// 
-			this.btnSendShared.Location = new System.Drawing.Point(16, 541);
-			this.btnSendShared.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.btnSendShared.Location = new System.Drawing.Point(21, 642);
+			this.btnSendShared.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.btnSendShared.Name = "btnSendShared";
-			this.btnSendShared.Size = new System.Drawing.Size(97, 23);
+			this.btnSendShared.Size = new System.Drawing.Size(129, 28);
 			this.btnSendShared.TabIndex = 3;
 			this.btnSendShared.Text = "Send Command";
 			this.btnSendShared.UseVisualStyleBackColor = true;
@@ -2529,23 +2484,24 @@ namespace BTool
 			// 
 			// pbSharedDevice
 			// 
-			this.pbSharedDevice.Location = new System.Drawing.Point(134, 541);
-			this.pbSharedDevice.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+			this.pbSharedDevice.Location = new System.Drawing.Point(179, 642);
+			this.pbSharedDevice.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
 			this.pbSharedDevice.Name = "pbSharedDevice";
-			this.pbSharedDevice.Size = new System.Drawing.Size(262, 23);
+			this.pbSharedDevice.Size = new System.Drawing.Size(349, 28);
 			this.pbSharedDevice.Step = 2;
 			this.pbSharedDevice.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
 			this.pbSharedDevice.TabIndex = 4;
 			// 
 			// DeviceTabsForm
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.AutoScroll = true;
-			this.ClientSize = new System.Drawing.Size(411, 571);
+			this.ClientSize = new System.Drawing.Size(532, 679);
 			this.Controls.Add(this.pbSharedDevice);
 			this.Controls.Add(this.btnSendShared);
 			this.Controls.Add(this.tcDeviceTabs);
+			this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
 			this.Name = "DeviceTabsForm";
 			this.Text = "Device Tabs Form";
 			this.Load += new System.EventHandler(this.DeviceTabsForm_Load);
@@ -2602,7 +2558,7 @@ namespace BTool
 			ResetSlaveDevices();
 			cbConnAddrType.SelectedIndex = 0;
 			ckBoxConnWhiteList.Checked = false;
-			discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+			discoverConnectStatus = DiscoverConnectStatus.Idle;
 			DiscoverConnectUserInputControl();
 		}
 
@@ -2658,7 +2614,7 @@ namespace BTool
 				return;
 			ShowProgress(true);
 			devForm.StartTimer(DeviceForm.EventType.Scan);
-			discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Scan;
+			discoverConnectStatus = DiscoverConnectStatus.Scan;
 			DiscoverConnectUserInputControl();
 			ResetSlaveDevices();
 			SlaveDeviceFound = (ushort)0;
@@ -2673,7 +2629,7 @@ namespace BTool
 
 		private void btnScanCancel_Click(object sender, EventArgs e)
 		{
-			discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.ScanCancel;
+			discoverConnectStatus = DiscoverConnectStatus.ScanCancel;
 			DiscoverConnectUserInputControl();
 			devForm.sendCmds.SendGAP(new HCICmds.GAPCmds.GAP_DeviceDiscoveryCancel());
 		}
@@ -2695,19 +2651,19 @@ namespace BTool
 
 		private void btnGetParams_Click(object sender, EventArgs e)
 		{
-			discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.GetSet;
+			discoverConnectStatus = DiscoverConnectStatus.GetSet;
 			DiscoverConnectUserInputControl();
 			GetConnectionParameters();
-			discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+			discoverConnectStatus = DiscoverConnectStatus.Idle;
 			DiscoverConnectUserInputControl();
 		}
 
 		private void btnSetParams_Click(object sender, EventArgs e)
 		{
-			discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.GetSet;
+			discoverConnectStatus = DiscoverConnectStatus.GetSet;
 			DiscoverConnectUserInputControl();
 			SetConnectionParameters();
-			discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+			discoverConnectStatus = DiscoverConnectStatus.Idle;
 			DiscoverConnectUserInputControl();
 		}
 
@@ -2772,7 +2728,7 @@ namespace BTool
 
 		private void btnTerminate_Click(object sender, EventArgs e)
 		{
-			discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Terminate;
+			discoverConnectStatus = DiscoverConnectStatus.Terminate;
 			DiscoverConnectUserInputControl();
 			HCICmds.GAPCmds.GAP_TerminateLinkRequest terminateLinkRequest = new HCICmds.GAPCmds.GAP_TerminateLinkRequest();
 			bool flag;
@@ -2785,13 +2741,13 @@ namespace BTool
 			catch (Exception ex)
 			{
 				string msg = string.Format("Invalid Connection Handle\n\n{0}\n", ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				tbTermConnHandle.Focus();
 				flag = false;
 			}
 			if (flag)
 				return;
-			discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+			discoverConnectStatus = DiscoverConnectStatus.Idle;
 			DiscoverConnectUserInputControl();
 		}
 
@@ -2803,12 +2759,12 @@ namespace BTool
 			establishLinkRequest.addrTypePeer = (HCICmds.GAP_AddrType)cbConnAddrType.SelectedIndex;
 			if (cbConnSlaveDeviceBDAddress.Text == "None")
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Select a Slave BDAddress\n");
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "Select a Slave BDAddress\n");
 				cbConnSlaveDeviceBDAddress.Focus();
 			}
 			else
 			{
-				discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Establish;
+				discoverConnectStatus = DiscoverConnectStatus.Establish;
 				DiscoverConnectUserInputControl();
 				ShowProgress(true);
 				devForm.StartTimer(DeviceForm.EventType.Establish);
@@ -2817,14 +2773,14 @@ namespace BTool
 					return;
 				ShowProgress(false);
 				devForm.StopTimer(DeviceForm.EventType.Establish);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Invalid Slave BDA\n");
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "Invalid Slave BDA\n");
 				cbConnSlaveDeviceBDAddress.Focus();
 			}
 		}
 
 		private void btnEstablishCancel_Click(object sender, EventArgs e)
 		{
-			discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.EstablishCancel;
+			discoverConnectStatus = DiscoverConnectStatus.EstablishCancel;
 			DiscoverConnectUserInputControl();
 			HCICmds.GAPCmds.GAP_TerminateLinkRequest terminateLinkRequest = new HCICmds.GAPCmds.GAP_TerminateLinkRequest();
 			try
@@ -2836,7 +2792,7 @@ namespace BTool
 			catch (Exception ex)
 			{
 				string msg = string.Format("Failed To Send Terminate Link Message.\n\n{0}\n", ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 			}
 		}
 
@@ -2975,29 +2931,29 @@ namespace BTool
 		{
 			switch (discoverConnectStatus)
 			{
-				case DeviceTabsForm.DiscoverConnectStatus.Idle:
+				case DiscoverConnectStatus.Idle:
 					DiscoveryUserInputControl(true);
 					ConnSettingsUserInputControl(true);
 					EstablishLinkUserInputControl(true);
 					TerminateLinkUserInputControl(true);
 					break;
-				case DeviceTabsForm.DiscoverConnectStatus.Scan:
+				case DiscoverConnectStatus.Scan:
 					DiscoveryUserInputControl(false);
 					ConnSettingsUserInputControl(false);
 					EstablishLinkUserInputControl(false);
 					TerminateLinkUserInputControl(false);
 					btnScanCancel.Enabled = true;
 					break;
-				case DeviceTabsForm.DiscoverConnectStatus.ScanCancel:
-				case DeviceTabsForm.DiscoverConnectStatus.GetSet:
-				case DeviceTabsForm.DiscoverConnectStatus.EstablishCancel:
-				case DeviceTabsForm.DiscoverConnectStatus.Terminate:
+				case DiscoverConnectStatus.ScanCancel:
+				case DiscoverConnectStatus.GetSet:
+				case DiscoverConnectStatus.EstablishCancel:
+				case DiscoverConnectStatus.Terminate:
 					DiscoveryUserInputControl(false);
 					ConnSettingsUserInputControl(false);
 					EstablishLinkUserInputControl(false);
 					TerminateLinkUserInputControl(false);
 					break;
-				case DeviceTabsForm.DiscoverConnectStatus.Establish:
+				case DiscoverConnectStatus.Establish:
 					DiscoveryUserInputControl(false);
 					ConnSettingsUserInputControl(false);
 					EstablishLinkUserInputControl(false);
@@ -3081,7 +3037,7 @@ namespace BTool
 			else
 			{
 				Cursor = Cursors.Default;
-				discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Idle;
+				discoverConnectStatus = DiscoverConnectStatus.Idle;
 				DiscoverConnectUserInputControl();
 				pbSharedDevice.Style = ProgressBarStyle.Continuous;
 				pbSharedDevice.Enabled = false;
@@ -3116,461 +3072,577 @@ namespace BTool
 			TreeNode node1 = new TreeNode();
 			node1.Text = node1.Name = "HCI Extended";
 			tvAdvCmdList.Nodes.Add(node1);
+
 			TreeNode node2 = new TreeNode();
 			node2.Name = node2.Text = devForm.HCIExt_SetRxGain.cmdName;
 			node2.Tag = devForm.HCIExt_SetRxGain;
 			node1.Nodes.Add(node2);
+
 			TreeNode node3 = new TreeNode();
 			node3.Name = node3.Text = devForm.HCIExt_SetTxPower.cmdName;
 			node3.Tag = devForm.HCIExt_SetTxPower;
 			node1.Nodes.Add(node3);
+
 			TreeNode node4 = new TreeNode();
 			node4.Name = node4.Text = devForm.HCIExt_OnePktPerEvt.cmdName;
 			node4.Tag = devForm.HCIExt_OnePktPerEvt;
 			node1.Nodes.Add(node4);
+
 			TreeNode node5 = new TreeNode();
 			node5.Name = node5.Text = devForm.HCIExt_ClkDivideOnHalt.cmdName;
 			node5.Tag = devForm.HCIExt_ClkDivideOnHalt;
 			node1.Nodes.Add(node5);
+
 			TreeNode node6 = new TreeNode();
 			node6.Name = node6.Text = devForm.HCIExt_DeclareNvUsage.cmdName;
 			node6.Tag = devForm.HCIExt_DeclareNvUsage;
 			node1.Nodes.Add(node6);
+			
 			TreeNode node7 = new TreeNode();
 			node7.Name = node7.Text = devForm.HCIExt_Decrypt.cmdName;
 			node7.Tag = devForm.HCIExt_Decrypt;
 			node1.Nodes.Add(node7);
+			
 			TreeNode node8 = new TreeNode();
 			node8.Name = node8.Text = devForm.HCIExt_SetLocalSupportedFeatures.cmdName;
 			node8.Tag = devForm.HCIExt_SetLocalSupportedFeatures;
 			node1.Nodes.Add(node8);
+			
 			TreeNode node9 = new TreeNode();
 			node9.Name = node9.Text = devForm.HCIExt_SetFastTxRespTime.cmdName;
 			node9.Tag = devForm.HCIExt_SetFastTxRespTime;
 			node1.Nodes.Add(node9);
+			
 			TreeNode node10 = new TreeNode();
 			node10.Name = node10.Text = devForm.HCIExt_ModemTestTx.cmdName;
 			node10.Tag = devForm.HCIExt_ModemTestTx;
 			node1.Nodes.Add(node10);
+			
 			TreeNode node11 = new TreeNode();
 			node11.Name = node11.Text = devForm.HCIExt_ModemHopTestTx.cmdName;
 			node11.Tag = devForm.HCIExt_ModemHopTestTx;
 			node1.Nodes.Add(node11);
+			
 			TreeNode node12 = new TreeNode();
 			node12.Name = node12.Text = devForm.HCIExt_ModemTestRx.cmdName;
 			node12.Tag = devForm.HCIExt_ModemTestRx;
 			node1.Nodes.Add(node12);
+			
 			TreeNode node13 = new TreeNode();
 			node13.Name = node13.Text = devForm.HCIExt_EndModemTest.cmdName;
 			node13.Tag = devForm.HCIExt_EndModemTest;
 			node1.Nodes.Add(node13);
+			
 			TreeNode node14 = new TreeNode();
 			node14.Name = node14.Text = devForm.HCIExt_SetBDADDR.cmdName;
 			node14.Tag = devForm.HCIExt_SetBDADDR;
 			node1.Nodes.Add(node14);
+			
 			TreeNode node15 = new TreeNode();
 			node15.Name = node15.Text = devForm.HCIExt_SetSCA.cmdName;
 			node15.Tag = devForm.HCIExt_SetSCA;
 			node1.Nodes.Add(node15);
+			
 			TreeNode node16 = new TreeNode();
 			node16.Name = node16.Text = devForm.HCIExt_EnablePTM.cmdName;
 			node16.Tag = devForm.HCIExt_EnablePTM;
 			node1.Nodes.Add(node16);
+			
 			TreeNode node17 = new TreeNode();
 			node17.Name = node17.Text = devForm.HCIExt_SetFreqTune.cmdName;
 			node17.Tag = devForm.HCIExt_SetFreqTune;
 			node1.Nodes.Add(node17);
+			
 			TreeNode node18 = new TreeNode();
 			node18.Name = node18.Text = devForm.HCIExt_SaveFreqTune.cmdName;
 			node18.Tag = devForm.HCIExt_SaveFreqTune;
 			node1.Nodes.Add(node18);
+			
 			TreeNode node19 = new TreeNode();
 			node19.Name = node19.Text = devForm.HCIExt_SetMaxDtmTxPower.cmdName;
 			node19.Tag = devForm.HCIExt_SetMaxDtmTxPower;
 			node1.Nodes.Add(node19);
+			
 			TreeNode node20 = new TreeNode();
 			node20.Name = node20.Text = devForm.HCIExt_MapPmIoPort.cmdName;
 			node20.Tag = devForm.HCIExt_MapPmIoPort;
 			node1.Nodes.Add(node20);
+			
 			TreeNode node21 = new TreeNode();
 			node21.Name = node21.Text = devForm.HCIExt_DisconnectImmed.cmdName;
 			node21.Tag = devForm.HCIExt_DisconnectImmed;
 			node1.Nodes.Add(node21);
+			
 			TreeNode node22 = new TreeNode();
 			node22.Name = node22.Text = devForm.HCIExt_PER.cmdName;
 			node22.Tag = devForm.HCIExt_PER;
 			node1.Nodes.Add(node22);
+			
 			TreeNode node23 = new TreeNode();
 			node23.Text = node23.Name = "L2CAP";
 			tvAdvCmdList.Nodes.Add(node23);
+
 			TreeNode node24 = new TreeNode();
 			node24.Name = node24.Text = devForm.L2CAP_InfoReq.cmdName;
 			node24.Tag = devForm.L2CAP_InfoReq;
 			node23.Nodes.Add(node24);
+
 			TreeNode node25 = new TreeNode();
 			node25.Name = node25.Text = devForm.L2CAP_ConnParamUpdateReq.cmdName;
 			node25.Tag = devForm.L2CAP_ConnParamUpdateReq;
 			node23.Nodes.Add(node25);
+
 			TreeNode node26 = new TreeNode();
 			node26.Text = node26.Name = "ATT";
 			tvAdvCmdList.Nodes.Add(node26);
+
 			TreeNode node27 = new TreeNode();
 			node27.Name = node27.Text = devForm.ATT_ErrorRsp.cmdName;
 			node27.Tag = devForm.ATT_ErrorRsp;
 			node26.Nodes.Add(node27);
+
 			TreeNode node28 = new TreeNode();
 			node28.Name = node28.Text = devForm.ATT_ExchangeMTUReq.cmdName;
 			node28.Tag = devForm.ATT_ExchangeMTUReq;
 			node26.Nodes.Add(node28);
+
 			TreeNode node29 = new TreeNode();
 			node29.Name = node29.Text = devForm.ATT_ExchangeMTURsp.cmdName;
 			node29.Tag = devForm.ATT_ExchangeMTURsp;
 			node26.Nodes.Add(node29);
+
 			TreeNode node30 = new TreeNode();
 			node30.Name = node30.Text = devForm.ATT_FindInfoReq.cmdName;
 			node30.Tag = devForm.ATT_FindInfoReq;
 			node26.Nodes.Add(node30);
+
 			TreeNode node31 = new TreeNode();
 			node31.Name = node31.Text = devForm.ATT_FindInfoRsp.cmdName;
 			node31.Tag = devForm.ATT_FindInfoRsp;
 			node26.Nodes.Add(node31);
+
 			TreeNode node32 = new TreeNode();
 			node32.Name = node32.Text = devForm.ATT_FindByTypeValueReq.cmdName;
 			node32.Tag = devForm.ATT_FindByTypeValueReq;
 			node26.Nodes.Add(node32);
+
 			TreeNode node33 = new TreeNode();
 			node33.Name = node33.Text = devForm.ATT_FindByTypeValueRsp.cmdName;
 			node33.Tag = devForm.ATT_FindByTypeValueRsp;
 			node26.Nodes.Add(node33);
+
 			TreeNode node34 = new TreeNode();
 			node34.Name = node34.Text = devForm.ATT_ReadByTypeReq.cmdName;
 			node34.Tag = devForm.ATT_ReadByTypeReq;
 			node26.Nodes.Add(node34);
+
 			TreeNode node35 = new TreeNode();
 			node35.Name = node35.Text = devForm.ATT_ReadByTypeRsp.cmdName;
 			node35.Tag = devForm.ATT_ReadByTypeRsp;
 			node26.Nodes.Add(node35);
+
 			TreeNode node36 = new TreeNode();
 			node36.Name = node36.Text = devForm.ATT_ReadReq.cmdName;
 			node36.Tag = devForm.ATT_ReadReq;
 			node26.Nodes.Add(node36);
+
 			TreeNode node37 = new TreeNode();
 			node37.Name = node37.Text = devForm.ATT_ReadRsp.cmdName;
 			node37.Tag = devForm.ATT_ReadRsp;
 			node26.Nodes.Add(node37);
+
 			TreeNode node38 = new TreeNode();
 			node38.Name = node38.Text = devForm.ATT_ReadBlobReq.cmdName;
 			node38.Tag = devForm.ATT_ReadBlobReq;
 			node26.Nodes.Add(node38);
+
 			TreeNode node39 = new TreeNode();
 			node39.Name = node39.Text = devForm.ATT_ReadBlobRsp.cmdName;
 			node39.Tag = devForm.ATT_ReadBlobRsp;
 			node26.Nodes.Add(node39);
+
 			TreeNode node40 = new TreeNode();
 			node40.Name = node40.Text = devForm.ATT_ReadMultiReq.cmdName;
 			node40.Tag = devForm.ATT_ReadMultiReq;
 			node26.Nodes.Add(node40);
+
 			TreeNode node41 = new TreeNode();
 			node41.Name = node41.Text = devForm.ATT_ReadMultiRsp.cmdName;
 			node41.Tag = devForm.ATT_ReadMultiRsp;
 			node26.Nodes.Add(node41);
+
 			TreeNode node42 = new TreeNode();
 			node42.Name = node42.Text = devForm.ATT_ReadByGrpTypeReq.cmdName;
 			node42.Tag = devForm.ATT_ReadByGrpTypeReq;
 			node26.Nodes.Add(node42);
+
 			TreeNode node43 = new TreeNode();
 			node43.Name = node43.Text = devForm.ATT_ReadByGrpTypeRsp.cmdName;
 			node43.Tag = devForm.ATT_ReadByGrpTypeRsp;
 			node26.Nodes.Add(node43);
+
 			TreeNode node44 = new TreeNode();
 			node44.Name = node44.Text = devForm.ATT_WriteReq.cmdName;
 			node44.Tag = devForm.ATT_WriteReq;
 			node26.Nodes.Add(node44);
+
 			TreeNode node45 = new TreeNode();
 			node45.Name = node45.Text = devForm.ATT_WriteRsp.cmdName;
 			node45.Tag = devForm.ATT_WriteRsp;
 			node26.Nodes.Add(node45);
+
 			TreeNode node46 = new TreeNode();
 			node46.Name = node46.Text = devForm.ATT_PrepareWriteReq.cmdName;
 			node46.Tag = devForm.ATT_PrepareWriteReq;
 			node26.Nodes.Add(node46);
+
 			TreeNode node47 = new TreeNode();
 			node47.Name = node47.Text = devForm.ATT_PrepareWriteRsp.cmdName;
 			node47.Tag = devForm.ATT_PrepareWriteRsp;
 			node26.Nodes.Add(node47);
+
 			TreeNode node48 = new TreeNode();
 			node48.Name = node48.Text = devForm.ATT_ExecuteWriteReq.cmdName;
 			node48.Tag = devForm.ATT_ExecuteWriteReq;
 			node26.Nodes.Add(node48);
+
 			TreeNode node49 = new TreeNode();
 			node49.Name = node49.Text = devForm.ATT_ExecuteWriteRsp.cmdName;
 			node49.Tag = devForm.ATT_ExecuteWriteRsp;
 			node26.Nodes.Add(node49);
+
 			TreeNode node50 = new TreeNode();
 			node50.Name = node50.Text = devForm.ATT_HandleValueNotification.cmdName;
 			node50.Tag = devForm.ATT_HandleValueNotification;
 			node26.Nodes.Add(node50);
+
 			TreeNode node51 = new TreeNode();
 			node51.Name = node51.Text = devForm.ATT_HandleValueIndication.cmdName;
 			node51.Tag = devForm.ATT_HandleValueIndication;
 			node26.Nodes.Add(node51);
+
 			TreeNode node52 = new TreeNode();
 			node52.Name = node52.Text = devForm.ATT_HandleValueConfirmation.cmdName;
 			node52.Tag = devForm.ATT_HandleValueConfirmation;
 			node26.Nodes.Add(node52);
+
 			TreeNode node53 = new TreeNode();
 			node53.Text = "GATT";
 			node53.Name = "GATT";
 			tvAdvCmdList.Nodes.Add(node53);
+
 			TreeNode node54 = new TreeNode();
 			node54.Name = node54.Text = devForm.GATT_ExchangeMTU.cmdName;
 			node54.Tag = devForm.GATT_ExchangeMTU;
 			node53.Nodes.Add(node54);
+
 			TreeNode node55 = new TreeNode();
 			node55.Name = node55.Text = devForm.GATT_DiscAllPrimaryServices.cmdName;
 			node55.Tag = devForm.GATT_DiscAllPrimaryServices;
 			node53.Nodes.Add(node55);
+
 			TreeNode node56 = new TreeNode();
 			node56.Name = node56.Text = devForm.GATT_DiscPrimaryServiceByUUID.cmdName;
 			node56.Tag = devForm.GATT_DiscPrimaryServiceByUUID;
 			node53.Nodes.Add(node56);
+
 			TreeNode node57 = new TreeNode();
 			node57.Name = node57.Text = devForm.GATT_FindIncludedServices.cmdName;
 			node57.Tag = devForm.GATT_FindIncludedServices;
 			node53.Nodes.Add(node57);
+
 			TreeNode node58 = new TreeNode();
 			node58.Name = node58.Text = devForm.GATT_DiscAllChars.cmdName;
 			node58.Tag = devForm.GATT_DiscAllChars;
 			node53.Nodes.Add(node58);
+
 			TreeNode node59 = new TreeNode();
 			node59.Name = node59.Text = devForm.GATT_DiscCharsByUUID.cmdName;
 			node59.Tag = devForm.GATT_DiscCharsByUUID;
 			node53.Nodes.Add(node59);
+
 			TreeNode node60 = new TreeNode();
 			node60.Name = node60.Text = devForm.GATT_DiscAllCharDescs.cmdName;
 			node60.Tag = devForm.GATT_DiscAllCharDescs;
 			node53.Nodes.Add(node60);
+
 			TreeNode node61 = new TreeNode();
 			node61.Name = node61.Text = devForm.GATT_ReadCharValue.cmdName;
 			node61.Tag = devForm.GATT_ReadCharValue;
 			node53.Nodes.Add(node61);
+
 			TreeNode node62 = new TreeNode();
 			node62.Name = node62.Text = devForm.GATT_ReadUsingCharUUID.cmdName;
 			node62.Tag = devForm.GATT_ReadUsingCharUUID;
 			node53.Nodes.Add(node62);
+
 			TreeNode node63 = new TreeNode();
 			node63.Name = node63.Text = devForm.GATT_ReadLongCharValue.cmdName;
 			node63.Tag = devForm.GATT_ReadLongCharValue;
 			node53.Nodes.Add(node63);
+
 			TreeNode node64 = new TreeNode();
 			node64.Name = node64.Text = devForm.GATT_ReadMultiCharValues.cmdName;
 			node64.Tag = devForm.GATT_ReadMultiCharValues;
 			node53.Nodes.Add(node64);
+
 			TreeNode node65 = new TreeNode();
 			node65.Name = node65.Text = devForm.GATT_WriteNoRsp.cmdName;
 			node65.Tag = devForm.GATT_WriteNoRsp;
 			node53.Nodes.Add(node65);
+
 			TreeNode node66 = new TreeNode();
 			node66.Name = node66.Text = devForm.GATT_SignedWriteNoRsp.cmdName;
 			node66.Tag = devForm.GATT_SignedWriteNoRsp;
 			node53.Nodes.Add(node66);
+
 			TreeNode node67 = new TreeNode();
 			node67.Name = node67.Text = devForm.GATT_WriteCharValue.cmdName;
 			node67.Tag = devForm.GATT_WriteCharValue;
 			node53.Nodes.Add(node67);
+
 			TreeNode node68 = new TreeNode();
 			node68.Name = node68.Text = devForm.GATT_WriteLongCharValue.cmdName;
 			node68.Tag = devForm.GATT_WriteLongCharValue;
 			node53.Nodes.Add(node68);
+
 			TreeNode node69 = new TreeNode();
 			node69.Name = node69.Text = devForm.GATT_ReliableWrites.cmdName;
 			node69.Tag = devForm.GATT_ReliableWrites;
 			node53.Nodes.Add(node69);
+
 			TreeNode node70 = new TreeNode();
 			node70.Name = node70.Text = devForm.GATT_ReadCharDesc.cmdName;
 			node70.Tag = devForm.GATT_ReadCharDesc;
 			node53.Nodes.Add(node70);
+
 			TreeNode node71 = new TreeNode();
 			node71.Name = node71.Text = devForm.GATT_ReadLongCharDesc.cmdName;
 			node71.Tag = devForm.GATT_ReadLongCharDesc;
 			node53.Nodes.Add(node71);
+
 			TreeNode node72 = new TreeNode();
 			node72.Name = node72.Text = devForm.GATT_WriteCharDesc.cmdName;
 			node72.Tag = devForm.GATT_WriteCharDesc;
 			node53.Nodes.Add(node72);
+
 			TreeNode node73 = new TreeNode();
 			node73.Name = node73.Text = devForm.GATT_WriteLongCharDesc.cmdName;
 			node73.Tag = devForm.GATT_WriteLongCharDesc;
 			node53.Nodes.Add(node73);
+
 			TreeNode node74 = new TreeNode();
 			node74.Name = node74.Text = devForm.GATT_Notification.cmdName;
 			node74.Tag = devForm.GATT_Notification;
 			node53.Nodes.Add(node74);
+
 			TreeNode node75 = new TreeNode();
 			node75.Name = node75.Text = devForm.GATT_Indication.cmdName;
 			node75.Tag = devForm.GATT_Indication;
 			node53.Nodes.Add(node75);
+
 			TreeNode node76 = new TreeNode();
 			node76.Name = node76.Text = devForm.GATT_AddService.cmdName;
 			node76.Tag = devForm.GATT_AddService;
 			node53.Nodes.Add(node76);
+
 			TreeNode node77 = new TreeNode();
 			node77.Name = node77.Text = devForm.GATT_DelService.cmdName;
 			node77.Tag = devForm.GATT_DelService;
 			node53.Nodes.Add(node77);
+
 			TreeNode node78 = new TreeNode();
 			node78.Name = node78.Text = devForm.GATT_AddAttribute.cmdName;
 			node78.Tag = devForm.GATT_AddAttribute;
 			node53.Nodes.Add(node78);
+
 			TreeNode node79 = new TreeNode();
 			node79.Text = node79.Name = "GAP";
 			tvAdvCmdList.Nodes.Add(node79);
+
 			TreeNode node80 = new TreeNode();
 			node80.Name = node80.Text = devForm.GAP_DeviceInit.cmdName;
 			node80.Tag = devForm.GAP_DeviceInit;
 			node79.Nodes.Add(node80);
+
 			TreeNode node81 = new TreeNode();
 			node81.Name = node81.Text = devForm.GAP_ConfigDeviceAddr.cmdName;
 			node81.Tag = devForm.GAP_ConfigDeviceAddr;
 			node79.Nodes.Add(node81);
+
 			TreeNode node82 = new TreeNode();
 			node82.Name = node82.Text = devForm.GAP_DeviceDiscoveryRequest.cmdName;
 			node82.Tag = devForm.GAP_DeviceDiscoveryRequest;
 			node79.Nodes.Add(node82);
+
 			TreeNode node83 = new TreeNode();
 			node83.Name = node83.Text = devForm.GAP_DeviceDiscoveryCancel.cmdName;
 			node83.Tag = devForm.GAP_DeviceDiscoveryCancel;
 			node79.Nodes.Add(node83);
+
 			TreeNode node84 = new TreeNode();
 			node84.Name = node84.Text = devForm.GAP_MakeDiscoverable.cmdName;
 			node84.Tag = devForm.GAP_MakeDiscoverable;
 			node79.Nodes.Add(node84);
+
 			TreeNode node85 = new TreeNode();
 			node85.Name = node85.Text = devForm.GAP_UpdateAdvertisingData.cmdName;
 			node85.Tag = devForm.GAP_UpdateAdvertisingData;
 			node79.Nodes.Add(node85);
+
 			TreeNode node86 = new TreeNode();
 			node86.Name = node86.Text = devForm.GAP_EndDiscoverable.cmdName;
 			node86.Tag = devForm.GAP_EndDiscoverable;
 			node79.Nodes.Add(node86);
+
 			TreeNode node87 = new TreeNode();
 			node87.Name = node87.Text = devForm.GAP_EstablishLinkRequest.cmdName;
 			node87.Tag = devForm.GAP_EstablishLinkRequest;
 			node79.Nodes.Add(node87);
+
 			TreeNode node88 = new TreeNode();
 			node88.Name = node88.Text = devForm.GAP_TerminateLinkRequest.cmdName;
 			node88.Tag = devForm.GAP_TerminateLinkRequest;
 			node79.Nodes.Add(node88);
+
 			TreeNode node89 = new TreeNode();
 			node89.Name = node89.Text = devForm.GAP_Authenticate.cmdName;
 			node89.Tag = devForm.GAP_Authenticate;
 			node79.Nodes.Add(node89);
+
 			TreeNode node90 = new TreeNode();
 			node90.Name = node90.Text = devForm.GAP_PasskeyUpdate.cmdName;
 			node90.Tag = devForm.GAP_PasskeyUpdate;
 			node79.Nodes.Add(node90);
+
 			TreeNode node91 = new TreeNode();
 			node91.Name = node91.Text = devForm.GAP_SlaveSecurityRequest.cmdName;
 			node91.Tag = devForm.GAP_SlaveSecurityRequest;
 			node79.Nodes.Add(node91);
+
 			TreeNode node92 = new TreeNode();
 			node92.Name = node92.Text = devForm.GAP_Signable.cmdName;
 			node92.Tag = devForm.GAP_Signable;
 			node79.Nodes.Add(node92);
+
 			TreeNode node93 = new TreeNode();
 			node93.Name = node93.Text = devForm.GAP_Bond.cmdName;
 			node93.Tag = devForm.GAP_Bond;
 			node79.Nodes.Add(node93);
+
 			TreeNode node94 = new TreeNode();
 			node94.Name = node94.Text = devForm.GAP_TerminateAuth.cmdName;
 			node94.Tag = devForm.GAP_TerminateAuth;
 			node79.Nodes.Add(node94);
+
 			TreeNode node95 = new TreeNode();
 			node95.Name = node95.Text = devForm.GAP_UpdateLinkParamReq.cmdName;
 			node95.Tag = devForm.GAP_UpdateLinkParamReq;
 			node79.Nodes.Add(node95);
+
 			TreeNode node96 = new TreeNode();
 			node96.Name = node96.Text = devForm.GAP_SetParam.cmdName;
 			node96.Tag = devForm.GAP_SetParam;
 			node79.Nodes.Add(node96);
+
 			TreeNode node97 = new TreeNode();
 			node97.Name = node97.Text = devForm.GAP_GetParam.cmdName;
 			node97.Tag = devForm.GAP_GetParam;
 			node79.Nodes.Add(node97);
+
 			TreeNode node98 = new TreeNode();
 			node98.Name = node98.Text = devForm.GAP_ResolvePrivateAddr.cmdName;
 			node98.Tag = devForm.GAP_ResolvePrivateAddr;
 			node79.Nodes.Add(node98);
+
 			TreeNode node99 = new TreeNode();
 			node99.Name = node99.Text = devForm.GAP_SetAdvToken.cmdName;
 			node99.Tag = devForm.GAP_SetAdvToken;
 			node79.Nodes.Add(node99);
+
 			TreeNode node100 = new TreeNode();
 			node100.Name = node100.Text = devForm.GAP_RemoveAdvToken.cmdName;
 			node100.Tag = devForm.GAP_RemoveAdvToken;
 			node79.Nodes.Add(node100);
+
 			TreeNode node101 = new TreeNode();
 			node101.Name = node101.Text = devForm.GAP_UpdateAdvTokens.cmdName;
 			node101.Tag = devForm.GAP_UpdateAdvTokens;
 			node79.Nodes.Add(node101);
+
 			TreeNode node102 = new TreeNode();
 			node102.Name = node102.Text = devForm.GAP_BondSetParam.cmdName;
 			node102.Tag = devForm.GAP_BondSetParam;
 			node79.Nodes.Add(node102);
+
 			TreeNode node103 = new TreeNode();
 			node103.Name = node103.Text = devForm.GAP_BondGetParam.cmdName;
 			node103.Tag = devForm.GAP_BondGetParam;
 			node79.Nodes.Add(node103);
+
 			TreeNode node104 = new TreeNode();
 			node104.Text = node104.Name = "Util";
 			tvAdvCmdList.Nodes.Add(node104);
+
 			TreeNode node105 = new TreeNode();
 			node105.Name = node105.Text = devForm.UTIL_Reset.cmdName;
 			node105.Tag = devForm.UTIL_Reset;
 			node104.Nodes.Add(node105);
+
 			TreeNode node106 = new TreeNode();
 			node106.Name = node106.Text = devForm.UTIL_NVRead.cmdName;
 			node106.Tag = devForm.UTIL_NVRead;
 			node104.Nodes.Add(node106);
+
 			TreeNode node107 = new TreeNode();
 			node107.Name = node107.Text = devForm.UTIL_NVWrite.cmdName;
 			node107.Tag = devForm.UTIL_NVWrite;
 			node104.Nodes.Add(node107);
+
 			TreeNode node108 = new TreeNode();
 			node108.Name = node108.Text = devForm.UTIL_ForceBoot.cmdName;
 			node108.Tag = devForm.UTIL_ForceBoot;
 			node104.Nodes.Add(node108);
+
 			TreeNode node109 = new TreeNode();
 			node109.Text = node109.Name = "HCI";
 			tvAdvCmdList.Nodes.Add(node109);
+
 			TreeNode node110 = new TreeNode();
 			node110.Name = node110.Text = devForm.HCIOther_ReadRSSI.cmdName;
 			node109.Tag = devForm.HCIOther_ReadRSSI;
 			node109.Nodes.Add(node110);
+
 			TreeNode node111 = new TreeNode();
 			node111.Name = node111.Text = devForm.HCIOther_LEClearWhiteList.cmdName;
 			node109.Tag = devForm.HCIOther_LEClearWhiteList;
 			node109.Nodes.Add(node111);
+
 			TreeNode node112 = new TreeNode();
 			node112.Name = node112.Text = devForm.HCIOther_LEAddDeviceToWhiteList.cmdName;
 			node109.Tag = devForm.HCIOther_LEAddDeviceToWhiteList;
 			node109.Nodes.Add(node112);
+
 			TreeNode node113 = new TreeNode();
 			node113.Name = node113.Text = devForm.HCIOther_LERemoveDeviceFromWhiteList.cmdName;
 			node109.Tag = devForm.HCIOther_LERemoveDeviceFromWhiteList;
 			node109.Nodes.Add(node113);
+
 			TreeNode node114 = new TreeNode();
 			node114.Name = node114.Text = devForm.HCIOther_LEConnectionUpdate.cmdName;
 			node109.Tag = devForm.HCIOther_LEConnectionUpdate;
 			node109.Nodes.Add(node114);
+
 			TreeNode node115 = new TreeNode();
 			node115.Text = "Misc";
 			node115.Name = "Misc";
 			tvAdvCmdList.Nodes.Add(node115);
+
 			TreeNode node116 = new TreeNode();
 			node116.Name = node116.Text = devForm.MISC_GenericCommand.cmdName;
 			node116.Tag = devForm.MISC_GenericCommand;
 			node115.Nodes.Add(node116);
+
 			TreeNode node117 = new TreeNode();
 			node117.Name = node117.Text = devForm.MISC_RawTxMessage.cmdName;
 			node117.Tag = devForm.MISC_RawTxMessage;
@@ -4010,7 +4082,7 @@ namespace BTool
 						devForm.sendCmds.SendATT(devForm.ATT_ExchangeMTURsp);
 						break;
 					case "ATT_FindInfoReq":
-						devForm.sendCmds.SendATT(devForm.ATT_FindInfoReq, TxDataOut.CmdType.General);
+						devForm.sendCmds.SendATT(devForm.ATT_FindInfoReq, TxDataOut.CmdTypes.General);
 						break;
 					case "ATT_FindInfoRsp":
 						devForm.sendCmds.SendATT(devForm.ATT_FindInfoRsp);
@@ -4029,13 +4101,13 @@ namespace BTool
 						((Control)pgAdvCmds).Refresh();
 						break;
 					case "ATT_ReadReq":
-						devForm.sendCmds.SendATT(devForm.ATT_ReadReq, TxDataOut.CmdType.General, (SendCmds.SendCmdResult)null);
+						devForm.sendCmds.SendATT(devForm.ATT_ReadReq, TxDataOut.CmdTypes.General, (SendCmds.SendCmdResult)null);
 						break;
 					case "ATT_ReadRsp":
 						devForm.sendCmds.SendATT(devForm.ATT_ReadRsp);
 						break;
 					case "ATT_ReadBlobReq":
-						devForm.sendCmds.SendATT(devForm.ATT_ReadBlobReq, TxDataOut.CmdType.General, (SendCmds.SendCmdResult)null);
+						devForm.sendCmds.SendATT(devForm.ATT_ReadBlobReq, TxDataOut.CmdTypes.General, (SendCmds.SendCmdResult)null);
 						break;
 					case "ATT_ReadBlobRsp":
 						devForm.sendCmds.SendATT(devForm.ATT_ReadBlobRsp);
@@ -4047,7 +4119,7 @@ namespace BTool
 						devForm.sendCmds.SendATT(devForm.ATT_ReadMultiRsp);
 						break;
 					case "ATT_ReadByGrpTypeReq":
-						devForm.sendCmds.SendATT(devForm.ATT_ReadByGrpTypeReq, TxDataOut.CmdType.General);
+						devForm.sendCmds.SendATT(devForm.ATT_ReadByGrpTypeReq, TxDataOut.CmdTypes.General);
 						break;
 					case "ATT_ReadByGrpTypeRsp":
 						devForm.sendCmds.SendATT(devForm.ATT_ReadByGrpTypeRsp);
@@ -4084,7 +4156,7 @@ namespace BTool
 						devForm.sendCmds.SendGATT(devForm.GATT_ExchangeMTU);
 						break;
 					case "GATT_DiscAllPrimaryServices":
-						devForm.sendCmds.SendGATT(devForm.GATT_DiscAllPrimaryServices, TxDataOut.CmdType.General);
+						devForm.sendCmds.SendGATT(devForm.GATT_DiscAllPrimaryServices, TxDataOut.CmdTypes.General);
 						break;
 					case "GATT_DiscPrimaryServiceByUUID":
 						devForm.sendCmds.SendGATT(devForm.GATT_DiscPrimaryServiceByUUID);
@@ -4099,16 +4171,16 @@ namespace BTool
 						devForm.sendCmds.SendGATT(devForm.GATT_DiscCharsByUUID);
 						break;
 					case "GATT_DiscAllCharDescs":
-						devForm.sendCmds.SendGATT(devForm.GATT_DiscAllCharDescs, TxDataOut.CmdType.General);
+						devForm.sendCmds.SendGATT(devForm.GATT_DiscAllCharDescs, TxDataOut.CmdTypes.General);
 						break;
 					case "GATT_ReadCharValue":
-						devForm.sendCmds.SendGATT(devForm.GATT_ReadCharValue, TxDataOut.CmdType.General, (SendCmds.SendCmdResult)null);
+						devForm.sendCmds.SendGATT(devForm.GATT_ReadCharValue, TxDataOut.CmdTypes.General, (SendCmds.SendCmdResult)null);
 						break;
 					case "GATT_ReadUsingCharUUID":
 						devForm.sendCmds.SendGATT(devForm.GATT_ReadUsingCharUUID);
 						break;
 					case "GATT_ReadLongCharValue":
-						devForm.sendCmds.SendGATT(devForm.GATT_ReadLongCharValue, TxDataOut.CmdType.General, (SendCmds.SendCmdResult)null);
+						devForm.sendCmds.SendGATT(devForm.GATT_ReadLongCharValue, TxDataOut.CmdTypes.General, (SendCmds.SendCmdResult)null);
 						break;
 					case "GATT_ReadMultiCharValues":
 						devForm.sendCmds.SendGATT(devForm.GATT_ReadMultiCharValues);
@@ -4165,7 +4237,7 @@ namespace BTool
 					case "GAP_DeviceDiscoveryRequest":
 						ShowProgress(true);
 						devForm.StartTimer(DeviceForm.EventType.Scan);
-						discoverConnectStatus = DeviceTabsForm.DiscoverConnectStatus.Scan;
+						discoverConnectStatus = DiscoverConnectStatus.Scan;
 						DiscoverConnectUserInputControl();
 						ResetSlaveDevices();
 						devForm.sendCmds.SendGAP(devForm.GAP_DeviceDiscoveryRequest);
@@ -4250,7 +4322,7 @@ namespace BTool
 						string msg1 = "This Command Will Invalidate The Image On The Device\nDo You Wish To Send The Command?\n";
 						if (DisplayMsgCallback != null)
 							DisplayMsgCallback(SharedAppObjs.MsgType.Warning, msg1);
-						if (msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, MsgBox.MsgButtons.OkCancel, MsgBox.MsgResult.OK, msg1) == MsgBox.MsgResult.OK)
+						if (msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Warning, MsgBox.MsgButtons.OkCancel, MsgBox.MsgResult.OK, msg1) == MsgBox.MsgResult.OK)
 						{
 							if (DisplayMsgCallback != null)
 								DisplayMsgCallback(SharedAppObjs.MsgType.Info, "User Selected OK\n");
@@ -4319,13 +4391,13 @@ namespace BTool
 						devForm.TestCase();
 						break;
 					default:
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, "Select A Command First\n");
+						msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Warning, "Select A Command First\n");
 						break;
 				}
 			}
 			catch
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, "Select A Command First\n");
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Warning, "Select A Command First\n");
 			}
 		}
 
@@ -4408,7 +4480,7 @@ namespace BTool
 
 		private void pgAdvCmds_Layout(object sender, LayoutEventArgs e)
 		{
-			if (!sharedObjs.IsMonoRunning())
+			if (!SharedObjects.IsMonoRunning())
 				return;
 			pgAdvCmds.ToolbarVisible = false;
 			pgAdvCmds.PropertySort = PropertySort.NoSort;
@@ -4555,7 +4627,7 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadConnHandle.Focus();
 					flag = true;
 				}
@@ -4566,12 +4638,12 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid Characteristic Value Handle(s)\nFormat: 0x0000\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadAttrHandle.Focus();
 					flag = true;
 				}
 				if (!flag)
-					devForm.sendCmds.SendGATT(gattReadCharValue, TxDataOut.CmdType.General, (SendCmds.SendCmdResult)null);
+					devForm.sendCmds.SendGATT(gattReadCharValue, TxDataOut.CmdTypes.General, (SendCmds.SendCmdResult)null);
 				else
 					tbReadStatus.Text = "Error!!!";
 			}
@@ -4588,7 +4660,7 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadConnHandle.Focus();
 					flag = true;
 				}
@@ -4599,7 +4671,7 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid Start Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadStartHandle.Focus();
 					flag = true;
 				}
@@ -4610,7 +4682,7 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid End Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadEndHandle.Focus();
 					flag = true;
 				}
@@ -4629,7 +4701,7 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid UUID Entry.\nFormat Is Either 00:00 or 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadUUID.Focus();
 					flag = true;
 				}
@@ -4651,7 +4723,7 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadConnHandle.Focus();
 					flag = true;
 				}
@@ -4662,7 +4734,7 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid Characteristic Value Handle(s)\nFormat: 0x0001;0x0002\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadAttrHandle.Focus();
 					flag = true;
 				}
@@ -4686,7 +4758,7 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid Connection Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadConnHandle.Focus();
 					flag = true;
 				}
@@ -4697,7 +4769,7 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid Start Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadStartHandle.Focus();
 					flag = true;
 				}
@@ -4708,7 +4780,7 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid End Handle\nFormat: 0x0000\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadEndHandle.Focus();
 					flag = true;
 				}
@@ -4727,7 +4799,7 @@ namespace BTool
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid UUID Entry.\nFormat Is Either 00:00 or 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00\n\n{0}\n", ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					tbReadUUID.Focus();
 					flag = true;
 				}
@@ -4750,7 +4822,7 @@ namespace BTool
 			catch (Exception ex)
 			{
 				string msg = string.Format("Invalid Connection Handle\n\n{0}\n", ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				tbWriteConnHandle.Focus();
 				flag = true;
 			}
@@ -4761,7 +4833,7 @@ namespace BTool
 			catch (Exception ex)
 			{
 				string msg = string.Format("Invalid Characteristic Value Handle(s)\n\n{0}\n", ex.Message);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				tbWriteAttrHandle.Focus();
 				flag = true;
 			}
@@ -4800,7 +4872,7 @@ namespace BTool
 				else
 				{
 					string msg = string.Format("Invalid Hex Value '{0}'\nFormat#1: 11:22:33:44:55:66\nFormat#2: 11 22 33 44 55 66\n", valStr);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					return false;
 				}
 			}
@@ -4837,14 +4909,14 @@ namespace BTool
 					else
 					{
 						string msg = string.Format("Invalid Dec Value '{0}'\nValid Range 0 to 4294967295\n", valStr);
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+						msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 						return false;
 					}
 				}
 				catch (Exception ex)
 				{
 					string msg = string.Format("Invalid Dec Value '{0}'\nValid Range 0 to 4294967295\n\n{1}", valStr, ex.Message);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					return false;
 				}
 			}
@@ -4863,7 +4935,7 @@ namespace BTool
 				else
 				{
 					string msg = string.Format("Invalid ASCII Value '{0}'\nFormat: Sample\n", valStr);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					return false;
 				}
 			}

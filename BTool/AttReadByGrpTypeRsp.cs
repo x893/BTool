@@ -11,8 +11,8 @@ namespace BTool
 			public HCIReplies.HCI_LE_ExtEvent.ATT_ReadByGrpTypeRsp ATT_ReadByGrpTypeRsp;
 		}
 
-		public delegate void AttReadByGrpTypeRspDelegate(AttReadByGrpTypeRsp.RspInfo rspInfo);
-		public AttReadByGrpTypeRsp.AttReadByGrpTypeRspDelegate AttReadByGrpTypeRspCallback;
+		public delegate void AttReadByGrpTypeRspDelegate(RspInfo rspInfo);
+		public AttReadByGrpTypeRspDelegate AttReadByGrpTypeRspCallback;
 
 		private DeviceFormUtils devUtils = new DeviceFormUtils();
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
@@ -94,7 +94,7 @@ namespace BTool
 												{
 													connHandle = dataAttr2.ConnHandle,
 													handle = dataAttr2.Handle
-												}, TxDataOut.CmdType.DiscUuidAndValues, null);
+												}, TxDataOut.CmdTypes.DiscUuidAndValues, null);
 											if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr2, dataChanged2, attrKey2))
 											{
 												flag = false;

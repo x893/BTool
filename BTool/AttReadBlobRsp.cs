@@ -13,13 +13,12 @@ namespace BTool
 			public HCIReplies.HCI_LE_ExtEvent.ATT_ReadBlobRsp ATT_ReadBlobRsp;
 		}
 
-		public delegate void AttReadBlobRspDelegate(AttReadBlobRsp.RspInfo rspInfo);
-		public AttReadBlobRsp.AttReadBlobRspDelegate AttReadBlobRspCallback;
+		public delegate void AttReadBlobRspDelegate(RspInfo rspInfo);
+		public AttReadBlobRspDelegate AttReadBlobRspCallback;
 
 		private DataUtils dataUtils = new DataUtils();
 		private DeviceFormUtils devUtils = new DeviceFormUtils();
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
-		private const string moduleName = "AttReadBlobRsp";
 		private AttrUuidUtils attrUuidUtils;
 		private AttrDataUtils attrDataUtils;
 		private byte[] readBlobData;

@@ -27,7 +27,7 @@
 				if (extentionCommandStatus != null)
 				{
 					dataFound = true;
-					if ((int)leExtEventHeader.EventStatus == 0)
+					if (leExtEventHeader.EventStatus == 0)
 					{
 						dataFound = true;
 						flag = true;
@@ -37,6 +37,7 @@
 						ushort opCode = extentionCommandStatus.CmdOpCode;
 						if (opCode <= 64908U)
 						{
+							#region
 							switch (opCode)
 							{
 								case 64769:
@@ -67,9 +68,11 @@
 								default:
 									goto label_8;
 							}
+							#endregion
 						}
 						else
 						{
+							#region
 							switch (opCode)
 							{
 								case 64912:
@@ -80,6 +83,7 @@
 								default:
 									goto label_8;
 							}
+							#endregion
 						}
 						SendRspCallback(hciReplies, true);
 						goto label_9;

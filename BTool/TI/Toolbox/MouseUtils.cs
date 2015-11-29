@@ -7,47 +7,46 @@ namespace TI.Toolbox
 	{
 		public delegate void MouseSingleClickDelegate();
 		public delegate void MouseDoubleClickDelegate();
+		public MouseSingleClickDelegate MouseSingleClickCallback;
+		public MouseDoubleClickDelegate MouseDoubleClickCallback;
 
-		private Timer mouseClickTimer = new Timer();
-		private const string moduleName = "MouseUtils";
-		private int mouseClicks;
-		private bool mouseClickInit;
-		public MouseUtils.MouseSingleClickDelegate MouseSingleClickCallback;
-		public MouseUtils.MouseDoubleClickDelegate MouseDoubleClickCallback;
+		private Timer m_mouseClickTimer = new Timer();
+		private int m_mouseClicks;
+		private bool m_mouseClickInit;
 
 		private void MouseClickInit()
 		{
-			mouseClicks = 0;
-			mouseClickInit = false;
-			mouseClickTimer.Interval = SystemInformation.DoubleClickTime;
-			mouseClickTimer.Tick += new EventHandler(MouseClickTimer_Tick);
+			m_mouseClicks = 0;
+			m_mouseClickInit = false;
+			m_mouseClickTimer.Interval = SystemInformation.DoubleClickTime;
+			m_mouseClickTimer.Tick += new EventHandler(MouseClickTimer_Tick);
 		}
 
 		public void MouseClick_MouseUp(object sender, MouseEventArgs e)
 		{
 			if (e.Button != MouseButtons.Left)
 				return;
-			if (!mouseClickInit)
+			if (!m_mouseClickInit)
 			{
 				MouseClickInit();
-				mouseClickInit = true;
+				m_mouseClickInit = true;
 			}
-			mouseClickTimer.Stop();
-			++mouseClicks;
-			mouseClickTimer.Start();
+			m_mouseClickTimer.Stop();
+			++m_mouseClicks;
+			m_mouseClickTimer.Start();
 		}
 
 		private void MouseClickTimer_Tick(object sender, EventArgs e)
 		{
-			mouseClickTimer.Stop();
-			if (mouseClicks > 1)
+			m_mouseClickTimer.Stop();
+			if (m_mouseClicks > 1)
 			{
 				if (MouseDoubleClickCallback != null)
 					MouseDoubleClickCallback();
 			}
 			else if (MouseSingleClickCallback != null)
 				MouseSingleClickCallback();
-			mouseClicks = 0;
+			m_mouseClicks = 0;
 		}
 	}
 }

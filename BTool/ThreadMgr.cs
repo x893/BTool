@@ -31,27 +31,27 @@ namespace BTool
 
 		public bool StopThreads()
 		{
-			rspDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Stop);
+			rspDataIn.ThreadCtrl.ControlThread(ThreadControl.ThreadCtrl.Stop);
 			txDataOut.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Stop);
-			rxDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Stop);
+			rxDataIn.ThreadCtrl.ControlThread(ThreadControl.ThreadCtrl.Stop);
 			rxTxMgr.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Stop);
 			return true;
 		}
 
 		public bool PauseThreads()
 		{
-			rspDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Pause);
+			rspDataIn.ThreadCtrl.ControlThread(ThreadControl.ThreadCtrl.Pause);
 			txDataOut.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Pause);
-			rxDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Pause);
+			rxDataIn.ThreadCtrl.ControlThread(ThreadControl.ThreadCtrl.Pause);
 			rxTxMgr.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Pause);
 			return true;
 		}
 
 		public bool ResumeThreads()
 		{
-			rspDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Resume);
+			rspDataIn.ThreadCtrl.ControlThread(ThreadControl.ThreadCtrl.Resume);
 			txDataOut.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Resume);
-			rxDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Resume);
+			rxDataIn.ThreadCtrl.ControlThread(ThreadControl.ThreadCtrl.Resume);
 			rxTxMgr.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Resume);
 			return true;
 		}
@@ -59,11 +59,11 @@ namespace BTool
 		public bool ExitThreads()
 		{
 			if (rspDataIn != null)
-				rspDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Exit);
+				rspDataIn.ThreadCtrl.ControlThread(ThreadControl.ThreadCtrl.Exit);
 			if (txDataOut != null)
 				txDataOut.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Exit);
 			if (rxDataIn != null)
-				rxDataIn.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Exit);
+				rxDataIn.ThreadCtrl.ControlThread(ThreadControl.ThreadCtrl.Exit);
 			if (rxTxMgr != null)
 				rxTxMgr.threadCtrl.ControlThread(ThreadControl.ThreadCtrl.Exit);
 			return true;
@@ -71,9 +71,9 @@ namespace BTool
 
 		public bool ClearQueues()
 		{
-			rspDataIn.dataQ.ClearQ();
+			rspDataIn.DataQueue.ClearQ();
 			txDataOut.dataQ.ClearQ();
-			rxDataIn.dataQ.ClearQ();
+			rxDataIn.DataQueue.ClearQ();
 			rxTxMgr.dataQ.ClearQ();
 			return true;
 		}
@@ -85,9 +85,9 @@ namespace BTool
 			{
 				Thread.Sleep(100);
 			}
-			while (!rspDataIn.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused)
+			while (!rspDataIn.ThreadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused)
 				|| !txDataOut.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused)
-				|| !rxDataIn.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused)
+				|| !rxDataIn.ThreadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused)
 				|| !rxTxMgr.threadCtrl.CheckForThreadIdle(ThreadControl.CheckIdleModes.Paused)
 				);
 			return flag;
@@ -95,9 +95,9 @@ namespace BTool
 
 		public bool CheckForIdle()
 		{
-			return (rspDataIn.dataQ.GetQLength() <= 0
+			return (rspDataIn.DataQueue.GetQLength() <= 0
 			&& txDataOut.dataQ.GetQLength() <= 0
-			&& (rxDataIn.dataQ.GetQLength() <= 0
+			&& (rxDataIn.DataQueue.GetQLength() <= 0
 			&& rxTxMgr.dataQ.GetQLength() <= 0));
 		}
 	}

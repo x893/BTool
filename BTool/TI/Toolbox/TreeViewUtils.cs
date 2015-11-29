@@ -4,8 +4,7 @@ namespace TI.Toolbox
 {
 	public class TreeViewUtils
 	{
-		public const string moduleName = "TreeViewUtils";
-		private static bool recursiveDestroy;
+		private static bool m_recursiveDestroy;
 
 		static TreeViewUtils()
 		{
@@ -13,14 +12,14 @@ namespace TI.Toolbox
 
 		public bool TreeNodeTextSearchAndDestroy(TreeNode treeNode, string target)
 		{
-			TreeViewUtils.recursiveDestroy = false;
+			m_recursiveDestroy = false;
 			return RecursiveTextSearchAndDestroy(treeNode, target);
 		}
 
 		public bool TextViewSearchAndDestroy(TreeView treeView, string target)
 		{
 			bool flag = false;
-			TreeViewUtils.recursiveDestroy = false;
+			m_recursiveDestroy = false;
 			foreach (TreeNode treeNode in treeView.Nodes)
 			{
 				flag = RecursiveTextSearchAndDestroy(treeNode, target);
@@ -36,7 +35,7 @@ namespace TI.Toolbox
 			if (treeNode.Text == target)
 			{
 				bool flag2 = true;
-				TreeViewUtils.recursiveDestroy = true;
+				m_recursiveDestroy = true;
 				return flag2;
 			}
 			else
@@ -46,10 +45,10 @@ namespace TI.Toolbox
 					if (treeNode1 != null)
 					{
 						flag1 = RecursiveTextSearchAndDestroy(treeNode1, target);
-						if (flag1 && TreeViewUtils.recursiveDestroy)
+						if (flag1 && m_recursiveDestroy)
 						{
 							treeNode.Remove();
-							TreeViewUtils.recursiveDestroy = false;
+							m_recursiveDestroy = false;
 							break;
 						}
 					}

@@ -8,17 +8,13 @@ namespace BTool
 	{
 		private static CmdLineArgs cmdLineArgs = new CmdLineArgs();
 
-		static Program()
-		{
-		}
-
 		[STAThread]
 		private static void Main(string[] args)
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Program.cmdLineArgs.Set(args);
-			Application.Run(new FormMain(Program.cmdLineArgs));
+			cmdLineArgs.Set(args);
+			Application.Run(new FormMain(cmdLineArgs));
 		}
 	}
 }

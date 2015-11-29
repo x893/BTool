@@ -50,7 +50,7 @@ namespace BTool
 				bool flag = false;
 				threadCtrl.Init();
 				threadCtrl.RunningThread = true;
-				SharedObjects.log.Write(Logging.MsgType.Debug, "TxDataOutThread", "Starting Thread");
+				SharedObjects.Log.Write(Logging.MsgType.Debug, "TxDataOutThread", "Starting Thread");
 				while (!flag)
 				{
 					if (threadCtrl.ExitThread)
@@ -58,8 +58,8 @@ namespace BTool
 					if (threadCtrl.PauseThread)
 					{
 						threadCtrl.IdleThread = true;
-						SharedObjects.log.Write(Logging.MsgType.Debug, "TxDataOutThread", "Pausing Thread");
-						threadCtrl.eventPause.WaitOne();
+						SharedObjects.Log.Write(Logging.MsgType.Debug, "TxDataOutThread", "Pausing Thread");
+						threadCtrl.EventPause.WaitOne();
 						threadCtrl.IdleThread = false;
 						if (threadCtrl.ExitThread)
 							break;
@@ -69,8 +69,8 @@ namespace BTool
 						switch (WaitHandle.WaitAny(
 							new WaitHandle[3]
 								{
-									threadCtrl.eventExit,
-									threadCtrl.eventPause,
+									threadCtrl.EventExit,
+									threadCtrl.EventPause,
 									dataQ.qDataReadyEvent
 								}))
 						{
@@ -78,8 +78,8 @@ namespace BTool
 								flag = true;
 								break;
 							case 1:
-								threadCtrl.eventPause.Reset();
-								SharedObjects.log.Write(Logging.MsgType.Debug, "TxDataOutThread", "Resuming Thread");
+								threadCtrl.EventPause.Reset();
+								SharedObjects.Log.Write(Logging.MsgType.Debug, "TxDataOutThread", "Resuming Thread");
 								break;
 							case 2:
 								dataQ.qDataReadyEvent.Reset();
@@ -95,8 +95,8 @@ namespace BTool
 					switch (WaitHandle.WaitAny(
 						new WaitHandle[3]
 								{
-									threadCtrl.eventExit,
-									threadCtrl.eventPause,
+									threadCtrl.EventExit,
+									threadCtrl.EventPause,
 									stopWaitSuccessEvent
 								}, new TimeSpan(0, 0, 0, 40)))
 					{
@@ -104,8 +104,8 @@ namespace BTool
 							flag = true;
 							break;
 						case 1:
-							threadCtrl.eventPause.Reset();
-							SharedObjects.log.Write(Logging.MsgType.Debug, "TxDataOutThread", "Resuming Thread");
+							threadCtrl.EventPause.Reset();
+							SharedObjects.Log.Write(Logging.MsgType.Debug, "TxDataOutThread", "Resuming Thread");
 							break;
 						case 2:
 							stopWaitSuccessEvent.Reset();
@@ -122,7 +122,7 @@ namespace BTool
 									DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
 								if (stopWaitEvent.Callback == null)
 								{
-									msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+									msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 									ClearTxQueueQuestion();
 								}
 								if (ShowProgressCallback != null)
@@ -141,9 +141,9 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Task Thread Problem.\n" + ex.Message + "\nTxDataOutThread\n");
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "Task Thread Problem.\n" + ex.Message + "\nTxDataOutThread\n");
 			}
-			SharedObjects.log.Write(Logging.MsgType.Debug, "TxDataOutThread", "Exiting Thread");
+			SharedObjects.Log.Write(Logging.MsgType.Debug, "TxDataOutThread", "Exiting Thread");
 			threadCtrl.Exit();
 		}
 
@@ -165,14 +165,14 @@ namespace BTool
 		{
 			bool flag = true;
 			dataFound = false;
-			ushort key = txDataOut.cmdOpcode;
+			ushort key = txDataOut.CmdOpcode;
 			if (HCIStopWait.CmdChkDict.ContainsKey(key)
 			&& HCIStopWait.CmdChkDict[key].StopWait
 			&& HCIStopWait.CmdDict.ContainsKey(key))
 			{
 				HCIStopWait.StopWaitData stopWaitData = HCIStopWait.CmdDict[key];
 				stopWaitEvent = new HCIStopWait.StopWaitEvent();
-				stopWaitEvent.CmdName = txDataOut.cmdName;
+				stopWaitEvent.CmdName = txDataOut.CmdName;
 				stopWaitEvent.TxOpcode = (HCICmds.HCICmdOpcode)key;
 				stopWaitEvent.ReqEvt = stopWaitData.ReqEvt;
 				stopWaitEvent.RspEvt1 = stopWaitData.RspEvt1;
@@ -180,11 +180,11 @@ namespace BTool
 				stopWaitEvent.ExtCmdStat = new HCIStopWait.ExtCmdStat();
 				stopWaitEvent.ExtCmdStat.MsgComp = stopWaitData.ExtCmdStat.MsgComp;
 				stopWaitEvent.CmdGrp = stopWaitData.CmdGrp;
-				stopWaitEvent.CmdType = txDataOut.cmdType;
+				stopWaitEvent.CmdType = txDataOut.CmdType;
 				stopWaitEvent.MsgComp = stopWaitData.MsgComp;
 				stopWaitEvent.TxTime = string.Empty;
-				stopWaitEvent.Tag = txDataOut.tag;
-				stopWaitEvent.Callback = txDataOut.callback;
+				stopWaitEvent.Tag = txDataOut.Tag;
+				stopWaitEvent.Callback = txDataOut.Callback;
 				if (ShowProgressCallback != null)
 					ShowProgressCallback(true);
 				if (DeviceRxStopWaitCallback != null)
@@ -192,9 +192,9 @@ namespace BTool
 				stopWaitMsg = true;
 				stopWaitSuccessEvent.Reset();
 			}
-			txDataOut.time = DateTime.Now.ToString("hh:mm:ss.fff");
+			txDataOut.Time = DateTime.Now.ToString("hh:mm:ss.fff");
 			if (stopWaitEvent != null)
-				stopWaitEvent.TxTime = txDataOut.time;
+				stopWaitEvent.TxTime = txDataOut.Time;
 			if (DeviceTxDataCallback != null)
 				DeviceTxDataCallback(txDataOut);
 			dataFound = true;
@@ -232,7 +232,7 @@ namespace BTool
 				string msg = "There Are " + qlength.ToString() + " Pending Transmit Messages\nDo You Want To Clear All Pending Transmit Messages?\n";
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Warning, msg);
-				MsgBox.MsgResult msgResult = msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, MsgBox.MsgButtons.YesNo, MsgBox.MsgResult.Yes, msg);
+				MsgBox.MsgResult msgResult = msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Warning, MsgBox.MsgButtons.YesNo, MsgBox.MsgResult.Yes, msg);
 
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Info, "UserResponse = " + msgResult.ToString() + "\n");

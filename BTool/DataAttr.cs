@@ -25,6 +25,5 @@ namespace BTool
 
 		public Color ForeColor;
 		public Color BackColor;
-
 	}
 }

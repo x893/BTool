@@ -6,41 +6,40 @@ namespace BTool
 {
 	public class AttrDataUtils
 	{
-		private MsgBox msgBox = new MsgBox();
-		private const string moduleName = "AttrDataUtils";
-		private DeviceForm devForm;
+		private MsgBox m_msgBox = new MsgBox();
+		private DeviceForm m_deviceForm;
 
 		public AttrDataUtils(DeviceForm deviceForm)
 		{
-			devForm = deviceForm;
+			m_deviceForm = deviceForm;
 		}
 
 		public bool GetDataAttr(ref DataAttr dataAttr, ref bool dataChanged, string key, string funcName)
 		{
-			bool flag = true;
+			bool success = true;
 			dataChanged = false;
-			devForm.attrData.attrDictAccess.WaitOne();
-			if (devForm.attrData.attrDict.ContainsKey(key))
+			m_deviceForm.attrData.attrDictAccess.WaitOne();
+			if (m_deviceForm.attrData.attrDict.ContainsKey(key))
 			{
 				try
 				{
-					dataAttr = devForm.attrData.attrDict[key];
+					dataAttr = m_deviceForm.attrData.attrDict[key];
 					dataChanged = true;
 				}
 				catch (Exception ex)
 				{
 					string msg = "Attribute Dictionary Access Error\nGetDataAttr()\n" + funcName + "\n" + ex.Message + "\nAttrDataUtils\n";
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
-					flag = false;
+					m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
+					success = false;
 				}
 			}
-			devForm.attrData.attrDictAccess.ReleaseMutex();
-			return flag;
+			m_deviceForm.attrData.attrDictAccess.ReleaseMutex();
+			return success;
 		}
 
 		public bool UpdateTmpAttrDict(ref Dictionary<string, DataAttr> tmpAttrDict, DataAttr dataAttr, bool dataChanged, string key)
 		{
-			bool flag = true;
+			bool success = true;
 			try
 			{
 				if (dataChanged)
@@ -48,62 +47,62 @@ namespace BTool
 					dataAttr.DataUpdate = true;
 					tmpAttrDict.Add(key, dataAttr);
 				}
-				else if (devForm.attrData.attrDict.Count >= 1500)
+				else if (m_deviceForm.attrData.attrDict.Count >= 1500)
 				{
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, string.Format("Attribute Dictionary At Maximum {0} Elements\nData Lost\nAttrDataUtils\n", 1500));
-					flag = false;
+					m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Warning, string.Format("Attribute Dictionary At Maximum {0} Elements\nData Lost\nAttrDataUtils\n", 1500));
+					success = false;
 				}
 				else
 				{
-					devForm.attrData.attrDictAccess.WaitOne();
+					m_deviceForm.attrData.attrDictAccess.WaitOne();
 					dataAttr.DataUpdate = true;
-					devForm.attrData.attrDict.Add(key, dataAttr);
-					devForm.attrData.attrDictAccess.ReleaseMutex();
+					m_deviceForm.attrData.attrDict.Add(key, dataAttr);
+					m_deviceForm.attrData.attrDictAccess.ReleaseMutex();
 				}
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Attribute Dictionary Access Error\nUpdateTmpAttrDict()\n" + ex.Message + "\nAttrDataUtils\n");
-				flag = false;
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "Attribute Dictionary Access Error\nUpdateTmpAttrDict()\n" + ex.Message + "\nAttrDataUtils\n");
+				success = false;
 			}
-			return flag;
+			return success;
 		}
 
 		public bool UpdateAttrDict(Dictionary<string, DataAttr> tmpAttrDict)
 		{
-			bool flag = true;
-			devForm.attrData.attrDictAccess.WaitOne();
+			bool success = true;
+			m_deviceForm.attrData.attrDictAccess.WaitOne();
 			foreach (KeyValuePair<string, DataAttr> keyValuePair in tmpAttrDict)
-				devForm.attrData.attrDict[keyValuePair.Value.Key] = tmpAttrDict[keyValuePair.Value.Key];
-			devForm.attrData.attrDictAccess.ReleaseMutex();
-			return flag;
+				m_deviceForm.attrData.attrDict[keyValuePair.Value.Key] = tmpAttrDict[keyValuePair.Value.Key];
+			m_deviceForm.attrData.attrDictAccess.ReleaseMutex();
+			return success;
 		}
 
 		public bool UpdateAttrDictItem(DataAttr dataAttr)
 		{
-			bool flag = true;
-			devForm.attrData.attrDictAccess.WaitOne();
-			if (devForm.attrData.attrDict.ContainsKey(dataAttr.Key))
+			bool success = true;
+			m_deviceForm.attrData.attrDictAccess.WaitOne();
+			if (m_deviceForm.attrData.attrDict.ContainsKey(dataAttr.Key))
 			{
-				devForm.attrData.attrDict[dataAttr.Key] = dataAttr;
+				m_deviceForm.attrData.attrDict[dataAttr.Key] = dataAttr;
 			}
 			else
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Attribute Dictionary Update Error\nItem Does Not Exist In Dictionary\nAttrDataUtils\n"));
-				flag = false;
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Attribute Dictionary Update Error\nItem Does Not Exist In Dictionary\nAttrDataUtils\n"));
+				success = false;
 			}
-			devForm.attrData.attrDictAccess.ReleaseMutex();
-			return flag;
+			m_deviceForm.attrData.attrDictAccess.ReleaseMutex();
+			return success;
 		}
 
 		public bool RemoveAttrDictItem(string key)
 		{
-			bool flag = true;
-			devForm.attrData.attrDictAccess.WaitOne();
-			if (devForm.attrData.attrDict.ContainsKey(key))
-				flag = devForm.attrData.attrDict.Remove(key);
-			devForm.attrData.attrDictAccess.ReleaseMutex();
-			return flag;
+			bool success = true;
+			m_deviceForm.attrData.attrDictAccess.WaitOne();
+			if (m_deviceForm.attrData.attrDict.ContainsKey(key))
+				success = m_deviceForm.attrData.attrDict.Remove(key);
+			m_deviceForm.attrData.attrDictAccess.ReleaseMutex();
+			return success;
 		}
 	}
 }

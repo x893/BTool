@@ -2,8 +2,6 @@
 {
 	public class SharedThreadObjs
 	{
-		private const string moduleName = "SharedThreadObjs";
-
 		public enum HandleIndex
 		{
 			Handle_Exit = 0,

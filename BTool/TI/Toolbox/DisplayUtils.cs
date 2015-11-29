@@ -84,7 +84,7 @@ namespace TI.Toolbox
 		{
 			try
 			{
-				if (sharedObjs.IsMonoRunning())
+				if (SharedObjects.IsMonoRunning())
 					return;
 				DisplayUtils.HideCaret(((Control)sender).Handle);
 			}
@@ -95,7 +95,7 @@ namespace TI.Toolbox
 		{
 			try
 			{
-				if (sharedObjs.IsMonoRunning())
+				if (SharedObjects.IsMonoRunning())
 					return;
 				DisplayUtils.HideCaret(((Control)sender).Handle);
 			}
@@ -118,7 +118,7 @@ namespace TI.Toolbox
 
 		public void OpenFormWindow(Form form)
 		{
-			if (form.WindowState == FormWindowState.Minimized && !sharedObjs.IsMonoRunning())
+			if (form.WindowState == FormWindowState.Minimized && !SharedObjects.IsMonoRunning())
 				DisplayUtils.ShowWindow(form.Handle, 9U);
 			((Control)form).Show();
 			form.BringToFront();
@@ -127,7 +127,7 @@ namespace TI.Toolbox
 		public bool BringWindowToFront(int hWnd)
 		{
 			bool flag = false;
-			if (!sharedObjs.IsMonoRunning())
+			if (!SharedObjects.IsMonoRunning())
 			{
 				DisplayUtils.ShowWindow((IntPtr)hWnd, 9U);
 				flag = DisplayUtils.SetForegroundWindow(hWnd);
@@ -165,7 +165,7 @@ namespace TI.Toolbox
 
 		public int GetWindowId(string className, string windowName)
 		{
-			if (!sharedObjs.IsMonoRunning())
+			if (!SharedObjects.IsMonoRunning())
 				return DisplayUtils.FindWindow(className, windowName);
 			else
 				return 0;

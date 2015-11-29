@@ -10,10 +10,10 @@ namespace BTool
 {
 	public class FormMain : Form
 	{
-		public static string programName = "BTool";
-		public static string programTitle = "BTool - Bluetooth Low Energy PC Application";
-		public static string programVersion = " - v1.40.5";
-		public static string cmdArgNoVersion = "NoVersion";
+		public static string ProgramName = "BTool";
+		public static string ProgramTitle = "BTool - Bluetooth Low Energy PC Application";
+		public static string ProgramVersion = " - v1.40.5";
+		public static string CmdArgNoVersion = "NoVersion";
 
 		public delegate DeviceForm GetActiveDeviceFormDelegate();
 
@@ -24,12 +24,11 @@ namespace BTool
 		private delegate void DeviceChangeActiveRootDelegate(object sender, EventArgs e);
 		private delegate void DeviceCloseActiveDeviceDelegate(object sender, EventArgs e);
 
-		private static Mutex formMainMutex = new Mutex();
-		private SharedObjects sharedObjs = new SharedObjects();
-		private MsgBox msgBox = new MsgBox();
-		private const string moduleName = "FormMain";
-		private const ushort HostHandle = (ushort)65534;
-		private IContainer components;
+		private static Mutex m_mutex = new Mutex();
+		private SharedObjects m_sharedObjs = new SharedObjects();
+		private MsgBox m_msgBox = new MsgBox();
+		private const ushort m_hostHandle = (ushort)65534;
+
 		private MenuStrip msMainMenu;
 		private ToolStripMenuItem tsmiDevice;
 		private ToolStripMenuItem tsmiNewDevice;
@@ -52,16 +51,15 @@ namespace BTool
 		{
 			InitializeComponent();
 
-			Text = programTitle;
-			if (!cmdLineArgs.FindArg(cmdArgNoVersion))
+			Text = ProgramTitle;
+			if (!cmdLineArgs.FindArg(CmdArgNoVersion))
 			{
 				FormMain formMain = this;
-				string str = formMain.Text + programVersion;
-				formMain.Text = str;
+				formMain.Text += ProgramVersion;
 			}
 
-			SharedObjects.mainWin = this;
-			SharedObjects.programName = programName;
+			SharedObjects.MainWin = this;
+			SharedObjects.ProgramName = ProgramName;
 
 			comPortTreeForm = new ComPortTreeForm();
 			comPortTreeForm.TopLevel = false;
@@ -76,6 +74,8 @@ namespace BTool
 			comPortTreeForm.GetActiveDeviceFormCallback = new GetActiveDeviceFormDelegate(GetActiveDeviceForm);
 		}
 
+		#region Windows Form Designer generated code
+		private System.ComponentModel.IContainer components = null;
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing && components != null)
@@ -228,21 +228,22 @@ namespace BTool
 			this.PerformLayout();
 
 		}
+		#endregion
 
 		private void tsmiNewDevice_Click(object sender, EventArgs e)
 		{
-			formMainMutex.WaitOne();
+			m_mutex.WaitOne();
 			addDeviceThread = new Thread(new ThreadStart(AddDeviceForm));
 			addDeviceThread.Name = "AddDeviceFormThread";
 			addDeviceThread.Start();
 			while (!addDeviceThread.IsAlive)
 				Thread.Sleep(10);
-			formMainMutex.ReleaseMutex();
+			m_mutex.ReleaseMutex();
 		}
 
 		private void tsmiCloseDevice_Click(object sender, EventArgs e)
 		{
-			formMainMutex.WaitOne();
+			m_mutex.WaitOne();
 			DeviceForm activeDeviceForm = GetActiveDeviceForm();
 			if (activeDeviceForm != null)
 			{
@@ -251,14 +252,14 @@ namespace BTool
 				comPortTreeForm.RemovePort(activeDeviceForm.devInfo.ComPortInfo.ComPort);
 			}
 			comPortTreeForm.FindNodeToOpen();
-			formMainMutex.ReleaseMutex();
+			m_mutex.ReleaseMutex();
 		}
 
 		private void tsmiExit_Click(object sender, EventArgs e)
 		{
-			formMainMutex.WaitOne();
+			m_mutex.WaitOne();
 			Close();
-			formMainMutex.ReleaseMutex();
+			m_mutex.ReleaseMutex();
 		}
 
 		private void AddDeviceForm()
@@ -273,7 +274,7 @@ namespace BTool
 			}
 			else
 			{
-				formMainMutex.WaitOne();
+				m_mutex.WaitOne();
 				DeviceForm deviceForm = new DeviceForm();
 				if (deviceForm == null)
 					return;
@@ -282,6 +283,7 @@ namespace BTool
 				deviceForm.DisconnectionNotify += new EventHandler(DeviceDisconnectionNotify);
 				deviceForm.ChangeActiveRoot += new EventHandler(DeviceChangeActiveRoot);
 				deviceForm.CloseActiveDevice += new EventHandler(DeviceCloseActiveDevice);
+
 				if (deviceForm.DeviceFormInit())
 				{
 					deviceForm.TopLevel = false;
@@ -306,7 +308,8 @@ namespace BTool
 				}
 				else
 					deviceForm.DeviceFormClose(false);
-				formMainMutex.ReleaseMutex();
+
+				m_mutex.ReleaseMutex();
 			}
 		}
 
@@ -322,11 +325,11 @@ namespace BTool
 			}
 			else
 			{
-				formMainMutex.WaitOne();
+				m_mutex.WaitOne();
 				DeviceForm devForm = sender as DeviceForm;
 				if (devForm != null)
 					comPortTreeForm.AddDeviceInfo(devForm);
-				formMainMutex.ReleaseMutex();
+				m_mutex.ReleaseMutex();
 			}
 		}
 
@@ -342,11 +345,11 @@ namespace BTool
 			}
 			else
 			{
-				formMainMutex.WaitOne();
+				m_mutex.WaitOne();
 				DeviceForm devForm = sender as DeviceForm;
 				if (devForm != null)
 					comPortTreeForm.AddConnectionInfo(devForm);
-				formMainMutex.ReleaseMutex();
+				m_mutex.ReleaseMutex();
 			}
 		}
 
@@ -362,20 +365,20 @@ namespace BTool
 			}
 			else
 			{
-				formMainMutex.WaitOne();
+				m_mutex.WaitOne();
 				DeviceForm devForm = sender as DeviceForm;
 				if (devForm != null)
 					comPortTreeForm.DisconnectDevice(devForm);
-				formMainMutex.ReleaseMutex();
+				m_mutex.ReleaseMutex();
 			}
 		}
 
 		private void AddToTreeDeviceInfo(DeviceInfo devInfo, object formObj)
 		{
-			formMainMutex.WaitOne();
+			m_mutex.WaitOne();
 			comPortTreeForm.AddPortInfo(devInfo);
 			DeviceChangeActiveRoot(formObj, null);
-			formMainMutex.ReleaseMutex();
+			m_mutex.ReleaseMutex();
 		}
 
 		private void DeviceChangeActiveRoot(object sender, EventArgs e)
@@ -390,11 +393,11 @@ namespace BTool
 			}
 			else
 			{
-				formMainMutex.WaitOne();
+				m_mutex.WaitOne();
 				DeviceForm devForm = sender as DeviceForm;
 				if (devForm != null)
 					comPortTreeForm.ChangeActiveRoot(devForm);
-				formMainMutex.ReleaseMutex();
+				m_mutex.ReleaseMutex();
 			}
 		}
 
@@ -414,24 +417,29 @@ namespace BTool
 
 		private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			formMainMutex.WaitOne();
+			m_mutex.WaitOne();
 			comPortTreeForm.RemoveAll();
-			formMainMutex.ReleaseMutex();
+			m_mutex.ReleaseMutex();
 		}
 
 		private void tsmiAbout_Click(object sender, EventArgs e)
 		{
-			int num = (int)new AboutForm().ShowDialog();
+			new AboutForm().ShowDialog();
 		}
 
 		private void FormMain_Load(object sender, EventArgs e)
 		{
-			if (!sharedObjs.IsMonoRunning())
+			if (!SharedObjects.IsMonoRunning())
 				tsmiNewDevice_Click(sender, e);
 			if (new XmlDataReader().Read("BToolGattUuid.xml"))
 				return;
-			string msg = "BTool Cannot Read Config Data File\nThe Program Cannot Continue To Run\nHave A Nice Day\n";
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+			m_msgBox.UserMsgBox(
+				SharedObjects.MainWin,
+				MsgBox.MsgTypes.Error,
+				@"BTool Cannot Read Config Data File
+The Program Cannot Continue To Run
+Have A Nice Day
+");
 			Environment.Exit(1);
 		}
 
@@ -448,7 +456,7 @@ namespace BTool
 			}
 			else
 			{
-				formMainMutex.WaitOne();
+				m_mutex.WaitOne();
 				foreach (Control control in plDevice.Controls)
 				{
 					if (control.GetType().BaseType == typeof(Form))
@@ -461,7 +469,7 @@ namespace BTool
 						}
 					}
 				}
-				formMainMutex.ReleaseMutex();
+				m_mutex.ReleaseMutex();
 			}
 			return deviceForm;
 		}

@@ -42,7 +42,7 @@ namespace TI.Toolbox
 			}
 			catch
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "AddQTail\nError Adding Element To Queue\n");
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "AddQTail\nError Adding Element To Queue\n");
 			}
 			qDataMutex.ReleaseMutex();
 			return flag;
@@ -65,7 +65,7 @@ namespace TI.Toolbox
 			}
 			catch
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "RemoveQHead\nError Removing Element From Queue\n");
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "RemoveQHead\nError Removing Element From Queue\n");
 			}
 			qDataMutex.ReleaseMutex();
 			return flag;
@@ -81,7 +81,7 @@ namespace TI.Toolbox
 			}
 			catch
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "GetQLength\nError Getting Number Of Items In The Queue\n");
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "GetQLength\nError Getting Number Of Items In The Queue\n");
 			}
 			qDataMutex.ReleaseMutex();
 			return length;
@@ -103,7 +103,7 @@ namespace TI.Toolbox
 			}
 			catch
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "ClearQ\nError Clearing Queue\n");
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "ClearQ\nError Clearing Queue\n");
 			}
 			qDataMutex.ReleaseMutex();
 			return flag;

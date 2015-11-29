@@ -116,9 +116,7 @@
     <Compile Include="DataAttr.cs" />
     <Compile Include="ValueDisplay.cs" />
     <Compile Include="ValueEdit.cs" />
-    <Compile Include="Columns.cs" />
     <Compile Include="WriteLimits.cs" />
-    <Compile Include="GATT_CharProperties.cs" />
     <Compile Include="AttrData.cs" />
     <Compile Include="RxDataInThread.cs" />
     <Compile Include="UuidData.cs" />
@@ -142,7 +140,6 @@
     </Compile>
     <Compile Include="TI\Toolbox\QueueMgr.cs" />
     <Compile Include="TI\Toolbox\TreeViewUtils.cs" />
-    <Compile Include="TI\Toolbox\MonoUtils.cs" />
     <Compile Include="TI\Toolbox\ListViewWrapper.cs">
       <SubType>Component</SubType>
     </Compile>

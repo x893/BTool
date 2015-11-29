@@ -11,6 +11,7 @@ namespace BTool
 	{
 
 		public delegate void AttrDataItemChangedDelegate();
+
 		private delegate void LoadDataDelegate(string dataKey);
 		private delegate void SendCmdResultDelegate(bool result, string cmdName);
 		private delegate void RestoreFormInputDelegate();
@@ -21,9 +22,7 @@ namespace BTool
 		private DataAttr gattWriteDataAttr = new DataAttr();
 		private string key = string.Empty;
 		private Mutex formDataAccess = new Mutex();
-		private MonoUtils monoUtils = new MonoUtils();
 		private const string moduleName = "AttrDataItemForm";
-		private IContainer components;
 		private GroupBox gbSummary;
 		private TableLayoutPanel tlpSummary;
 		private TextBox tbHandle;
@@ -81,6 +80,10 @@ namespace BTool
 			sendCmds = new SendCmds(deviceForm);
 			attrDataUtils = new AttrDataUtils(deviceForm);
 		}
+
+		#region Windows Form Designer generated code
+
+		private System.ComponentModel.IContainer components = null;
 
 		protected override void Dispose(bool disposing)
 		{
@@ -700,6 +703,7 @@ namespace BTool
 			this.ResumeLayout(false);
 
 		}
+		#endregion
 
 		private void AttrDataItemForm_FormLoad(object sender, EventArgs e)
 		{
@@ -726,7 +730,7 @@ namespace BTool
 			toolTip.SetToolTip((Control)lblAuthenticatedSignedWrites, "AuthenticatedSignedWrites Bit -> Asw 0x40" + str);
 			toolTip.SetToolTip((Control)lblExtendedProperties, "ExtendedProperties Bit -> Exp 0x80" + str);
 			LoadUserSettings();
-			monoUtils.SetMaximumSize((Form)this);
+			SharedObjects.SetMaximumSize((Form)this);
 		}
 
 		private void AttrDataItemForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -880,9 +884,9 @@ namespace BTool
 		private void btnReadValue_Click(object sender, EventArgs e)
 		{
 			formDataAccess.WaitOne();
-			devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = new ExtCmdStatus.ExtCmdStatusDelegate(ExtCmdStatus);
-			devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = new AttErrorRsp.AttErrorRspDelegate(AttErrorRsp);
-			devForm.threadMgr.rspDataIn.attReadBlobRsp.AttReadBlobRspCallback = new AttReadBlobRsp.AttReadBlobRspDelegate(AttReadBlobRsp);
+			devForm.threadMgr.rspDataIn.ExtCmdStatus.ExtCmdStatusCallback = new ExtCmdStatus.ExtCmdStatusDelegate(ExtCmdStatus);
+			devForm.threadMgr.rspDataIn.AttErrorRsp.AttErrorRspCallback = new AttErrorRsp.AttErrorRspDelegate(AttErrorRsp);
+			devForm.threadMgr.rspDataIn.AttReadBlobRsp.AttReadBlobRspCallback = new AttReadBlobRsp.AttReadBlobRspDelegate(AttReadBlobRsp);
 
 			if (sendCmds.SendGATT(
 							new HCICmds.GATTCmds.GATT_ReadLongCharValue()
@@ -890,7 +894,7 @@ namespace BTool
 								connHandle = dataAttr.ConnHandle,
 								handle = dataAttr.Handle
 							},
-							TxDataOut.CmdType.General,
+							TxDataOut.CmdTypes.General,
 							new SendCmds.SendCmdResult(SendCmdResult)
 							)
 				)
@@ -905,7 +909,7 @@ namespace BTool
 			formDataAccess.WaitOne();
 			if (tbValue.Text == null || tbValue.Text == string.Empty)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, "A Value Must Be Entered To Perform A Write\n");
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Warning, "A Value Must Be Entered To Perform A Write\n");
 			}
 			else
 			{
@@ -920,14 +924,14 @@ namespace BTool
 					if (str == null || str == string.Empty)
 					{
 						string msg = "Value Data Cannot Be Converted To Hex For Write Command\n";
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
+						msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Warning, msg);
 					}
 					else
 					{
-						devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = new ExtCmdStatus.ExtCmdStatusDelegate(ExtCmdStatus);
-						devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = new AttErrorRsp.AttErrorRspDelegate(AttErrorRsp);
-						devForm.threadMgr.rspDataIn.attPrepareWriteRsp.AttPrepareWriteRspCallback = new AttPrepareWriteRsp.AttPrepareWriteRspDelegate(AttPrepareWriteRsp);
-						devForm.threadMgr.rspDataIn.attExecuteWriteRsp.AttExecuteWriteRspCallback = new AttExecuteWriteRsp.AttExecuteWriteRspDelegate(AttExecuteWriteRsp);
+						devForm.threadMgr.rspDataIn.ExtCmdStatus.ExtCmdStatusCallback = new ExtCmdStatus.ExtCmdStatusDelegate(ExtCmdStatus);
+						devForm.threadMgr.rspDataIn.AttErrorRsp.AttErrorRspCallback = new AttErrorRsp.AttErrorRspDelegate(AttErrorRsp);
+						devForm.threadMgr.rspDataIn.AttPrepareWriteRsp.AttPrepareWriteRspCallback = new AttPrepareWriteRsp.AttPrepareWriteRspDelegate(AttPrepareWriteRsp);
+						devForm.threadMgr.rspDataIn.AttExecuteWriteRsp.AttExecuteWriteRspCallback = new AttExecuteWriteRsp.AttExecuteWriteRspDelegate(AttExecuteWriteRsp);
 						HCICmds.GATTCmds.GATT_WriteLongCharValue writeLongCharValue = new HCICmds.GATTCmds.GATT_WriteLongCharValue();
 						writeLongCharValue.connHandle = dataAttr.ConnHandle;
 						writeLongCharValue.handle = dataAttr.Handle;
@@ -973,7 +977,7 @@ namespace BTool
 										msg = msg + "Multi-Part Write Sequenece Error\n" + "All Requested Data May Not Have Been Written To The Device\n";
 									if (DisplayMsgCallback != null)
 										DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-									msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+									msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 									ClearRspDelegates();
 									break;
 								}
@@ -993,14 +997,14 @@ namespace BTool
 				string msg = "Command Failed\n";
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 			}
 			else
 			{
 				string msg = "Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.Header.EventStatus) + "\n" + "Event = " + devUtils.GetOpCodeName(rspInfo.Header.EventCode) + "\n";
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 			}
 			RestoreFormInput();
 		}
@@ -1023,7 +1027,7 @@ namespace BTool
 					msg = msg + "Command = " + devUtils.GetHciReqOpCodeStr(rspInfo.aTT_ErrorRsp.ReqOpCode) + "\n" + "Handle = 0x" + rspInfo.aTT_ErrorRsp.Handle.ToString("X4") + "\n" + "Error = " + devUtils.GetErrorStatusStr(rspInfo.aTT_ErrorRsp.ErrorCode, "") + "\n";
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				RestoreFormInput();
 			}
 		}
@@ -1046,14 +1050,14 @@ namespace BTool
 					string msg = "Att Read Blob Command Failed\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				}
 				else if ((int)rspInfo.Header.EventStatus != 26)
 				{
 					string msg = "Att Read Blob Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.Header.EventStatus) + "\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				}
 				else
 					LoadData(key);
@@ -1079,14 +1083,14 @@ namespace BTool
 					string msg = "Att Prepare Write Command Failed\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				}
 				else
 				{
 					string msg = "Att Prepare Write Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.EventStatus) + "\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				}
 				RestoreFormInput();
 			}
@@ -1110,14 +1114,14 @@ namespace BTool
 					string msg = "Att Execute Write Command Failed\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				}
 				else if ((int)rspInfo.header.EventStatus != 0)
 				{
 					string msg = "Att Execute Write Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.header.EventStatus) + "\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				}
 				else
 				{
@@ -1128,7 +1132,7 @@ namespace BTool
 						string msg = "Att Write Execute Command Data Update Failed\nAttribute Form Data For This Items Did Not Update\n";
 						if (DisplayMsgCallback != null)
 							DisplayMsgCallback(SharedAppObjs.MsgType.Warning, msg);
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
+						msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Warning, msg);
 					}
 					else if (AttrDataItemChangedCallback != null)
 						AttrDataItemChangedCallback();
@@ -1176,11 +1180,11 @@ namespace BTool
 
 		private void ClearRspDelegates()
 		{
-			devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = null;
-			devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = null;
-			devForm.threadMgr.rspDataIn.attReadBlobRsp.AttReadBlobRspCallback = null;
-			devForm.threadMgr.rspDataIn.attExecuteWriteRsp.AttExecuteWriteRspCallback = null;
-			devForm.threadMgr.rspDataIn.attPrepareWriteRsp.AttPrepareWriteRspCallback = null;
+			devForm.threadMgr.rspDataIn.ExtCmdStatus.ExtCmdStatusCallback = null;
+			devForm.threadMgr.rspDataIn.AttErrorRsp.AttErrorRspCallback = null;
+			devForm.threadMgr.rspDataIn.AttReadBlobRsp.AttReadBlobRspCallback = null;
+			devForm.threadMgr.rspDataIn.AttExecuteWriteRsp.AttExecuteWriteRspCallback = null;
+			devForm.threadMgr.rspDataIn.AttPrepareWriteRsp.AttPrepareWriteRspCallback = null;
 		}
 	}
 }

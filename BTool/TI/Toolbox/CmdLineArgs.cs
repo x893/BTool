@@ -4,39 +4,37 @@ namespace TI.Toolbox
 {
 	public class CmdLineArgs
 	{
-		private MsgBox msgBox = new MsgBox();
-		private const string moduleName = "CmdLineArgs";
-		private string[] cmdLineArgs;
-		private bool caseSensitivity;
+		private MsgBox m_msgBox = new MsgBox();
+		private string[] m_args;
+		private bool m_caseSensitivity;
 
 		public bool GetCaseSensitivity()
 		{
-			return caseSensitivity;
+			return m_caseSensitivity;
 		}
 
 		public bool SetCaseSensitivity(bool newCaseSensitivity)
 		{
-			bool flag = true;
-			caseSensitivity = newCaseSensitivity;
-			return flag;
+			m_caseSensitivity = newCaseSensitivity;
+			return true;
 		}
 
-		public bool Set(string[] cmdArgs)
+		public bool Set(string[] args)
 		{
 			bool flag = true;
 			try
 			{
-				if (cmdArgs != null && cmdArgs.Length > 0)
+				if (args != null && args.Length > 0)
 				{
-					cmdLineArgs = new string[cmdArgs.Length];
-					cmdLineArgs = cmdArgs;
+					m_args = new string[args.Length];
+					m_args = args;
 				}
 				else
 					flag = false;
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Set Problem\n" + ex.Message + "\nCmdLineArgs\n");
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "Set Problem\n" + ex.Message + "\nCmdLineArgs\n");
 				flag = false;
 			}
 			return flag;
@@ -48,14 +46,14 @@ namespace TI.Toolbox
 			cmdArgs = null;
 			try
 			{
-				if (cmdLineArgs != null && cmdLineArgs.Length > 0)
-					cmdArgs = cmdLineArgs;
+				if (m_args != null && m_args.Length > 0)
+					cmdArgs = m_args;
 				else
 					flag = false;
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Get Problem\n" + ex.Message + "\nCmdLineArgs\n");
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "Get Problem\n" + ex.Message + "\nCmdLineArgs\n");
 			}
 			return flag;
 		}
@@ -65,8 +63,8 @@ namespace TI.Toolbox
 			bool flag = false;
 			try
 			{
-				if (cmdLineArgs != null && cmdLineArgs.Length > 0)
-					foreach (string cmdLineArg in cmdLineArgs)
+				if (m_args != null && m_args.Length > 0)
+					foreach (string cmdLineArg in m_args)
 						if (Compare(cmdLineArg, cmdArg))
 						{
 							flag = true;
@@ -77,7 +75,7 @@ namespace TI.Toolbox
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "FindArg Problem\n" + ex.Message + "\nCmdLineArgs\n");
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "FindArg Problem\n" + ex.Message + "\nCmdLineArgs\n");
 			}
 			return flag;
 		}
@@ -88,18 +86,18 @@ namespace TI.Toolbox
 			argParam = string.Empty;
 			try
 			{
-				if (cmdLineArgs != null && cmdLineArgs.Length > 0)
+				if (m_args != null && m_args.Length > 0)
 				{
 					int num = 0;
 					bool flag2 = false;
-					foreach (string cmdLineArg in cmdLineArgs)
+					foreach (string cmdLineArg in m_args)
 					{
 						if (Compare(cmdLineArg, cmdArg))
 						{
 							int index = num + 1;
-							if (index < cmdLineArgs.Length)
+							if (index < m_args.Length)
 							{
-								argParam = cmdLineArgs[index];
+								argParam = m_args[index];
 								flag2 = true;
 								break;
 							}
@@ -122,7 +120,7 @@ namespace TI.Toolbox
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "FindArgParam Problem\n" + ex.Message + "\nCmdLineArgs\n");
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "FindArgParam Problem\n" + ex.Message + "\nCmdLineArgs\n");
 			}
 			return flag1;
 		}
@@ -134,7 +132,7 @@ namespace TI.Toolbox
 			{
 				if (cmdLineArg != null && cmdLineArg.Length > 0 && (cmdArg != null && cmdArg.Length > 0))
 				{
-					if (!caseSensitivity)
+					if (!m_caseSensitivity)
 					{
 						if (cmdLineArg.ToUpper() == cmdArg.ToUpper())
 							flag = true;
@@ -147,7 +145,7 @@ namespace TI.Toolbox
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "Compare Problem\n" + ex.Message + "\nCmdLineArgs\n");
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "Compare Problem\n" + ex.Message + "\nCmdLineArgs\n");
 			}
 			return flag;
 		}
@@ -157,12 +155,12 @@ namespace TI.Toolbox
 			int num = 0;
 			try
 			{
-				num = cmdLineArgs == null ? 0 : cmdLineArgs.Length;
+				num = m_args == null ? 0 : m_args.Length;
 			}
 			catch (Exception ex)
 			{
 				string msg = "Count Problem\n" + ex.Message + "\nCmdLineArgs\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 			}
 			return num;
 		}

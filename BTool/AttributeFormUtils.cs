@@ -57,7 +57,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Write The CSV File\n\n{0}\n", (object)ex.Message));
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, string.Format("Cannot Write The CSV File\n\n{0}\n", (object)ex.Message));
 				flag = false;
 			}
 			return flag;

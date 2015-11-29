@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace TI.Toolbox
@@ -8,30 +9,27 @@ namespace TI.Toolbox
 	{
 		public delegate void DisplayMsgDelegate(MsgBox.MsgTypes msgType, string msg);
 
-		public static string programName = string.Empty;
-		public static Form mainWin = (Form)null;
-		public static bool programExit = false;
-		public static Logging log = new Logging();
-		private const string moduleName = "SharedObjects";
+		public static string ProgramName;
+		public static Form MainWin;
+		public static bool ProgramExit;
+		public static Logging Log;
 
 		static SharedObjects()
 		{
+			ProgramName = string.Empty;
+			MainWin = (Form)null;
+			ProgramExit = false;
+			Log = new Logging();
 		}
 
-		public bool IsVistaOrHigherOs()
+		public static bool IsVistaOrHigherOs()
 		{
-			bool flag = false;
-			if (Environment.OSVersion.Version.Major > 5)
-				flag = true;
-			return flag;
+			return (Environment.OSVersion.Version.Major > 5);
 		}
 
-		public bool IsMonoRunning()
+		public static bool IsMonoRunning()
 		{
-			bool flag = false;
-			if (System.Type.GetType("Mono.Runtime") != (System.Type)null)
-				flag = true;
-			return flag;
+			return (System.Type.GetType("Mono.Runtime") != (System.Type)null);
 		}
 
 		public void ApplicationExit(int exitCode)
@@ -41,6 +39,13 @@ namespace TI.Toolbox
 				Environment.Exit(exitCode);
 			else
 				Process.GetCurrentProcess().Kill();
+		}
+
+		public static bool SetMaximumSize(Form form)
+		{
+			if (IsMonoRunning())
+				form.MaximumSize = new Size(form.Size.Width, form.Size.Height);
+			return true;
 		}
 	}
 }

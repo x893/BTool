@@ -32,7 +32,7 @@ namespace BTool
 				bool flag = false;
 				threadCtrl.Init();
 				threadCtrl.RunningThread = true;
-				SharedObjects.log.Write(Logging.MsgType.Debug, "RxTxMgrThread", "Starting Thread");
+				SharedObjects.Log.Write(Logging.MsgType.Debug, "RxTxMgrThread", "Starting Thread");
 				while (!flag)
 				{
 					if (!threadCtrl.ExitThread)
@@ -40,16 +40,16 @@ namespace BTool
 						if (threadCtrl.PauseThread)
 						{
 							threadCtrl.IdleThread = true;
-							SharedObjects.log.Write(Logging.MsgType.Debug, "RxTxMgrThread", "Pausing Thread");
-							threadCtrl.eventPause.WaitOne();
+							SharedObjects.Log.Write(Logging.MsgType.Debug, "RxTxMgrThread", "Pausing Thread");
+							threadCtrl.EventPause.WaitOne();
 							threadCtrl.IdleThread = false;
 							if (threadCtrl.ExitThread)
 								break;
 						}
 						switch (WaitHandle.WaitAny(new WaitHandle[3]
             {
-              (WaitHandle) threadCtrl.eventExit,
-              (WaitHandle) threadCtrl.eventPause,
+              (WaitHandle) threadCtrl.EventExit,
+              (WaitHandle) threadCtrl.EventPause,
               (WaitHandle) dataQ.qDataReadyEvent
             }))
 						{
@@ -60,8 +60,8 @@ namespace BTool
 								else
 									continue;
 							case 1:
-								threadCtrl.eventPause.Reset();
-								SharedObjects.log.Write(Logging.MsgType.Debug, "RxTxMgrThread", "Resuming Thread");
+								threadCtrl.EventPause.Reset();
+								SharedObjects.Log.Write(Logging.MsgType.Debug, "RxTxMgrThread", "Resuming Thread");
 								continue;
 							case 2:
 								dataQ.qDataReadyEvent.Reset();
@@ -79,9 +79,9 @@ namespace BTool
 			catch (Exception ex)
 			{
 				string msg = "Task Thread Problem.\n" + ex.Message + "\nRxTxMgrThread\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 			}
-			SharedObjects.log.Write(Logging.MsgType.Debug, "RxTxMgrThread", "Exiting Thread");
+			SharedObjects.Log.Write(Logging.MsgType.Debug, "RxTxMgrThread", "Exiting Thread");
 			threadCtrl.Exit();
 		}
 

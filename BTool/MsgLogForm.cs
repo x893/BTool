@@ -145,7 +145,7 @@ namespace BTool
 			string msg = "Pending Transmit Messages Cleared\n" + qlength.ToString() + " Messages Were Discarded\n";
 			if (DisplayMsgCallback != null)
 				DisplayMsgCallback(SharedAppObjs.MsgType.Info, msg);
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Info, msg);
+			msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Info, msg);
 		}
 
 		public void DisplayLogMsg(SharedAppObjs.MsgType msgType, string msg, string time)

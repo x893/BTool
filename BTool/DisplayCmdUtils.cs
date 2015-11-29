@@ -4,13 +4,12 @@ namespace BTool
 {
 	public class DisplayCmdUtils
 	{
-		private DataUtils dataUtils = new DataUtils();
-		private DeviceFormUtils devUtils = new DeviceFormUtils();
-		public const string moduleName = "DisplayCmdUtils";
+		private DataUtils m_dataUtils = new DataUtils();
+		private DeviceFormUtils m_deviceUtils = new DeviceFormUtils();
 
 		public void AddConnectHandle(byte[] data, ref int index, ref bool dataErr, ref string msg)
 		{
-			ushort num = dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
+			ushort num = m_dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
 			if (dataErr)
 				return;
 			msg += string.Format(" ConnHandle\t: 0x{0:X4} ({1:D})\n", num, num);
@@ -18,7 +17,7 @@ namespace BTool
 
 		public ushort AddHandle(byte[] data, ref int index, ref bool dataErr, ref string msg)
 		{
-			ushort num = dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
+			ushort num = m_dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
 			if (!dataErr)
 			{
 				msg += string.Format(" Handle\t\t: 0x{0:X4} ({1:D})\n", num, num);
@@ -28,7 +27,7 @@ namespace BTool
 
 		public void AddEndHandle(byte[] data, ref int index, ref bool dataErr, ref string msg)
 		{
-			ushort num = dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
+			ushort num = m_dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
 			if (dataErr)
 				return;
 			msg += string.Format(" EndHandle\t: 0x{0:X4} ({1:D})\n", num, num);
@@ -36,7 +35,7 @@ namespace BTool
 
 		public void AddStartHandle(byte[] data, ref int index, ref bool dataErr, ref string msg)
 		{
-			ushort num = dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
+			ushort num = m_dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
 			if (dataErr)
 				return;
 			msg += string.Format(" StartHandle\t: 0x{0:X4} ({1:D})\n", num, num);
@@ -44,7 +43,7 @@ namespace BTool
 
 		public void AddOffset(byte[] data, ref int index, ref bool dataErr, ref string msg)
 		{
-			ushort num = dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
+			ushort num = m_dataUtils.Unload16Bits(data, ref index, ref dataErr, false);
 			if (dataErr)
 				return;
 			msg += string.Format(" Offset\t\t: 0x{0:X4} ({1:D})\n", num, num);
@@ -88,7 +87,7 @@ namespace BTool
 
 		public void AddValue(byte[] data, ref int index, ref bool dataErr, ref string msg, int length, int headerSize)
 		{
-			msg += string.Format(" Value\t\t: {0:S}\n", devUtils.UnloadColonData(data, ref index, length + headerSize - index, ref dataErr));
+			msg += string.Format(" Value\t\t: {0:S}\n", m_deviceUtils.UnloadColonData(data, ref index, length + headerSize - index, ref dataErr));
 		}
 	}
 }

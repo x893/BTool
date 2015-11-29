@@ -66,7 +66,7 @@ namespace TI.Toolbox
 		public static bool SetLoggingMode(bool newLoggingMode)
 		{
 			bool flag = true;
-			if (SharedObjects.log.GetUseMsgBox() && newLoggingMode)
+			if (SharedObjects.Log.GetUseMsgBox() && newLoggingMode)
 				flag = false;
 			else
 				MsgBox.useLoggingMode = newLoggingMode;
@@ -80,22 +80,20 @@ namespace TI.Toolbox
 
 		public void UserMsgBox(MsgBox.MsgTypes msgType, string msg)
 		{
-			Form owner = SharedObjects.mainWin;
-			MsgBox.MsgButtons msgButtons = MsgBox.MsgButtons.Ok;
+			Form owner = SharedObjects.MainWin;
+			MsgBox.MsgButtons msgButtons = MsgButtons.Ok;
 			MsgBox.MsgResult defaultMsgResult = MsgBox.MsgResult.OK;
 			int num = (int)UserMsgBox(owner, msgType, msgButtons, defaultMsgResult, msg);
 		}
 
-		public void UserMsgBox(Form owner, MsgBox.MsgTypes msgType, string msg)
+		public void UserMsgBox(Form owner, MsgTypes msgType, string msg)
 		{
-			MsgBox.MsgButtons msgButtons = MsgBox.MsgButtons.Ok;
-			MsgBox.MsgResult defaultMsgResult = MsgBox.MsgResult.OK;
-			int num = (int)UserMsgBox(owner, msgType, msgButtons, defaultMsgResult, msg);
+			UserMsgBox(owner, msgType, MsgButtons.Ok, MsgResult.OK, msg);
 		}
 
-		public MsgBox.MsgResult UserMsgBox(MsgBox.MsgTypes msgType, MsgBox.MsgButtons msgButtons, MsgBox.MsgResult defaultMsgResult, string msg)
+		public MsgBox.MsgResult UserMsgBox(MsgTypes msgType, MsgButtons msgButtons, MsgResult defaultMsgResult, string msg)
 		{
-			return UserMsgBox(SharedObjects.mainWin, msgType, msgButtons, defaultMsgResult, msg);
+			return UserMsgBox(SharedObjects.MainWin, msgType, msgButtons, defaultMsgResult, msg);
 		}
 
 		public MsgBox.MsgResult UserMsgBox(Form owner, MsgBox.MsgTypes msgType, MsgBox.MsgButtons msgButtons, MsgBox.MsgResult defaultMsgResult, string msg)
@@ -103,11 +101,11 @@ namespace TI.Toolbox
 			MsgBox.MsgResult msgResult = MsgBox.MsgResult.OK;
 			try
 			{
-				if (SharedObjects.mainWin.InvokeRequired)
+				if (SharedObjects.MainWin.InvokeRequired)
 				{
 					try
 					{
-						msgResult = (MsgBox.MsgResult)SharedObjects.mainWin.Invoke((Delegate)new MsgBox.UserMsgBoxDelegate(UserMsgBox), owner, msgType, msgButtons, defaultMsgResult, msg);
+						msgResult = (MsgBox.MsgResult)SharedObjects.MainWin.Invoke((Delegate)new MsgBox.UserMsgBoxDelegate(UserMsgBox), owner, msgType, msgButtons, defaultMsgResult, msg);
 					}
 					catch { }
 				}
@@ -126,22 +124,22 @@ namespace TI.Toolbox
 						MessageBoxButtons buttons;
 						switch (msgButtons)
 						{
-							case MsgBox.MsgButtons.Ok:
+							case MsgButtons.Ok:
 								buttons = MessageBoxButtons.OK;
 								break;
-							case MsgBox.MsgButtons.OkCancel:
+							case MsgButtons.OkCancel:
 								buttons = MessageBoxButtons.OKCancel;
 								break;
-							case MsgBox.MsgButtons.AbortRetryIgnore:
+							case MsgButtons.AbortRetryIgnore:
 								buttons = MessageBoxButtons.AbortRetryIgnore;
 								break;
-							case MsgBox.MsgButtons.YesNoCancel:
+							case MsgButtons.YesNoCancel:
 								buttons = MessageBoxButtons.YesNoCancel;
 								break;
-							case MsgBox.MsgButtons.YesNo:
+							case MsgButtons.YesNo:
 								buttons = MessageBoxButtons.YesNo;
 								break;
-							case MsgBox.MsgButtons.RetryCancel:
+							case MsgButtons.RetryCancel:
 								buttons = MessageBoxButtons.RetryCancel;
 								break;
 							default:
@@ -170,8 +168,9 @@ namespace TI.Toolbox
 						}
 						if (MsgBox.useLoggingMode)
 							WriteLogMsg(msgType, msg);
+
 						MsgBox.msgBoxDisplayed = true;
-						msgResult = 
+						msgResult =
 							owner != null
 							? (MsgBox.MsgResult)MessageBox.Show((IWin32Window)owner, text, msgBoxTitle, buttons, icon)
 							: (MsgBox.MsgResult)MessageBox.Show(text, msgBoxTitle, buttons, icon);
@@ -181,9 +180,7 @@ namespace TI.Toolbox
 						sharedObjs.ApplicationExit(1);
 				}
 			}
-			catch
-			{
-			}
+			catch { }
 			return msgResult;
 		}
 
@@ -217,16 +214,16 @@ namespace TI.Toolbox
 			switch (msgType)
 			{
 				case MsgBox.MsgTypes.Fatal:
-					s_title = SharedObjects.programName + " - Fatal Error";
+					s_title = SharedObjects.ProgramName + " - Fatal Error";
 					break;
 				case MsgBox.MsgTypes.Error:
-					s_title = SharedObjects.programName + " - Error";
+					s_title = SharedObjects.ProgramName + " - Error";
 					break;
 				case MsgBox.MsgTypes.Warning:
-					s_title = SharedObjects.programName + " - Warning";
+					s_title = SharedObjects.ProgramName + " - Warning";
 					break;
 				case MsgBox.MsgTypes.Info:
-					s_title = SharedObjects.programName + " - Info";
+					s_title = SharedObjects.ProgramName + " - Info";
 					break;
 				default:
 					s_title = "Unknown";
@@ -256,7 +253,7 @@ namespace TI.Toolbox
 					logMsgType = Logging.MsgType.Info;
 					break;
 			}
-			return SharedObjects.log.Write(logMsgType, string.Empty, msg);
+			return SharedObjects.Log.Write(logMsgType, string.Empty, msg);
 		}
 	}
 }

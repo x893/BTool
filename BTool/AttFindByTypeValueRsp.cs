@@ -4,9 +4,16 @@ namespace BTool
 {
 	public class AttFindByTypeValueRsp
 	{
+		public struct RspInfo
+		{
+			public bool success;
+			public HCIReplies.LE_ExtEventHeader header;
+			public HCIReplies.HCI_LE_ExtEvent.ATT_FindByTypeValueRsp aTT_FindByTypeValueRsp;
+		}
+		public AttFindByTypeValueRspDelegate AttFindByTypeValueRspCallback;
+		public delegate void AttFindByTypeValueRspDelegate(RspInfo rspInfo);
+
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
-		private const string moduleName = "AttFindByTypeValueRsp";
-		public AttFindByTypeValueRsp.AttFindByTypeValueRspDelegate AttFindByTypeValueRspCallback;
 		private AttrUuidUtils attrUuidUtils;
 		private AttrDataUtils attrDataUtils;
 
@@ -91,15 +98,6 @@ namespace BTool
 				header = hciReplies.HciLeExtEvent.Header,
 				aTT_FindByTypeValueRsp = hciReplies.HciLeExtEvent.AttFindByTypeValueRsp
 			});
-		}
-
-		public delegate void AttFindByTypeValueRspDelegate(AttFindByTypeValueRsp.RspInfo rspInfo);
-
-		public struct RspInfo
-		{
-			public bool success;
-			public HCIReplies.LE_ExtEventHeader header;
-			public HCIReplies.HCI_LE_ExtEvent.ATT_FindByTypeValueRsp aTT_FindByTypeValueRsp;
 		}
 	}
 }

@@ -9,8 +9,8 @@
 			public HCIReplies.HCI_LE_ExtEvent.ATT_WriteRsp ATT_WriteRsp;
 		}
 
-		public delegate void AttWriteRspDelegate(AttWriteRsp.RspInfo rspInfo);
-		public AttWriteRsp.AttWriteRspDelegate AttWriteRspCallback;
+		public delegate void AttWriteRspDelegate(RspInfo rspInfo);
+		public AttWriteRspDelegate AttWriteRspCallback;
 
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
 		private const string moduleName = "AttWriteRsp";

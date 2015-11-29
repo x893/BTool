@@ -6,8 +6,7 @@ namespace BTool
 {
 	public class AttrUuidUtils
 	{
-		private MsgBox msgBox = new MsgBox();
-		private const string moduleName = "AttrUuidUtils";
+		private MsgBox m_msgBox = new MsgBox();
 
 		public string GetAttrKey(ushort connHandle, ushort handle)
 		{
@@ -16,37 +15,39 @@ namespace BTool
 
 		public string GetUuidDesc(string uuid)
 		{
-			string str;
+			string desc;
 			try
 			{
 				AttrUuid.uuidDictAccess.WaitOne();
-				str = !AttrUuid.uuidDict.ContainsKey(uuid) ? "Unknown" : AttrUuid.uuidDict[uuid].UuidDesc;
+				desc = AttrUuid.uuidDict.ContainsKey(uuid)
+					? AttrUuid.uuidDict[uuid].UuidDesc
+					: "Unknown";
 				AttrUuid.uuidDictAccess.ReleaseMutex();
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Description\n" + ex.Message + "\nAttrUuidUtils\n");
-				str = string.Empty;
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Description\n" + ex.Message + "\nAttrUuidUtils\n");
+				desc = string.Empty;
 			}
-			return str;
+			return desc;
 		}
 
 		public string GetUuidValueDesc(string uuid)
 		{
-			string str = string.Empty;
+			string desc = string.Empty;
 			try
 			{
 				AttrUuid.uuidDictAccess.WaitOne();
 				if (AttrUuid.uuidDict.ContainsKey(uuid))
-					str = AttrUuid.uuidDict[uuid].ValueDesc;
+					desc = AttrUuid.uuidDict[uuid].ValueDesc;
 				AttrUuid.uuidDictAccess.ReleaseMutex();
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Value Description\n" + ex.Message + "\nAttrUuidUtils\n");
-				str = string.Empty;
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Value Description\n" + ex.Message + "\nAttrUuidUtils\n");
+				desc = string.Empty;
 			}
-			return str;
+			return desc;
 		}
 
 		public Color GetForegroundColor(string uuid)
@@ -61,7 +62,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Foreground Color\n" + ex.Message + "\nAttrUuidUtils\n");
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Foreground Color\n" + ex.Message + "\nAttrUuidUtils\n");
 				color = AttrData.defaultForeground;
 			}
 			return color;
@@ -79,7 +80,7 @@ namespace BTool
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Background Color\n" + ex.Message + "\nAttrUuidUtils\n");
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Background Color\n" + ex.Message + "\nAttrUuidUtils\n");
 				color = AttrData.defaultBackground;
 			}
 			return color;
@@ -91,12 +92,14 @@ namespace BTool
 			try
 			{
 				AttrUuid.uuidDictAccess.WaitOne();
-				num = !AttrUuid.uuidDict.ContainsKey(uuid) ? AttrData.unknownIndentLevel : AttrUuid.uuidDict[uuid].IndentLevel;
+				num = AttrUuid.uuidDict.ContainsKey(uuid)
+					? AttrUuid.uuidDict[uuid].IndentLevel
+					: AttrData.unknownIndentLevel;
 				AttrUuid.uuidDictAccess.ReleaseMutex();
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Indent Level\n" + ex.Message + "\nAttrUuidUtils\n");
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Indent Level\n" + ex.Message + "\nAttrUuidUtils\n");
 				num = 0;
 			}
 			return num;
@@ -108,12 +111,14 @@ namespace BTool
 			try
 			{
 				AttrUuid.uuidDictAccess.WaitOne();
-				valueDisplay = !AttrUuid.uuidDict.ContainsKey(uuid) ? ValueDisplay.Hex : AttrUuid.uuidDict[uuid].ValueDisplay;
+				valueDisplay = AttrUuid.uuidDict.ContainsKey(uuid)
+					? AttrUuid.uuidDict[uuid].ValueDisplay
+					: ValueDisplay.Hex;
 				AttrUuid.uuidDictAccess.ReleaseMutex();
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Value Display\n" + ex.Message + "\nAttrUuidUtils\n");
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Value Display\n" + ex.Message + "\nAttrUuidUtils\n");
 				valueDisplay = ValueDisplay.Hex;
 			}
 			return valueDisplay;
@@ -125,12 +130,14 @@ namespace BTool
 			try
 			{
 				AttrUuid.uuidDictAccess.WaitOne();
-				valueEdit = !AttrUuid.uuidDict.ContainsKey(uuid) ? ValueEdit.Editable : AttrUuid.uuidDict[uuid].ValueEdit;
+				valueEdit = AttrUuid.uuidDict.ContainsKey(uuid)
+					? AttrUuid.uuidDict[uuid].ValueEdit
+					: ValueEdit.Editable;
 				AttrUuid.uuidDictAccess.ReleaseMutex();
 			}
 			catch (Exception ex)
 			{
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Value Edit\n" + ex.Message + "\nAttrUuidUtils\n");
+				m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, "UUID Data Dictionary Access Error\nProblem With Value Edit\n" + ex.Message + "\nAttrUuidUtils\n");
 				valueEdit = ValueEdit.Editable;
 			}
 			return valueEdit;

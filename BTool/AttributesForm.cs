@@ -202,14 +202,14 @@ namespace BTool
 				bool dataChanged = false;
 				if (attrDataUtils.GetDataAttr(ref dataAttr, ref dataChanged, text, "lvAttributes_Click") && dataChanged)
 				{
-					devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = new ExtCmdStatus.ExtCmdStatusDelegate(ExtCmdStatus);
-					devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = new AttErrorRsp.AttErrorRspDelegate(AttErrorRsp);
-					devForm.threadMgr.rspDataIn.attReadBlobRsp.AttReadBlobRspCallback = new AttReadBlobRsp.AttReadBlobRspDelegate(AttReadBlobRsp);
+					devForm.threadMgr.rspDataIn.ExtCmdStatus.ExtCmdStatusCallback = new ExtCmdStatus.ExtCmdStatusDelegate(ExtCmdStatus);
+					devForm.threadMgr.rspDataIn.AttErrorRsp.AttErrorRspCallback = new AttErrorRsp.AttErrorRspDelegate(AttErrorRsp);
+					devForm.threadMgr.rspDataIn.AttReadBlobRsp.AttReadBlobRspCallback = new AttReadBlobRsp.AttReadBlobRspDelegate(AttReadBlobRsp);
 					if (sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_ReadLongCharValue()
 					{
 						connHandle = dataAttr.ConnHandle,
 						handle = dataAttr.Handle
-					}, TxDataOut.CmdType.General, new SendCmds.SendCmdResult(SendCmdResult)))
+					}, TxDataOut.CmdTypes.General, new SendCmds.SendCmdResult(SendCmdResult)))
 						Enabled = false;
 					else
 						ClearRspDelegates();
@@ -285,7 +285,7 @@ namespace BTool
 							if (lvAttributes.Items.Count >= 1500)
 							{
 								string msg = string.Format("Attribute Data List At Maximum {0} Elements\nClear List Data\nAttributesForm\n", (object)1500);
-								msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
+								msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Warning, msg);
 								break;
 							}
 							else
@@ -560,7 +560,7 @@ namespace BTool
 					string msg2 = "There Are " + qlength.ToString() + " Pending Transmit Messages\nDo You Want To Clear All Pending Transmit Messages?\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Warning, msg2);
-					MsgBox.MsgResult msgResult = msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, MsgBox.MsgButtons.YesNo, MsgBox.MsgResult.Yes, msg2);
+					MsgBox.MsgResult msgResult = msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Warning, MsgBox.MsgButtons.YesNo, MsgBox.MsgResult.Yes, msg2);
 					string msg3 = "UserResponse = " + ((object)msgResult).ToString() + "\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Info, msg3);
@@ -686,7 +686,7 @@ namespace BTool
 									string msg = "Csv File Save Completed\n" + "Location = " + saveFileDialog.FileName + "\n";
 									if (DisplayMsgCallback != null)
 										DisplayMsgCallback(SharedAppObjs.MsgType.Info, msg);
-									msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Info, msg);
+									msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Info, msg);
 								}
 							}
 						}
@@ -696,7 +696,7 @@ namespace BTool
 						string msg = "Cannot Save Csv File\n" + ex.Message + "\n";
 						if (DisplayMsgCallback != null)
 							DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-						msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+						msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 						flag = false;
 					}
 				}
@@ -721,14 +721,14 @@ namespace BTool
 				string msg = "Command Failed\n";
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 			}
 			else
 			{
 				string msg = "Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.Header.EventStatus) + "\n" + "Event = " + devUtils.GetOpCodeName(rspInfo.Header.EventCode) + "\n";
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 			}
 			RestoreFormInput();
 		}
@@ -751,7 +751,7 @@ namespace BTool
 					msg = msg + "Command = " + devUtils.GetHciReqOpCodeStr(rspInfo.aTT_ErrorRsp.ReqOpCode) + "\n" + "Handle = 0x" + rspInfo.aTT_ErrorRsp.Handle.ToString("X4") + "\n" + "Error = " + devUtils.GetErrorStatusStr(rspInfo.aTT_ErrorRsp.ErrorCode, "") + "\n";
 				if (DisplayMsgCallback != null)
 					DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				RestoreFormInput();
 			}
 		}
@@ -774,14 +774,14 @@ namespace BTool
 					string msg = "Att Read Blob Command Failed\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				}
 				else if ((int)rspInfo.Header.EventStatus != 26)
 				{
 					string msg = "Att Read Blob Command Failed\n" + "Status = " + devUtils.GetStatusStr(rspInfo.Header.EventStatus) + "\n";
 					if (DisplayMsgCallback != null)
 						DisplayMsgCallback(SharedAppObjs.MsgType.Error, msg);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 				}
 				else
 					RspDataInChanged();
@@ -805,9 +805,9 @@ namespace BTool
 
 		private void ClearRspDelegates()
 		{
-			devForm.threadMgr.rspDataIn.extCmdStatus.ExtCmdStatusCallback = (ExtCmdStatus.ExtCmdStatusDelegate)null;
-			devForm.threadMgr.rspDataIn.attErrorRsp.AttErrorRspCallback = (AttErrorRsp.AttErrorRspDelegate)null;
-			devForm.threadMgr.rspDataIn.attReadBlobRsp.AttReadBlobRspCallback = (AttReadBlobRsp.AttReadBlobRspDelegate)null;
+			devForm.threadMgr.rspDataIn.ExtCmdStatus.ExtCmdStatusCallback = (ExtCmdStatus.ExtCmdStatusDelegate)null;
+			devForm.threadMgr.rspDataIn.AttErrorRsp.AttErrorRspCallback = (AttErrorRsp.AttErrorRspDelegate)null;
+			devForm.threadMgr.rspDataIn.AttReadBlobRsp.AttReadBlobRspCallback = (AttReadBlobRsp.AttReadBlobRspDelegate)null;
 		}
 
 		protected override void Dispose(bool disposing)

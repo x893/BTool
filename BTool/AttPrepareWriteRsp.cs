@@ -2,15 +2,22 @@
 {
 	public class AttPrepareWriteRsp
 	{
+		public struct RspInfo
+		{
+			public bool success;
+			public HCIReplies.LE_ExtEventHeader header;
+			public HCIReplies.HCI_LE_ExtEvent.ATT_PrepareWriteRsp aTT_PrepareWriteRsp;
+		}
+		public delegate void AttPrepareWriteRspDelegate(RspInfo rspInfo);
+		public AttPrepareWriteRspDelegate AttPrepareWriteRspCallback;
+
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
-		private const string moduleName = "AttPrepareWriteRsp";
-		public AttPrepareWriteRsp.AttPrepareWriteRspDelegate AttPrepareWriteRspCallback;
 
 		public bool GetATT_PrepareWriteRsp(HCIReplies hciReplies, ref bool dataFound)
 		{
 			dataFound = false;
-			bool flag;
-			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
+			bool success;
+			if (success = rspHdlrsUtils.CheckValidResponse(hciReplies))
 			{
 				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
 				HCIReplies.HCI_LE_ExtEvent.ATT_PrepareWriteRsp attPrepareWriteRsp = hciLeExtEvent.AttPrepareWriteRsp;
@@ -27,14 +34,14 @@
 							SendRspCallback(hciReplies, true);
 							break;
 						default:
-							flag = rspHdlrsUtils.UnexpectedRspEventStatus(hciReplies, "AttPrepareWriteRsp");
+							success = rspHdlrsUtils.UnexpectedRspEventStatus(hciReplies, "AttPrepareWriteRsp");
 							break;
 					}
 				}
 			}
-			if (!flag && dataFound)
+			if (!success && dataFound)
 				SendRspCallback(hciReplies, false);
-			return flag;
+			return success;
 		}
 
 		private void SendRspCallback(HCIReplies hciReplies, bool success)
@@ -47,15 +54,6 @@
 				header = hciReplies.HciLeExtEvent.Header,
 				aTT_PrepareWriteRsp = hciReplies.HciLeExtEvent.AttPrepareWriteRsp
 			});
-		}
-
-		public delegate void AttPrepareWriteRspDelegate(AttPrepareWriteRsp.RspInfo rspInfo);
-
-		public struct RspInfo
-		{
-			public bool success;
-			public HCIReplies.LE_ExtEventHeader header;
-			public HCIReplies.HCI_LE_ExtEvent.ATT_PrepareWriteRsp aTT_PrepareWriteRsp;
 		}
 	}
 }

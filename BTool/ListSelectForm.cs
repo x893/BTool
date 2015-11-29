@@ -8,7 +8,6 @@ namespace BTool
 {
 	public class ListSelectForm : Form
 	{
-		private IContainer components;
 		private Button btnOk;
 		private Button btnCancel;
 		private ListBox lbDataItems;
@@ -53,6 +52,8 @@ namespace BTool
 		{
 		}
 
+		#region Windows Form Designer generated code
+		private System.ComponentModel.IContainer components = null;
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing && components != null)
@@ -124,5 +125,6 @@ namespace BTool
 			this.ResumeLayout(false);
 
 		}
+		#endregion
 	}
 }

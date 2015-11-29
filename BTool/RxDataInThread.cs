@@ -6,15 +6,15 @@ namespace BTool
 {
 	public class RxDataInThread
 	{
-		public QueueMgr dataQ = new QueueMgr("RxDataInThread");
+		public QueueMgr DataQueue = new QueueMgr("RxDataInThread");
+		public ThreadControl ThreadCtrl = new ThreadControl();
+		public DeviceForm.DeviceRxDataDelegate DeviceRxDataCallback;
+		public TxDataOutThread.DeviceTxStopWaitDelegate DeviceTxStopWaitCallback;
+
 		private RxDataInThread.ThreadData threadData = new RxDataInThread.ThreadData();
-		public ThreadControl threadCtrl = new ThreadControl();
 		private MsgBox msgBox = new MsgBox();
 		private Mutex stopWaitMutex = new Mutex();
 		private DataUtils dataUtils = new DataUtils();
-		private const string moduleName = "RxDataInThread";
-		public DeviceForm.DeviceRxDataDelegate DeviceRxDataCallback;
-		public TxDataOutThread.DeviceTxStopWaitDelegate DeviceTxStopWaitCallback;
 		private Thread taskThread;
 		private bool stopWaitMsg;
 		private HCIStopWait.StopWaitEvent stopWaitEvent;
@@ -25,7 +25,7 @@ namespace BTool
 			rxDataInRspData = new RxDataInRspData(deviceForm);
 			taskThread = new Thread(new ParameterizedThreadStart(TaskThread));
 			taskThread.Name = "RxDataInThread";
-			taskThread.Start((object)threadData);
+			taskThread.Start(threadData);
 			Thread.Sleep(0);
 			while (!taskThread.IsAlive)
 			{ }
@@ -42,65 +42,64 @@ namespace BTool
 			try
 			{
 				bool flag = false;
-				threadCtrl.Init();
-				threadCtrl.RunningThread = true;
-				SharedObjects.log.Write(Logging.MsgType.Debug, "RxDataInThread", "Starting Thread");
+				ThreadCtrl.Init();
+				ThreadCtrl.RunningThread = true;
+				SharedObjects.Log.Write(Logging.MsgType.Debug, "RxDataInThread", "Starting Thread");
 				while (!flag)
 				{
-					if (!threadCtrl.ExitThread)
-					{
-						if (threadCtrl.PauseThread)
-						{
-							threadCtrl.IdleThread = true;
-							SharedObjects.log.Write(Logging.MsgType.Debug, "RxDataInThread", "Pausing Thread");
-							threadCtrl.eventPause.WaitOne();
-							threadCtrl.IdleThread = false;
-							if (threadCtrl.ExitThread)
-								break;
-						}
-						switch (WaitHandle.WaitAny(new WaitHandle[3]
-            {
-              (WaitHandle) threadCtrl.eventExit,
-              (WaitHandle) threadCtrl.eventPause,
-              (WaitHandle) dataQ.qDataReadyEvent
-            }))
-						{
-							case 0:
-								flag = true;
-								if (!threadCtrl.ExitThread)
-									continue;
-								else
-									continue;
-							case 1:
-								threadCtrl.eventPause.Reset();
-								SharedObjects.log.Write(Logging.MsgType.Debug, "RxDataInThread", "Resuming Thread");
-								continue;
-							case 2:
-								dataQ.qDataReadyEvent.Reset();
-								QueueDataReady();
-								continue;
-							default:
-								flag = true;
-								continue;
-						}
-					}
-					else
+					if (ThreadCtrl.ExitThread)
 						break;
+
+					if (ThreadCtrl.PauseThread)
+					{
+						ThreadCtrl.IdleThread = true;
+						SharedObjects.Log.Write(Logging.MsgType.Debug, "RxDataInThread", "Pausing Thread");
+						ThreadCtrl.EventPause.WaitOne();
+						ThreadCtrl.IdleThread = false;
+						if (ThreadCtrl.ExitThread)
+							break;
+					}
+
+					switch (WaitHandle.WaitAny(new WaitHandle[3]
+								{
+									(WaitHandle) ThreadCtrl.EventExit,
+									(WaitHandle) ThreadCtrl.EventPause,
+									(WaitHandle) DataQueue.qDataReadyEvent
+								}))
+					{
+						case 0:
+							flag = true;
+							if (!ThreadCtrl.ExitThread)
+								continue;
+							else
+								continue;
+						case 1:
+							ThreadCtrl.EventPause.Reset();
+							SharedObjects.Log.Write(Logging.MsgType.Debug, "RxDataInThread", "Resuming Thread");
+							continue;
+						case 2:
+							DataQueue.qDataReadyEvent.Reset();
+							QueueDataReady();
+							continue;
+						default:
+							flag = true;
+							continue;
+					}
 				}
 			}
 			catch (Exception ex)
 			{
 				string msg = "Task Thread Problem.\n" + ex.Message + "\nRxDataInThread\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 			}
-			SharedObjects.log.Write(Logging.MsgType.Debug, "RxDataInThread", "Exiting Thread");
-			threadCtrl.Exit();
+			SharedObjects.Log.Write(Logging.MsgType.Debug, "RxDataInThread", "Exiting Thread");
+			ThreadCtrl.Exit();
 		}
 
 		private bool QueueDataReady()
 		{
 			object data = (object)new RxDataIn();
-			bool flag = dataQ.RemoveQHead(ref data);
+			bool flag = DataQueue.RemoveQHead(ref data);
 			if (flag)
 			{
 				RxDataIn rxDataIn = (RxDataIn)data;
@@ -138,7 +137,7 @@ namespace BTool
 			catch (Exception ex)
 			{
 				string msg = "Process Queue Data Problem.\n" + ex.Message + "\nRxDataInThread\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 			}
 			return flag;
 		}
@@ -275,7 +274,7 @@ namespace BTool
 			catch (Exception ex)
 			{
 				string msg = "Find Stop Wait Problem.\n" + ex.Message + "\nRxDataInThread\n";
-				msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+				msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 			}
 			return flag;
 		}

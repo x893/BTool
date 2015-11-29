@@ -4,9 +4,16 @@ namespace BTool
 {
 	public class AttHandleValueNotification
 	{
+		public struct RspInfo
+		{
+			public bool success;
+			public HCIReplies.LE_ExtEventHeader header;
+			public HCIReplies.HCI_LE_ExtEvent.ATT_HandleValueNotification aTT_HandleValueNotification;
+		}
+		public delegate void AttHandleValueNotificationDelegate(RspInfo rspInfo);
+		public AttHandleValueNotificationDelegate AttHandleValueNotificationCallback;
+
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
-		private const string moduleName = "AttHandleValueNotification";
-		public AttHandleValueNotification.AttHandleValueNotificationDelegate AttHandleValueNotificationCallback;
 		private AttrUuidUtils attrUuidUtils;
 		private AttrDataUtils attrDataUtils;
 
@@ -19,8 +26,8 @@ namespace BTool
 		public bool GetATT_HandleValueNotification(HCIReplies hciReplies, ref bool dataFound)
 		{
 			dataFound = false;
-			bool flag;
-			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
+			bool success;
+			if (success = rspHdlrsUtils.CheckValidResponse(hciReplies))
 			{
 				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
 				HCIReplies.HCI_LE_ExtEvent.ATT_HandleValueNotification valueNotification = hciLeExtEvent.AttHandleValueNotification;
@@ -39,7 +46,7 @@ namespace BTool
 								bool dataChanged = false;
 								if (!attrDataUtils.GetDataAttr(ref dataAttr, ref dataChanged, attrKey, "AttHandleValueNotification"))
 								{
-									flag = false;
+									success = false;
 									break;
 								}
 								else
@@ -50,12 +57,12 @@ namespace BTool
 									dataAttr.Value = valueNotification.Value;
 									if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr, dataChanged, attrKey))
 									{
-										flag = false;
+										success = false;
 										break;
 									}
 									else if (!attrDataUtils.UpdateAttrDict(tmpAttrDict))
 									{
-										flag = false;
+										success = false;
 										break;
 									}
 									else
@@ -68,14 +75,14 @@ namespace BTool
 							else
 								break;
 						default:
-							flag = rspHdlrsUtils.UnexpectedRspEventStatus(hciReplies, "AttHandleValueNotification");
+							success = rspHdlrsUtils.UnexpectedRspEventStatus(hciReplies, "AttHandleValueNotification");
 							break;
 					}
 				}
 			}
-			if (!flag && dataFound)
+			if (!success && dataFound)
 				SendRspCallback(hciReplies, false);
-			return flag;
+			return success;
 		}
 
 		private void SendRspCallback(HCIReplies hciReplies, bool success)
@@ -88,15 +95,6 @@ namespace BTool
 				header = hciReplies.HciLeExtEvent.Header,
 				aTT_HandleValueNotification = hciReplies.HciLeExtEvent.AttHandleValueNotification
 			});
-		}
-
-		public delegate void AttHandleValueNotificationDelegate(AttHandleValueNotification.RspInfo rspInfo);
-
-		public struct RspInfo
-		{
-			public bool success;
-			public HCIReplies.LE_ExtEventHeader header;
-			public HCIReplies.HCI_LE_ExtEvent.ATT_HandleValueNotification aTT_HandleValueNotification;
 		}
 	}
 }

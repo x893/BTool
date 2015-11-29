@@ -5,9 +5,10 @@ namespace BTool
 	public class HCIReplies
 	{
 		public HCIReplies.HCI_LE_ExtEvent HciLeExtEvent;
-		public TxDataOut.CmdType CmdType;
+		public TxDataOut.CmdTypes CmdType;
 		public object ObjTag;
 
+		#region HCI_LE_ExtEvent
 		public class HCI_LE_ExtEvent
 		{
 			public HCIReplies.LE_ExtEventHeader Header;
@@ -110,6 +111,7 @@ namespace BTool
 				public string Value;
 			}
 		}
+		#endregion
 
 		public struct HandleData
 		{

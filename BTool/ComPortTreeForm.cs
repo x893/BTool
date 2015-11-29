@@ -103,14 +103,14 @@ namespace BTool
 		{
 			if (GetActiveDeviceFormCallback() == null || tvPorts == null)
 				return;
-			SendGattDiscoverCmds(tvPorts.SelectedNode, TxDataOut.CmdType.DiscUuidOnly);
+			SendGattDiscoverCmds(tvPorts.SelectedNode, TxDataOut.CmdTypes.DiscUuidOnly);
 		}
 
 		private void tsmiReadValues_Click(object sender, EventArgs e)
 		{
 			if (GetActiveDeviceFormCallback() == null || tvPorts == null)
 				return;
-			SendGattDiscoverCmds(tvPorts.SelectedNode, TxDataOut.CmdType.DiscUuidAndValues);
+			SendGattDiscoverCmds(tvPorts.SelectedNode, TxDataOut.CmdTypes.DiscUuidAndValues);
 		}
 
 		private void tsmiClearTransmitQ_Click(object sender, EventArgs e)
@@ -122,7 +122,7 @@ namespace BTool
 			deviceForm.threadMgr.txDataOut.dataQ.ClearQ();
 			string msg = "Pending Transmit Messages Cleared\n" + qlength.ToString() + " Messages Were Discarded\n";
 			deviceForm.DisplayMsg(SharedAppObjs.MsgType.Info, msg);
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Info, msg);
+			msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Info, msg);
 		}
 
 		private void tsmiDiscoverAllUuids_Click(object sender, EventArgs e)
@@ -135,7 +135,7 @@ namespace BTool
 
 		private void GetTreeTextRecursive_DiscoverAllUuids(TreeNode treeNode)
 		{
-			SendGattDiscoverCmds(treeNode, TxDataOut.CmdType.DiscUuidOnly);
+			SendGattDiscoverCmds(treeNode, TxDataOut.CmdTypes.DiscUuidOnly);
 			foreach (TreeNode treeNode1 in treeNode.Nodes)
 				GetTreeTextRecursive_DiscoverAllUuids(treeNode1);
 		}
@@ -150,12 +150,12 @@ namespace BTool
 
 		private void GetTreeTextRecursive_ReadAllValues(TreeNode treeNode)
 		{
-			SendGattDiscoverCmds(treeNode, TxDataOut.CmdType.DiscUuidAndValues);
+			SendGattDiscoverCmds(treeNode, TxDataOut.CmdTypes.DiscUuidAndValues);
 			foreach (TreeNode treeNode1 in treeNode.Nodes)
 				GetTreeTextRecursive_ReadAllValues(treeNode1);
 		}
 
-		private void SendGattDiscoverCmds(TreeNode treeNode, TxDataOut.CmdType cmdType)
+		private void SendGattDiscoverCmds(TreeNode treeNode, TxDataOut.CmdTypes cmdType)
 		{
 			DeviceForm deviceForm = GetActiveDeviceFormCallback();
 			if (deviceForm == null || treeNode == null || !(treeNode.Name == "HostHandle") && !(treeNode.Name == "SlaveHandle"))
@@ -290,22 +290,26 @@ namespace BTool
 						node1.NodeFont = underlineFont;
 						node1.Tag = treeNode.Tag;
 						node1.ToolTipText = string.Format("Device Connection Information (Over the Air Connection)");
+
 						TreeNode node2 = new TreeNode();
 						node2.Name = ComPortTreeForm.NodeNames.SlaveHandle.ToString();
 						node2.Text = string.Format("Handle: 0x{0:X4}", connectInfo.Handle);
 						deviceInfo.ConnectInfo.Handle = connectInfo.Handle;
 						node2.Tag = treeNode.Tag;
 						node2.ToolTipText = string.Format("Connection Handle\nSelect Handle Then Right Click To See Options.");
+
 						TreeNode node3 = new TreeNode();
 						node3.Name = ComPortTreeForm.NodeNames.SlaveAddrType.ToString();
 						node3.Text = string.Format("Addr Type: 0x{0:X2} ({1:S})", connectInfo.AddrType, devUtils.GetGapAddrTypeStr(connectInfo.AddrType));
 						node3.Tag = treeNode.Tag;
 						node3.ToolTipText = string.Format("Address Type");
+
 						TreeNode node4 = new TreeNode();
 						node4.Name = ComPortTreeForm.NodeNames.SlaveBda.ToString();
 						node4.Text = string.Format("Slave BDA: {0:S}", connectInfo.BDA);
 						node4.Tag = treeNode.Tag;
 						node4.ToolTipText = string.Format("Slave Bluetooth Device Address\nSelect Address Then Right Click To See Options.");
+
 						treeNode.Nodes.Add(node1);
 						node1.Nodes.Add(node2);
 						node1.Nodes.Add(node3);
@@ -330,7 +334,7 @@ namespace BTool
 					if (((DeviceInfo)treeNode.Tag).ComPortInfo.ComPort == devForm.devInfo.ComPortInfo.ComPort)
 					{
 						string target = string.Format("Handle: 0x{0:X4}", connectInfo.Handle);
-						SharedObjects.log.Write(Logging.MsgType.Debug, ComPortTreeForm.moduleName, "Disconnecting Device " + target);
+						SharedObjects.Log.Write(Logging.MsgType.Debug, ComPortTreeForm.moduleName, "Disconnecting Device " + target);
 						if (flag = treeViewUtils.TreeNodeTextSearchAndDestroy(treeNode, target))
 							break;
 					}
@@ -494,7 +498,7 @@ namespace BTool
 					break;
 				default:
 					string msg = string.Format("Unknown Tree Node Name = {0}\n", (object)name);
-					msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+					msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 					break;
 			}
 		}

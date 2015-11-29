@@ -7,6 +7,7 @@ namespace BTool
 		#region OpCodeLookupTable
 		public static string[,] OpCodeLookupTable = new string[249, 2]
 		{
+			#region HCI
 			{"0x0001","HCI_InquiryCompleteEvent"},
 			{"0x0002","HCI_InquiryResultEvent"},
 			{"0x0003","HCI_ConnectionCompleteEvent"},
@@ -80,6 +81,8 @@ namespace BTool
 			{"0x003E","HCI_LE_ReadRemoteUsedFeaturesCompleteEvent"},
 			{"0x003E","HCI_LE_LongTermKeyRequestEvent"},
 			{"0x00FF","HCI_LE_ExtEvent"},
+			#endregion
+			#region HCIExt
 			{"0x0400","HCIExt_SetRxGainDone"},
 			{"0x0401","HCIExt_SetTxPowerDone"},
 			{"0x0402","HCIExt_OnePktPerEvtDone"},
@@ -101,9 +104,13 @@ namespace BTool
 			{"0x0412","HCIExt_MapPmIoPortDone"},
 			{"0x0413","HCIExt_DisconnectImmed"},
 			{"0x0414","HCIExt_PER"},
+			#endregion
+			#region L2CAP
 			{"0x0481","L2CAP_CmdReject"},
 			{"0x048B","L2CAP_InfoRsp"},
 			{"0x0493","L2CAP_ConnParamUpdateRsp"},
+			#endregion
+			#region ATT
 			{"0x0501","ATT_ErrorRsp"},
 			{"0x0502","ATT_ExchangeMTUReq"},
 			{"0x0503","ATT_ExchangeMTURsp"},
@@ -130,8 +137,12 @@ namespace BTool
 			{"0x051B","ATT_HandleValueNotification"},
 			{"0x051D","ATT_HandleValueIndication"},
 			{"0x051E","ATT_HandleValueConfirmation"},
+			#endregion
+			#region GATT
 			{"0xFD88","GATT_DiscCharsByUUID"},
 			{"0x0580","GATT_ClientCharCfgUpdated"},
+			#endregion
+			#region GAP
 			{"0x0600","GAP_DeviceInitDone"},
 			{"0x0601","GAP_DeviceDiscoveryDone"},
 			{"0x0602","GAP_AdvertDataUpdate"},
@@ -149,6 +160,8 @@ namespace BTool
 			{"0x060E","GAP_BondComplete"},
 			{"0x060F","GAP_PairingRequested"},
 			{"0x067F","GAP_HCI_ExtentionCommandStatus"},
+			#endregion
+			#region HCIExt
 			{"0xFC00","HCIExt_SetRxGain"},
 			{"0xFC01","HCIExt_SetTxPower"},
 			{"0xFC02","HCIExt_OnePktPerEvt"},
@@ -170,8 +183,12 @@ namespace BTool
 			{"0xFC12","HCIExt_MapPmIoPort"},
 			{"0xFC13","HCIExt_DisconnectImmed"},
 			{"0xFC14","HCIExt_PER"},
+			#endregion
+			#region L2CAP
 			{"0xFC8A","L2CAP_InfoReq"},
 			{"0xFC92","L2CAP_ConnParamUpdateReq"},
+			#endregion
+			#region ATT
 			{"0xFD01","ATT_ErrorRsp"},
 			{"0xFD02","ATT_ExchangeMTUReq"},
 			{"0xFD03","ATT_ExchangeMTURsp"},
@@ -198,6 +215,8 @@ namespace BTool
 			{"0xFD1B","ATT_HandleValueNotification"},
 			{"0xFD1D","ATT_HandleValueIndication"},
 			{"0xFD1E","ATT_HandleValueConfirmation"},
+			#endregion
+			#region GATT
 			{"0xFD82","GATT_ExchangeMTU"},
 			{"0xFD90","GATT_DiscAllPrimaryServices"},
 			{"0xFD86","GATT_DiscPrimaryServiceByUUID"},
@@ -223,6 +242,8 @@ namespace BTool
 			{"0xFDFC","GATT_AddService"},
 			{"0xFDFD","GATT_DelService"},
 			{"0xFDFE","GATT_AddAttribute"},
+			#endregion
+			#region GAP
 			{"0xFE00","GAP_DeviceInit"},
 			{"0xFE03","GAP_ConfigDeviceAddr"},
 			{"0xFE04","GAP_DeviceDiscoveryRequest"},
@@ -247,45 +268,22 @@ namespace BTool
 			{"0xFE35","GAP_UpdateAdvTokens"},
 			{"0xFE36","GAP_BondSetParam"},
 			{"0xFE37","GAP_BondGetParam"},
+			#endregion
+			#region UTIL
 			{"0xFE80","UTIL_Reset"},
 			{"0xFE81","UTIL_NVRead"},
 			{"0xFE82","UTIL_NVWrite"},
 			{"0xFE83","UTIL_ForceBoot"},
+			#endregion
+			#region HCI
 			{"0x1405","HCI_ReadRSSI"},
 			{"0x2010","HCI_LEClearWhiteList"},
 			{"0x2011","HCI_LEAddDeviceToWhiteList"},
 			{"0x2012","HCI_LERemoveDeviceFromWhiteList"},
 			{"0x2013","HCI_LEConnectionUpdate"}
+			#endregion
 		};
 		#endregion
-
-		private const string strDone = "Done";
-		private const string strCrLf = "\n";
-		private const string strAutoCalc = "This field is auto calculated when the command is sent.";
-
-		public const string ConnHandleDefault = "0xFFFE";
-		public const string ConnHandleInit = "0xFFFE";
-		public const string ConnHandleAll = "0xFFFF";
-		public const byte CmdHdrSize = 4;
-		public const ushort CmdRspReqOCodeMask = 255;
-		public const string ZeroXStr = "0x";
-		public const byte EvtHdrSize = 3;
-		public const string EmptyBDAStr = "00:00:00:00:00:00";
-		public const string Empty16BytesStr = "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00";
-		public const string Empty8BytesStr = "00:00:00:00:00:00:00:00";
-		public const string Empty6BytesStr = "00:00:00:00:00:00";
-		public const string Empty2BytesStr = "00:00";
-		public const ushort MaxUInt16 = 0xFFFF;
-		public const ushort HandleDefault = 1;
-		public const ushort HandleInvalid = 0;
-		public const string HandleDefaultStr = "0x0001";
-		public const string HandleInvalidStr = "0x0000";
-		public const ushort StartHandleDefault = 1;
-		public const ushort EndHandleDefault = 0xFFFF;
-		public const string StartHandleDefaultStr = "0x0001";
-		public const string EndHandleDefaultStr = "0xFFFF";
-		public const ushort OffsetDefault = 0;
-		public const string OffsetDefaultStr = "0x0000";
 
 		#region Enums
 		public enum GAP_Profile
@@ -340,7 +338,7 @@ namespace BTool
 		public enum HCICmdOpcode
 		{
 			InvalidCommandCode = 0,
-			HCIOther_ReadRSSI = 5125,
+			HCIOther_ReadRSSI = 0x1405,
 			HCIOther_LEClearWhiteList = 8208,
 			HCIOther_LEAddDeviceToWhiteList = 8209,
 			HCIOther_LERemoveDeviceFromWhiteList = 8210,
@@ -1086,8 +1084,8 @@ namespace BTool
 
 		public enum ConnHandle
 		{
-			Default = 65534,
-			Init = 65534,
+			Default = 0xFFFE,
+			Init = 0xFFFE,
 			All = 65535,
 		}
 		#endregion
@@ -1252,6 +1250,7 @@ namespace BTool
 				}
 			}
 			#endregion
+			#region HCIExt_SetLocalSupportedFeatures
 			public class HCIExt_SetLocalSupportedFeatures
 			{
 				public string cmdName = "HCIExt_SetLocalSupportedFeatures";
@@ -1285,7 +1284,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_SetFastTxRespTime
 			public class HCIExt_SetFastTxRespTime
 			{
 				public string cmdName = "HCIExt_SetFastTxRespTime";
@@ -1317,7 +1317,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_ModemTestTx
 			public class HCIExt_ModemTestTx
 			{
 				public string cmdName = "HCIExt_ModemTestTx";
@@ -1365,7 +1366,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_ModemHopTestTx
 			public class HCIExt_ModemHopTestTx
 			{
 				public string cmdName = "HCIExt_ModemHopTestTx";
@@ -1382,7 +1384,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_ModemTestRx
 			public class HCIExt_ModemTestRx
 			{
 				public string cmdName = "HCIExt_ModemTestRx";
@@ -1415,7 +1418,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_EndModemTest
 			public class HCIExt_EndModemTest
 			{
 				public string cmdName = "HCIExt_EndModemTest";
@@ -1432,7 +1436,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_SetBDADDR
 			public class HCIExt_SetBDADDR
 			{
 				public string cmdName = "HCIExt_SetBDADDR";
@@ -1464,7 +1469,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_SetSCA
 			public class HCIExt_SetSCA
 			{
 				public string cmdName = "HCIExt_SetSCA";
@@ -1497,7 +1503,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_EnablePTM
 			public class HCIExt_EnablePTM
 			{
 				public string cmdName = "HCIExt_EnablePTM";
@@ -1514,7 +1521,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_SetFreqTune
 			public class HCIExt_SetFreqTune
 			{
 				public string cmdName = "HCIExt_SetFreqTune";
@@ -1546,7 +1554,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_SaveFreqTune
 			public class HCIExt_SaveFreqTune
 			{
 				public string cmdName = "HCIExt_SaveFreqTune";
@@ -1563,7 +1572,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_SetMaxDtmTxPower
 			public class HCIExt_SetMaxDtmTxPower
 			{
 				public string cmdName = "HCIExt_SetMaxDtmTxPower";
@@ -1595,7 +1605,8 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_MapPmIoPort
 			public class HCIExt_MapPmIoPort
 			{
 				public string cmdName = "HCIExt_MapPmIoPort";
@@ -1643,13 +1654,14 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_DisconnectImmed
 			public class HCIExt_DisconnectImmed
 			{
 				public string cmdName = "HCIExt_DisconnectImmed";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64531;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				public const string constCmdName = "HCIExt_DisconnectImmed";
 				private const string _connHandle_default = "0xFFFE";
 
@@ -1676,13 +1688,14 @@ namespace BTool
 					}
 				}
 			}
-
+			#endregion
+			#region HCIExt_PER
 			public class HCIExt_PER
 			{
 				public string cmdName = "HCIExt_PER";
 				public byte dataLength = (byte)3;
 				public ushort opCodeValue = (ushort)64532;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				public const string constCmdName = "HCIExt_PER";
 				private const string _connHandle_default = "0xFFFE";
 				private HCICmds.HCIExt_PERCmd _perTestCommand;
@@ -1724,8 +1737,10 @@ namespace BTool
 					}
 				}
 			}
+			#endregion
 		}
 		#endregion
+
 		#region L2CAPCmds
 		public class L2CAPCmds
 		{
@@ -1734,7 +1749,7 @@ namespace BTool
 				public string cmdName = "L2CAP_InfoReq";
 				public byte dataLength = (byte)4;
 				public ushort opCodeValue = (ushort)64650;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private HCICmds.L2CAP_InfoTypes _infoType = HCICmds.L2CAP_InfoTypes.EXTENDED_FEATURES;
 				public const string constCmdName = "L2CAP_InfoReq";
 				private const string _connHandle_default = "0xFFFE";
@@ -1782,7 +1797,7 @@ namespace BTool
 				public string cmdName = "L2CAP_ConnParamUpdateReq";
 				public byte dataLength = (byte)10;
 				public ushort opCodeValue = (ushort)64658;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _intervalMin = (ushort)80;
 				private ushort _intervalMax = (ushort)160;
 				private ushort _timeoutMultiplier = (ushort)1000;
@@ -1875,6 +1890,7 @@ namespace BTool
 			}
 		}
 		#endregion
+
 		#region ATTCmds
 		public class ATTCmds
 		{
@@ -1883,7 +1899,7 @@ namespace BTool
 				public string cmdName = "ATT_ErrorRsp";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64769;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				private HCICmds.HCI_ErrorRspCodes _errorCode = HCICmds.HCI_ErrorRspCodes.ATTR_NOT_FOUND;
 				public const string constCmdName = "ATT_ErrorRsp";
@@ -1963,7 +1979,7 @@ namespace BTool
 				public string cmdName = "ATT_ExchangeMTUReq";
 				public byte dataLength = (byte)4;
 				public ushort opCodeValue = (ushort)64770;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _clientRxMTU = (ushort)23;
 				public const string constCmdName = "ATT_ExchangeMTUReq";
 				private const string _connHandle_default = "0xFFFE";
@@ -2012,7 +2028,7 @@ namespace BTool
 				public string cmdName = "ATT_ExchangeMTURsp";
 				public byte dataLength = (byte)4;
 				public ushort opCodeValue = (ushort)64771;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _serverRxMTU = (ushort)23;
 				public const string constCmdName = "ATT_ExchangeMTURsp";
 				private const string _connHandle_default = "0xFFFE";
@@ -2061,7 +2077,7 @@ namespace BTool
 				public string cmdName = "ATT_FindInfoReq";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64772;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _startHandle = (ushort)1;
 				private ushort _endHandle = ushort.MaxValue;
 				public const string constCmdName = "ATT_FindInfoReq";
@@ -2126,7 +2142,7 @@ namespace BTool
 				public string cmdName = "ATT_FindInfoRsp";
 				public byte dataLength = (byte)3;
 				public ushort opCodeValue = (ushort)64773;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private HCICmds.ATT_FindInfoFormat _format = HCICmds.ATT_FindInfoFormat.HANDLE_BT_UUID_TYPE__handles_and_16_bit_Bluetooth_UUIDs;
 				private string _info = "00:00:00:00";
 				public const string constCmdName = "ATT_FindInfoRsp";
@@ -2190,7 +2206,7 @@ namespace BTool
 				public string cmdName = "ATT_FindByTypeValueReq";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64774;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _startHandle = (ushort)1;
 				private ushort _endHandle = ushort.MaxValue;
 				private string _type = "00:00";
@@ -2285,7 +2301,7 @@ namespace BTool
 				public string cmdName = "ATT_FindByTypeValueRsp";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64775;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _handlesInfo = "00:00";
 				public const string constCmdName = "ATT_FindByTypeValueRsp";
 				private const string _connHandle_default = "0xFFFE";
@@ -2333,7 +2349,7 @@ namespace BTool
 				public string cmdName = "ATT_ReadByTypeReq";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64776;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _startHandle = (ushort)1;
 				private ushort _endHandle = ushort.MaxValue;
 				private string _type = "00:00";
@@ -2413,7 +2429,7 @@ namespace BTool
 				public string cmdName = "ATT_ReadByTypeRsp";
 				public byte dataLength = (byte)3;
 				public ushort opCodeValue = (ushort)64777;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private byte _length = (byte)2;
 				private string _dataList = "00:00";
 				public const string constCmdName = "ATT_ReadByTypeRsp";
@@ -2478,7 +2494,7 @@ namespace BTool
 				public string cmdName = "ATT_ReadReq";
 				public byte dataLength = (byte)4;
 				public ushort opCodeValue = (ushort)64778;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				public const string constCmdName = "ATT_ReadReq";
 				private const string _connHandle_default = "0xFFFE";
@@ -2527,7 +2543,7 @@ namespace BTool
 				public string cmdName = "ATT_ReadRsp";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64779;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _value = "00:00";
 				public const string constCmdName = "ATT_ReadRsp";
 				private const string _connHandle_default = "0xFFFE";
@@ -2575,7 +2591,7 @@ namespace BTool
 				public string cmdName = "ATT_ReadBlobReq";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64780;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				public const string constCmdName = "ATT_ReadBlobReq";
 				private const string _connHandle_default = "0xFFFE";
@@ -2640,7 +2656,7 @@ namespace BTool
 				public string cmdName = "ATT_ReadBlobRsp";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64781;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _value = "00:00";
 				public const string constCmdName = "ATT_ReadBlobRsp";
 				private const string _connHandle_default = "0xFFFE";
@@ -2688,7 +2704,7 @@ namespace BTool
 				public string cmdName = "ATT_ReadMultiReq";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64782;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _handles = "0x0001;0x0002";
 				public const string constCmdName = "ATT_ReadMultiReq";
 				private const string _connHandle_default = "0xFFFE";
@@ -2737,7 +2753,7 @@ namespace BTool
 				public string cmdName = "ATT_ReadMultiRsp";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64783;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _values = "00:00";
 				public const string constCmdName = "ATT_ReadMultiRsp";
 				private const string _connHandle_default = "0xFFFE";
@@ -2785,7 +2801,7 @@ namespace BTool
 				public string cmdName = "ATT_ReadByGrpTypeReq";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64784;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _startHandle = (ushort)1;
 				private ushort _endHandle = ushort.MaxValue;
 				private string _groupType = "00:00";
@@ -2865,7 +2881,7 @@ namespace BTool
 				public string cmdName = "ATT_ReadByGrpTypeRsp";
 				public byte dataLength = (byte)3;
 				public ushort opCodeValue = (ushort)64785;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _dataList = "00:00";
 				public const string constCmdName = "ATT_ReadByGrpTypeRsp";
 				private const string _connHandle_default = "0xFFFE";
@@ -2930,7 +2946,7 @@ namespace BTool
 				public string cmdName = "ATT_WriteReq";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64786;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				private string _value = "00";
 				public const string constCmdName = "ATT_WriteReq";
@@ -3025,7 +3041,7 @@ namespace BTool
 				public string cmdName = "ATT_WriteRsp";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64787;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				public const string constCmdName = "ATT_WriteRsp";
 				private const string _connHandle_default = "0xFFFE";
 
@@ -3058,7 +3074,7 @@ namespace BTool
 				public string cmdName = "ATT_PrepareWriteReq";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64790;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				private string _value = "00:00";
 				public const string constCmdName = "ATT_PrepareWriteReq";
@@ -3138,7 +3154,7 @@ namespace BTool
 				public string cmdName = "ATT_PrepareWriteRsp";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64791;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				private string _value = "00:00";
 				public const string constCmdName = "ATT_PrepareWriteRsp";
@@ -3218,7 +3234,7 @@ namespace BTool
 				public string cmdName = "ATT_ExecuteWriteReq";
 				public byte dataLength = (byte)3;
 				public ushort opCodeValue = (ushort)64792;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				public const string constCmdName = "ATT_ExecuteWriteReq";
 				private const string _connHandle_default = "0xFFFE";
 				private HCICmds.ATT_ExecuteWriteFlags _flags;
@@ -3266,7 +3282,7 @@ namespace BTool
 				public string cmdName = "ATT_ExecuteWriteRsp";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64793;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				public const string constCmdName = "ATT_ExecuteWriteRsp";
 				private const string _connHandle_default = "0xFFFE";
 
@@ -3299,7 +3315,7 @@ namespace BTool
 				public string cmdName = "ATT_HandleValueNotification";
 				public byte dataLength = (byte)5;
 				public ushort opCodeValue = (ushort)64795;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				private string _value = "00";
 				public const string constCmdName = "ATT_HandleValueNotification";
@@ -3379,7 +3395,7 @@ namespace BTool
 				public string cmdName = "ATT_HandleValueIndication";
 				public byte dataLength = (byte)5;
 				public ushort opCodeValue = (ushort)64797;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				private string _value = "00";
 				public const string constCmdName = "ATT_HandleValueIndication";
@@ -3459,7 +3475,7 @@ namespace BTool
 				public string cmdName = "ATT_HandleValueConfirmation";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64798;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				public const string constCmdName = "ATT_HandleValueConfirmation";
 				private const string _connHandle_default = "0xFFFE";
 
@@ -3488,6 +3504,7 @@ namespace BTool
 			}
 		}
 		#endregion
+
 		#region GATTCmds
 		public class GATTCmds
 		{
@@ -3496,7 +3513,7 @@ namespace BTool
 				public string cmdName = "GATT_ExchangeMTU";
 				public byte dataLength = (byte)4;
 				public ushort opCodeValue = (ushort)64898;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _clientRxMTU = (ushort)23;
 				public const string constCmdName = "GATT_ExchangeMTU";
 				private const string _connHandle_default = "0xFFFE";
@@ -3545,7 +3562,7 @@ namespace BTool
 				public string cmdName = "GATT_DiscAllPrimaryServices";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64912;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				public const string constCmdName = "GATT_DiscAllPrimaryServices";
 				private const string _connHandle_default = "0xFFFE";
 
@@ -3578,7 +3595,7 @@ namespace BTool
 				public string cmdName = "GATT_DiscPrimaryServiceByUUID";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64902;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _value = "00";
 				public const string constCmdName = "GATT_DiscPrimaryServiceByUUID";
 				private const string _connHandle_default = "0xFFFE";
@@ -3627,7 +3644,7 @@ namespace BTool
 				public string cmdName = "GATT_FindIncludedServices";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64944;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _startHandle = (ushort)1;
 				private ushort _endHandle = ushort.MaxValue;
 				public const string constCmdName = "GATT_FindIncludedServices";
@@ -3692,7 +3709,7 @@ namespace BTool
 				public string cmdName = "GATT_DiscAllChars";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64946;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _startHandle = (ushort)1;
 				private ushort _endHandle = ushort.MaxValue;
 				public const string constCmdName = "GATT_DiscAllChars";
@@ -3757,7 +3774,7 @@ namespace BTool
 				public string cmdName = "GATT_DiscCharsByUUID";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64904;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _startHandle = (ushort)1;
 				private ushort _endHandle = ushort.MaxValue;
 				private string _type = "00:00";
@@ -3837,7 +3854,7 @@ namespace BTool
 				public string cmdName = "GATT_DiscAllCharDescs";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64900;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _startHandle = (ushort)1;
 				private ushort _endHandle = ushort.MaxValue;
 				public const string constCmdName = "GATT_DiscAllCharDescs";
@@ -3902,7 +3919,7 @@ namespace BTool
 				public string cmdName = "GATT_ReadCharValue";
 				public byte dataLength = (byte)4;
 				public ushort opCodeValue = (ushort)64906;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				public const string constCmdName = "GATT_ReadCharValue";
 				private const string _connHandle_default = "0xFFFE";
@@ -3951,7 +3968,7 @@ namespace BTool
 				public string cmdName = "GATT_ReadUsingCharUUID";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64948;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _startHandle = (ushort)1;
 				private ushort _endHandle = ushort.MaxValue;
 				private string _type = "00:00";
@@ -4031,7 +4048,7 @@ namespace BTool
 				public string cmdName = "GATT_ReadLongCharValue";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64908;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				public const string constCmdName = "GATT_ReadLongCharValue";
 				private const string _connHandle_default = "0xFFFE";
@@ -4096,7 +4113,7 @@ namespace BTool
 				public string cmdName = "GATT_ReadMultiCharValues";
 				public byte dataLength = (byte)2;
 				public ushort opCodeValue = (ushort)64910;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _handles = "0x0001;0x0002";
 				public const string constCmdName = "GATT_ReadMultiCharValues";
 				private const string _connHandle_default = "0xFFFE";
@@ -4145,7 +4162,7 @@ namespace BTool
 				public string cmdName = "GATT_WriteNoRsp";
 				public byte dataLength = (byte)4;
 				public ushort opCodeValue = (ushort)64950;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_WriteNoRsp";
@@ -4210,7 +4227,7 @@ namespace BTool
 				public string cmdName = "GATT_SignedWriteNoRsp";
 				public byte dataLength = (byte)6;
 				public ushort opCodeValue = (ushort)64952;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = (ushort)1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_SignedWriteNoRsp";
@@ -4275,7 +4292,7 @@ namespace BTool
 				public string cmdName = "GATT_WriteCharValue";
 				public byte dataLength = 4;
 				public ushort opCodeValue = (ushort)64914;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = 1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_WriteCharValue";
@@ -4320,7 +4337,7 @@ namespace BTool
 				public string cmdName = "GATT_WriteLongCharValue";
 				public byte dataLength = 6;
 				public ushort opCodeValue = (ushort)64918;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = 1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_WriteLongCharValue";
@@ -4375,7 +4392,7 @@ namespace BTool
 				public string cmdName = "GATT_ReliableWrites";
 				public byte dataLength = (byte)3;
 				public ushort opCodeValue = (ushort)64954;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				public HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement[] writeElement = new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement[5]
 				{
 					new HCICmds.GATTCmds.GATT_ReliableWrites.WriteElement()
@@ -4642,7 +4659,7 @@ namespace BTool
 				public string cmdName = "GATT_ReadCharDesc";
 				public byte dataLength = 4;
 				public ushort opCodeValue = (ushort)64956;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = 1;
 				public const string constCmdName = "GATT_ReadCharDesc";
 				private const string _connHandle_default = "0xFFFE";
@@ -4677,7 +4694,7 @@ namespace BTool
 				public string cmdName = "GATT_ReadLongCharDesc";
 				public byte dataLength = 6;
 				public ushort opCodeValue = (ushort)64958;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = 1;
 				public const string constCmdName = "GATT_ReadLongCharDesc";
 				private const string _connHandle_default = "0xFFFE";
@@ -4722,7 +4739,7 @@ namespace BTool
 				public string cmdName = "GATT_WriteCharDesc";
 				public byte dataLength = 4;
 				public ushort opCodeValue = (ushort)64960;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _value = "00";
 				public const string constCmdName = "GATT_WriteCharDesc";
 				private const string _connHandle_default = "0xFFFE";
@@ -4767,7 +4784,7 @@ namespace BTool
 				public string cmdName = "GATT_WriteLongCharDesc";
 				public byte dataLength = 6;
 				public ushort opCodeValue = (ushort)64962;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = 1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_WriteLongCharDesc";
@@ -4822,7 +4839,7 @@ namespace BTool
 				public string cmdName = "GATT_Notification";
 				public byte dataLength = 5;
 				public ushort opCodeValue = (ushort)64923;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = 1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_Notification";
@@ -4876,7 +4893,7 @@ namespace BTool
 				public string cmdName = "GATT_Indication";
 				public byte dataLength = 5;
 				public ushort opCodeValue = (ushort)64925;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _handle = 1;
 				private string _value = "00";
 				public const string constCmdName = "GATT_Indication";
@@ -5028,6 +5045,7 @@ namespace BTool
 			#endregion
 		}
 		#endregion
+
 		#region GAPCmds
 		public class GAPCmds
 		{
@@ -5398,7 +5416,7 @@ namespace BTool
 				public string cmdName = "GAP_TerminateLinkRequest";
 				public byte dataLength = (byte)3;
 				public ushort opCodeValue = (ushort)65034;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private HCICmds.GAP_DisconnectReason _discReason = HCICmds.GAP_DisconnectReason.Remote_User_Terminated;
 				public const string constCmdName = "GAP_TerminateLinkRequest";
 				private const string _connHandle_default = "0xFFFE";
@@ -5432,7 +5450,7 @@ namespace BTool
 				public string cmdName = "GAP_Authenticate";
 				public byte dataLength = 29;
 				public ushort opCodeValue = (ushort)65035;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private HCICmds.GAP_IOCaps _secReq_ioCaps = HCICmds.GAP_IOCaps.NoInputNoOutput;
 				private string _secReq_oob = "4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00";
 				private byte _secReq_authReq = 1;
@@ -5572,7 +5590,7 @@ namespace BTool
 				public string cmdName = "GAP_PasskeyUpdate";
 				public byte dataLength = (byte)8;
 				public ushort opCodeValue = (ushort)65036;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _passKey = "000000";
 				public const string constCmdName = "GAP_PasskeyUpdate";
 				private const string _connHandle_default = "0xFFFE";
@@ -5608,7 +5626,7 @@ namespace BTool
 				public string cmdName = "GAP_SlaveSecurityRequest";
 				public byte dataLength = (byte)3;
 				public ushort opCodeValue = (ushort)65037;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private byte _authReq = (byte)1;
 				public const string constCmdName = "GAP_SlaveSecurityRequest";
 				private const string _connHandle_default = "0xFFFE";
@@ -5642,7 +5660,7 @@ namespace BTool
 				public string cmdName = "GAP_Signable";
 				public byte dataLength = 7;
 				public ushort opCodeValue = (ushort)65038;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _csrk = "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00";
 				public const string constCmdName = "GAP_Signable";
 				private const string _connHandle_default = "0xFFFE";
@@ -5696,7 +5714,7 @@ namespace BTool
 				public string cmdName = "GAP_Bond";
 				public byte dataLength = 6;
 				public ushort opCodeValue = (ushort)65039;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _secInfo_LTK = "4d:9f:88:5a:6e:03:12:fe:00:00:00:00:00:00:00:00";
 				private ushort _secInfo_DIV = (ushort)4369;
 				private string _secInfo_RAND = "11:22:33:44:55:66:77:88";
@@ -5772,7 +5790,7 @@ namespace BTool
 				public string cmdName = "GAP_TerminateAuth";
 				public byte dataLength = (byte)3;
 				public ushort opCodeValue = (ushort)65040;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private HCICmds.GAP_SMPFailureTypes _reason = HCICmds.GAP_SMPFailureTypes.AUTH_REQ;
 				public const string constCmdName = "GAP_TerminateAuth";
 				private const string _connHandle_default = "0xFFFE";
@@ -5806,7 +5824,7 @@ namespace BTool
 				public string cmdName = "GAP_UpdateLinkParamReq";
 				public byte dataLength = (byte)10;
 				public ushort opCodeValue = (ushort)65041;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private ushort _intervalMin = (ushort)80;
 				private ushort _intervalMax = (ushort)160;
 				private ushort _connTimeout = (ushort)1000;
@@ -6113,6 +6131,7 @@ namespace BTool
 			#endregion
 		}
 		#endregion
+
 		#region UTILCmds
 		public class UTILCmds
 		{
@@ -6233,6 +6252,7 @@ namespace BTool
 			}
 		}
 		#endregion
+
 		#region HCIOtherCmds
 		public class HCIOtherCmds
 		{
@@ -6240,8 +6260,8 @@ namespace BTool
 			{
 				public string cmdName = "HCI_ReadRSSI";
 				public byte dataLength = 2;
-				public ushort opCodeValue = (ushort)5125;
-				private ushort _connHandle = (ushort)65534;
+				public ushort opCodeValue = (ushort)0x1405;
+				private ushort _connHandle = (ushort)0xFFFE;
 				public const string constCmdName = "HCI_ReadRSSI";
 				private const string _connHandle_default = "0xFFFE";
 
@@ -6263,7 +6283,7 @@ namespace BTool
 			public class HCIOther_LEClearWhiteList
 			{
 				public string cmdName = "HCI_LEClearWhiteList";
-				public ushort opCodeValue = (ushort)8208;
+				public ushort opCodeValue = (ushort)0x2010;
 				public const string constCmdName = "HCI_LEClearWhiteList";
 				public byte dataLength;
 
@@ -6277,11 +6297,12 @@ namespace BTool
 			public class HCIOther_LEAddDeviceToWhiteList
 			{
 				public string cmdName = "HCI_LEAddDeviceToWhiteList";
-				public byte dataLength = (byte)2;
-				public ushort opCodeValue = (ushort)8209;
-				private string _devAddr = "00:00:00:00:00:00";
+				public byte dataLength = 2;
+				public ushort opCodeValue = 0x2011;
 				public const string constCmdName = "HCI_LEAddDeviceToWhiteList";
-				public const byte addrSize = (byte)6;
+				public const byte addrSize = 6;
+
+				private string _devAddr = "00:00:00:00:00:00";
 				private HCICmds.HCI_LEAddressType _addrType;
 
 				[Description("HCI_LEAddDeviceToWhiteList")]
@@ -6425,6 +6446,7 @@ namespace BTool
 			}
 		}
 		#endregion
+
 		#region MISCCmds
 		public class MISCCmds
 		{
@@ -6490,6 +6512,7 @@ namespace BTool
 			}
 		}
 		#endregion
+
 		#region GAPEvts
 		public class GAPEvts
 		{
@@ -6498,7 +6521,7 @@ namespace BTool
 				public string cmdName = "GAP_AuthenticationComplete";
 				public byte dataLength = (byte)17;
 				public ushort opCodeValue = (ushort)1546;
-				private ushort _connHandle = (ushort)65534;
+				private ushort _connHandle = (ushort)0xFFFE;
 				private string _secInfo_LTK = "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00";
 				private string _secInfo_RAND = "00:00:00:00:00:00:00:00";
 				private string _devSecInfo_LTK = "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00";
@@ -6686,4 +6709,3 @@ namespace BTool
 		#endregion
 	}
 }
-

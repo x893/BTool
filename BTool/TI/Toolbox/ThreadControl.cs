@@ -18,15 +18,13 @@ namespace TI.Toolbox
 			PausedWithoutData,
 		}
 
-		public ManualResetEvent eventPause = new ManualResetEvent(false);
-		public ManualResetEvent eventExit = new ManualResetEvent(false);
+		public ManualResetEvent EventPause = new ManualResetEvent(false);
+		public ManualResetEvent EventExit = new ManualResetEvent(false);
 		public bool PauseThread;
 		public bool ExitThread;
 		public bool IdleThread;
 		public bool RunningThread;
 		public bool StopInProgress;
-
-		private const string moduleName = "ThreadControl";
 
 		public void Init()
 		{
@@ -35,8 +33,8 @@ namespace TI.Toolbox
 			IdleThread = true;
 			RunningThread = false;
 			StopInProgress = false;
-			eventPause.Reset();
-			eventExit.Reset();
+			EventPause.Reset();
+			EventExit.Reset();
 		}
 
 		public void Exit()
@@ -44,12 +42,12 @@ namespace TI.Toolbox
 			PauseThread = true;
 			IdleThread = true;
 			RunningThread = false;
-			eventExit.Set();
+			EventExit.Set();
 		}
 
-		public bool CheckForThreadIdle(ThreadControl.CheckIdleModes idleMode)
+		public bool CheckForThreadIdle(CheckIdleModes idleMode)
 		{
-			if (idleMode == ThreadControl.CheckIdleModes.PausedWithoutData)
+			if (idleMode == CheckIdleModes.PausedWithoutData)
 			{
 				if (!IdleThread)
 					return false;
@@ -59,27 +57,27 @@ namespace TI.Toolbox
 			return true;
 		}
 
-		public bool ControlThread(ThreadControl.ThreadCtrl threadCtrlMode)
+		public bool ControlThread(ThreadCtrl threadCtrlMode)
 		{
 			switch (threadCtrlMode)
 			{
-				case ThreadControl.ThreadCtrl.Pause:
+				case ThreadCtrl.Pause:
 					PauseThread = true;
-					eventPause.Reset();
+					EventPause.Reset();
 					break;
-				case ThreadControl.ThreadCtrl.Resume:
+				case ThreadCtrl.Resume:
 					PauseThread = false;
-					eventPause.Set();
+					EventPause.Set();
 					break;
-				case ThreadControl.ThreadCtrl.Stop:
+				case ThreadCtrl.Stop:
 					StopInProgress = true;
 					PauseThread = true;
 					StopInProgress = false;
 					break;
-				case ThreadControl.ThreadCtrl.Exit:
+				case ThreadCtrl.Exit:
 					ExitThread = true;
-					eventPause.Set();
-					eventExit.Set();
+					EventPause.Set();
+					EventExit.Set();
 					while (RunningThread)
 						Thread.Sleep(100);
 					break;

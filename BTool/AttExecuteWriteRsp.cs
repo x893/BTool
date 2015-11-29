@@ -2,9 +2,16 @@
 {
 	public class AttExecuteWriteRsp
 	{
+		public struct RspInfo
+		{
+			public bool success;
+			public HCIReplies.LE_ExtEventHeader header;
+			public HCIReplies.HCI_LE_ExtEvent.ATT_ExecuteWriteRsp aTT_ExecuteWriteRsp;
+		}
+		public AttExecuteWriteRspDelegate AttExecuteWriteRspCallback;
+		public delegate void AttExecuteWriteRspDelegate(RspInfo rspInfo);
+
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
-		private const string moduleName = "AttExecuteWriteRsp";
-		public AttExecuteWriteRsp.AttExecuteWriteRspDelegate AttExecuteWriteRspCallback;
 
 		public bool GetATT_ExecuteWriteRsp(HCIReplies hciReplies, ref bool dataFound)
 		{
@@ -46,15 +53,6 @@
 				header = hciReplies.HciLeExtEvent.Header,
 				aTT_ExecuteWriteRsp = hciReplies.HciLeExtEvent.AttExecuteWriteRsp
 			});
-		}
-
-		public delegate void AttExecuteWriteRspDelegate(AttExecuteWriteRsp.RspInfo rspInfo);
-
-		public struct RspInfo
-		{
-			public bool success;
-			public HCIReplies.LE_ExtEventHeader header;
-			public HCIReplies.HCI_LE_ExtEvent.ATT_ExecuteWriteRsp aTT_ExecuteWriteRsp;
 		}
 	}
 }

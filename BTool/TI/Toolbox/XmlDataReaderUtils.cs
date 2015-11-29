@@ -5,15 +5,14 @@ namespace TI.Toolbox
 {
 	public class XmlDataReaderUtils
 	{
-		private MsgBox msgBox = new MsgBox();
-		public const string moduleName = "XmlDataReaderUtils";
+		private MsgBox m_msgBox = new MsgBox();
 
 		public bool NoTagValueFound(string tagName, string xmlFileName, string moduleName)
 		{
 			string msg = "XML File Read Error\nNo " + tagName + " Found\n" + xmlFileName + "\n";
 			if (moduleName != null)
 				msg += (moduleName + "\n");
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Error, msg);
+			m_msgBox.UserMsgBox(SharedObjects.MainWin, MsgBox.MsgTypes.Error, msg);
 			return false;
 		}
 
@@ -25,14 +24,18 @@ namespace TI.Toolbox
 			string msg = str + "XML Filename = " + xmlFileName + "\n";
 			if (moduleName != null)
 				msg += (moduleName + "\n");
-			msgBox.UserMsgBox(SharedObjects.mainWin, MsgBox.MsgTypes.Warning, msg);
+			m_msgBox.UserMsgBox(
+				SharedObjects.MainWin,
+				MsgBox.MsgTypes.Warning,
+				msg
+				);
 			return true;
 		}
 
 		public bool FileVersionError(string xmlFormatVersion, string fileVersion, string xmlFileName, string moduleName)
 		{
-			msgBox.UserMsgBox(
-				SharedObjects.mainWin,
+			m_msgBox.UserMsgBox(
+				SharedObjects.MainWin,
 				MsgBox.MsgTypes.Error,
 				"XML File Version Error\nWas Expecting Version " + xmlFormatVersion + " But Read " + fileVersion + "\n" + xmlFileName + "\n" + moduleName + "\n"
 				);

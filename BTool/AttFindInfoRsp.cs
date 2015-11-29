@@ -5,29 +5,36 @@ namespace BTool
 {
 	public class AttFindInfoRsp
 	{
-		private DataUtils dataUtils = new DataUtils();
-		private DeviceFormUtils devUtils = new DeviceFormUtils();
+		public struct RspInfo
+		{
+			public bool success;
+			public HCIReplies.LE_ExtEventHeader header;
+			public HCIReplies.HCI_LE_ExtEvent.ATT_FindInfoRsp aTT_FindInfoRsp;
+		}
+		public delegate void AttFindInfoRspDelegate(RspInfo rspInfo);
+		public AttFindInfoRspDelegate AttFindInfoRspCallback;
+
+		private DataUtils m_dataUtils = new DataUtils();
+		private DeviceFormUtils m_deviceFormUtils = new DeviceFormUtils();
 		private RspHandlersUtils rspHdlrsUtils = new RspHandlersUtils();
-		private const string moduleName = "AttFindInfoRsp";
-		public AttFindInfoRsp.AttFindInfoRspDelegate AttFindInfoRspCallback;
-		private AttrUuidUtils attrUuidUtils;
-		private AttrDataUtils attrDataUtils;
-		private SendCmds sendCmds;
-		private DeviceForm devForm;
+		private AttrUuidUtils m_attrUuidUtils;
+		private AttrDataUtils m_attrDataUtils;
+		private SendCmds m_sendCmds;
+		private DeviceForm m_deviceForm;
 
 		public AttFindInfoRsp(DeviceForm deviceForm)
 		{
-			devForm = deviceForm;
-			sendCmds = new SendCmds(deviceForm);
-			attrUuidUtils = new AttrUuidUtils();
-			attrDataUtils = new AttrDataUtils(deviceForm);
+			m_deviceForm = deviceForm;
+			m_sendCmds = new SendCmds(deviceForm);
+			m_attrUuidUtils = new AttrUuidUtils();
+			m_attrDataUtils = new AttrDataUtils(deviceForm);
 		}
 
 		public bool GetATT_FindInfoRsp(HCIReplies hciReplies, ref bool dataFound)
 		{
 			dataFound = false;
-			bool flag;
-			if (flag = rspHdlrsUtils.CheckValidResponse(hciReplies))
+			bool success;
+			if (success = rspHdlrsUtils.CheckValidResponse(hciReplies))
 			{
 				HCIReplies.HCI_LE_ExtEvent hciLeExtEvent = hciReplies.HciLeExtEvent;
 				HCIReplies.HCI_LE_ExtEvent.ATT_FindInfoRsp attFindInfoRsp = hciLeExtEvent.AttFindInfoRsp;
@@ -43,12 +50,12 @@ namespace BTool
 								Dictionary<string, DataAttr> tmpAttrDict = new Dictionary<string, DataAttr>();
 								foreach (HCIReplies.HandleData handleData in attFindInfoRsp.HandleData)
 								{
-									string attrKey = attrUuidUtils.GetAttrKey(attFindInfoRsp.AttMsgHdr.ConnHandle, handleData.Handle);
+									string attrKey = m_attrUuidUtils.GetAttrKey(attFindInfoRsp.AttMsgHdr.ConnHandle, handleData.Handle);
 									DataAttr dataAttr = new DataAttr();
 									bool dataChanged = false;
-									if (!attrDataUtils.GetDataAttr(ref dataAttr, ref dataChanged, attrKey, "AttFindInfoRsp"))
+									if (!m_attrDataUtils.GetDataAttr(ref dataAttr, ref dataChanged, attrKey, "AttFindInfoRsp"))
 									{
-										flag = false;
+										success = false;
 										break;
 									}
 									else
@@ -56,31 +63,31 @@ namespace BTool
 										dataAttr.Key = attrKey;
 										dataAttr.ConnHandle = attFindInfoRsp.AttMsgHdr.ConnHandle;
 										dataAttr.Handle = handleData.Handle;
-										dataAttr.Uuid = devUtils.UnloadColonData(handleData.Data, false);
-										dataAttr.UuidHex = dataUtils.GetStringFromBytes(handleData.Data, true);
-										dataAttr.IndentLevel = attrUuidUtils.GetIndentLevel(dataAttr.UuidHex);
-										dataAttr.UuidDesc = attrUuidUtils.GetUuidDesc(dataAttr.UuidHex);
-										dataAttr.ValueDesc = attrUuidUtils.GetUuidValueDesc(dataAttr.UuidHex);
-										dataAttr.ForeColor = attrUuidUtils.GetForegroundColor(dataAttr.UuidHex);
-										dataAttr.BackColor = attrUuidUtils.GetBackgroundColor(dataAttr.UuidHex);
-										dataAttr.ValueDisplay = attrUuidUtils.GetValueDsp(dataAttr.UuidHex);
-										dataAttr.ValueEdit = attrUuidUtils.GetValueEdit(dataAttr.UuidHex);
-										if (devForm.attrData.sendAutoCmds || hciReplies.CmdType == TxDataOut.CmdType.DiscUuidAndValues)
-											sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_ReadLongCharValue()
+										dataAttr.Uuid = m_deviceFormUtils.UnloadColonData(handleData.Data, false);
+										dataAttr.UuidHex = m_dataUtils.GetStringFromBytes(handleData.Data, true);
+										dataAttr.IndentLevel = m_attrUuidUtils.GetIndentLevel(dataAttr.UuidHex);
+										dataAttr.UuidDesc = m_attrUuidUtils.GetUuidDesc(dataAttr.UuidHex);
+										dataAttr.ValueDesc = m_attrUuidUtils.GetUuidValueDesc(dataAttr.UuidHex);
+										dataAttr.ForeColor = m_attrUuidUtils.GetForegroundColor(dataAttr.UuidHex);
+										dataAttr.BackColor = m_attrUuidUtils.GetBackgroundColor(dataAttr.UuidHex);
+										dataAttr.ValueDisplay = m_attrUuidUtils.GetValueDsp(dataAttr.UuidHex);
+										dataAttr.ValueEdit = m_attrUuidUtils.GetValueEdit(dataAttr.UuidHex);
+										if (m_deviceForm.attrData.sendAutoCmds || hciReplies.CmdType == TxDataOut.CmdTypes.DiscUuidAndValues)
+											m_sendCmds.SendGATT(new HCICmds.GATTCmds.GATT_ReadLongCharValue()
 											{
 												connHandle = dataAttr.ConnHandle,
 												handle = dataAttr.Handle
-											}, TxDataOut.CmdType.DiscUuidAndValues, (SendCmds.SendCmdResult)null);
-										if (!attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr, dataChanged, attrKey))
+											}, TxDataOut.CmdTypes.DiscUuidAndValues, (SendCmds.SendCmdResult)null);
+										if (!m_attrDataUtils.UpdateTmpAttrDict(ref tmpAttrDict, dataAttr, dataChanged, attrKey))
 										{
-											flag = false;
+											success = false;
 											break;
 										}
 									}
 								}
-								if (!attrDataUtils.UpdateAttrDict(tmpAttrDict))
+								if (!m_attrDataUtils.UpdateAttrDict(tmpAttrDict))
 								{
-									flag = false;
+									success = false;
 									break;
 								}
 								else
@@ -93,14 +100,14 @@ namespace BTool
 							SendRspCallback(hciReplies, true);
 							break;
 						default:
-							flag = rspHdlrsUtils.UnexpectedRspEventStatus(hciReplies, "AttFindInfoRsp");
+							success = rspHdlrsUtils.UnexpectedRspEventStatus(hciReplies, "AttFindInfoRsp");
 							break;
 					}
 				}
 			}
-			if (!flag && dataFound)
+			if (!success && dataFound)
 				SendRspCallback(hciReplies, false);
-			return flag;
+			return success;
 		}
 
 		private void SendRspCallback(HCIReplies hciReplies, bool success)
@@ -113,15 +120,6 @@ namespace BTool
 				header = hciReplies.HciLeExtEvent.Header,
 				aTT_FindInfoRsp = hciReplies.HciLeExtEvent.AttFindInfoRsp
 			});
-		}
-
-		public delegate void AttFindInfoRspDelegate(AttFindInfoRsp.RspInfo rspInfo);
-
-		public struct RspInfo
-		{
-			public bool success;
-			public HCIReplies.LE_ExtEventHeader header;
-			public HCIReplies.HCI_LE_ExtEvent.ATT_FindInfoRsp aTT_FindInfoRsp;
 		}
 	}
 }
